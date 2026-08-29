@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>NCS 전술 고양이 요원: 암호 코드 해독</title>
+    <style>
+        :root {
+            --matrix-green: #00ff66;
+            --matrix-dark: #05080e;
+            --matrix-panel: #0d1527;
+            --neon-blue: #00d2ff;
+            --neon-red: #ff3838;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--matrix-dark);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #070c16;
+            border-left: 2px solid #14233c;
+            border-right: 2px solid #14233c;
+        }
+
+        /* 통제실 상단 해킹 모니터 대시보드 */
+        #hacker-dashboard {
+            background: var(--matrix-panel);
+            border-bottom: 3px solid var(--matrix-green);
+            padding: 12px;
+            text-align: center;
+            z-index: 5;
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.15);
+        }
+
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .status-active {
+            color: var(--matrix-green);
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.3; }
+        }
+
+        .system-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px var(--matrix-green);
+        }
+
+        .stats-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(0, 255, 102, 0.2);
+        }
+
+        .text-green { color: var(--matrix-green); font-weight: bold; }
+        .text-red { color: var(--neon-red); font-weight: bold; }
+
+        /* 리듬/암호 해독 노드 구역 */
+        #decryption-zone {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(180deg, rgba(5,8,14,1) 0%, rgba(9,17,32,1) 100%);
+            overflow: hidden;
+        }
+
+        /* 모니터 주사선 글리치 효과 */
+        #decryption-zone::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* 하단 터치 판정선 (해독 트리거 킷) */
+        #judgment-line {
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            height: 4px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            z-index: 3;
+        }
+
+        /* 터치 버튼 콘솔 레일 (4가지 색상/키) */
+        #control-console {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: #090f1d;
+            display: flex;
+            border-top: 1px solid #1e293b;
+            z-index: 4;
+        }
+
+        .console-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-right: 1px solid #14233c;
+            transition: background 0.1s;
+            position: relative;
+        }
+        .console-btn:last-child { border-right: none; }
+
+        .c-red { color: #ff4757; }
+        .c-blue { color: #2ed573; } 
+        .c-yellow { color: #ffa502; }
+        .c-purple { color: #1e90ff; }
+
+        .console-btn:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-label {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            color: #94a3b8;
+        }
+
+        /* 떨어지는 암호화 코드 노드 */
+        .code-node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px currentColor;
+            background: rgba(5, 8, 14, 0.9);
+            border: 2px solid currentColor;
+            z-index: 2;
+        }
+
+        /* 판정 효과 메시지 */
+        .judge-rating {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 2rem;
+            font-weight: bold;
+            font-style: italic;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        @keyframes ratingPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); translateY(-20px); }
+        }
+
+        /* 인트로/오버레이 시스템 */
+        #overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 8, 14, 0.97);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            padding: 20px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            color: var(--matrix-green);
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--matrix-green);
+            color: var(--matrix-dark);
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.5);
+        }
+
+        .intro-desc {
+            text-align: center;
+            line-height: 1.6;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin: 15px 0;
+        }
+
+        .terminal-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 102, 0.3);
+            padding: 15px;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="hacker-dashboard">
+            <div class="header-status">
+                <span>NCS SECURE NETWORK v4.22</span>
+                <span id="network-status" class="status-active">SYS_HACKING_RUNNING</span>
+            </div>
+            <div class="system-title">📟 방화벽 암호 코드 해독 📟</div>
+            <div class="stats-grid">
+                <div class="stat-box">해독률: <span id="progress-val" class="text-green">0%</span></div>
+                <div class="stat-box">과부하 방지: <span id="hp-val" class="text-green">100%</span></div>
+                <div class="stat-box">방화벽 스코어: <span id="score-val" style="color:var(--neon-blue); font-weight:bold;">0</span></div>
+            </div>
+        </div>
+
+        <div id="decryption-zone">
+            <div id="judgment-line"></div>
+            <div id="rating-display" class="judge-rating">PERFECT</div>
+        </div>
+
+        <div id="control-console">
+            <div class="console-btn c-red" onclick="triggerInput(0)">
+                <span style="font-size: 1.6rem;">🔴</span>
+                <span class="btn-label">CODE_A</span>
+            </div>
+            <div class="console-btn c-blue" onclick="triggerInput(1)">
+                <span style="font-size: 1.6rem;">🟢</span>
+                <span class="btn-label">CODE_B</span>
+            </div>
+            <div class="console-btn c-yellow" onclick="triggerInput(2)">
+                <span style="font-size: 1.6rem;">🟡</span>
+                <span class="btn-label">CODE_C</span>
+            </div>
+            <div class="console-btn c-purple" onclick="triggerInput(3)">
+                <span style="font-size: 1.6rem;">🔵</span>
+                <span class="btn-label">CODE_D</span>
+            </div>
+        </div>
+
+        <div id="overlay">
+            <h2 id="overlay-title" style="color: var(--matrix-green); margin-bottom: 10px; text-align:center;">ACCESS_DENIED: 보안망 감지</h2>
+            
+            <div id="game-result-box" class="terminal-box" style="display:none; text-align: center;">
+                <h3 style="color:var(--neon-blue); margin-bottom:10px;">📊 전술 작전 해독 리포트</h3>
+                <p>최종 해독률: <span id="res-progress" class="text-green" style="font-size:1.1rem;">0%</span></p>
+                <p>무력화한 방화벽 수: <span id="res-score" style="color:#fff; font-weight:bold;">0</span>개</p>
+                <p>시스템 침투 판정: <span id="res-grade" style="font-weight:bold;">RANK_F</span></p>
+            </div>
+
+            <div id="overlay-guide">
+                <p class="intro-desc">
+                    <b>"어두운 지휘 통제실 내부, 초록 모니터의 암호 회로를 오버로드하라!"</b><br>
+                    적의 방화벽을 우회하기 위해 위에서 떨어지는 컬러 암호 코드가 <span style="color:var(--neon-blue); font-weight:bold;">파란색 판정선</span>에 겹치는 타이밍에 맞춰 하단 콘솔 버튼을 터치하세요!
+                </p>
+                <div class="terminal-box">
+                    ⚡ <b>NCS 요원 전술 작전 수칙:</b><br>
+                    • 정확한 타이밍에 터치하면 <b>해독률(%)</b>과 점수가 올라갑니다.<br>
+                    • 코드를 놓치거나 잘못 누르면 메인 컴퓨터가 <b>과부하(HP 감소)</b>됩니다.<br>
+                    • 해독률이 100%가 되면 방화벽이 영구 해제되며 다음 더 빠른 암호 단계(Stage)로 진입합니다!
+                </div>
+            </div>
+
+            <button id="action-btn" class="btn" onclick="startHacking()">침투 개시 (Hack)</button>
+        </div>
+    </div>
+
+    <script>
+        const nodeTypes = [
+            { index: 0, emoji: '🔴', color: '#ff4757', xKey: '12.5%' },
+            { index: 1, emoji: '🟢', color: '#2ed573', xKey: '37.5%' },
+            { index: 2, emoji: '🟡', color: '#ffa502', xKey: '62.5%' },
+            { index: 3, emoji: '🔵', color: '#1e90ff', xKey: '87.5%' }
+        ];
+
+        let gameStage = 1;
+        let score = 0;
+        let hackProgress = 0; 
+        let hp = 100;
+        let isPlaying = false;
+        
+        let nodesList = [];
+        let spawnTimer = null;
+        let mainLoopTimer = null;
+        
+        let nodeSpeed = 3.5; 
+        let spawnInterval = 1200; 
+
+        const decryptionZone = document.getElementById('decryption-zone');
+        const judgmentLine = document.getElementById('judgment-line');
+        const ratingDisplay = document.getElementById('rating-display');
+        
+        const progressVal = document.getElementById('progress-val');
+        const hpVal = document.getElementById('hp-val');
+        const scoreVal = document.getElementById('score-val');
+        const networkStatus = document.getElementById('network-status');
+
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayGuide = document.getElementById('overlay-guide');
+        const gameResultBox = document.getElementById('game-result-box');
+        const actionBtn = document.getElementById('action-btn');
+
+        window.addEventListener('keydown', (e) => {
+            if(!isPlaying) return;
+            if(e.key.toLowerCase() === 'a') triggerInput(0);
+            if(e.key.toLowerCase() === 's') triggerInput(1);
+            if(e.key.toLowerCase() === 'd') triggerInput(2);
+            if(e.key.toLowerCase() === 'f') triggerInput(3);
+        });
+
+        function startHacking() {
+            gameStage = 1;
+            score = 0;
+            hackProgress = 0;
+            hp = 100;
+            isPlaying = true;
+            nodesList = [];
+            nodeSpeed = 3.8;
+            spawnInterval = 1100;
+
+            decryptionZone.querySelectorAll('.code-node').forEach(n => n.remove());
+            overlay.style.display = 'none';
+
+            updateUI();
+
+            clearInterval(spawnTimer);
+            clearInterval(mainLoopTimer);
+            
+            mainLoopTimer = setInterval(updatePhysics, 1000 / 60);
+            startSpawnRoutine();
+        }
+
+        function startSpawnRoutine() {
+            clearInterval(spawnTimer);
+            spawnTimer = setInterval(() => {
+                if(!isPlaying) return;
+                createCodeNode();
+            }, spawnInterval);
+        }
+
+        function createCodeNode() {
+            const randomType = nodeTypes[Math.floor(Math.random() * nodeTypes.length)];
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'code-node';
+            nodeEl.style.color = randomType.color;
+            nodeEl.textContent = randomType.emoji;
+            nodeEl.style.left = randomType.xKey;
+            nodeEl.style.top = '0px';
+
+            decryptionZone.appendChild(nodeEl);
+
+            nodesList.push({
+                element: nodeEl,
+                typeIndex: randomType.index,
+                yPos: 0
+            });
+        }
+
+        function updatePhysics() {
+            const zoneHeight = decryptionZone.clientHeight;
+
+            for (let i = nodesList.length - 1; i >= 0; i--) {
+                let node = nodesList[i];
+                node.yPos += nodeSpeed;
+                node.element.style.top = node.yPos + 'px';
+
+                if (node.yPos > zoneHeight - 30) {
+                    node.element.remove();
+                    nodesList.splice(i, 1);
+                    triggerRating('OVERLOAD_MISS', '#ff3838');
+                    applyDamage(8);
+                }
+            }
+        }
+
+        function triggerInput(btnIndex) {
+            if (!isPlaying) return;
+
+            const zoneHeight = decryptionZone.clientHeight;
+            const judgeY = zoneHeight - 80; 
+            const tolerance = 35; 
+
+            let hitFound = false;
+
+            for (let i = 0; i < nodesList.length; i++) {
+                let node = nodesList[i];
+                
+                if (node.typeIndex === btnIndex) {
+                    const diff = Math.abs(node.yPos - judgeY);
+
+                    if (diff < tolerance) {
+                        hitFound = true;
+                        node.element.remove();
+                        nodesList.splice(i, 1);
+
+                        if (diff < 12) {
+                            triggerRating('PERFECT_DECODE', '#00ff66');
+                            score += 15;
+                            addProgress(4);
+                        } else if (diff < 24) {
+                            triggerRating('GREAT_DECODE', '#00d2ff');
+                            score += 10;
+                            addProgress(2);
+                        } else {
+                            triggerRating('GOOD_LINK', '#00ff66');
+                            score += 5;
+                            addProgress(1);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!hitFound) {
+                triggerRating('CONSOLE_ERROR', '#ff3838');
+                applyDamage(4);
+            }
+
+            updateUI();
+        }
+
+        function triggerRating(text, color) {
+            ratingDisplay.textContent = text;
+            ratingDisplay.style.color = color;
+            ratingDisplay.style.animation = 'none';
+            void ratingDisplay.offsetWidth; 
+            ratingDisplay.style.animation = 'ratingPop 0.4s ease-out forwards';
+        }
+
+        function addProgress(amt) {
+            hackProgress += amt;
+            if (hackProgress >= 100) {
+                hackProgress = 0;
+                gameStage++;
+                nodeSpeed += 0.6;
+                spawnInterval = Math.max(500, spawnInterval - 150);
+                triggerRating(`STAGE_${gameStage}_OVERDRIVE`, '#ffd32a');
+                startSpawnRoutine();
+            }
+        }
+
+        function applyDamage(amt) {
+            hp = Math.max(0, hp - amt);
+            if (hp <= 0) {
+                endHacking();
+            }
+        }
+
+        function updateUI() {
+            progressVal.textContent = hackProgress + '%';
+            hpVal.textContent = hp + '%';
+            scoreVal.textContent = score;
+
+            if (hp <= 30) {
+                hpVal.className = 'text-red';
+                networkStatus.textContent = 'SYS_CRITICAL_OVERHEAT';
+                networkStatus.style.color = '#ff3838';
+            } else {
+                networkStatus.textContent = `SYS_STAGE_${gameStage}_HACKING`;
+                networkStatus.style.color = '#00ff66';
+            }
+        }
+
+        function endHacking() {
+            isPlaying = false;
+            clearInterval(spawnTimer);
+            clearInterval(mainLoopTimer);
+
+            let rank = 'RANK_F (HACK_FAIL)';
+            if (score > 800) rank = 'RANK_S (LEGEND_HACKER)';
+            else if (score > 500) rank = 'RANK_A (ELITE_AGENT)';
+            else if (score > 300) rank = 'RANK_B (EXPERT_AGENT)';
+            else if (score > 150) rank = 'RANK_C (FIELD_AGENT)';
+
+            document.getElementById('res-progress').textContent = `STAGE ${gameStage} (${hackProgress}%)`;
+            document.getElementById('res-score').textContent = score;
+            const gr = document.getElementById('res-grade');
+            gr.textContent = rank;
+            
+            if(score > 500) gr.style.color = '#00ff66';
+            else if(score > 150) gr.style.color = '#00d2ff';
+            else gr.style.color = '#ff3838';
+
+            overlayTitle.innerHTML = '🚨 SYSTEM_OVERHEAT: 과부하 전력 차단 🚨';
+            overlayGuide.style.display = 'none';
+            gameResultBox.style.display = 'block';
+            actionBtn.textContent = '시스템 재접속 (Retry)';
+            overlay.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
