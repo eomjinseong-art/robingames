@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스파이 고양이 포포와 지지: 데스 미로 50 (오류 수정본)</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+        #game-container {
+            text-align: center;
+            position: relative;
+        }
+        #hud {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #222;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            border: 1px solid #333;
+        }
+        canvas {
+            border: 4px solid #cc2e2e;
+            background-color: #0b0b0b;
+            box-shadow: 0 0 30px rgba(238, 82, 83, 0.3);
+            border-radius: 8px;
+        }
+        #overlay {
+            position: absolute;
+            top: 51px;
+            left: 0;
+            width: 600px;
+            height: 600px;
+            background: rgba(15, 15, 15, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .btn {
+            background-color: #ee5253;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn:hover { background-color: #ff9f43; transform: scale(1.05); }
+        .char-select-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .char-box {
+            border: 2px solid #444;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #222;
+            width: 140px;
+            transition: 0.3s;
+        }
+        .char-box:hover { border-color: #ee5253; background: #2d1f1f; }
+        .char-box h3 { margin: 5px 0; }
+        .char-box p { font-size: 12px; color: #aaa; margin: 5px 0; }
+        .hidden { display: none !important; }
+        .status-val { color: #ff9f43; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="hud">
+        <div>STAGE: <span id="ui-stage" class="status-val">1</span>/50</div>
+        <div>HP: <span id="ui-hp" style="color:#ee5253;">❤️❤️❤️</span></div>
+        <div>BUFF: <span id="ui-buff" class="status-val">None</span></div>
+        <div>메디컬킷: <span id="ui-kit" style="color:#1dd1a1;">0</span>개</div>
+    </div>
+    
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+    <div id="overlay">
+        <h1 id="overlay-title">스파이 고양이: 데스 미로 50</h1>
+        <p id="overlay-desc">출격할 요원을 선택하면 작전이 즉시 시작됩니다.</p>
+        
+        <div id="char-select" class="char-select-container">
+            <div class="char-box" onclick="selectCharacter('popo')">
+                <div style="font-size: 40px;">🐱</div>
+                <h3>포포 (통통 랙돌)</h3>
+                <p>맷집 특화<br>기본 체력 하트 4칸</p>
+            </div>
+            <div class="char-box" onclick="selectCharacter('jiji')">
+                <div style="font-size: 40px;">🐈</div>
+                <h3>지지 (날씬 랙돌)</h3>
+                <p>기동성 특화<br>이동 딜레이 감소</p>
+            </div>
+        </div>
+
+        <div id="reward-zone" class="hidden" style="font-size: 50px; margin: 15px;">🍢🍖✨</div>
+        <button id="overlay-btn" class="btn hidden" onclick="handleOverlayButton()">작전 시작</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const GRID_SIZE = 15; 
+const TILE_COUNT = 40; 
+let currentStage = 1;
+let gameState = 'CHAR_SELECT'; 
+
+let player, enemies, items, traps, fireballs, exitPortal, maze;
+let selectedCat = 'popo';
+
+const keysPressed = {};
+let moveTimer = 0;
+
+// 미로 알고리즘 데이터 생성
+function generateMaze() {
+    let map = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+    for(let i=0; i<GRID_SIZE; i++) {
+        map[0][i] = 1; map[GRID_SIZE-1][i] = 1;
+        map[i][0] = 1; map[i][GRID_SIZE-1] = 1;
+    }
+    let density = currentStage >= 40 ? 1.5 : 2;
+    for(let y=2; y<GRID_SIZE-2; y+=2) {
+        for(let x=2; x<GRID_SIZE-2; x+=2) {
+            map[y][x] = 1;
+            let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+            let d = dirs[Math.floor(Math.random() * dirs.length)];
+            if(Math.random() * density > 0.5) map[y+d[1]][x+d[0]] = 1;
+        }
+    }
+    map[1][1] = 0; map[1][2] = 0; map[2][1] = 0;
+    map[GRID_SIZE-2][GRID_SIZE-2] = 0;
+    return map;
+}
+
+// ⭐️ 핵심 수정 포인트: 캐릭터 클릭 시 "작전 시작" 버튼 단계를 생략하고 즉시 인게임으로 진입하도록 파이프라인 수정
+function selectCharacter(cat) {
+    selectedCat = cat;
+    gameState = 'PLAYING'; // 게임 상태를 즉시 플레이 중으로 전환
+    
+    // UI 및 오버레이 즉각 숨김 처리
+    document.getElementById('overlay').classList.add('hidden');
+    
+    // 인게임 엔진 데이터 로드
+    initGame(currentStage);
+}
+
+function initGame(stage) {
+    maze = generateMaze();
+    fireballs = [];
+    
+    let maxHp = (selectedCat === 'popo') ? 4 : 3;
+    player = {
+        x: 1, y: 1,
+        icon: (selectedCat === 'popo') ? '🐱' : '🐈',
+        hp: maxHp,
+        maxHp: maxHp,
+        medicalKits: 0,
+        speedBuffTime: 0,
+        trapTime: 0,
+        moveDelay: (selectedCat === 'jiji') ? 6 : 9 
+    };
+
+    exitPortal = { x: GRID_SIZE-2, y: GRID_SIZE-2 };
+
+    // 아이템 생성
+    items = [];
+    let itemTypes = ['POTION', 'FLASHLIGHT'];
+    let itemCount = stage >= 40 ? 1 : 2; 
+    for(let i=0; i<itemCount; i++) {
+        let rx, ry;
+        do {
+            rx = Math.floor(Math.random() * (GRID_SIZE-2)) + 1;
+            ry = Math.floor(Math.random() * (GRID_SIZE-2)) + 1;
+        } while(maze[ry][rx] === 1 || (rx===1 && ry===1));
+        items.push({ x: rx, y: ry, type: itemTypes[i % itemTypes.length] });
+    }
+
+    // 함정 생성
+    traps = [];
+    let trapCount = Math.min(Math.floor(stage / 3) + 2, 8);
+    for(let i=0; i<trapCount; i++) {
+        let rx, ry;
+        do {
+            rx = Math.floor(Math.random() * (GRID_SIZE-2)) + 1;
+            ry = Math.floor(Math.random() * (GRID_SIZE-2)) + 1;
+        } while(maze[ry][rx] === 1 || (rx===1 && ry===1) || (rx===exitPortal.x && ry===exitPortal.y));
+        traps.push({ x: rx, y: ry });
+    }
+
+    // 악당 스폰
+    enemies = [];
+    let enemyCount = Math.min(Math.floor(stage / 5) + 2, 7); 
+    if(stage === 50) enemyCount = 1; 
+
+    for(let i=0; i<enemyCount; i++) {
+        let rx, ry;
+        do {
+            let zones = [[GRID_SIZE-2, 1], [1, GRID_SIZE-2], [GRID_SIZE-2, GRID_SIZE-2], [Math.floor(GRID_SIZE/2), GRID_SIZE-2]];
+            let selectedZone = zones[Math.floor(Math.random() * zones.length)];
+            rx = selectedZone[0];
+            ry = selectedZone[1];
+        } while(maze[ry][rx] === 1);
+
+        enemies.push({
+            x: rx, y: ry,
+            isBoss: (stage === 50),
+            moveCooldown: 0,
+            fireCooldown: 0
+        });
+    }
+
+    updateUI();
+}
+
+window.addEventListener('keydown', (e) => {
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        keysPressed[e.key] = true;
+    }
+});
+window.addEventListener('keyup', (e) => {
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+        keysPressed[e.key] = false;
+    }
+});
+
+function handlePlayerMovement() {
+    if(gameState !== 'PLAYING') return;
+
+    if(player.trapTime > 0) {
+        player.trapTime--;
+        document.getElementById('ui-buff').innerText = `🕸️ 함정 속박 (${Math.ceil(player.trapTime/60)}초)`;
+        return;
+    }
+
+    if(player.speedBuffTime > 0) {
+        player.speedBuffTime--;
+        if(player.speedBuffTime === 0) document.getElementById('ui-buff').innerText = "None";
+    }
+
+    moveTimer++;
+    let currentDelay = player.speedBuffTime > 0 ? player.moveDelay / 2 : player.moveDelay;
+
+    if(moveTimer >= currentDelay) {
+        let nextX = player.x;
+        let nextY = player.y;
+        let moved = false;
+
+        if(keysPressed['ArrowUp']) { nextY--; moved = true; }
+        else if(keysPressed['ArrowDown']) { nextY++; moved = true; }
+        else if(keysPressed['ArrowLeft']) { nextX--; moved = true; }
+        else if(keysPressed['ArrowRight']) { nextX++; moved = true; }
+
+        if(moved && maze[nextY][nextX] !== 1) {
+            player.x = nextX;
+            player.y = nextY;
+            moveTimer = 0;
+            checkCollisions();
+        }
+    }
+}
+
+function checkCollisions() {
+    for(let i=0; i<traps.length; i++) {
+        if(player.x === traps[i].x && player.y === traps[i].y) {
+            player.trapTime = 120; 
+            traps.splice(i, 1);
+            return;
+        }
+    }
+
+    for(let i = items.length - 1; i >= 0; i--) {
+        if(player.x === items[i].x && player.y === items[i].y) {
+            if(items[i].type === 'FLASHLIGHT') {
+                player.speedBuffTime = 300; 
+                document.getElementById('ui-buff').innerText = "⚡ 폭풍 질주 (5초)";
+            } else if(items[i].type === 'POTION') {
+                player.medicalKits++; 
+                updateUI();
+            }
+            items.splice(i, 1);
+        }
+    }
+
+    if(player.x === exitPortal.x && player.y === exitPortal.y) {
+        if(currentStage === 50) {
+            gameState = 'ENDING';
+            showOverlay("🏁 전설의 스파이 등극 🏁", "보스 불독의 화염구를 뚫고 50개 미로를 전복시켰습니다! 보상: 특급 츄르 무제한 제공");
+        } else {
+            gameState = 'STAGE_CLEAR';
+            showOverlay(`구역 ${currentStage} 클리어`, "다음 작전 구역 진입 대기 중.");
+        }
+    }
+}
+
+function updateEnemiesAndProjectiles() {
+    if(gameState !== 'PLAYING') return;
+
+    if(currentStage === 50) {
+        fireballs.forEach((ball, bIndex) => {
+            ball.x += ball.vx * 0.15;
+            ball.y += ball.vy * 0.15;
+
+            let dist = Math.hypot((player.x - ball.x), (player.y - ball.y));
+            if(dist < 0.6) {
+                fireballs.splice(bIndex, 1);
+                damagePlayer();
+            }
+        });
+        fireballs = fireballs.filter(b => b.x > 0 && b.x < GRID_SIZE && b.y > 0 && b.y < GRID_SIZE);
+    }
+
+    enemies.forEach(enemy => {
+        enemy.moveCooldown++;
+        let aiThreshold = enemy.isBoss ? 10 : Math.max(30 - currentStage, 12); 
+        
+        if(enemy.moveCooldown >= aiThreshold) {
+            enemy.moveCooldown = 0;
+            let nextX = enemy.x;
+            let nextY = enemy.y;
+
+            if(Math.random() < 0.75) { 
+                let diffX = player.x - enemy.x;
+                let diffY = player.y - enemy.y;
+                if (Math.abs(diffX) > Math.abs(diffY)) nextX += diffX > 0 ? 1 : -1;
+                else nextY += diffY > 0 ? 1 : -1;
+            } else {
+                let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+                let r = dirs[Math.floor(Math.random()*4)];
+                nextX += r[0]; nextY += r[1];
+            }
+
+            if (maze[nextY] && maze[nextY][nextX] !== 1) {
+                enemy.x = nextX; enemy.y = nextY;
+            }
+        }
+
+        if(enemy.isBoss) {
+            enemy.fireCooldown++;
+            if(enemy.fireCooldown >= 45) { 
+                enemy.fireCooldown = 0;
+                let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+                fireballs.push({
+                    x: enemy.x, y: enemy.y,
+                    vx: Math.cos(angle), vy: Math.sin(angle)
+                });
+            }
+        }
+
+        if(enemy.x === player.x && enemy.y === player.y) {
+            damagePlayer();
+            enemy.x = GRID_SIZE - 2;
+            enemy.y = 1;
+        }
+    });
+}
+
+function damagePlayer() {
+    player.hp--;
+    updateUI();
+    
+    if(player.hp <= 0) {
+        if(player.medicalKits > 0) {
+            player.medicalKits--;
+            player.hp = Math.floor(player.maxHp / 2); 
+            updateUI();
+            document.getElementById('ui-buff').innerText = "🩹 메디컬킷 자동 부활!";
+        } else {
+            gameState = 'GAME_OVER';
+            showOverlay("🚨 작전 중 전사 🚨", `${currentStage}단계에서 무릎을 꿇었습니다. 메디컬킷을 구비하십시오.`);
+        }
+    }
+}
+
+function updateUI() {
+    document.getElementById('ui-stage').innerText = currentStage;
+    document.getElementById('ui-kit').innerText = player ? player.medicalKits : 0;
+    
+    if(player) {
+        let hearts = "";
+        for(let i=0; i<player.hp; i++) hearts += "❤️";
+        document.getElementById('ui-hp').innerText = hearts;
+    }
+}
+
+function showOverlay(title, desc) {
+    document.getElementById('overlay-title').innerText = title;
+    document.getElementById('overlay-desc').innerText = desc;
+    
+    const overlay = document.getElementById('overlay');
+    const btn = document.getElementById('overlay-btn');
+    const reward = document.getElementById('reward-zone');
+    const charSelect = document.getElementById('char-select');
+    
+    overlay.classList.remove('hidden');
+    charSelect.classList.add('hidden');
+    btn.classList.remove('hidden');
+
+    if(gameState === 'ENDING') {
+        reward.classList.remove('hidden');
+        btn.innerText = "처음 화면으로";
+    } else if(gameState === 'GAME_OVER') {
+        btn.innerText = "1단계부터 재도전";
+    } else {
+        btn.innerText = "다음 단계로 진입";
+    }
+}
+
+function handleOverlayButton() {
+    if(gameState === 'STAGE_CLEAR') {
+        currentStage++;
+        gameState = 'PLAYING';
+        initGame(currentStage);
+        document.getElementById('overlay').classList.add('hidden');
+    } else if(gameState === 'GAME_OVER' || gameState === 'ENDING') {
+        currentStage = 1;
+        gameState = 'CHAR_SELECT';
+        document.getElementById('char-select').classList.remove('hidden');
+        document.getElementById('overlay-btn').classList.add('hidden');
+        document.getElementById('reward-zone').classList.add('hidden');
+        document.getElementById('overlay-title').innerText = "스파이 고양이: 데스 미로 50";
+        document.getElementById('overlay-desc').innerText = "출격할 요원을 선택하면 작전이 즉시 시작됩니다.";
+    }
+}
+
+function draw() {
+    // 플레이 단계가 아닐 때는 지형을 그리지 않고 스킵
+    if (gameState !== 'PLAYING') return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. 미로 외벽
+    for(let y=0; y<GRID_SIZE; y++) {
+        for(let x=0; x<GRID_SIZE; x++) {
+            if(maze[y][x] === 1) {
+                ctx.fillStyle = '#1e272e'; 
+                ctx.fillRect(x*TILE_COUNT, y*TILE_COUNT, TILE_COUNT, TILE_COUNT);
+                ctx.strokeStyle = '#0f1418';
+                ctx.strokeRect(x*TILE_COUNT, y*TILE_COUNT, TILE_COUNT, TILE_COUNT);
+            }
+        }
+    }
+
+    // 2. 함정
+    traps.forEach(trap => {
+        ctx.font = "20px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText('🕸️', trap.x*TILE_COUNT + TILE_COUNT/2, trap.y*TILE_COUNT + TILE_COUNT/2);
+    });
+
+    // 3. 구급상자/스피드번개 아이템
+    items.forEach(item => {
+        ctx.font = "22px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        let icon = item.type === 'FLASHLIGHT' ? '⚡' : '🩹'; 
+        ctx.fillText(icon, item.x*TILE_COUNT + TILE_COUNT/2, item.y*TILE_COUNT + TILE_COUNT/2);
+    });
+
+    // 4. 출구
+    ctx.font = "24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText('🏁', exitPortal.x*TILE_COUNT + TILE_COUNT/2, exitPortal.y*TILE_COUNT + TILE_COUNT/2);
+
+    // 5. 보스 화염구 
+    if(currentStage === 50) {
+        fireballs.forEach(ball => {
+            ctx.font = "24px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText('🔥', ball.x*TILE_COUNT + TILE_COUNT/2, ball.y*TILE_COUNT + TILE_COUNT/2);
+        });
+    }
+
+    // 6. 악당 불독
+    enemies.forEach(enemy => {
+        ctx.font = enemy.isBoss ? "38px sans-serif" : "24px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        let enemyIcon = enemy.isBoss ? '👹' : '😡';
+        ctx.fillText(enemyIcon, enemy.x*TILE_COUNT + TILE_COUNT/2, enemy.y*TILE_COUNT + TILE_COUNT/2);
+    });
+
+    // 7. 캐릭터 얼굴 렌더링
+    if (player) {
+        ctx.font = "24px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(player.icon, player.x*TILE_COUNT + TILE_COUNT/2, player.y*TILE_COUNT + TILE_COUNT/2);
+    }
+}
+
+function gameLoop() {
+    handlePlayerMovement();
+    updateEnemiesAndProjectiles();
+    draw(); 
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>

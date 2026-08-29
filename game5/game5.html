@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스파이캣 테트리스 게임</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            display: flex;
+            gap: 20px;
+            background: #2b2b2b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 150px;
+        }
+        .info-box {
+            background: #3b3b3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .info-box h2 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #ffb7b2;
+        }
+        .info-box p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        canvas {
+            border: 4px solid #ffb7b2;
+            background-color: #111;
+            border-radius: 5px;
+        }
+        #controls {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .special-note {
+            color: #ffdac1;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="margin: 0 0 10px 0; color: #ffb7b2; font-size: 28px;">🐾 스파이캣 테트리스 🐭</h1>
+
+    <div id="game-container">
+        <canvas id="tetris" width="300" height="600"></canvas>
+        
+        <div id="sidebar">
+            <div>
+                <div class="info-box">
+                    <h2>STAGE</h2>
+                    <p id="stage">1 / 100</p>
+                </div>
+                <div class="info-box">
+                    <h2>SCORE</h2>
+                    <p id="score">0</p>
+                </div>
+                <div class="info-box">
+                    <h2>NEXT</h2>
+                    <canvas id="next" width="100" height="100" style="border:none; background:#3b3b3b;"></canvas>
+                </div>
+            </div>
+            <div id="controls">
+                <b>[조작 방법]</b><br>
+                ← → : 이동<br>
+                ↑ : 회전 (오류 수정완료)<br>
+                ↓ : 소프트 드롭<br>
+                Space : 하드 드롭<br>
+                <br>
+                <span class="special-note">🐭 쥐 블록 경보:</span><br>
+                쥐 블록은 반드시 <br>
+                <span class="special-note">최소 3줄 이상</span> 동시에<br>
+                깨뜨려야만 제거됩니다!
+            </div>
+        </div>
+    </div>
+
+<script>
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+const nextCanvas = document.getElementById('next');
+const nextContext = nextCanvas.getContext('2d');
+
+const ROW = 20;
+const COL = 10;
+const SQ = 30; 
+const VACANT = "WHITE"; 
+
+const COLORS = [
+    null,
+    "#ff9aa2", 
+    "#ffb7b2", 
+    "#ffdac1", 
+    "#e2f0cb", 
+    "#b5ead7", 
+    "#c7ceea", 
+    "#ff9aa2"
+];
+
+// 테트리스 블록들의 4방향 회전 매트릭스 데이터 정의 (오류 해결 핵심)
+const I = [
+    [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+    [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],
+    [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],
+    [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]
+];
+const J = [
+    [[1,0,0],[1,1,1],[0,0,0]],
+    [[0,1,1],[0,1,0],[0,1,0]],
+    [[0,0,0],[1,1,1],[0,0,1]],
+    [[0,1,0],[0,1,0],[1,1,0]]
+];
+const L = [
+    [[0,0,1],[1,1,1],[0,0,0]],
+    [[0,1,0],[0,1,0],[0,1,1]],
+    [[0,0,0],[1,1,1],[1,0,0]],
+    [[1,1,0],[0,1,0],[0,1,0]]
+];
+const O = [
+    [[1,1],[1,1]],
+    [[1,1],[1,1]],
+    [[1,1],[1,1]],
+    [[1,1],[1,1]]
+];
+const S = [
+    [[0,1,1],[1,1,0],[0,0,0]],
+    [[0,1,0],[0,1,1],[0,0,1]],
+    [[0,0,0],[0,1,1],[1,1,0]],
+    [[1,0,0],[1,1,0],[0,1,0]]
+];
+const T = [
+    [[0,1,0],[1,1,1],[0,0,0]],
+    [[0,1,0],[0,1,1],[0,1,0]],
+    [[0,0,0],[1,1,1],[0,1,0]],
+    [[0,1,0],[1,1,0],[0,1,0]]
+];
+const Z = [
+    [[1,1,0],[0,1,1],[0,0,0]],
+    [[0,0,1],[0,1,1],[0,1,0]],
+    [[0,0,0],[1,1,0],[0,1,1]],
+    [[0,1,0],[1,1,0],[1,0,0]]
+];
+
+const PIECES = [
+    [I, "#ff9aa2"],
+    [J, "#ffb7b2"],
+    [L, "#ffdac1"],
+    [O, "#e2f0cb"],
+    [S, "#b5ead7"],
+    [T, "#c7ceea"],
+    [Z, "#ff9aa2"]
+];
+
+function drawPaw(x, y, color, ctx) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
+    ctx.strokeStyle = "#2b2b2b";
+    ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.beginPath();
+    ctx.arc(x * SQ + SQ/2, y * SQ + SQ*0.65, SQ*0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    for(let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(x * SQ + SQ*0.25 + (i * SQ*0.25), y * SQ + SQ*0.3, SQ*0.08, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function drawMouse(x, y, ctx) {
+    ctx.fillStyle = "#777777"; 
+    ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
+    ctx.strokeStyle = "#ff3333"; 
+    ctx.strokeRect(x * SQ, y * SQ, SQ, SQ);
+
+    ctx.fillStyle = "#ffb7b2";
+    ctx.beginPath();
+    ctx.arc(x * SQ + SQ*0.3, y * SQ + SQ*0.3, SQ*0.12, 0, Math.PI * 2);
+    ctx.arc(x * SQ + SQ*0.7, y * SQ + SQ*0.3, SQ*0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(x * SQ + SQ*0.35, y * SQ + SQ*0.5, 2, 2);
+    ctx.fillRect(x * SQ + SQ*0.6, y * SQ + SQ*0.5, 2, 2);
+
+    ctx.fillStyle = "#ff3333";
+    ctx.beginPath();
+    ctx.arc(x * SQ + SQ/2, y * SQ + SQ*0.7, SQ*0.06, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+let board = [];
+for(r = 0; r < ROW; r++){
+    board[r] = [];
+    for(c = 0; c < COL; c++){
+        board[r][c] = 0;
+    }
+}
+
+function drawBoard(){
+    for(r = 0; r < ROW; r++){
+        for(c = 0; c < COL; c++){
+            if(board[r][c] === 0) {
+                context.fillStyle = "#111";
+                context.fillRect(c * SQ, r * SQ, SQ, SQ);
+                context.strokeStyle = "#222";
+                context.strokeRect(c * SQ, r * SQ, SQ, SQ);
+            } else if(board[r][c] === 9) {
+                drawMouse(c, r, context);
+            } else {
+                drawPaw(c, r, COLORS[board[r][c]], context);
+            }
+        }
+    }
+}
+drawBoard();
+
+class Piece {
+    constructor(tetromino, color, isMouse = false) {
+        this.tetromino = tetromino;
+        this.color = color;
+        this.isMouse = isMouse;
+        this.tetrominoN = 0;
+        this.activeTetromino = this.tetromino[this.tetrominoN]; // 매트릭스 배열 참조로 수정
+        
+        this.x = 3;
+        this.y = -2;
+    }
+
+    fill(colorCtx, ctx = context) {
+        for(let r = 0; r < this.activeTetromino.length; r++){
+            for(let c = 0; c < this.activeTetromino[r].length; c++){
+                if(this.activeTetromino[r][c]){
+                    let boardY = this.y + r;
+                    let boardX = this.x + c;
+                    if(boardY >= 0) {
+                        if(this.isMouse) {
+                            drawMouse(boardX, boardY, ctx);
+                        } else {
+                            drawPaw(boardX, boardY, colorCtx, ctx);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    draw() { this.fill(this.color, context); }
+    unDraw() {
+        for(let r = 0; r < this.activeTetromino.length; r++){
+            for(let c = 0; c < this.activeTetromino[r].length; c++){
+                if(this.activeTetromino[r][c]){
+                    let boardY = this.y + r;
+                    let boardX = this.x + c;
+                    if(boardY >= 0) {
+                        context.fillStyle = "#111";
+                        context.fillRect(boardX * SQ, boardY * SQ, SQ, SQ);
+                        context.strokeStyle = "#222";
+                        context.strokeRect(boardX * SQ, boardY * SQ, SQ, SQ);
+                    }
+                }
+            }
+        }
+    }
+
+    moveDown() {
+        if(!this.collision(0, 1, this.activeTetromino)){
+            this.unDraw();
+            this.y++;
+            this.draw();
+        } else {
+            this.lock();
+        }
+    }
+
+    moveRight() {
+        if(!this.collision(1, 0, this.activeTetromino)){
+            this.unDraw();
+            this.x++;
+            this.draw();
+        }
+    }
+
+    moveLeft() {
+        if(!this.collision(-1, 0, this.activeTetromino)){
+            this.unDraw();
+            this.x--;
+            this.draw();
+        }
+    }
+
+    rotate() {
+        let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+        let kick = 0;
+        if(this.collision(0, 0, nextPattern)){
+            if(this.x > COL/2) kick = -1;
+            else kick = 1;
+        }
+        if(!this.collision(kick, 0, nextPattern)){
+            this.unDraw();
+            this.x += kick;
+            this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+            this.activeTetromino = nextPattern;
+            this.draw();
+        }
+    }
+
+    collision(x, y, piece) {
+        for(let r = 0; r < piece.length; r++){
+            for(let c = 0; c < piece[r].length; c++){
+                if(!piece[r][c]) continue;
+                let newX = this.x + c + x;
+                let newY = this.y + r + y;
+                if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                if(newY < 0) continue;
+                if(board[newY][newX] !== 0) return true;
+            }
+        }
+        return false;
+    }
+
+    lock() {
+        for(let r = 0; r < this.activeTetromino.length; r++){
+            for(let c = 0; c < this.activeTetromino[r].length; c++){
+                if(!this.activeTetromino[r][c]) continue;
+                if(this.y + r < 0){
+                    alert("Game Over! 당신의 고양이는 100단계 중 " + stage + "단계까지 도달했습니다.");
+                    resetGame();
+                    return;
+                }
+                board[this.y + r][this.x + c] = this.isMouse ? 9 : (COLORS.indexOf(this.color));
+            }
+        }
+
+        let linesCleared = 0;
+        let rowsToRemove = [];
+        let hasMouseInCleared = false;
+
+        for(let r = 0; r < ROW; r++){
+            let isRowFull = true;
+            let currentContainsMouse = false;
+            for(let c = 0; c < COL; c++){
+                if(board[r][c] === 0) {
+                    isRowFull = false;
+                    break;
+                }
+                if(board[r][c] === 9) {
+                    currentContainsMouse = true;
+                }
+            }
+            if(isRowFull){
+                rowsToRemove.push(r);
+                if(currentContainsMouse) {
+                    hasMouseInCleared = true;
+                }
+            }
+        }
+
+        linesCleared = rowsToRemove.length;
+
+        if (hasMouseInCleared && linesCleared < 3) {
+            rowsToRemove = rowsToRemove.filter(r => {
+                let containsMouse = false;
+                for(let c = 0; c < COL; c++) {
+                    if(board[r][c] === 9) containsMouse = true;
+                }
+                return !containsMouse; 
+            });
+            linesCleared = rowsToRemove.length;
+        }
+
+        if(linesCleared > 0) {
+            rowsToRemove.sort((a,b) => b-a).forEach(r => {
+                board.splice(r, 1);
+                board.unshift(new Array(COL).fill(0));
+            });
+
+            score += Math.pow(linesCleared, 2) * 100;
+            
+            let targetStage = Math.floor(score / 500) + 1;
+            if(targetStage > 100) targetStage = 100;
+            if(targetStage > stage) {
+                stage = targetStage;
+                updateSpeed();
+            }
+            
+            document.getElementById('score').innerText = score;
+            document.getElementById('stage').innerText = stage + " / 100";
+        }
+
+        drawBoard();
+        p = nextPiece;
+        nextPiece = randomPiece();
+        p.draw();
+        drawNext();
+    }
+}
+
+function randomPiece() {
+    let r = Math.floor(Math.random() * PIECES.length);
+    let isMouse = Math.random() < 0.05; 
+    return new Piece(PIECES[r][0], PIECES[r][1], isMouse);
+}
+
+function drawNext() {
+    nextContext.fillStyle = "#3b3b3b";
+    nextContext.fillRect(0, 0, 100, 100);
+    
+    for(let r = 0; r < nextPiece.activeTetromino.length; r++){
+        for(let c = 0; c < nextPiece.activeTetromino[r].length; c++){
+            if(nextPiece.activeTetromino[r][c]){
+                if(nextPiece.isMouse) {
+                    nextContext.fillStyle = "#777777";
+                    nextContext.fillRect(c*20 + 25, r*20 + 25, 20, 20);
+                } else {
+                    nextContext.fillStyle = nextPiece.color;
+                    nextContext.fillRect(c*20 + 25, r*20 + 25, 20, 20);
+                }
+            }
+        }
+    }
+}
+
+let score = 0;
+let stage = 1;
+let dropStart = Date.now();
+let gameOver = false;
+let speed = 1000; 
+
+function updateSpeed() {
+    speed = 1000 - (stage - 1) * 9.6; 
+}
+
+let p = randomPiece();
+let nextPiece = randomPiece();
+p.draw();
+drawNext();
+
+function drop(){
+    let now = Date.now();
+    let delta = now - dropStart;
+    if(delta > speed){
+        p.moveDown();
+        dropStart = Date.now();
+    }
+    if(!gameOver){
+        requestAnimationFrame(drop);
+    }
+}
+drop();
+
+document.addEventListener("keydown",CONTROL);
+function CONTROL(event){
+    if(event.keyCode == 37){ p.moveLeft(); dropStart = Date.now(); }
+    else if(event.keyCode == 38){ p.rotate(); dropStart = Date.now(); }
+    else if(event.keyCode == 39){ p.moveRight(); dropStart = Date.now(); }
+    else if(event.keyCode == 40){ p.moveDown(); }
+    else if(event.keyCode == 32){ 
+        while(!p.collision(0, 1, p.activeTetromino)) {
+            p.unDraw();
+            p.y++;
+        }
+        p.lock();
+        dropStart = Date.now();
+    }
+}
+
+function resetGame() {
+    board = [];
+    for(r = 0; r < ROW; r++){
+        board[r] = [];
+        for(c = 0; c < COL; c++){
+            board[r][c] = 0;
+        }
+    }
+    score = 0;
+    stage = 1;
+    speed = 1000;
+    document.getElementById('score').innerText = score;
+    document.getElementById('stage').innerText = stage + " / 100";
+    p = randomPiece();
+    nextPiece = randomPiece();
+    drawBoard();
+    p.draw();
+    drawNext();
+}
+</script>
+</body>
+</html>

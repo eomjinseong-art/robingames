@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>포포와 지지의 비밀 작전 가방 챙기기 - 무한 스테이지</title>
+    <style>
+        :root {
+            --spy-neon: #00ffcc;
+            --spy-dark: #0b0f19;
+            --spy-panel: #131c2e;
+            --spy-red: #ff3838;
+            --spy-yellow: #ffd32a;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--spy-dark);
+            color: #ffffff;
+            font-family: 'Malgun Gothic', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 메인 컨테이너 */
+        #game-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #0f172a;
+            border-left: 1px solid #1e293b;
+            border-right: 1px solid #1e293b;
+        }
+
+        /* 상단 전술 대시보드 */
+        #dashboard {
+            background: var(--spy-panel);
+            border-bottom: 3px solid var(--spy-neon);
+            padding: 12px 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.15);
+            z-index: 5;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stage-badge {
+            background: var(--spy-neon);
+            color: var(--spy-dark);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffffff;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .status-box {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .timer { color: var(--spy-red); font-weight: bold; font-size: 1.1rem; }
+        .combo { color: var(--spy-yellow); font-weight: bold; font-size: 1.1rem; }
+
+        /* 찾아야 할 타겟 디자인 */
+        #target-box {
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px dashed var(--spy-neon);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .target-instruction {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .target-display {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 작전 구역 (통제실 현장) */
+        #mission-room {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle, #1e293b 10%, #0b0f19 90%);
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        /* 그리드 가이드라인 효과로 복잡성 연출 */
+        #mission-room::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+        }
+
+        /* 스캔 라인 애니메이션 */
+        #mission-room::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 255, 204, 0.15);
+            top: 0; left: 0;
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* 스폰되는 아이템 스타일 */
+        .spawn-item {
+            position: absolute;
+            font-size: 28px;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s;
+            z-index: 2;
+        }
+
+        /* 콤보 피드백 텍스트 효과 */
+        .combo-effect {
+            position: absolute;
+            color: var(--spy-yellow);
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: fadeUp 0.6s ease-out forwards;
+            z-index: 10;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        /* 패널티 텍스트 효과 */
+        .penalty-effect {
+            position: absolute;
+            color: var(--spy-red);
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: fadeUp 0.6s ease-out forwards;
+            z-index: 10;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) translateY(-40px) scale(1.2); }
+        }
+
+        /* 오버레이 팝업 시스템 */
+        #overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 15, 25, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            padding: 20px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--spy-neon);
+            color: var(--spy-neon);
+            padding: 14px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 30px;
+            margin-top: 25px;
+            box-shadow: 0 0 15px rgba(0,255,204,0.2);
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--spy-neon);
+            color: var(--spy-dark);
+            box-shadow: 0 0 25px rgba(0,255,204,0.5);
+        }
+
+        .intro-text {
+            text-align: center;
+            line-height: 1.6;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin: 15px 0;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="dashboard">
+            <div class="header-row">
+                <span id="stage-badge" class="stage-badge">STAGE 1</span>
+                <div class="title">🕵️‍♂️ 포포 & 지지 작전 통제실</div>
+            </div>
+            
+            <div class="status-container">
+                <div class="status-box">남은 시간: <span id="timer-val" class="timer">15.0</span>초</div>
+                <div class="status-box">연속 콤보: <span id="combo-val" class="combo">0</span></div>
+            </div>
+
+            <div id="target-box">
+                <div class="target-instruction">지금 즉시 가방에 넣을 전술 장비:</div>
+                <div id="target-display" class="target-display">🎽 NCS 카고 조끼</div>
+            </div>
+        </div>
+
+        <div id="mission-room"></div>
+
+        <div id="overlay">
+            <h2 id="overlay-title" style="color: var(--spy-neon); margin-bottom: 10px; text-align:center;">비밀 작전 가방 챙기기</h2>
+            
+            <div id="game-stats-box" class="highlight-box" style="display:none;">
+                <h3 style="margin-top:0; color:var(--spy-yellow); text-align:center;">최종 작전 리포트</h3>
+                <p style="margin: 5px 0;">클리어한 스테이지: <span id="stat-stage" style="font-weight:bold; color:#fff;">0</span></p>
+                <p style="margin: 5px 0;">확보한 누적 장비: <span id="stat-items" style="font-weight:bold; color:#fff;">0</span>개</p>
+                <p style="margin: 5px 0;">최대 연속 콤보: <span id="stat-combo" style="font-weight:bold; color:#fff;">0</span> Combo</p>
+            </div>
+
+            <div id="overlay-desc-container">
+                <p class="intro-text">
+                    <b>"무한의 계단 스타일! 한순간도 방심할 수 없다!"</b><br>
+                    대시보드에 지시되는 마스터 아이템을 기밀실 안에서 순서대로 찾아 무한히 터치하세요! 
+                </p>
+                <div class="highlight-box" style="font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
+                    💡 <b>고난이도 규칙 안내:</b><br>
+                    • 아이템을 하나 찾을 때마다 새로운 타겟이 연속 지정됩니다.<br>
+                    • 한 스테이지를 깨면 화면의 물건 밀도가 <b>대폭 증가</b>합니다.<br>
+                    • 엉뚱한 물건 클릭 시 <b>시간 차감 패널티(-2초)</b> 발생!<br>
+                    • 연속으로 빠르게 찾으면 콤보 보너스로 제한시간이 추가됩니다!
+                </div>
+            </div>
+            
+            <button id="start-btn" class="btn" onclick="startGame()">작전 개시 (Start)</button>
+        </div>
+    </div>
+
+    <script>
+        // 전술 마스터 장비 Pool
+        const masterItems = [
+            { name: '🎽 NCS 카고 조끼' },
+            { name: '🕶️ 보잉 선글라스' },
+            { name: '🔦 미니 손전등' },
+            { name: '🧭 전술 나침반' },
+            { name: '📻 무전 트랜시버' },
+            { name: '🔑 마스터 키카드' },
+            { name: '🛰️ 위성 태블릿' },
+            { name: '⌚ 전술 스마트워치' },
+            { name: '🩹 비상 구급키트' },
+            { name: '🧴 해킹용 스프레이' }
+        ];
+
+        // 방해용 가짜 아이템 Pool (최대한 다양하게 준비하여 인지 혼선을 유도)
+        const fakeItemsPool = [
+            '🧸','🐱','🐶','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸',
+            '🐵','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛',
+            '🦋','🐌','🐞','🐜','🪰','🪲','🪳','🦂','🕸️','🕷️','🐢','🐍','🦎','🐙','🦑',
+            '🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦍','🦧','🦣',
+            '🦛','🦏','🦼','🦽','🏹','🥊','🥋','🛹','🛼','🥎','🏀','🏐','🏈','🏉','🎾',
+            '🔮','💎','🕶️','👔','👕','👖','🧣','🧤','🧥','🧦','👗','👘','🥻','🩱','🩲',
+            '🩳','🎒','🧳','👛','👜','💼','👓','🥽','🥻','🎬','🎧','🎨','🎤','🎪','🎟️',
+            '🎫','🎬','🎮','🎯','🎰','🎲','🧩','🎳','🎸','🎺','🎻','🥁','🎹','📱','💻',
+            '⌨️','🖥️','🖨️','🖱️','🎛️','🎚️','🎞️','📷','📺','📻','⏰','🧭','🕯️','💡','🔦',
+            '🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','🪦','🏺',
+            '🔮','📿','🧿','💈','🧫','🧪','🌡️','🧬','💉','🩸','💊','🩹','🩺','🪵','🪃',
+            '🏹','🎈','🎉','🎊','🎎','🎏','🎐','🧧','🎀','🎁','🪄','🪅','🪩','🧿','🪁'
+        ];
+
+        // 게임 제어 변수들
+        let stage = 1;
+        let score = 0; // 찾은 누적 아이템 수
+        let combo = 0;
+        let maxCombo = 0;
+        let timeLeft = 15.0;
+        let gameInterval = null;
+        let isPlaying = false;
+        
+        let currentTargetItem = null;
+        let currentStageRequiredCount = 3; 
+        let currentStageFoundCount = 0;
+
+        const missionRoom = document.getElementById('mission-room');
+        const targetDisplay = document.getElementById('target-display');
+        const timerDisplay = document.getElementById('timer-val');
+        const comboDisplay = document.getElementById('combo-val');
+        const stageBadge = document.getElementById('stage-badge');
+        
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayDescContainer = document.getElementById('overlay-desc-container');
+        const gameStatsBox = document.getElementById('game-stats-box');
+        const startBtn = document.getElementById('start-btn');
+
+        function startGame() {
+            stage = 1;
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            isPlaying = true;
+            
+            overlay.style.display = 'none';
+            missionRoom.innerHTML = '';
+            
+            missionRoom.addEventListener('mousedown', handleRoomClick);
+
+            initStage();
+            startTimer();
+        }
+
+        function initStage() {
+            currentStageFoundCount = 0;
+            // 스테이지가 올라갈수록 한 스테이지 클리어를 위해 맞춰야 하는 목표 수 증가 (최대 7개)
+            currentStageRequiredCount = Math.min(3 + Math.floor(stage / 2), 7);
+            
+            stageBadge.textContent = `STAGE ${stage}`;
+            
+            // 새 스테이지 시작 시 타이머 초기화 및 확장 (최대 20초)
+            timeLeft = Math.min(15.0 + (stage * 0.5), 20.0);
+            
+            generateStageItems();
+            pickNextTarget();
+        }
+
+        function generateStageItems() {
+            missionRoom.innerHTML = '';
+
+            // 난이도 설계: 스테이지가 상승할수록 방해물이 기하급수적으로 스폰됨
+            const fakeCount = Math.min(50 + (stage * 15), 250);
+            
+            let activeMasterItems = [];
+            const shuffledMasters = [...masterItems].sort(() => Math.random() - 0.5);
+            for(let i=0; i < Math.min(4 + Math.floor(stage/3), masterItems.length); i++) {
+                activeMasterItems.push(shuffledMasters[i]);
+            }
+
+            let itemsToSpawn = [];
+            activeMasterItems.forEach(master => {
+                const copies = stage >= 5 ? 3 : 2; 
+                for(let c=0; c<copies; c++) {
+                    itemsToSpawn.push({ name: master.name, isTarget: true });
+                }
+            });
+
+            for (let i = 0; i < fakeCount; i++) {
+                const randomFakeEmoji = fakeItemsPool[Math.floor(Math.random() * fakeItemsPool.length)];
+                itemsToSpawn.push({ name: randomFakeEmoji, isTarget: false });
+            }
+
+            itemsToSpawn.sort(() => Math.random() - 0.5);
+
+            const roomWidth = missionRoom.clientWidth;
+            const roomHeight = missionRoom.clientHeight;
+
+            itemsToSpawn.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'spawn-item';
+                span.textContent = item.name.split(' ')[0];
+                span.dataset.fullName = item.name;
+                span.dataset.isTarget = item.isTarget;
+
+                const padding = 25;
+                const posX = padding + Math.random() * (roomWidth - padding * 2);
+                const posY = padding + Math.random() * (roomHeight - padding * 2);
+
+                span.style.left = `${posX}px`;
+                span.style.top = `${posY}px`;
+
+                // 아이템 정렬 축을 틀어서 불규칙함 연출
+                const randomScale = 0.8 + Math.random() * 0.5; 
+                const randomRotation = Math.floor(Math.random() * 60) - 30; 
+                span.style.transform = `translate(-50%, -50%) scale(${randomScale}) rotate(${randomRotation}deg)`;
+
+                span.addEventListener('mousedown', (e) => {
+                    e.stopPropagation(); 
+                    if (!isPlaying) return;
+                    
+                    handleItemClick(span, item, e);
+                });
+
+                missionRoom.appendChild(span);
+            });
+        }
+
+        function pickNextTarget() {
+            const spawnedTargets = Array.from(document.querySelectorAll('.spawn-item')).filter(el => el.dataset.isTarget === 'true');
+            
+            if(spawnedTargets.length === 0) {
+                generateStageItems();
+                pickNextTarget();
+                return;
+            }
+
+            const randomEl = spawnedTargets[Math.floor(Math.random() * spawnedTargets.length)];
+            currentTargetItem = randomEl.dataset.fullName;
+            targetDisplay.textContent = currentTargetItem;
+        }
+
+        function handleItemClick(element, item, event) {
+            if (item.isTarget && element.dataset.fullName === currentTargetItem) {
+                score++;
+                currentStageFoundCount++;
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+                
+                comboDisplay.textContent = combo;
+
+                showEffect(event.clientX, event.clientY, `콤보 ${combo}!`, 'combo-effect');
+
+                // 콤보 보너스 타임 적립 (최대 +0.8초)
+                const bonusTime = Math.min(0.3 + (combo * 0.05), 0.8);
+                timeLeft += bonusTime;
+
+                element.remove();
+
+                if (currentStageFoundCount >= currentStageRequiredCount) {
+                    stage++;
+                    showEffect(missionRoom.clientWidth/2, missionRoom.clientHeight/2, `STAGE ${stage} 진입!`, 'combo-effect');
+                    initStage();
+                } else {
+                    pickNextTarget();
+                }
+            } else {
+                triggerPenalty(event.clientX, event.clientY);
+            }
+        }
+
+        function handleRoomClick(e) {
+            if (!isPlaying) return;
+            triggerPenalty(e.clientX, e.clientY);
+        }
+
+        function triggerPenalty(clientX, clientY) {
+            combo = 0;
+            comboDisplay.textContent = combo;
+            
+            timeLeft = Math.max(0, timeLeft - 2.0);
+            timerDisplay.textContent = timeLeft.toFixed(1);
+
+            missionRoom.style.background = 'radial-gradient(circle, #5c0d12 10%, #0b0f19 90%)';
+            setTimeout(() => {
+                if(isPlaying) {
+                    missionRoom.style.background = 'radial-gradient(circle, #1e293b 10%, #0b0f19 90%)';
+                }
+            }, 100);
+
+            showEffect(clientX, clientY, '-2.0s', 'penalty-effect');
+        }
+
+        function showEffect(x, y, text, className) {
+            const effect = document.createElement('div');
+            effect.className = className;
+            effect.textContent = text;
+            
+            const rect = missionRoom.getBoundingClientRect();
+            effect.style.left = `${x - rect.left}px`;
+            effect.style.top = `${y - rect.top}px`;
+            
+            missionRoom.appendChild(effect);
+            setTimeout(() => effect.remove(), 600);
+        }
+
+        function startTimer() {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    endGame();
+                }
+                timerDisplay.textContent = timeLeft.toFixed(1);
+            }, 100);
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            missionRoom.removeEventListener('mousedown', handleRoomClick);
+
+            document.getElementById('stat-stage').textContent = stage;
+            document.getElementById('stat-items').textContent = score;
+            document.getElementById('stat-combo').textContent = maxCombo;
+
+            overlayTitle.innerHTML = '🚨 작전 시간 종료 (Game Over) 🚨';
+            overlayDescContainer.style.display = 'none';
+            gameStatsBox.style.display = 'block';
+            startBtn.textContent = '다시 작전 돌입 (Retry)';
+            overlay.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
