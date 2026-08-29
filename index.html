@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎮 아들의 창작 게임 아카이브</title>
+    <!-- 타이틀 설정 -->
+    <title>로빈스게임월드</title>
+    <!-- 게임기 이모지 기반 파비콘 설정 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -38,7 +42,20 @@
             max-width: 480px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+        }
+
+        /* 상단 방문자 수 카운터 */
+        .visitor-counter {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .visitor-counter img {
+            height: 20px;
+            border-radius: 4px;
         }
 
         /* 헤더 대시보드 */
@@ -162,23 +179,128 @@
             color: #94a3b8;
         }
 
-        /* 하단 푸터 */
+        /* 하단 푸터 및 문의 버튼 */
         footer {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-sub);
             margin-top: auto;
             padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .contact-btn {
+            background: transparent;
+            border: 1px solid var(--accent-neon);
+            color: var(--accent-neon);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .contact-btn:hover {
+            background: var(--accent-neon);
+            color: var(--bg-dark);
+        }
+
+        /* Formspree 모달 팝업 */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-neon);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            color: var(--accent-neon);
+            font-size: 1.1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-body label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .modal-body input, .modal-body textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .modal-body textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .submit-btn {
+            background: var(--accent-neon);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
         }
     </style>
 </head>
 <body>
 
     <div class="portal-container">
+        <!-- 상단 방문자 수 카운터 -->
+        <div class="visitor-counter">
+            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frobin-game-world.vercel.app&count_bg=%231E293B&title_bg=%230F172A&icon=&icon_color=%23E7E7E7&title=VISITORS&edge_flat=false" alt="방문자 수"/>
+        </div>
+
         <!-- 헤더 영역 -->
         <header>
             <span class="user-tag">PROTOS GAME STUDIO</span>
-            <h1>🎮 게임 아카이브</h1>
+            <h1>Robin' Game World</h1>
             <p class="subtitle">직접 기획하고 개발한 창작 게임 모음집입니다.</p>
         </header>
 
@@ -209,43 +331,43 @@
                 <div class="play-btn">PLAY ▶</div>
             </a>
 
-            <!-- [게임 3] -->
+            <!-- [게임 3] 중앙사수 게임 -->
             <a href="./games/game3/" class="game-card">
                 <div class="game-info">
-                    <div class="game-icon">🚀</div>
+                    <div class="game-icon">🎯</div>
                     <div class="game-details">
-                        <h2>세 번째 창작 게임</h2>
+                        <h2>중앙사수 게임</h2>
                         <p>스테이지 지능 및 아케이드 미션</p>
                     </div>
                 </div>
                 <div class="play-btn">PLAY ▶</div>
             </a>
 
-            <!-- [게임 4] -->
+            <!-- [게임 4] 데스미로찾기 게임 -->
             <a href="./games/game4/" class="game-card">
                 <div class="game-info">
-                    <div class="game-icon">🎯</div>
+                    <div class="game-icon">🧩</div>
                     <div class="game-details">
-                        <h2>네 번째 창작 게임</h2>
+                        <h2>데스미로찾기 게임</h2>
                         <p>타겟 조준 및 전략 컨트롤</p>
                     </div>
                 </div>
                 <div class="play-btn">PLAY ▶</div>
             </a>
 
-            <!-- [게임 5] -->
+            <!-- [게임 5] 스파이켓 테트리스 게임 -->
             <a href="./games/game5/" class="game-card">
                 <div class="game-info">
-                    <div class="game-icon">⚔️</div>
+                    <div class="game-icon">👾</div>
                     <div class="game-details">
-                        <h2>다섯 번째 창작 게임</h2>
-                        <p>최종 액션 & 생존 디펜스</p>
+                        <h2>스파이켓 테트리스 게임</h2>
+                        <p>최종 액션 & 블록 디펜스</p>
                     </div>
                 </div>
                 <div class="play-btn">PLAY ▶</div>
             </a>
 
-            <!-- 준비 중 표시 (디자인용) -->
+            <!-- 준비 중 표시 -->
             <div class="game-card disabled">
                 <div class="game-info">
                     <div class="game-icon">🎰</div>
@@ -261,9 +383,48 @@
 
         <!-- 푸터 영역 -->
         <footer>
-            <p>© Powered by Vercel & GitHub | Developed by Son</p>
+            <button class="contact-btn" onclick="openModal()">📩 개발자에게 문의하기</button>
+            <p>© Nadoo Gameworld | Developed by Robin</p>
         </footer>
     </div>
 
+    <!-- Formspree 연동 문의하기 모달 -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📩 문의하기</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="https://formspree.io/f/xnpadyby" method="POST">
+                    <div>
+                        <label>이메일 주소 (답변받을 곳)</label>
+                        <input type="email" name="email" placeholder="your@email.com" required>
+                    </div>
+                    <div>
+                        <label>문의 내용</label>
+                        <textarea name="message" placeholder="피드백이나 문의사항을 적어주세요." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">보내기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('contactModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('contactModal').style.display = 'none';
+        }
+        // 모달 바깥 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('contactModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
