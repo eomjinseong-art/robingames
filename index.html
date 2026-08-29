@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 아들의 창작 게임 아카이브</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-neon: #00ffcc;
+            --accent-yellow: #ffd32a;
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Malgun Gothic', -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+
+        /* 전체 포털 컨테이너 */
+        .portal-container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 헤더 대시보드 */
+        header {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent-neon), var(--accent-yellow));
+        }
+
+        .user-tag {
+            display: inline-block;
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--accent-neon);
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 0.85rem;
+        }
+
+        /* 게임 리스트 구역 */
+        .game-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 게임 카드 디자인 */
+        .game-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+
+        .game-card:hover, .game-card:active {
+            transform: translateY(-2px);
+            border-color: var(--accent-neon);
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.15);
+        }
+
+        .game-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .game-icon {
+            font-size: 2.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .game-details h2 {
+            font-size: 1.05rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .game-details p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .play-btn {
+            background: var(--accent-neon);
+            color: var(--bg-dark);
+            font-weight: bold;
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* 준비 중 카드 스타일 */
+        .game-card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            border-style: dashed;
+        }
+
+        .game-card.disabled .play-btn {
+            background: #475569;
+            color: #94a3b8;
+        }
+
+        /* 하단 푸터 */
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-top: auto;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-container">
+        <!-- 헤더 영역 -->
+        <header>
+            <span class="user-tag">PROTOS GAME STUDIO</span>
+            <h1>🎮 게임 아카이브</h1>
+            <p class="subtitle">직접 기획하고 개발한 창작 게임 모음집입니다.</p>
+        </header>
+
+        <!-- 게임 목록 영역 -->
+        <main class="game-grid">
+
+            <!-- [게임 1] 비밀 작전 가방 챙기기 -->
+            <a href="./games/game1/" class="game-card">
+                <div class="game-info">
+                    <div class="game-icon">🕵️‍♂️</div>
+                    <div class="game-details">
+                        <h2>포포 & 지지의 비밀 작전</h2>
+                        <p>무한 순발력 테스트 & 장비 수집</p>
+                    </div>
+                </div>
+                <div class="play-btn">PLAY ▶</div>
+            </a>
+
+            <!-- [게임 2] 추후 추가용 템플릿 (필요 시 주석 제거 후 사용) -->
+            <!--
+            <a href="./games/game2/" class="game-card">
+                <div class="game-info">
+                    <div class="game-icon">🚀</div>
+                    <div class="game-details">
+                        <h2>두 번째 게임 제목</h2>
+                        <p>게임에 대한 간단한 한 줄 설명</p>
+                    </div>
+                </div>
+                <div class="play-btn">PLAY ▶</div>
+            </a>
+            -->
+
+            <!-- 준비 중 표시 (디자인용) -->
+            <div class="game-card disabled">
+                <div class="game-info">
+                    <div class="game-icon">🎰</div>
+                    <div class="game-details">
+                        <h2>NEXT GAME</h2>
+                        <p>새로운 게임을 개발 중입니다...</p>
+                    </div>
+                </div>
+                <div class="play-btn">COMING SOON</div>
+            </div>
+
+        </main>
+
+        <!-- 푸터 영역 -->
+        <footer>
+            <p>© Powered by Vercel & GitHub | Developed by Son</p>
+        </footer>
+    </div>
+
+</body>
+</html>
