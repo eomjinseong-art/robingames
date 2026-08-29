@@ -87,7 +87,7 @@
         .game-grid {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         /* 게임 카드 디자인 */
@@ -95,7 +95,7 @@
             background: var(--panel-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
-            padding: 18px;
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -114,14 +114,14 @@
         .game-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
         }
 
         .game-icon {
-            font-size: 2.2rem;
+            font-size: 2rem;
             background: rgba(255, 255, 255, 0.05);
-            width: 55px;
-            height: 55px;
+            width: 52px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -130,13 +130,13 @@
         }
 
         .game-details h2 {
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: bold;
             margin-bottom: 4px;
         }
 
         .game-details p {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-sub);
         }
 
@@ -144,7 +144,7 @@
             background: var(--accent-neon);
             color: var(--bg-dark);
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             padding: 8px 14px;
             border-radius: 20px;
             white-space: nowrap;
@@ -182,10 +182,10 @@
             <p class="subtitle">직접 기획하고 개발한 창작 게임 모음집입니다.</p>
         </header>
 
-        <!-- 게임 목록 영역 -->
+        <!-- 게임 목록 영역 (총 5개 게임) -->
         <main class="game-grid">
 
-            <!-- [게임 1] 비밀 작전 가방 챙기기 -->
+            <!-- [게임 1] 포포 & 지지의 비밀 작전 -->
             <a href="./games/game1/" class="game-card">
                 <div class="game-info">
                     <div class="game-icon">🕵️‍♂️</div>
@@ -197,19 +197,53 @@
                 <div class="play-btn">PLAY ▶</div>
             </a>
 
-            <!-- [게임 2] 추후 추가용 템플릿 (필요 시 주석 제거 후 사용) -->
-            <!--
+            <!-- [게임 2] 암호 코드 해독 -->
             <a href="./games/game2/" class="game-card">
                 <div class="game-info">
-                    <div class="game-icon">🚀</div>
+                    <div class="game-icon">📟</div>
                     <div class="game-details">
-                        <h2>두 번째 게임 제목</h2>
-                        <p>게임에 대한 간단한 한 줄 설명</p>
+                        <h2>전술 요원: 암호 코드 해독</h2>
+                        <p>리듬 해킹 & 방화벽 무력화 작전</p>
                     </div>
                 </div>
                 <div class="play-btn">PLAY ▶</div>
             </a>
-            -->
+
+            <!-- [게임 3] -->
+            <a href="./games/game3/" class="game-card">
+                <div class="game-info">
+                    <div class="game-icon">🚀</div>
+                    <div class="game-details">
+                        <h2>세 번째 창작 게임</h2>
+                        <p>스테이지 지능 및 아케이드 미션</p>
+                    </div>
+                </div>
+                <div class="play-btn">PLAY ▶</div>
+            </a>
+
+            <!-- [게임 4] -->
+            <a href="./games/game4/" class="game-card">
+                <div class="game-info">
+                    <div class="game-icon">🎯</div>
+                    <div class="game-details">
+                        <h2>네 번째 창작 게임</h2>
+                        <p>타겟 조준 및 전략 컨트롤</p>
+                    </div>
+                </div>
+                <div class="play-btn">PLAY ▶</div>
+            </a>
+
+            <!-- [게임 5] -->
+            <a href="./games/game5/" class="game-card">
+                <div class="game-info">
+                    <div class="game-icon">⚔️</div>
+                    <div class="game-details">
+                        <h2>다섯 번째 창작 게임</h2>
+                        <p>최종 액션 & 생존 디펜스</p>
+                    </div>
+                </div>
+                <div class="play-btn">PLAY ▶</div>
+            </a>
 
             <!-- 준비 중 표시 (디자인용) -->
             <div class="game-card disabled">
