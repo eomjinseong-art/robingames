@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>신나는 구구단 타임어택! ⚡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        jua: ['Jua', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#6C5CE7',
+                            pink: '#FD79A8',
+                            yellow: '#FFE156',
+                            green: '#00B894',
+                            blue: '#0984E3',
+                            orange: '#E17055'
+                        }
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.5s ease-in-out 1',
+                        'pulse-fast': 'pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both',
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-2px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(4px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-8px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(8px, 0, 0)' }
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Jua', 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-purple { background-color: #8c7ae6; box-shadow: 0 8px 0 #718093; color: white; }
+        .btn-yellow { background-color: #fbc531; box-shadow: 0 8px 0 #e1b12c; color: #2f3640; }
+        .btn-green { background-color: #44bd32; box-shadow: 0 8px 0 #2ed573; color: white; }
+        .btn-pink { background-color: #e84118; box-shadow: 0 8px 0 #c23616; color: white; }
+        .btn-blue { background-color: #00a8ff; box-shadow: 0 8px 0 #0097e6; color: white; }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-3 sm:p-6 min-h-screen">
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="w-full max-w-md mx-auto relative z-10">
+
+        <!-- ================= START SCREEN ================= -->
+        <div id="start-screen" class="glass-card rounded-3xl p-6 sm:p-8 text-center animate-pop">
+            <div class="inline-block bg-yellow-300 text-yellow-900 px-4 py-1.5 rounded-full text-sm sm:text-base font-bold mb-3 shadow-md animate-bounce">
+                ⭐ 재미있는 수학 게임 ⭐
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-indigo-900 mb-2 tracking-wide">
+                구구단<br><span class="text-pink-500 drop-shadow-md">타임어택!</span> ⚡
+            </h1>
+            <p class="text-gray-600 mb-6 text-lg">빠르고 정확하게 문제를 맞혀보세요!</p>
+
+            <!-- Mode Selection Buttons -->
+            <div class="space-y-4 mb-8">
+                <button onclick="selectMode('time-attack')" class="btn-3d btn-yellow w-full py-4 text-2xl font-black rounded-2xl flex items-center justify-center gap-3">
+                    <span>⏱️</span> 60초 타임어택!
+                </button>
+                <button onclick="selectMode('practice')" class="btn-3d btn-blue w-full py-4 text-2xl font-black rounded-2xl flex items-center justify-center gap-3">
+                    <span>✏️</span> 차근차근 연습모드
+                </button>
+            </div>
+
+            <!-- Single Dan Selection for Practice -->
+            <div class="bg-indigo-50/80 p-4 rounded-2xl border-2 border-indigo-100 text-left mb-6">
+                <label class="block text-indigo-900 font-bold mb-2 text-center text-lg">🎯 학습할 단 선택</label>
+                <div class="grid grid-cols-4 gap-2 text-center" id="dan-selector">
+                    <!-- JS generated dan buttons -->
+                </div>
+            </div>
+
+            <!-- High Score Display -->
+            <div class="bg-amber-100/80 p-3.5 rounded-xl border border-amber-300 flex items-center justify-between text-amber-900 font-bold">
+                <span class="flex items-center gap-2">🏆 최고 기록</span>
+                <span id="best-score-display" class="text-2xl text-amber-600 font-black">0점</span>
+            </div>
+        </div>
+
+        <!-- ================= GAMEPLAY SCREEN ================= -->
+        <div id="game-screen" class="glass-card rounded-3xl p-5 sm:p-7 hidden relative">
+            
+            <!-- Top HUD Bar -->
+            <div class="flex items-center justify-between gap-2 mb-4 bg-indigo-90/50 p-2.5 rounded-2xl border border-indigo-100">
+                <!-- Left: Timer/Mode -->
+                <div id="timer-box" class="flex items-center gap-1.5 bg-red-500 text-white px-3 py-1.5 rounded-xl font-extrabold text-lg shadow-sm">
+                    <span>⏱️</span>
+                    <span id="time-left">60</span>s
+                </div>
+                <div id="practice-badge" class="hidden bg-blue-500 text-white px-3 py-1.5 rounded-xl font-extrabold text-base shadow-sm">
+                    연습 모드 ✏️
+                </div>
+
+                <!-- Combo Counter -->
+                <div id="combo-container" class="flex items-center gap-1 bg-amber-400 text-amber-950 px-3 py-1.5 rounded-xl font-black text-lg shadow-sm animate-pop">
+                    🔥 <span id="combo-count">0</span> 콤보
+                </div>
+
+                <!-- Score -->
+                <div class="text-right">
+                    <span class="text-xs text-gray-500 font-bold block">점수</span>
+                    <span id="score-display" class="text-2xl font-black text-indigo-900">0</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar for Time Attack -->
+            <div id="progress-container" class="w-full bg-gray-200 h-3 rounded-full mb-6 overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-emerald-500 h-full w-full transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card" class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center border-4 border-indigo-200 mb-6 shadow-inner relative overflow-hidden">
+                <div class="text-gray-400 text-sm font-bold mb-1" id="question-sub-info">정답을 골라주세요!</div>
+                <div id="question-text" class="text-5xl sm:text-6xl font-black text-indigo-950 tracking-wider">
+                    7 × 8 = ?
+                </div>
+            </div>
+
+            <!-- Multiple Choice Buttons (2x2 Grid) -->
+            <div class="grid grid-cols-2 gap-3.5 mb-4" id="choice-buttons-container">
+                <button class="choice-btn btn-3d btn-purple py-5 text-3xl font-black rounded-2xl"></button>
+                <button class="choice-btn btn-3d btn-yellow py-5 text-3xl font-black rounded-2xl"></button>
+                <button class="choice-btn btn-3d btn-green py-5 text-3xl font-black rounded-2xl"></button>
+                <button class="choice-btn btn-3d btn-pink py-5 text-3xl font-black rounded-2xl"></button>
+            </div>
+
+            <!-- Hint Modal/Banner Overlay (Triggered on wrong answer) -->
+            <div id="hint-banner" class="hidden bg-yellow-100 border-2 border-yellow-400 text-yellow-900 rounded-xl p-3 text-center text-sm font-bold animate-pop mb-2">
+                💡 <span id="hint-text">힌트 메시지</span>
+            </div>
+
+            <!-- Exit Button -->
+            <button onclick="confirmExit()" class="w-full text-gray-400 hover:text-gray-600 font-bold py-2 text-center text-sm transition">
+                🚪 게임 종료하기
+            </button>
+        </div>
+
+        <!-- ================= RESULTS MODAL ================= -->
+        <div id="result-modal" class="glass-card rounded-3xl p-6 text-center hidden animate-pop">
+            <div class="text-6xl mb-2" id="result-emoji">🎉</div>
+            <h2 class="text-3xl font-black text-indigo-950 mb-1" id="result-title">참 잘했어요!</h2>
+            <p class="text-gray-600 text-sm mb-6" id="result-subtitle">오늘도 구구단 실력이 쑥쑥 늘었어요!</p>
+
+            <!-- Stats Box -->
+            <div class="bg-indigo-50/90 rounded-2xl p-4 border-2 border-indigo-100 space-y-3 mb-6 text-left">
+                <div class="flex justify-between items-center text-gray-700 font-bold">
+                    <span>최종 점수</span>
+                    <span id="final-score" class="text-2xl font-black text-indigo-600">0점</span>
+                </div>
+                <hr class="border-indigo-100">
+                <div class="flex justify-between items-center text-gray-700 font-bold">
+                    <span>맞힌 문제 수</span>
+                    <span id="final-correct" class="text-lg font-black text-emerald-600">0 / 0</span>
+                </div>
+                <div class="flex justify-between items-center text-gray-700 font-bold">
+                    <span>정답률</span>
+                    <span id="final-accuracy" class="text-lg font-black text-blue-600">0%</span>
+                </div>
+                <div class="flex justify-between items-center text-gray-700 font-bold">
+                    <span>최대 연속 콤보</span>
+                    <span id="final-max-combo" class="text-lg font-black text-amber-500">0회</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="restartGame()" class="btn-3d btn-green w-full py-4 text-2xl font-black rounded-2xl">
+                    🔄 다시 도전하기
+                </button>
+                <button onclick="showStartScreen()" class="btn-3d btn-blue w-full py-3 text-xl font-black rounded-2xl">
+                    🏠 메인 화면으로
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ================= WEB AUDIO SYNTHESIZER ================= */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playPop() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playCorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                // Two tone chime (C5 -> G5)
+                [523.25, 783.99].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    
+                    gain.gain.setValueAtTime(0.3, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.15);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.15);
+                });
+            }
+
+            playWrong() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.25);
+                
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+
+            playVictory() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.3, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.25);
+                });
+            }
+        }
+
+        const sound = new SoundFX();
+
+        /* ================= GAME STATE VARIABLES ================= */
+        let gameMode = 'time-attack'; // 'time-attack' or 'practice'
+        let selectedDan = 'all'; // 'all' or 2~9
+        let score = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let totalQuestions = 0;
+        let correctAnswers = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let currentQuestion = { a: 0, b: 0, answer: 0 };
+        let highScore = localStorage.getItem('timesTable_highScore') || 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDanSelector();
+            updateHighScoreDisplay();
+        });
+
+        function initDanSelector() {
+            const container = document.getElementById('dan-selector');
+            container.innerHTML = '';
+
+            // '전체' option
+            const allBtn = document.createElement('button');
+            allBtn.className = 'dan-btn bg-indigo-600 text-white py-2 rounded-xl font-bold shadow transition text-sm';
+            allBtn.innerText = '전체 (2~9단)';
+            allBtn.onclick = () => selectDan('all', allBtn);
+            container.appendChild(allBtn);
+
+            // 2 ~ 9 Dan options
+            for (let i = 2; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'dan-btn bg-white hover:bg-indigo-100 text-indigo-900 py-2 rounded-xl font-bold border border-indigo-200 transition text-sm';
+                btn.innerText = `${i}단`;
+                btn.onclick = () => selectDan(i, btn);
+                container.appendChild(btn);
+            }
+        }
+
+        function selectDan(dan, btnElement) {
+            sound.playPop();
+            selectedDan = dan;
+            document.querySelectorAll('.dan-btn').forEach(b => {
+                b.className = 'dan-btn bg-white hover:bg-indigo-100 text-indigo-900 py-2 rounded-xl font-bold border border-indigo-200 transition text-sm';
+            });
+            btnElement.className = 'dan-btn bg-indigo-600 text-white py-2 rounded-xl font-bold shadow transition text-sm';
+        }
+
+        function updateHighScoreDisplay() {
+            document.getElementById('best-score-display').innerText = `${highScore}점`;
+        }
+
+        function selectMode(mode) {
+            sound.playPop();
+            gameMode = mode;
+            startGame();
+        }
+
+        function startGame() {
+            // Reset state
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            totalQuestions = 0;
+            correctAnswers = 0;
+            timeLeft = 60;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('hint-banner').classList.add('hidden');
+
+            // Setup UI based on mode
+            if (gameMode === 'time-attack') {
+                document.getElementById('timer-box').classList.remove('hidden');
+                document.getElementById('progress-container').classList.remove('hidden');
+                document.getElementById('practice-badge').classList.add('hidden');
+                startTimer();
+            } else {
+                document.getElementById('timer-box').classList.add('hidden');
+                document.getElementById('progress-container').classList.add('hidden');
+                document.getElementById('practice-badge').classList.remove('hidden');
+            }
+
+            updateHUD();
+            nextQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time-left').innerText = timeLeft;
+                
+                // Progress bar update
+                const percent = (timeLeft / 60) * 100;
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+
+                if (timeLeft <= 10) {
+                    document.getElementById('timer-box').classList.add('animate-pulse-fast');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            document.getElementById('hint-banner').classList.add('hidden');
+
+            // Determine multiplicand 'a'
+            let a;
+            if (selectedDan === 'all') {
+                a = Math.floor(Math.random() * 8) + 2; // 2 ~ 9
+            } else {
+                a = parseInt(selectedDan);
+            }
+
+            // Multiplier 'b'
+            let b = Math.floor(Math.random() * 9) + 1; // 1 ~ 9
+
+            currentQuestion = { a, b, answer: a * b };
+
+            // Update question display
+            document.getElementById('question-text').innerText = `${a} × ${b} = ?`;
+
+            // Generate 4 choice options (1 correct, 3 distractors)
+            const choices = generateChoices(a, b, a * b);
+            
+            const choiceBtns = document.querySelectorAll('.choice-btn');
+            choiceBtns.forEach((btn, index) => {
+                btn.innerText = choices[index];
+                btn.onclick = () => handleAnswer(choices[index], btn);
+                btn.disabled = false;
+            });
+        }
+
+        // Smart distractor generator for realistic math choices
+        function generateChoices(a, b, correctAnswer) {
+            const choices = new Set([correctAnswer]);
+
+            while (choices.size < 4) {
+                let distractor;
+                const randType = Math.floor(Math.random() * 4);
+
+                if (randType === 0) {
+                    distractor = correctAnswer + a; // Off by a factor
+                } else if (randType === 1) {
+                    distractor = Math.max(1, correctAnswer - a);
+                } else if (randType === 2) {
+                    distractor = correctAnswer + (Math.random() < 0.5 ? 2 : -2);
+                } else {
+                    distractor = (a + (Math.random() < 0.5 ? 1 : -1)) * b;
+                }
+
+                if (distractor > 0 && distractor !== correctAnswer) {
+                    choices.add(distractor);
+                }
+            }
+
+            // Shuffle array
+            return Array.from(choices).sort(() => Math.random() - 0.5);
+        }
+
+        function handleAnswer(selectedVal, btnElement) {
+            totalQuestions++;
+
+            if (selectedVal === currentQuestion.answer) {
+                // Correct Answer
+                sound.playCorrect();
+                correctAnswers++;
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+
+                // Combo multiplier score calculation
+                const comboMultiplier = Math.min(Math.floor(combo / 3) + 1, 4);
+                const pointsGained = 100 * comboMultiplier;
+                score += pointsGained;
+
+                // Visual Animation
+                btnElement.classList.add('animate-bounce-short');
+                setTimeout(() => btnElement.classList.remove('animate-bounce-short'), 500);
+
+                updateHUD();
+                nextQuestion();
+            } else {
+                // Wrong Answer
+                sound.playWrong();
+                combo = 0; // Reset Combo
+
+                // Visual Shake
+                const card = document.getElementById('question-card');
+                card.classList.add('animate-shake');
+                setTimeout(() => card.classList.remove('animate-shake'), 400);
+
+                // Show Hint
+                showHint(currentQuestion.a, currentQuestion.b);
+
+                updateHUD();
+                // Brief pause before next question so kid can see the hint
+                document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+                setTimeout(nextQuestion, 1600);
+            }
+        }
+
+        function showHint(a, b) {
+            const hintBanner = document.getElementById('hint-banner');
+            const hintText = document.getElementById('hint-text');
+
+            // Kid-friendly pattern hints
+            if (a === 9) {
+                hintText.innerText = `9단 팁: 십의 자리는 1씩 늘어나고, 일의 자리는 1씩 줄어들어요! (${a}×${b}=${a*b})`;
+            } else if (a === 5) {
+                hintText.innerText = `5단 팁: 끝자리가 항상 5 또는 0으로 끝나요! (${a}×${b}=${a*b})`;
+            } else {
+                hintText.innerText = `기억해요! ${a} × ${b}는 ${b} × ${a} (${a*b})와 같아요!`;
+            }
+
+            hintBanner.classList.remove('hidden');
+        }
+
+        function updateHUD() {
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('combo-count').innerText = combo;
+
+            // Animate combo counter when active
+            const comboContainer = document.getElementById('combo-container');
+            if (combo >= 3) {
+                comboContainer.classList.add('scale-110');
+            } else {
+                comboContainer.classList.remove('scale-110');
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+
+            // Hide gameplay, show results
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-modal').classList.remove('hidden');
+
+            const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+            document.getElementById('final-score').innerText = `${score}점`;
+            document.getElementById('final-correct').innerText = `${correctAnswers} / ${totalQuestions} 문제`;
+            document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('final-max-combo').innerText = `${maxCombo}회`;
+
+            // Check high score for Time Attack
+            let isNewHighScore = false;
+            if (gameMode === 'time-attack' && score > highScore) {
+                highScore = score;
+                localStorage.setItem('timesTable_highScore', highScore);
+                updateHighScoreDisplay();
+                isNewHighScore = true;
+            }
+
+            // Results UI Message & Sound
+            const resultEmoji = document.getElementById('result-emoji');
+            const resultTitle = document.getElementById('result-title');
+            const resultSubtitle = document.getElementById('result-subtitle');
+
+            if (isNewHighScore) {
+                sound.playVictory();
+                triggerConfetti();
+                resultEmoji.innerText = '👑';
+                resultTitle.innerText = '신기록 달성!';
+                resultSubtitle.innerText = '축하해요! 최고 점수를 갱신했어요!';
+            } else if (accuracy >= 80) {
+                sound.playVictory();
+                triggerConfetti();
+                resultEmoji.innerText = '🌟';
+                resultTitle.innerText = '대단해요!';
+                resultSubtitle.innerText = '구구단 박사님이시네요!';
+            } else {
+                sound.playPop();
+                resultEmoji.innerText = '👍';
+                resultTitle.innerText = '수고했어요!';
+                resultSubtitle.innerText = '조금만 더 연습하면 최고가 될 수 있어요!';
+            }
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function showStartScreen() {
+            clearInterval(timerInterval);
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function confirmExit() {
+            if (confirm('게임을 정말로 중단하시겠어요?')) {
+                showStartScreen();
+            }
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.8) * 14,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 100
+                });
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let stillAlive = false;
+
+                particles.forEach(p => {
+                    if (p.life > 0) {
+                        stillAlive = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3; // gravity
+                        p.life--;
+
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+
+                if (stillAlive) {
+                    requestAnimationFrame(render);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            render();
+        }
+    </script>
+</body>
+</html>
