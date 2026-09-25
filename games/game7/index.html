@@ -322,6 +322,50 @@
             color: var(--muted);
             font-size: 0.92rem;
             text-align: center;
+            line-height: 1.4;
+        }
+
+        .dict-loading {
+            margin: 8px 0 0;
+            color: var(--purple);
+            font-size: 0.92rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .dict-loading::before {
+            content: '';
+            display: inline-block;
+            width: 0.55em;
+            height: 0.55em;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            vertical-align: 0.05em;
+            animation: dictpulse 1s ease-in-out infinite;
+        }
+
+        .dict-loading.ready { color: #0b7a62; }
+        .dict-loading.error { color: #a33b24; }
+
+        .dict-loading.ready::before,
+        .dict-loading.error::before { animation: none; }
+
+        @keyframes dictpulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .dict-credit {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 0.84rem;
+            line-height: 1.45;
+            text-align: left;
+        }
+
+        .dict-credit a {
+            color: var(--purple);
         }
 
         .hud {
@@ -643,7 +687,7 @@
                         </li>
                         <li>
                             <strong>두 글자 이상의 명사만 써요.</strong>
-                            <p>표준국어 보통명사만 인정해요.</p>
+                            <p>내가 낸 단어는 표준국어대사전 명사인지 확인해요. 컴퓨터는 쉬운 명사를 내고, 그 목록에 이을 말이 없으면 사전에서 두세 글자짜리 단어를 찾아요. 사전을 다 받기 전에는 쉬운 명사로 확인해요.</p>
                         </li>
                         <li>
                             <strong>완성형 한글만 쓸 수 있어요.</strong>
@@ -662,12 +706,13 @@
                             <p>사람 이름, 지명, 상표, 사투리는 쓰지 않아요.</p>
                         </li>
                         <li>
-                            <strong>한방단어는 끝 글자로 잇는 말이 거의 없는 단어예요.</strong>
-                            <p class="rule-ex">예를 들어 하늘은 ‘늘’로 시작하는 명사가 거의 없어, 내면 상대가 바로 질 수 있어요.</p>
+                            <strong>한방단어는 끝 글자로 잇는 말이 없는 단어예요.</strong>
+                            <p class="rule-ex">예를 들어 기쁨은 ‘쁨’으로 시작하는 명사가 없어, 내면 상대가 바로 질 수 있어요. 표준국어대사전에서 마지막 글자와 두음법칙으로 바뀐 글자를 모두 봐요.</p>
                             <button id="hanbang-toggle" class="btn hanbang-btn forbid" type="button" aria-pressed="false">한방단어 금지</button>
                             <p class="fine">기본은 금지예요. 허용으로 바꾸면 나만 한방단어를 쓸 수 있고, 컴퓨터는 첫 턴에도 그 다음에도 한방단어를 내지 않아요.</p>
                         </li>
                     </ol>
+                    <p class="dict-credit">단어 목록 출처: <a href="https://stdict.korean.go.kr">국립국어원 표준국어대사전</a> (<a href="https://creativecommons.org/licenses/by-sa/2.0/kr/">CC BY-SA 2.0 KR</a>). 두 글자 이상의 명사만 고르고, 모든 뜻이 인명·지명·책명·고유명 일반인 항목은 빼서 걸러 둔 목록이에요.</p>
                     <button id="rules-close" class="btn btn-blue hidden" type="button">닫기</button>
                 </article>
             </div>
@@ -677,7 +722,9 @@
                 <strong id="best-score">0</strong>
             </div>
             <button id="start-btn" class="btn btn-yellow" type="button">대결 시작!</button>
-            <p class="dict-note">표준국어 보통명사 <span id="dict-count">0</span>개 · 인터넷 없이 나와 컴퓨터가 함께 써요</p>
+            <p class="dict-note">컴퓨터는 쉬운 명사 <span id="dict-count">0</span>개를 써요.</p>
+            <p id="dict-loading" class="dict-loading" role="status">표준국어대사전 불러오는 중…</p>
+            <p class="dict-credit">단어 목록 출처: <a href="https://stdict.korean.go.kr">국립국어원 표준국어대사전</a> (<a href="https://creativecommons.org/licenses/by-sa/2.0/kr/">CC BY-SA 2.0 KR</a>). 두 글자 이상의 명사만 고르고, 모든 뜻이 인명·지명·책명·고유명 일반인 항목은 빼서 걸러 둔 목록이에요.</p>
             <a class="home-link" href="../../index.html">🏠 게임 모음으로</a>
         </section>
 
@@ -709,10 +756,11 @@
                 <p class="next-label" id="next-label">다음 글자: 과</p>
             </div>
             <p class="mode-note" id="hanbang-mode">한방단어 금지</p>
+            <p id="dict-loading-game" class="mode-note dict-loading" role="status">표준국어대사전 불러오는 중…</p>
 
             <form id="play-form" class="play-form" autocomplete="off">
                 <label for="word-input" class="need-label">단어 입력</label>
-                <input id="word-input" type="text" maxlength="12" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="단어를 입력해요">
+                <input id="word-input" type="text" maxlength="16" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="단어를 입력해요">
                 <button id="submit-btn" class="btn btn-green" type="submit">확인</button>
             </form>
             <div id="banner" class="banner info hidden" role="status"></div>
@@ -2888,6 +2936,77 @@
 
         buildHanbang();
 
+        let stdReady = false;
+        let stdSet = new Set();
+        let stdByStart = new Map();
+
+        function isHanbangWord(word, index) {
+            const starts = acceptableStarts(word[word.length - 1]);
+            for (let i = 0; i < starts.length; i++) {
+                const list = index.get(starts[i]);
+                if (!list) continue;
+                for (let j = 0; j < list.length; j++) {
+                    if (list[j] !== word) return false;
+                }
+            }
+            return true;
+        }
+
+        function ingestStdictText(text) {
+            const set = new Set();
+            const index = new Map();
+            const lines = String(text || '').split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const w = lines[i].trim();
+                if (!/^[가-힣]{2,}$/.test(w) || set.has(w)) continue;
+                set.add(w);
+                const head = w[0];
+                let bucket = index.get(head);
+                if (!bucket) {
+                    bucket = [];
+                    index.set(head, bucket);
+                }
+                bucket.push(w);
+            }
+            stdSet = set;
+            stdByStart = index;
+            stdReady = true;
+            return set.size;
+        }
+
+        function playerDictHas(word) {
+            if (stdReady) return stdSet.has(word);
+            return wordSet.has(word);
+        }
+
+        function playerIsHanbang(word) {
+            if (stdReady) {
+                if (!stdSet.has(word)) return false;
+                return isHanbangWord(word, stdByStart);
+            }
+            return hanbangSet.has(word);
+        }
+
+        function computerIsHanbang(word) {
+            if (stdReady) return isHanbangWord(word, stdByStart);
+            return hanbangSet.has(word);
+        }
+
+        function findRareNoun() {
+            if (!stdReady) return '';
+            const heads = Array.from(stdByStart.keys()).sort();
+            for (let i = 0; i < heads.length; i++) {
+                const list = stdByStart.get(heads[i]);
+                for (let j = 0; j < list.length; j++) {
+                    const w = list[j];
+                    if (wordSet.has(w)) continue;
+                    if (isHanbangWord(w, stdByStart)) continue;
+                    return w;
+                }
+            }
+            return '';
+        }
+
         function nextGlyph(starts) {
             if (starts.length > 1) return '다음 글자: ' + starts[0] + '(' + starts[1] + ')';
             return '다음 글자: ' + starts[0];
@@ -2972,11 +3091,12 @@
                 }
             }
             if (used.has(word)) return { ok: false, reason: '이미 나온 단어예요. 같은 단어는 다시 쓸 수 없어요.' };
-            if (!hanbangAllowed && hanbangSet.has(word)) {
+            if (!hanbangAllowed && playerIsHanbang(word)) {
                 return { ok: false, reason: '한방단어는 지금 금지예요. 끝 글자로 이어 갈 말이 거의 없는 단어는 쓸 수 없어요.' };
             }
-            if (!wordSet.has(word)) {
-                return { ok: false, reason: '사전에 없는 단어예요. 표준국어 보통명사만 쓸 수 있고, 사람 이름·지명·상표·사투리는 안 돼요.' };
+            if (!playerDictHas(word)) {
+                const dictName = stdReady ? '표준국어대사전 명사' : '표준국어 보통명사';
+                return { ok: false, reason: '사전에 없는 단어예요. ' + dictName + '만 쓸 수 있고, 사람 이름·지명·상표·사투리는 안 돼요.' };
             }
             return { ok: true, word: word };
         }
@@ -3015,7 +3135,26 @@
         }
 
         function computerReplies(lastChar) {
-            return findReplies(lastChar).filter(function (w) { return !hanbangSet.has(w); });
+            return findReplies(lastChar).filter(function (w) { return !computerIsHanbang(w); });
+        }
+
+        function bigListReplies(lastChar) {
+            if (!stdReady) return [];
+            const starts = acceptableStarts(lastChar);
+            const out = [];
+            const seen = new Set();
+            for (let i = 0; i < starts.length; i++) {
+                const list = stdByStart.get(starts[i]);
+                if (!list) continue;
+                for (let j = 0; j < list.length; j++) {
+                    const w = list[j];
+                    if (w.length < 2 || w.length > 3 || used.has(w) || seen.has(w)) continue;
+                    if (isHanbangWord(w, stdByStart)) continue;
+                    seen.add(w);
+                    out.push(w);
+                }
+            }
+            return out;
         }
 
         function pickComputerWord(cands) {
@@ -3040,7 +3179,7 @@
 
         function pickStarter() {
             const pool = STARTERS.filter(function (w) {
-                return wordSet.has(w) && !hanbangSet.has(w);
+                return wordSet.has(w) && !computerIsHanbang(w);
             });
             const good = pool.filter(function (w) {
                 const pretend = new Set(used);
@@ -3281,14 +3420,16 @@
             $('turn-badge').textContent = '컴퓨터 차례';
             showBanner('info', '컴퓨터가 단어를 고르고 있어요…');
             thinkTimer = setTimeout(function () {
-                const cands = computerReplies(currentWord[currentWord.length - 1]);
-                if (!cands.length) {
-                    endRound('win');
-                    return;
+                const last = currentWord[currentWord.length - 1];
+                const cands = computerReplies(last);
+                let word = cands.length ? pickComputerWord(cands) : '';
+                if (!word) {
+                    const fallback = bigListReplies(last);
+                    if (fallback.length) word = choice(fallback);
                 }
-                const word = pickComputerWord(cands);
-                const verdict = judge(word);
-                if (!verdict.ok || hanbangSet.has(word)) {
+                const starts = acceptableStarts(last);
+                const known = wordSet.has(word) || (stdReady && stdSet.has(word));
+                if (!word || !known || used.has(word) || computerIsHanbang(word) || !starts.includes(word[0])) {
                     endRound('win');
                     return;
                 }
@@ -3555,6 +3696,24 @@
                     const opener = pickStarter();
                     expect(!hanbangSet.has(opener), '컴퓨터 첫 단어가 한방단어예요 ' + opener);
                 }
+
+                hanbangAllowed = false;
+                currentWord = '';
+                used = new Set();
+                ['역기', '기록', '체력'].forEach(function (word) {
+                    const result = judge(word);
+                    expect(result.ok, word + '이 통과해야 해요 ' + (result.reason || ''));
+                });
+                currentWord = '체력';
+                used = new Set(['체력']);
+                const yeokgi = judge('역기');
+                expect(yeokgi.ok, '체력 다음 역기 ' + (yeokgi.reason || ''));
+                const badaAfter = judge('바다');
+                expect(!badaAfter.ok && badaAfter.reason.indexOf('력') !== -1, '체력 다음 바다 거절 ' + (badaAfter.reason || ''));
+                currentWord = '역기';
+                used = new Set(['체력', '역기']);
+                const girok = judge('기록');
+                expect(girok.ok, '역기 다음 기록 ' + (girok.reason || ''));
             } finally {
                 currentWord = savedWord;
                 used = savedUsed;
@@ -3563,13 +3722,136 @@
             return errors;
         }
 
+        function selfCheckBigList() {
+            const errors = [];
+            const savedWord = currentWord;
+            const savedUsed = used;
+            const savedAllow = hanbangAllowed;
+            function expect(cond, msg) { if (!cond) errors.push(msg); }
+            try {
+                expect(stdReady && stdSet.size > 100000, '큰 사전 크기 ' + stdSet.size);
+                hanbangAllowed = false;
+                currentWord = '';
+                used = new Set();
+                ['역기', '기록', '체력'].forEach(function (word) {
+                    expect(stdSet.has(word), '큰 사전에 없음 ' + word);
+                    const result = judge(word);
+                    expect(result.ok, '큰 사전 ' + word + ' ' + (result.reason || ''));
+                });
+                currentWord = '체력';
+                used = new Set(['체력']);
+                const yeokgi = judge('역기');
+                expect(yeokgi.ok, '큰 사전 체력→역기 ' + (yeokgi.reason || ''));
+                const bada = judge('바다');
+                expect(!bada.ok, '큰 사전에서 체력 다음 바다는 거절되어야 해요 ' + (bada.reason || ''));
+                const rare = findRareNoun();
+                expect(!!rare && !wordSet.has(rare) && stdSet.has(rare), '드문 명사 ' + rare);
+                currentWord = '';
+                used = new Set();
+                hanbangAllowed = false;
+                const rareResult = judge(rare);
+                expect(rareResult.ok, '드문 명사 통과 ' + rare + ' ' + (rareResult.reason || ''));
+                currentWord = '';
+                used = new Set();
+                const killer = judge('기쁨');
+                expect(!killer.ok && killer.reason.indexOf('한방단어') !== -1, '기쁨 한방 ' + (killer.reason || ''));
+                expect(wordSet.has('딸기우유') && !stdSet.has('딸기우유'), '딸기우유는 쉬운 목록에만 있어요');
+                hanbangAllowed = true;
+                const milk = judge('딸기우유');
+                expect(!milk.ok && milk.reason.indexOf('표준국어대사전') !== -1, '쉬운 목록 전용 단어 거절 ' + (milk.reason || ''));
+                currentWord = '하늘';
+                used = new Set(['하늘']);
+                const easyNeul = computerReplies('늘');
+                expect(easyNeul.length === 0, '늘로 시작하는 쉬운 단어가 있으면 안 돼요 ' + easyNeul.length);
+                const fallback = bigListReplies('늘');
+                expect(fallback.length > 0 && fallback.indexOf('늘보') !== -1, '늘 폴백에 늘보가 있어야 해요');
+                fallback.forEach(function (word) {
+                    if (word.length < 2 || word.length > 3 || computerIsHanbang(word)) {
+                        errors.push('폴백 단어가 두세 글자 한방단어가 아니어야 해요 ' + word);
+                    }
+                });
+            } finally {
+                currentWord = savedWord;
+                used = savedUsed;
+                hanbangAllowed = savedAllow;
+            }
+            return errors;
+        }
+
+        function showSelfCheckErrors(errors) {
+            if (!errors.length) return;
+            const box = $('self-check-error');
+            if (!box) {
+                console.error(errors);
+                return;
+            }
+            box.classList.remove('hidden');
+            box.textContent = '규칙 점검에 문제가 있어요. ' + errors[0];
+        }
+
+        function setDictStatus(kind, message) {
+            const start = $('dict-loading');
+            if (start) {
+                start.className = 'dict-loading ' + kind;
+                start.textContent = message;
+            }
+            const game = $('dict-loading-game');
+            if (game) {
+                game.className = 'mode-note dict-loading ' + kind;
+                game.textContent = message;
+                game.classList.toggle('hidden', kind === 'ready');
+            }
+        }
+
+        function loadStdict() {
+            setDictStatus('loading', '표준국어대사전 불러오는 중…');
+            fetch('data/stdict-nouns.txt').then(function (res) {
+                if (!res.ok) throw new Error('http ' + res.status);
+                return res.text();
+            }).then(function (text) {
+                const count = ingestStdictText(text);
+                setDictStatus('ready', '표준국어대사전 명사 ' + count.toLocaleString('ko-KR') + '개를 불러왔어요.');
+                const extra = selfCheckBigList();
+                if (extra.length) {
+                    console.error('BIG-LIST SELF-CHECK FAILED\n' + extra.join('\n'));
+                    showSelfCheckErrors(extra);
+                }
+            }).catch(function () {
+                setDictStatus('error', '표준국어대사전을 불러오지 못했어요. 그동안은 쉬운 명사로 확인해요.');
+            });
+        }
+
         const SELF_CHECK_ERRORS = selfCheck();
         if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-            if (SELF_CHECK_ERRORS.length) {
-                console.error('SELF-CHECK FAILED\n' + SELF_CHECK_ERRORS.join('\n'));
+            const errors = SELF_CHECK_ERRORS.slice();
+            try {
+                const fs = require('fs');
+                const path = require('path');
+                const candidates = [
+                    path.join(process.cwd(), 'games/game7/data/stdict-nouns.txt'),
+                    path.join(process.cwd(), 'data/stdict-nouns.txt')
+                ];
+                let file = '';
+                for (let i = 0; i < candidates.length; i++) {
+                    if (fs.existsSync(candidates[i])) {
+                        file = candidates[i];
+                        break;
+                    }
+                }
+                if (!file) errors.push('표준국어대사전 목록 파일이 없어요');
+                else {
+                    ingestStdictText(fs.readFileSync(file, 'utf8'));
+                    const more = selfCheckBigList();
+                    for (let i = 0; i < more.length; i++) errors.push(more[i]);
+                }
+            } catch (err) {
+                errors.push(String(err && err.message ? err.message : err));
+            }
+            if (errors.length) {
+                console.error('SELF-CHECK FAILED\n' + errors.join('\n'));
                 process.exit(1);
             }
-            console.log('SELF-CHECK OK words=' + WORDS.length + ' hanbang=' + hanbangSet.size);
+            console.log('SELF-CHECK OK words=' + WORDS.length + ' hanbang=' + hanbangSet.size + ' stdict=' + stdSet.size);
             process.exit(0);
         }
 
@@ -3577,12 +3859,9 @@
             bestScore = loadBest();
             hanbangAllowed = loadHanbangAllowed();
             updateHanbangUI();
-            if (SELF_CHECK_ERRORS.length) {
-                const box = $('self-check-error');
-                box.classList.remove('hidden');
-                box.textContent = '규칙 점검에 문제가 있어요. ' + SELF_CHECK_ERRORS[0];
-            }
+            showSelfCheckErrors(SELF_CHECK_ERRORS);
             $('dict-count').textContent = WORDS.length.toLocaleString('ko-KR');
+            loadStdict();
             $('best-score').textContent = String(bestScore);
             $('start-btn').addEventListener('click', startRound);
             $('hanbang-toggle').addEventListener('click', function () {
@@ -3629,6 +3908,16 @@
             pickStarter: pickStarter,
             hanbangSet: hanbangSet,
             selfCheck: selfCheck,
+            selfCheckBigList: selfCheckBigList,
+            isStdReady: function () { return stdReady; },
+            getStdSize: function () { return stdSet.size; },
+            stdHas: function (word) { return stdSet.has(word); },
+            playerDictHas: playerDictHas,
+            playerIsHanbang: playerIsHanbang,
+            computerIsHanbang: computerIsHanbang,
+            bigListReplies: bigListReplies,
+            findRareNoun: findRareNoun,
+            ingestStdictText: ingestStdictText,
             isHanbangAllowed: function () { return hanbangAllowed; },
             getCurrent: function () { return currentWord; },
             setCurrent: function (w) { currentWord = w; },
