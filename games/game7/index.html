@@ -673,14 +673,46 @@
         .syl-tail { color: var(--pink); }
         .pts { color: #0b7a62; font-size: 0.95rem; }
 
+        .play-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
         .turn-badge {
             display: inline-block;
-            margin-bottom: 8px;
+            margin-bottom: 0;
             background: var(--purple);
             color: white;
             border-radius: 999px;
             padding: 4px 12px;
             font-size: 0.92rem;
+        }
+
+        .voice-row {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 12px;
+        }
+
+        .voice-toggle {
+            width: auto;
+            flex: 0 0 auto;
+            font-size: 1rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #efeaff;
+            color: #5b3cc4;
+            border: 2px solid #d9ccff;
+            box-shadow: none;
+        }
+
+        .voice-toggle[aria-pressed="false"] {
+            background: #f4f1f8;
+            color: var(--muted);
+            border-color: #e0d8ee;
         }
 
         .point-pop {
@@ -809,7 +841,7 @@
                                 <li><strong>보통:</strong> 내 차례마다 12초예요.</li>
                                 <li><strong>타임어택:</strong> 처음 차례는 15초예요. 내가 단어를 하나 맞힐 때마다 다음 차례의 제한 시간이 1초씩 줄고, 4초보다 짧아지지 않아요. 이번 제한과 연속으로 맞힌 수, 난이도별 최고 기록을 화면에 보여 줘요.</li>
                             </ul>
-                            <p>틀린 단어를 고쳐 넣는 동안에도 시간은 흘러요. 규칙을 보는 동안에는 시간이 멈춰요.</p>
+                            <p>컴퓨터가 단어를 소리 내어 말한 뒤에 그 난이도의 제한 시간이 시작되고, 음성을 끄면 바로 시작해요. 틀린 단어를 고쳐 넣는 동안에도 시간은 흘러요. 규칙을 보는 동안에는 시간이 멈춰요.</p>
                         </li>
                         <li>
                             <strong>고유명사와 사투리는 안 돼요.</strong>
@@ -830,6 +862,9 @@
             <div class="best-box">
                 <span>🏆 최고 점수</span>
                 <strong id="best-score">0</strong>
+            </div>
+            <div class="voice-row">
+                <button id="voice-toggle-start" class="btn voice-toggle" type="button" aria-pressed="true" aria-label="음성">🔊 음성</button>
             </div>
             <div class="diff-field">
                 <p class="diff-legend" id="diff-legend">난이도</p>
@@ -863,7 +898,10 @@
 
         <section id="game-screen" class="card hidden">
             <div id="point-pop" class="point-pop"></div>
-            <div class="turn-badge" id="turn-badge">내 차례</div>
+            <div class="play-top">
+                <div class="turn-badge" id="turn-badge">내 차례</div>
+                <button id="voice-toggle-game" class="btn voice-toggle" type="button" aria-pressed="true" aria-label="음성">🔊 음성</button>
+            </div>
             <div class="hud">
                 <div class="score-pill"><small>점수</small><span id="score">0</span></div>
                 <div class="timer-pill" id="timer-pill"><small>남은 시간</small><span id="time-left">12</span></div>
@@ -960,6 +998,8 @@
         const ATTACK_MIN_SECONDS = 4;
         const BEST_KEY = 'robins_kkeutmal_best';
         const HANBANG_KEY = 'robins_kkeutmal_hanbang';
+        const SPEECH_KEY = 'robins_kkeutmal_speech';
+        const SPEECH_FALLBACK_MS = 3000;
         const MODE_KEY = 'robins_kkeutmal_mode';
         const STREAK_KEY = 'robins_kkeutmal_streak';
         const MODE_LABEL = { beginner: '초보', normal: '보통', attack: '타임어택' };
@@ -3210,6 +3250,12 @@
         let remainingMs = 0;
         let timerPaused = false;
         let hanbangAllowed = false;
+        let speechOn = true;
+        let koreanVoice = null;
+        let speechGeneration = 0;
+        let speechTimer = null;
+        let activeUtterance = null;
+        let primeUtterance = null;
 
         function charKind(ch) {
             const code = ch.codePointAt(0);
@@ -3442,7 +3488,7 @@
 
         function setDifficulty(mode) {
             if (mode !== 'beginner' && mode !== 'normal' && mode !== 'attack') return;
-            if (phase === 'player' || phase === 'computer') return;
+            if (phase === 'player' || phase === 'computer' || phase === 'speaking') return;
             selectedMode = mode;
             saveMode();
             updateDifficultyUI();
@@ -3616,6 +3662,195 @@
             draw();
         }
 
+        function ttsSupported() {
+            return typeof window !== 'undefined' &&
+                !!window.speechSynthesis &&
+                typeof window.SpeechSynthesisUtterance === 'function';
+        }
+
+        function pickKoreanVoice() {
+            koreanVoice = null;
+            if (!ttsSupported()) return null;
+            let voices = [];
+            try { voices = window.speechSynthesis.getVoices() || []; }
+            catch (e) { return null; }
+            let fallback = null;
+            for (let i = 0; i < voices.length; i++) {
+                const lang = String(voices[i].lang || '').toLowerCase().replace(/_/g, '-');
+                if (lang === 'ko-kr') {
+                    koreanVoice = voices[i];
+                    return koreanVoice;
+                }
+                if (!fallback && (lang === 'ko' || lang.indexOf('ko-') === 0)) fallback = voices[i];
+            }
+            koreanVoice = fallback;
+            return koreanVoice;
+        }
+
+        function watchVoices() {
+            if (!ttsSupported()) return;
+            pickKoreanVoice();
+            const synth = window.speechSynthesis;
+            if (typeof synth.addEventListener === 'function') {
+                synth.addEventListener('voiceschanged', pickKoreanVoice);
+            } else {
+                synth.onvoiceschanged = pickKoreanVoice;
+            }
+        }
+
+        function speechBusy() {
+            if (!ttsSupported()) return false;
+            try { return !!(window.speechSynthesis.speaking || window.speechSynthesis.pending); }
+            catch (e) { return false; }
+        }
+
+        function stopSpeechClock() {
+            speechGeneration++;
+            if (speechTimer) {
+                clearTimeout(speechTimer);
+                speechTimer = null;
+            }
+            activeUtterance = null;
+            primeUtterance = null;
+        }
+
+        function cancelSpeech() {
+            stopSpeechClock();
+            if (!ttsSupported()) return;
+            try { window.speechSynthesis.cancel(); }
+            catch (e) {}
+        }
+
+        function applyKoreanVoice(u) {
+            u.lang = 'ko-KR';
+            const voice = pickKoreanVoice();
+            if (!voice) return;
+            try { u.voice = voice; }
+            catch (e) {}
+        }
+
+        function primeSpeech() {
+            if (!speechOn || !ttsSupported()) return;
+            try {
+                const u = new SpeechSynthesisUtterance('');
+                u.volume = 0;
+                applyKoreanVoice(u);
+                primeUtterance = u;
+                window.speechSynthesis.speak(u);
+            } catch (e) {}
+        }
+
+        function speakWord(word, onDone, preserveQueue) {
+            let delaySpeak = false;
+            if (!preserveQueue) {
+                delaySpeak = speechBusy();
+                stopSpeechClock();
+                if (delaySpeak && ttsSupported()) {
+                    try { window.speechSynthesis.cancel(); }
+                    catch (e) {}
+                }
+            }
+            if (!speechOn || !ttsSupported()) {
+                onDone();
+                return;
+            }
+            const generation = ++speechGeneration;
+            let settled = false;
+            function finish() {
+                if (settled || generation !== speechGeneration) return;
+                settled = true;
+                if (speechTimer) {
+                    clearTimeout(speechTimer);
+                    speechTimer = null;
+                }
+                activeUtterance = null;
+                onDone();
+            }
+            try {
+                const u = new SpeechSynthesisUtterance(String(word || ''));
+                applyKoreanVoice(u);
+                u.onend = finish;
+                u.onerror = finish;
+                activeUtterance = u;
+                const synth = window.speechSynthesis;
+                function start() {
+                    if (generation !== speechGeneration) return;
+                    try {
+                        if (synth.paused) {
+                            try { synth.resume(); } catch (e) {}
+                        }
+                        synth.speak(u);
+                    } catch (e) {
+                        finish();
+                    }
+                }
+                speechTimer = setTimeout(finish, SPEECH_FALLBACK_MS);
+                if (delaySpeak) setTimeout(start, 50);
+                else start();
+            } catch (e) {
+                finish();
+            }
+        }
+
+        function loadSpeechOn() {
+            try { return localStorage.getItem(SPEECH_KEY) !== 'off'; }
+            catch (e) { return true; }
+        }
+
+        function saveSpeechOn() {
+            try { localStorage.setItem(SPEECH_KEY, speechOn ? 'on' : 'off'); }
+            catch (e) {}
+        }
+
+        function updateSpeechUI() {
+            ['voice-toggle-start', 'voice-toggle-game'].forEach(function (id) {
+                const btn = $(id);
+                if (!btn) return;
+                btn.setAttribute('aria-pressed', speechOn ? 'true' : 'false');
+                btn.textContent = speechOn ? '🔊 음성' : '🔇 음성';
+            });
+        }
+
+        function onVoiceToggle() {
+            speechOn = !speechOn;
+            saveSpeechOn();
+            updateSpeechUI();
+            if (!speechOn) {
+                const wasSpeaking = phase === 'speaking';
+                cancelSpeech();
+                if (wasSpeaking) beginPlayerTurn();
+                return;
+            }
+            primeSpeech();
+        }
+
+        function showWaitingTimer() {
+            const secs = limitFor(roundMode, chain);
+            turnLimitSeconds = secs;
+            $('time-left').textContent = String(secs);
+            $('time-fill').style.width = '100%';
+            $('timer-pill').classList.remove('danger');
+            $('time-bar').classList.remove('danger');
+            updateLimitNote(false);
+        }
+
+        function announceComputerWord(word, message, preserveQueue) {
+            used.add(word);
+            currentWord = word;
+            addHistory(word, 'computer', 0);
+            setLastWord(word, 'computer');
+            showBanner('info', message);
+            phase = 'speaking';
+            $('turn-badge').textContent = '컴퓨터 차례';
+            $('word-input').disabled = true;
+            $('submit-btn').disabled = true;
+            showWaitingTimer();
+            speakWord(word, function () {
+                if (phase !== 'speaking') return;
+                beginPlayerTurn();
+            }, preserveQueue);
+        }
+
         function armPlayerTimer() {
             clearInterval(timerId);
             timerId = setInterval(function () {
@@ -3653,6 +3888,7 @@
         }
 
         function beginPlayerTurn() {
+            if (phase === 'over' || phase === 'idle') return;
             phase = 'player';
             turnLimitSeconds = limitFor(roundMode, chain);
             remainingMs = turnLimitSeconds * 1000;
@@ -3679,8 +3915,11 @@
             $('word-input').disabled = true;
             $('submit-btn').disabled = true;
             $('turn-badge').textContent = '컴퓨터 차례';
+            showWaitingTimer();
             showBanner('info', '컴퓨터가 단어를 고르고 있어요…');
             thinkTimer = setTimeout(function () {
+                thinkTimer = null;
+                if (phase !== 'computer') return;
                 const last = currentWord[currentWord.length - 1];
                 const cands = computerReplies(last);
                 let word = cands.length ? pickComputerWord(cands) : '';
@@ -3694,12 +3933,7 @@
                     endRound('win');
                     return;
                 }
-                used.add(word);
-                currentWord = word;
-                addHistory(word, 'computer', 0);
-                setLastWord(word, 'computer');
-                showBanner('info', '컴퓨터가 「' + word + '」' + josaEul(word) + ' 말했어요.');
-                beginPlayerTurn();
+                announceComputerWord(word, '컴퓨터가 「' + word + '」' + josaEul(word) + ' 말했어요.', false);
             }, 700);
         }
 
@@ -3738,6 +3972,7 @@
         function endRound(kind) {
             if (phase === 'over') return;
             phase = 'over';
+            cancelSpeech();
             clearTimers();
             $('word-input').disabled = true;
             $('submit-btn').disabled = true;
@@ -3803,10 +4038,13 @@
         }
 
         function openRulesOverlay() {
+            const wasSpeaking = phase === 'speaking';
+            cancelSpeech();
             $('rules-overlay-card').appendChild($('rules-panel'));
             $('rules-close').classList.remove('hidden');
             $('rules-overlay').classList.remove('hidden');
-            pausePlayerTimer();
+            if (wasSpeaking) beginPlayerTurn();
+            else pausePlayerTimer();
         }
 
         function closeRulesOverlay(resume) {
@@ -3818,7 +4056,8 @@
             else resumePlayerTimer();
         }
 
-        function startRound() {
+        function startRound(options) {
+            const preserveQueue = !!(options && options.preserveQueue === true);
             closeRulesOverlay(false);
             clearTimers();
             timerPaused = false;
@@ -3830,23 +4069,23 @@
             chain = 0;
             turnLimitSeconds = limitFor(roundMode, 0);
             used = new Set();
-            phase = 'player';
+            phase = 'computer';
             $('history').textContent = '';
             $('word-input').value = '';
             $('word-input').classList.remove('bad');
             const starter = pickStarter();
-            used.add(starter);
-            currentWord = starter;
             updateScore();
             showScreen('game');
-            addHistory(starter, 'computer', 0);
-            setLastWord(starter, 'computer');
-            showBanner('info', '컴퓨터가 「' + starter + '」' + josaEul(starter) + ' 말했어요. 이어 보세요!');
-            beginPlayerTurn();
+            announceComputerWord(
+                starter,
+                '컴퓨터가 「' + starter + '」' + josaEul(starter) + ' 말했어요. 이어 보세요!',
+                preserveQueue
+            );
         }
 
         function showStart() {
             closeRulesOverlay(false);
+            cancelSpeech();
             clearTimers();
             timerPaused = false;
             commitStreak();
@@ -4154,11 +4393,14 @@
         document.addEventListener('DOMContentLoaded', function () {
             bestScore = loadBest();
             hanbangAllowed = loadHanbangAllowed();
+            speechOn = loadSpeechOn();
             selectedMode = loadMode();
             roundMode = selectedMode;
             bestStreaks = loadStreaks();
             updateHanbangUI();
+            updateSpeechUI();
             updateDifficultyUI();
+            watchVoices();
             document.querySelectorAll('.diff-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     setDifficulty(btn.getAttribute('data-mode'));
@@ -4168,7 +4410,12 @@
             $('dict-count').textContent = WORDS.length.toLocaleString('ko-KR');
             loadStdict();
             $('best-score').textContent = String(bestScore);
-            $('start-btn').addEventListener('click', startRound);
+            $('start-btn').addEventListener('click', function () {
+                primeSpeech();
+                startRound({ preserveQueue: true });
+            });
+            $('voice-toggle-start').addEventListener('click', onVoiceToggle);
+            $('voice-toggle-game').addEventListener('click', onVoiceToggle);
             $('hanbang-toggle').addEventListener('click', function () {
                 hanbangAllowed = !hanbangAllowed;
                 saveHanbangAllowed();
