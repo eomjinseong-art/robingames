@@ -269,6 +269,110 @@
 
         .best-box strong, .stat-box strong { color: #d35400; font-size: 1.35rem; }
 
+        .diff-field {
+            border: 2px solid #e2d9ff;
+            border-radius: 18px;
+            background: #f7f4ff;
+            padding: 10px 10px 12px;
+            margin: 0 0 14px;
+        }
+
+        .diff-legend {
+            margin: 0 4px 8px;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+
+        .diff-options {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .diff-btn {
+            font-family: inherit;
+            border: 2px solid #d9ccff;
+            background: white;
+            color: var(--ink);
+            border-radius: 14px;
+            padding: 10px 6px;
+            min-height: 64px;
+            cursor: pointer;
+            line-height: 1.2;
+            touch-action: manipulation;
+        }
+
+        .diff-btn .diff-name {
+            display: block;
+            font-size: 1.05rem;
+            word-break: keep-all;
+        }
+
+        .diff-btn .diff-sec {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .diff-btn[aria-checked="true"] {
+            background: var(--purple);
+            color: white;
+            border-color: #4b3bb5;
+            box-shadow: 0 4px 0 #3d2e9e;
+        }
+
+        .diff-btn[aria-checked="true"] .diff-sec { color: rgba(255, 255, 255, 0.88); }
+
+        .diff-btn:focus-visible {
+            outline: 3px solid var(--yellow);
+            outline-offset: 2px;
+        }
+
+        .diff-btn:active { transform: translateY(2px); }
+
+        .diff-help, .streak-all {
+            margin: 8px 4px 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+
+        .streak-all { margin: -4px 0 14px; }
+
+        .limit-note {
+            margin: 0 0 12px;
+            text-align: center;
+            color: #5b3cc4;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+
+        .limit-note.attack {
+            background: #fff6d8;
+            border: 2px solid #ffe08a;
+            border-radius: 14px;
+            padding: 8px 10px;
+        }
+
+        @media (max-width: 380px) {
+            .diff-options { grid-template-columns: 1fr; }
+            .diff-btn {
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 10px 14px;
+            }
+            .diff-btn .diff-name, .diff-btn .diff-sec { display: inline; margin: 0; }
+            .hud { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+            .timer-pill { min-width: 0; font-size: 1.25rem; padding: 8px 4px; }
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -699,7 +803,13 @@
                         </li>
                         <li>
                             <strong>제한 시간 안에 답하지 못하면 져요.</strong>
-                            <p>내 차례는 12초예요. 틀린 단어를 고쳐 넣는 동안에도 시간은 흘러요. 규칙을 보는 동안에는 시간이 멈춰요.</p>
+                            <p>난이도는 대결을 시작하기 전에 고르고, 그 판이 끝나기 전에는 바꿀 수 없어요. 마지막으로 고른 난이도는 다음에 다시 열려요.</p>
+                            <ul>
+                                <li><strong>초보:</strong> 내 차례마다 25초예요.</li>
+                                <li><strong>보통:</strong> 내 차례마다 12초예요.</li>
+                                <li><strong>타임어택:</strong> 처음 차례는 15초예요. 내가 단어를 하나 맞힐 때마다 다음 차례의 제한 시간이 1초씩 줄고, 4초보다 짧아지지 않아요. 이번 제한과 연속으로 맞힌 수, 난이도별 최고 기록을 화면에 보여 줘요.</li>
+                            </ul>
+                            <p>틀린 단어를 고쳐 넣는 동안에도 시간은 흘러요. 규칙을 보는 동안에는 시간이 멈춰요.</p>
                         </li>
                         <li>
                             <strong>고유명사와 사투리는 안 돼요.</strong>
@@ -721,6 +831,29 @@
                 <span>🏆 최고 점수</span>
                 <strong id="best-score">0</strong>
             </div>
+            <div class="diff-field">
+                <p class="diff-legend" id="diff-legend">난이도</p>
+                <div class="diff-options" role="radiogroup" aria-labelledby="diff-legend">
+                    <button type="button" class="diff-btn" data-mode="beginner" role="radio" aria-checked="false">
+                        <span class="diff-name">초보</span>
+                        <span class="diff-sec">25초</span>
+                    </button>
+                    <button type="button" class="diff-btn" data-mode="normal" role="radio" aria-checked="true">
+                        <span class="diff-name">보통</span>
+                        <span class="diff-sec">12초</span>
+                    </button>
+                    <button type="button" class="diff-btn" data-mode="attack" role="radio" aria-checked="false">
+                        <span class="diff-name">타임어택</span>
+                        <span class="diff-sec">15→4초</span>
+                    </button>
+                </div>
+                <p class="diff-help" id="diff-help">보통: 내 차례마다 12초가 고정이에요.</p>
+            </div>
+            <div class="best-box">
+                <span id="best-streak-caption">🏆 보통 최고 기록</span>
+                <strong id="best-streak">0개</strong>
+            </div>
+            <p class="streak-all" id="streak-all">초보 0개 · 보통 0개 · 타임어택 0개</p>
             <button id="start-btn" class="btn btn-yellow" type="button">대결 시작!</button>
             <p class="dict-note">컴퓨터는 쉬운 명사 <span id="dict-count">0</span>개를 써요.</p>
             <p id="dict-loading" class="dict-loading" role="status">표준국어대사전 불러오는 중…</p>
@@ -734,9 +867,10 @@
             <div class="hud">
                 <div class="score-pill"><small>점수</small><span id="score">0</span></div>
                 <div class="timer-pill" id="timer-pill"><small>남은 시간</small><span id="time-left">12</span></div>
-                <div class="chain-pill"><small>내가 이은 수</small><span id="chain">0</span></div>
+                <div class="chain-pill"><small id="chain-label">내가 이은 수</small><span id="chain">0</span></div>
             </div>
             <div class="bar" id="time-bar"><div id="time-fill"></div></div>
+            <p class="limit-note" id="limit-note">보통 · 이번 제한 12초 · 최고 기록 0</p>
 
             <div class="prompt">
                 <div class="who-line" id="last-who">컴퓨터의 단어</div>
@@ -780,6 +914,7 @@
         <section id="result-screen" class="card hidden">
             <p class="result-emoji" id="result-emoji">🎉</p>
             <div id="record-flag" class="record-flag hidden">🏆 새 기록!</div>
+            <div id="streak-flag" class="record-flag hidden">🔥 연속 신기록!</div>
             <h2 class="result-title" id="result-title">내가 이겼어요!</h2>
             <p class="result-sub" id="result-sub">컴퓨터가 단어를 찾지 못했어요.</p>
             <div class="stats">
@@ -787,7 +922,26 @@
                 <div><span>단어 점수</span><strong id="final-words">0</strong></div>
                 <div><span>승리 보너스</span><strong id="final-bonus">0</strong></div>
                 <div><span>내가 이은 단어</span><strong id="final-chain">0개</strong></div>
+                <div><span id="final-streak-label">최고 기록</span><strong id="final-streak-best">0개</strong></div>
                 <div><span>최고 점수</span><strong id="final-best">0</strong></div>
+            </div>
+            <div class="diff-field">
+                <p class="diff-legend" id="diff-legend-result">다음 판 난이도</p>
+                <div class="diff-options" role="radiogroup" aria-labelledby="diff-legend-result">
+                    <button type="button" class="diff-btn" data-mode="beginner" role="radio" aria-checked="false">
+                        <span class="diff-name">초보</span>
+                        <span class="diff-sec">25초</span>
+                    </button>
+                    <button type="button" class="diff-btn" data-mode="normal" role="radio" aria-checked="true">
+                        <span class="diff-name">보통</span>
+                        <span class="diff-sec">12초</span>
+                    </button>
+                    <button type="button" class="diff-btn" data-mode="attack" role="radio" aria-checked="false">
+                        <span class="diff-name">타임어택</span>
+                        <span class="diff-sec">15→4초</span>
+                    </button>
+                </div>
+                <p class="diff-help">보통: 내 차례마다 12초가 고정이에요.</p>
             </div>
             <button id="again-btn" class="btn btn-green" type="button">🔄 다시 하기</button>
             <div style="height:8px"></div>
@@ -801,8 +955,21 @@
 
     <script>
         const TURN_SECONDS = 12;
+        const BEGINNER_SECONDS = 25;
+        const ATTACK_START_SECONDS = 15;
+        const ATTACK_MIN_SECONDS = 4;
         const BEST_KEY = 'robins_kkeutmal_best';
         const HANBANG_KEY = 'robins_kkeutmal_hanbang';
+        const MODE_KEY = 'robins_kkeutmal_mode';
+        const STREAK_KEY = 'robins_kkeutmal_streak';
+        const MODE_LABEL = { beginner: '초보', normal: '보통', attack: '타임어택' };
+
+        function limitFor(mode, accepted) {
+            const n = accepted > 0 ? Math.floor(accepted) : 0;
+            if (mode === 'beginner') return BEGINNER_SECONDS;
+            if (mode === 'attack') return Math.max(ATTACK_MIN_SECONDS, ATTACK_START_SECONDS - n);
+            return TURN_SECONDS;
+        }
 
         const WORD_LIST = `
 가디건
@@ -3030,6 +3197,10 @@
         let wordPoints = 0;
         let bonus = 0;
         let chain = 0;
+        let selectedMode = 'normal';
+        let roundMode = 'normal';
+        let turnLimitSeconds = TURN_SECONDS;
+        let bestStreaks = { beginner: 0, normal: 0, attack: 0 };
         let wins = 0;
         let bestScore = 0;
         let phase = 'idle';
@@ -3205,6 +3376,93 @@
             catch (e) {}
         }
 
+        function loadMode() {
+            try {
+                const saved = localStorage.getItem(MODE_KEY);
+                if (saved === 'beginner' || saved === 'normal' || saved === 'attack') return saved;
+            } catch (e) {}
+            return 'normal';
+        }
+
+        function saveMode() {
+            try { localStorage.setItem(MODE_KEY, selectedMode); }
+            catch (e) {}
+        }
+
+        function loadStreaks() {
+            const out = { beginner: 0, normal: 0, attack: 0 };
+            try {
+                const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+                ['beginner', 'normal', 'attack'].forEach(function (key) {
+                    const n = Number(raw && raw[key]);
+                    out[key] = n > 0 && isFinite(n) ? Math.floor(n) : 0;
+                });
+            } catch (e) {}
+            return out;
+        }
+
+        function saveStreaks() {
+            try { localStorage.setItem(STREAK_KEY, JSON.stringify(bestStreaks)); }
+            catch (e) {}
+        }
+
+        function commitStreak() {
+            if (!MODE_LABEL[roundMode]) return false;
+            if (chain > (bestStreaks[roundMode] || 0)) {
+                bestStreaks[roundMode] = chain;
+                saveStreaks();
+                return true;
+            }
+            return false;
+        }
+
+        function modeHelp(mode) {
+            if (mode === 'beginner') return '초보: 내 차례마다 25초가 고정이에요.';
+            if (mode === 'attack') return '타임어택: 15초로 시작해 맞출 때마다 1초씩 줄고, 4초에서 멈춰요.';
+            return '보통: 내 차례마다 12초가 고정이에요.';
+        }
+
+        function updateDifficultyUI() {
+            document.querySelectorAll('.diff-btn').forEach(function (btn) {
+                const on = btn.getAttribute('data-mode') === selectedMode;
+                btn.setAttribute('aria-checked', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('.diff-help').forEach(function (el) {
+                el.textContent = modeHelp(selectedMode);
+            });
+            const caption = $('best-streak-caption');
+            if (caption) caption.textContent = '🏆 ' + (MODE_LABEL[selectedMode] || '보통') + ' 최고 기록';
+            const bestEl = $('best-streak');
+            if (bestEl) bestEl.textContent = (bestStreaks[selectedMode] || 0) + '개';
+            const all = $('streak-all');
+            if (all) {
+                all.textContent = '초보 ' + bestStreaks.beginner + '개 · 보통 ' + bestStreaks.normal + '개 · 타임어택 ' + bestStreaks.attack + '개';
+            }
+        }
+
+        function setDifficulty(mode) {
+            if (mode !== 'beginner' && mode !== 'normal' && mode !== 'attack') return;
+            if (phase === 'player' || phase === 'computer') return;
+            selectedMode = mode;
+            saveMode();
+            updateDifficultyUI();
+        }
+
+        function updateLimitNote(upcoming) {
+            const el = $('limit-note');
+            if (!el) return;
+            const label = MODE_LABEL[roundMode] || MODE_LABEL.normal;
+            const secs = upcoming ? limitFor(roundMode, chain) : turnLimitSeconds;
+            const prefix = upcoming && roundMode === 'attack' ? '다음 제한 ' : '이번 제한 ';
+            let text = label + ' · ' + prefix + secs + '초';
+            if (roundMode === 'attack') text += ' · 연속 ' + chain;
+            text += ' · 최고 기록 ' + (bestStreaks[roundMode] || 0);
+            el.textContent = text;
+            el.classList.toggle('attack', roundMode === 'attack');
+            const chainLabel = $('chain-label');
+            if (chainLabel) chainLabel.textContent = roundMode === 'attack' ? '연속' : '내가 이은 수';
+        }
+
         function $(id) { return document.getElementById(id); }
 
         function showScreen(name) {
@@ -3229,7 +3487,8 @@
             const ms = Math.max(0, turnEndsAt - Date.now());
             const left = Math.ceil(ms / 1000);
             $('time-left').textContent = String(left);
-            const pct = Math.max(0, Math.min(100, (ms / (TURN_SECONDS * 1000)) * 100));
+            const budget = Math.max(1, turnLimitSeconds) * 1000;
+            const pct = Math.max(0, Math.min(100, (ms / budget) * 100));
             $('time-fill').style.width = pct + '%';
             const danger = left <= 5;
             $('timer-pill').classList.toggle('danger', danger);
@@ -3395,10 +3654,12 @@
 
         function beginPlayerTurn() {
             phase = 'player';
-            remainingMs = TURN_SECONDS * 1000;
+            turnLimitSeconds = limitFor(roundMode, chain);
+            remainingMs = turnLimitSeconds * 1000;
             turnEndsAt = Date.now() + remainingMs;
             $('turn-badge').textContent = '내 차례';
             updatePrompt();
+            updateLimitNote(false);
             updateTimerUI();
             $('word-input').disabled = false;
             $('submit-btn').disabled = false;
@@ -3465,6 +3726,7 @@
             addHistory(word, 'player', gained);
             setLastWord(word, 'player');
             updateScore();
+            updateLimitNote(true);
             flashPoints(gained);
             showBanner('ok', '잘했어요! 「' + word + '」 통과!');
             input.value = '';
@@ -3492,8 +3754,16 @@
                 playTone([200, 110], 'sawtooth', 0.22);
                 $('result-emoji').textContent = '⏰';
                 $('result-title').textContent = '시간이 다 됐어요';
-                $('result-sub').textContent = '12초 안에 단어를 이어 보세요. 다시 도전해 볼까요?';
+                if (roundMode === 'attack') {
+                    $('result-sub').textContent = '타임어택 이번 차례는 ' + turnLimitSeconds + '초였어요. 맞출 때마다 1초씩 줄고 4초에서 멈춰요. 다시 도전해 볼까요?';
+                } else if (roundMode === 'beginner') {
+                    $('result-sub').textContent = '초보는 25초 안에 단어를 이어 보세요. 다시 도전해 볼까요?';
+                } else {
+                    $('result-sub').textContent = '보통은 12초 안에 단어를 이어 보세요. 다시 도전해 볼까요?';
+                }
             }
+            const streakRecord = commitStreak();
+            $('streak-flag').classList.toggle('hidden', !streakRecord);
             score = wordPoints + bonus;
             const isRecord = score > bestScore;
             if (isRecord) {
@@ -3505,8 +3775,11 @@
             $('final-words').textContent = wordPoints + '점';
             $('final-bonus').textContent = bonus ? ('+' + bonus + '점') : '0점';
             $('final-chain').textContent = chain + '개';
+            $('final-streak-label').textContent = '최고 기록 (' + (MODE_LABEL[roundMode] || '보통') + ')';
+            $('final-streak-best').textContent = (bestStreaks[roundMode] || 0) + '개';
             $('final-best').textContent = bestScore + '점';
             $('best-score').textContent = String(bestScore);
+            updateDifficultyUI();
             showScreen('result');
         }
 
@@ -3549,10 +3822,13 @@
             closeRulesOverlay(false);
             clearTimers();
             timerPaused = false;
+            commitStreak();
+            roundMode = selectedMode;
             score = 0;
             wordPoints = 0;
             bonus = 0;
             chain = 0;
+            turnLimitSeconds = limitFor(roundMode, 0);
             used = new Set();
             phase = 'player';
             $('history').textContent = '';
@@ -3573,8 +3849,11 @@
             closeRulesOverlay(false);
             clearTimers();
             timerPaused = false;
+            commitStreak();
             phase = 'idle';
+            chain = 0;
             $('best-score').textContent = String(bestScore);
+            updateDifficultyUI();
             showScreen('start');
         }
 
@@ -3714,6 +3993,23 @@
                 used = new Set(['체력', '역기']);
                 const girok = judge('기록');
                 expect(girok.ok, '역기 다음 기록 ' + (girok.reason || ''));
+
+                expect(limitFor('beginner', 0) === 25, '초보 25초');
+                expect(limitFor('beginner', 8) === 25, '초보는 연속과 상관없이 25초');
+                expect(limitFor('normal', 0) === 12, '보통 12초');
+                expect(limitFor('normal', 6) === 12, '보통은 연속과 상관없이 12초');
+                expect(limitFor('attack', 0) === 15, '타임어택 시작 15초');
+                expect(limitFor('whatever', 3) === 12, '알 수 없는 난이도는 보통 12초');
+                let prevLimit = limitFor('attack', 0);
+                for (let streak = 1; streak <= 20; streak++) {
+                    const nextLimit = limitFor('attack', streak);
+                    expect(nextLimit === Math.max(4, prevLimit - 1), '타임어택 감소 ' + streak + ' ' + prevLimit + '→' + nextLimit);
+                    expect(nextLimit >= 4, '타임어택 하한 ' + nextLimit);
+                    prevLimit = nextLimit;
+                }
+                expect(limitFor('attack', 11) === 4, '11개 맞힌 다음 차례는 4초');
+                expect(limitFor('attack', 12) === 4, '12개 맞혀도 4초');
+                expect(limitFor('attack', 100) === 4, '타임어택 바닥은 4초');
             } finally {
                 currentWord = savedWord;
                 used = savedUsed;
@@ -3858,7 +4154,16 @@
         document.addEventListener('DOMContentLoaded', function () {
             bestScore = loadBest();
             hanbangAllowed = loadHanbangAllowed();
+            selectedMode = loadMode();
+            roundMode = selectedMode;
+            bestStreaks = loadStreaks();
             updateHanbangUI();
+            updateDifficultyUI();
+            document.querySelectorAll('.diff-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    setDifficulty(btn.getAttribute('data-mode'));
+                });
+            });
             showSelfCheckErrors(SELF_CHECK_ERRORS);
             $('dict-count').textContent = WORDS.length.toLocaleString('ko-KR');
             loadStdict();
@@ -3918,6 +4223,12 @@
             bigListReplies: bigListReplies,
             findRareNoun: findRareNoun,
             ingestStdictText: ingestStdictText,
+            limitFor: limitFor,
+            getMode: function () { return selectedMode; },
+            getRoundMode: function () { return roundMode; },
+            getTurnLimit: function () { return turnLimitSeconds; },
+            getChain: function () { return chain; },
+            getBestStreaks: function () { return bestStreaks; },
             isHanbangAllowed: function () { return hanbangAllowed; },
             getCurrent: function () { return currentWord; },
             setCurrent: function (w) { currentWord = w; },
