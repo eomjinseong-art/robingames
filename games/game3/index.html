@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NCS 센터 포커스: 중앙을 사수하라!</title>
     <style>
         :root {
@@ -19,6 +19,8 @@
             margin: 0;
             padding: 0;
         }
+        html { overflow: hidden; max-width: 100%; -webkit-text-size-adjust: 100%; }
+
         body {
             background-color: var(--spy-dark);
             color: #ffffff;
@@ -28,6 +30,12 @@
             align-items: center;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
+            max-width: 100%;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            box-sizing: border-box;
         }
         #game-container {
             width: 100%;
@@ -81,6 +89,7 @@
             background: radial-gradient(circle, #111e36 0%, #070b12 80%);
             overflow: hidden;
             cursor: grab;
+            touch-action: none;
         }
         #tactical-zone:active { cursor: grabbing; }
 
@@ -162,6 +171,7 @@
             border: 2px solid var(--center-neon);
             color: var(--center-neon);
             padding: 12px 35px;
+            min-height: 48px;
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
@@ -169,6 +179,7 @@
             margin-top: 25px;
             box-shadow: 0 0 15px rgba(0,255,204,0.2);
             transition: all 0.2s;
+            touch-action: manipulation;
         }
         .btn:hover {
             background: var(--center-neon);
@@ -222,7 +233,7 @@
                 </p>
                 <div class="terminal-text">
                     ⚡ <b>요원 중앙 수호 수칙:</b><br>
-                    • 화면 아무 곳이나 **누른 채 슬라이드(드래그)**하면 고양이 요원이 부드럽게 화면을 이동합니다.<br>
+                    • 화면 아무 곳이나 **누른 채 슬라이드(드래그)**하면 고양이 요원이 부드럽게 화면을 이동합니다. 휴대폰에서는 손가락으로 누른 채 밀고, 컴퓨터에서는 마우스로 드래그하세요.<br>
                     • 외곽에서 좁혀오는 레이저가 **'파란색 중앙 링 마커' 내부로 완벽히 수렴하는 타이밍**에 맞춰 고양이를 중앙에 정확히 포커싱해 교차 격파하세요!<br>
                     • 타이밍이 어긋나서 구도를 탈탈 털리면 실드 배터리가 급격히 차감됩니다.
                 </div>
@@ -268,9 +279,19 @@
         window.addEventListener('mousemove', (e) => { if (isDragging) updateTargetPos(e.clientX, e.clientY); });
         window.addEventListener('mouseup', () => { isDragging = false; });
 
-        tacticalZone.addEventListener('touchstart', (e) => { isDragging = true; updateTargetPos(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-        window.addEventListener('touchmove', (e) => { if (isDragging) updateTargetPos(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
+        tacticalZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            updateTargetPos(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: false});
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (touch) updateTargetPos(touch.clientX, touch.clientY);
+        }, {passive: false});
         window.addEventListener('touchend', () => { isDragging = false; });
+        window.addEventListener('touchcancel', () => { isDragging = false; });
 
         function updateTargetPos(clientX, clientY) {
             const rect = tacticalZone.getBoundingClientRect();

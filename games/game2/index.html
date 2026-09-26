@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NCS 전술 고양이 요원: 암호 코드 해독</title>
     <style>
         :root {
@@ -21,6 +21,8 @@
             padding: 0;
         }
 
+        html { overflow: hidden; max-width: 100%; -webkit-text-size-adjust: 100%; }
+
         body {
             background-color: var(--matrix-dark);
             color: #ffffff;
@@ -30,6 +32,12 @@
             align-items: center;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
+            max-width: 100%;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            box-sizing: border-box;
         }
 
         #game-container {
@@ -106,6 +114,7 @@
             position: relative;
             background: linear-gradient(180deg, rgba(5,8,14,1) 0%, rgba(9,17,32,1) 100%);
             overflow: hidden;
+            touch-action: none;
         }
 
         /* 모니터 주사선 글리치 효과 */
@@ -141,6 +150,8 @@
             display: flex;
             border-top: 1px solid #1e293b;
             z-index: 4;
+            touch-action: manipulation;
+            box-sizing: border-box;
         }
 
         .console-btn {
@@ -153,6 +164,9 @@
             border-right: 1px solid #14233c;
             transition: background 0.1s;
             position: relative;
+            min-height: 64px;
+            min-width: 44px;
+            touch-action: manipulation;
         }
         .console-btn:last-child { border-right: none; }
 
@@ -229,6 +243,7 @@
             border: 2px solid var(--matrix-green);
             color: var(--matrix-green);
             padding: 12px 40px;
+            min-height: 48px;
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
@@ -237,6 +252,7 @@
             box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
             transition: all 0.2s;
             text-transform: uppercase;
+            touch-action: manipulation;
         }
 
         .btn:hover {
@@ -288,21 +304,21 @@
         </div>
 
         <div id="control-console">
-            <div class="console-btn c-red" onclick="triggerInput(0)">
+            <div class="console-btn c-red" data-code="0" role="button" aria-label="CODE A, 키보드 A">
                 <span style="font-size: 1.6rem;">🔴</span>
-                <span class="btn-label">CODE_A</span>
+                <span class="btn-label">A · CODE_A</span>
             </div>
-            <div class="console-btn c-blue" onclick="triggerInput(1)">
+            <div class="console-btn c-blue" data-code="1" role="button" aria-label="CODE B, 키보드 S">
                 <span style="font-size: 1.6rem;">🟢</span>
-                <span class="btn-label">CODE_B</span>
+                <span class="btn-label">S · CODE_B</span>
             </div>
-            <div class="console-btn c-yellow" onclick="triggerInput(2)">
+            <div class="console-btn c-yellow" data-code="2" role="button" aria-label="CODE C, 키보드 D">
                 <span style="font-size: 1.6rem;">🟡</span>
-                <span class="btn-label">CODE_C</span>
+                <span class="btn-label">D · CODE_C</span>
             </div>
-            <div class="console-btn c-purple" onclick="triggerInput(3)">
+            <div class="console-btn c-purple" data-code="3" role="button" aria-label="CODE D, 키보드 F">
                 <span style="font-size: 1.6rem;">🔵</span>
-                <span class="btn-label">CODE_D</span>
+                <span class="btn-label">F · CODE_D</span>
             </div>
         </div>
 
@@ -320,10 +336,11 @@
                 <p class="intro-desc">
                     <b>"어두운 지휘 통제실 내부, 초록 모니터의 암호 회로를 오버로드하라!"</b><br>
                     적의 방화벽을 우회하기 위해 위에서 떨어지는 컬러 암호 코드가 <span style="color:var(--neon-blue); font-weight:bold;">파란색 판정선</span>에 겹치는 타이밍에 맞춰 하단 콘솔 버튼을 터치하세요!
+                    컴퓨터에서는 키보드 <b>A S D F</b>, 휴대폰에서는 아래 색 버튼을 누르세요.
                 </p>
                 <div class="terminal-box">
                     ⚡ <b>NCS 요원 전술 작전 수칙:</b><br>
-                    • 정확한 타이밍에 터치하면 <b>해독률(%)</b>과 점수가 올라갑니다.<br>
+                    • 정확한 타이밍에 터치하거나 키를 누르면 <b>해독률(%)</b>과 점수가 올라갑니다.<br>
                     • 코드를 놓치거나 잘못 누르면 메인 컴퓨터가 <b>과부하(HP 감소)</b>됩니다.<br>
                     • 해독률이 100%가 되면 방화벽이 영구 해제되며 다음 더 빠른 암호 단계(Stage)로 진입합니다!
                 </div>
@@ -376,6 +393,17 @@
             if(e.key.toLowerCase() === 'd') triggerInput(2);
             if(e.key.toLowerCase() === 'f') triggerInput(3);
         });
+
+        document.querySelectorAll('.console-btn').forEach((btn) => {
+            btn.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                e.preventDefault();
+                triggerInput(Number(btn.dataset.code));
+            });
+            btn.addEventListener('contextmenu', (e) => e.preventDefault());
+        });
+
+        decryptionZone.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
 
         function startHacking() {
             gameStage = 1;
