@@ -102,7 +102,7 @@
             z-index: 100;
         }
 
-        .dan-btn, .choice-btn, .btn-3d { min-height: 44px; touch-action: manipulation; }
+        button.dan-btn, button.choice-btn, button.btn-3d { min-height: 44px !important; touch-action: manipulation; }
         #dan-selector .dan-btn:first-child { grid-column: 1 / -1; }
         #question-text {
             font-size: clamp(2rem, 12vw, 3.75rem) !important;
@@ -363,6 +363,7 @@
             // '전체' option
             const allBtn = document.createElement('button');
             allBtn.className = 'dan-btn bg-indigo-600 text-white py-2 rounded-xl font-bold shadow transition text-sm';
+            allBtn.style.minHeight = '44px';
             allBtn.innerText = '전체 (2~9단)';
             allBtn.onclick = () => selectDan('all', allBtn);
             container.appendChild(allBtn);
@@ -371,6 +372,7 @@
             for (let i = 2; i <= 9; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'dan-btn bg-white hover:bg-indigo-100 text-indigo-900 py-2 rounded-xl font-bold border border-indigo-200 transition text-sm';
+                btn.style.minHeight = '44px';
                 btn.innerText = `${i}단`;
                 btn.onclick = () => selectDan(i, btn);
                 container.appendChild(btn);
