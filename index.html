@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- 타이틀 설정 -->
     <title>로빈스게임월드</title>
     <!-- 게임기 이모지 기반 파비콘 설정 -->
@@ -26,6 +26,8 @@
             user-select: none;
         }
 
+        html { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
@@ -33,7 +35,10 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px 15px;
+            min-height: 100dvh;
+            padding: max(20px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         /* 전체 포털 컨테이너 */
@@ -100,13 +105,16 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
             padding: 16px;
+            min-height: 76px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
             text-decoration: none;
             color: var(--text-main);
             transition: all 0.2s ease-in-out;
             position: relative;
+            touch-action: manipulation;
         }
 
         .game-card:hover, .game-card:active {
@@ -150,6 +158,11 @@
             font-weight: bold;
             font-size: 0.8rem;
             padding: 8px 14px;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 20px;
             white-space: nowrap;
         }
@@ -183,11 +196,13 @@
             background: transparent;
             border: 1px solid var(--accent-neon);
             color: var(--accent-neon);
-            padding: 6px 16px;
+            padding: 10px 16px;
+            min-height: 44px;
             border-radius: 20px;
-            font-size: 0.78rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.2s;
+            touch-action: manipulation;
         }
 
         .contact-btn:hover {
@@ -203,8 +218,9 @@
             background: rgba(15, 23, 42, 0.9);
             z-index: 100;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            overflow-y: auto;
+            padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
         }
 
         .modal-content {
@@ -236,6 +252,8 @@
             color: var(--text-sub);
             font-size: 1.5rem;
             cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
         }
 
         .modal-body form {
@@ -251,12 +269,17 @@
 
         .modal-body input, .modal-body textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
+            min-height: 44px;
             background: var(--bg-dark);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             color: #fff;
             font-family: inherit;
+            font-size: 16px;
+            -webkit-user-select: text;
+            user-select: text;
+            touch-action: manipulation;
         }
 
         .modal-body textarea {
@@ -268,11 +291,18 @@
             background: var(--accent-neon);
             color: var(--bg-dark);
             border: none;
-            padding: 10px;
+            padding: 12px;
+            min-height: 44px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 8px;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 380px) {
+            h1 { font-size: 1.3rem; }
+            .game-details h2 { font-size: 0.95rem; }
         }
     </style>
 </head>

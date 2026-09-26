@@ -2,9 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>스파이캣 테트리스 게임</title>
     <style>
+        html { overflow: hidden; max-width: 100%; -webkit-text-size-adjust: 100%; }
         body {
             background-color: #1a1a1a;
             color: #ffffff;
@@ -15,7 +16,21 @@
             justify-content: center;
             margin: 0;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            box-sizing: border-box;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+        #layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: min(100%, 760px);
+            max-height: 100%;
+            min-height: 0;
         }
         #game-container {
             display: flex;
@@ -53,6 +68,8 @@
             border: 4px solid #ffb7b2;
             background-color: #111;
             border-radius: 5px;
+            touch-action: none;
+            box-sizing: border-box;
         }
         #controls {
             margin-top: 15px;
@@ -65,10 +82,99 @@
             color: #ffdac1;
             font-weight: bold;
         }
+        #mobile-help {
+            display: none;
+            margin: 4px 8px 0;
+            font-size: 12px;
+            color: #ddd;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .touch-pad {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            gap: 8px;
+            padding: 8px 8px 0;
+            box-sizing: border-box;
+            touch-action: none;
+            justify-content: center;
+        }
+        .touch-pad button {
+            flex: 1;
+            min-width: 52px;
+            min-height: 56px;
+            max-width: 84px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a1a1a;
+            background: #ffb7b2;
+            border: none;
+            border-radius: 12px;
+            touch-action: none;
+        }
+        #tc-hard { background: #ff9aa2; }
+        @media (max-width: 860px), (max-height: 760px) {
+            body { justify-content: flex-start; }
+            #layout { width: 100%; justify-content: flex-start; padding-top: 4px; }
+            h1 { font-size: 22px !important; margin: 6px 0 !important; }
+            #game-container {
+                flex-direction: column;
+                width: 100%;
+                max-width: 480px;
+                gap: 8px;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            #sidebar {
+                flex-direction: row;
+                width: 100%;
+                min-width: 0;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .info-box { flex: 1; margin-bottom: 0; padding: 8px; }
+            .info-box p { font-size: 18px; }
+            #next { width: 64px !important; height: 64px !important; }
+            #controls { display: none; }
+            #mobile-help { display: block; }
+            #tetris {
+                width: auto !important;
+                height: min(58dvh, calc(100dvh - 230px)) !important;
+                max-width: 100%;
+                aspect-ratio: 1 / 2;
+            }
+        }
+        @media (pointer: coarse) {
+            .touch-pad { display: flex; }
+            #tetris { height: min(50dvh, calc(100dvh - 300px)) !important; }
+        }
+        html.touch-device .touch-pad { display: flex; }
+        html.touch-device #tetris { height: min(50dvh, calc(100dvh - 300px)) !important; }
+        @media (pointer: coarse) and (orientation: landscape) {
+            #layout { flex-direction: row; align-items: center; justify-content: center; width: 100%; }
+            h1 { display: none; }
+            #game-container { flex-direction: row; align-items: center; max-width: none; width: auto; }
+            #sidebar { flex-direction: column; width: 128px; min-width: 112px; }
+            .touch-pad { flex-direction: column; width: 72px; max-width: none; height: auto; padding: 0; }
+            .touch-pad button { max-width: none; width: 64px; flex: 0 0 52px; }
+            #tetris { height: min(92dvh, calc(100dvh - 12px)) !important; }
+            #mobile-help { display: none; }
+        }
+        @media (orientation: landscape) {
+            html.touch-device #layout { flex-direction: row; align-items: center; justify-content: center; width: 100%; }
+            html.touch-device h1 { display: none; }
+            html.touch-device #game-container { flex-direction: row; align-items: center; max-width: none; width: auto; }
+            html.touch-device #sidebar { flex-direction: column; width: 128px; min-width: 112px; }
+            html.touch-device .touch-pad { flex-direction: column; width: 72px; max-width: none; padding: 0; }
+            html.touch-device .touch-pad button { max-width: none; width: 64px; flex: 0 0 52px; }
+            html.touch-device #tetris { height: min(92dvh, calc(100dvh - 12px)) !important; }
+            html.touch-device #mobile-help { display: none; }
+        }
     </style>
 </head>
 <body>
-
+<div id="layout">
     <h1 style="margin: 0 0 10px 0; color: #ffb7b2; font-size: 28px;">🐾 스파이캣 테트리스 🐭</h1>
 
     <div id="game-container">
@@ -95,6 +201,7 @@
                 ↑ : 회전 (오류 수정완료)<br>
                 ↓ : 소프트 드롭<br>
                 Space : 하드 드롭<br>
+                휴대폰: 화면 아래 ← → ↻ ↓ ⏬ 버튼<br>
                 <br>
                 <span class="special-note">🐭 쥐 블록 경보:</span><br>
                 쥐 블록은 반드시 <br>
@@ -103,6 +210,15 @@
             </div>
         </div>
     </div>
+    <p id="mobile-help">휴대폰은 아래 버튼으로 움직여요. ← → 이동, ↻ 회전, ↓ 천천히, ⏬ 한 번에 내리기. 컴퓨터는 방향키와 Space.</p>
+    <div id="touch-pad" class="touch-pad" aria-label="터치 조작">
+        <button type="button" id="tc-left" aria-label="왼쪽 이동">←</button>
+        <button type="button" id="tc-right" aria-label="오른쪽 이동">→</button>
+        <button type="button" id="tc-rot" aria-label="회전">↻</button>
+        <button type="button" id="tc-soft" aria-label="소프트 드롭">↓</button>
+        <button type="button" id="tc-hard" aria-label="하드 드롭">⏬</button>
+    </div>
+</div>
 
 <script>
 const canvas = document.getElementById('tetris');
@@ -482,11 +598,12 @@ drop();
 
 document.addEventListener("keydown",CONTROL);
 function CONTROL(event){
-    if(event.keyCode == 37){ p.moveLeft(); dropStart = Date.now(); }
-    else if(event.keyCode == 38){ p.rotate(); dropStart = Date.now(); }
-    else if(event.keyCode == 39){ p.moveRight(); dropStart = Date.now(); }
-    else if(event.keyCode == 40){ p.moveDown(); }
+    if(event.keyCode == 37){ event.preventDefault(); p.moveLeft(); dropStart = Date.now(); }
+    else if(event.keyCode == 38){ event.preventDefault(); p.rotate(); dropStart = Date.now(); }
+    else if(event.keyCode == 39){ event.preventDefault(); p.moveRight(); dropStart = Date.now(); }
+    else if(event.keyCode == 40){ event.preventDefault(); p.moveDown(); }
     else if(event.keyCode == 32){ 
+        event.preventDefault();
         while(!p.collision(0, 1, p.activeTetromino)) {
             p.unDraw();
             p.y++;
@@ -515,6 +632,57 @@ function resetGame() {
     p.draw();
     drawNext();
 }
+
+(function enableTouchControls() {
+    var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var touch = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+    if (coarse || touch) document.documentElement.classList.add('touch-device');
+
+    function hardDrop() {
+        while(!p.collision(0, 1, p.activeTetromino)) {
+            p.unDraw();
+            p.y++;
+        }
+        p.lock();
+        dropStart = Date.now();
+    }
+
+    function bindRepeat(id, action, repeat) {
+        var btn = document.getElementById(id);
+        var timer = null;
+        var starter = null;
+        function stop(e) {
+            if (e) e.preventDefault();
+            clearTimeout(starter);
+            clearInterval(timer);
+            starter = null;
+            timer = null;
+        }
+        btn.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            e.preventDefault();
+            action();
+            if (!repeat) return;
+            starter = setTimeout(function () {
+                timer = setInterval(action, 70);
+            }, 180);
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (name) {
+            btn.addEventListener(name, stop);
+        });
+        btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    }
+
+    bindRepeat('tc-left', function () { p.moveLeft(); dropStart = Date.now(); }, true);
+    bindRepeat('tc-right', function () { p.moveRight(); dropStart = Date.now(); }, true);
+    bindRepeat('tc-rot', function () { p.rotate(); dropStart = Date.now(); }, true);
+    bindRepeat('tc-soft', function () { p.moveDown(); }, true);
+    bindRepeat('tc-hard', hardDrop, false);
+
+    document.getElementById('tetris').addEventListener('touchmove', function (e) {
+        e.preventDefault();
+    }, { passive: false });
+})();
 </script>
 </body>
 </html>

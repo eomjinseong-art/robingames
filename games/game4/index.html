@@ -2,9 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>스파이 고양이 포포와 지지: 데스 미로 50 (오류 수정본)</title>
     <style>
+        html { overflow: hidden; max-width: 100%; -webkit-text-size-adjust: 100%; }
         body {
             background-color: #121212;
             color: #ffffff;
@@ -14,38 +15,71 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            min-height: 100dvh;
+            height: 100dvh;
             margin: 0;
             user-select: none;
+            overflow: hidden;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            box-sizing: border-box;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+        #game-shell {
+            width: min(600px, 100%);
+            height: 100%;
+            max-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
         }
         #game-container {
             text-align: center;
             position: relative;
+            width: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #hud {
             display: flex;
             justify-content: space-between;
-            width: 600px;
-            margin-bottom: 10px;
-            font-size: 16px;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+            width: 100%;
+            margin-bottom: 8px;
+            font-size: clamp(12px, 3.2vw, 16px);
             font-weight: bold;
             background: #222;
-            padding: 12px 20px;
+            padding: 10px 12px;
             border-radius: 8px;
             box-sizing: border-box;
             border: 1px solid #333;
         }
+        #board-wrap {
+            position: relative;
+            width: min(100%, 600px, calc(100dvh - 150px));
+            aspect-ratio: 1;
+            max-width: 100%;
+            min-height: 0;
+        }
         canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
             border: 4px solid #cc2e2e;
             background-color: #0b0b0b;
             box-shadow: 0 0 30px rgba(238, 82, 83, 0.3);
             border-radius: 8px;
+            box-sizing: border-box;
+            touch-action: none;
         }
         #overlay {
             position: absolute;
-            top: 51px;
-            left: 0;
-            width: 600px;
-            height: 600px;
+            inset: 0;
             background: rgba(15, 15, 15, 0.95);
             display: flex;
             flex-direction: column;
@@ -53,43 +87,107 @@
             justify-content: center;
             border-radius: 8px;
             z-index: 10;
+            overflow: auto;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        #overlay h1 { font-size: clamp(1.05rem, 4.2vw, 1.6rem); margin: 6px 8px; }
+        #overlay p { font-size: clamp(0.82rem, 3vw, 1rem); margin: 6px 8px; }
+        #control-hint {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: #c8c8c8;
+            line-height: 1.4;
         }
         .btn {
             background-color: #ee5253;
             color: white;
             border: none;
             padding: 12px 30px;
+            min-height: 48px;
             font-size: 18px;
             cursor: pointer;
             border-radius: 5px;
             margin: 10px;
             font-weight: bold;
             transition: 0.2s;
+            touch-action: manipulation;
         }
         .btn:hover { background-color: #ff9f43; transform: scale(1.05); }
         .char-select-container {
             display: flex;
-            gap: 20px;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
         }
         .char-box {
             border: 2px solid #444;
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
             cursor: pointer;
             background: #222;
-            width: 140px;
+            width: min(160px, 46%);
+            min-height: 44px;
             transition: 0.3s;
+            touch-action: manipulation;
         }
         .char-box:hover { border-color: #ee5253; background: #2d1f1f; }
-        .char-box h3 { margin: 5px 0; }
+        .char-box h3 { margin: 5px 0; font-size: 1rem; }
         .char-box p { font-size: 12px; color: #aaa; margin: 5px 0; }
         .hidden { display: none !important; }
         .status-val { color: #ff9f43; }
+        #touch-pad {
+            display: none;
+            grid-template-columns: 64px 64px 64px;
+            grid-template-areas:
+                ". up ."
+                "left down right";
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+            touch-action: none;
+        }
+        #touch-pad button {
+            width: 64px;
+            height: 64px;
+            min-width: 44px;
+            min-height: 44px;
+            font-size: 26px;
+            border: none;
+            border-radius: 14px;
+            background: #ee5253;
+            color: white;
+            font-weight: bold;
+            touch-action: none;
+        }
+        #touch-pad button[data-key="ArrowUp"] { grid-area: up; }
+        #touch-pad button[data-key="ArrowLeft"] { grid-area: left; }
+        #touch-pad button[data-key="ArrowDown"] { grid-area: down; }
+        #touch-pad button[data-key="ArrowRight"] { grid-area: right; }
+        @media (pointer: coarse) {
+            #touch-pad { display: grid; }
+            #board-wrap { width: min(100%, 600px, calc(100dvh - 280px)); }
+        }
+        html.touch-device #touch-pad { display: grid; }
+        html.touch-device #board-wrap { width: min(100%, 600px, calc(100dvh - 280px)); }
+        @media (pointer: coarse) and (orientation: landscape) {
+            #game-shell { flex-direction: row; width: 100%; max-width: none; gap: 10px; }
+            #game-container { width: auto; flex: 1; }
+            #board-wrap { width: min(calc(100dvh - 72px), calc(100vw - 230px), 600px); }
+            #touch-pad { margin-top: 0; }
+        }
+        @media (orientation: landscape) {
+            html.touch-device #game-shell { flex-direction: row; width: 100%; max-width: none; gap: 10px; }
+            html.touch-device #game-container { width: auto; flex: 1; }
+            html.touch-device #board-wrap { width: min(calc(100dvh - 72px), calc(100vw - 230px), 600px); }
+            html.touch-device #touch-pad { margin-top: 0; }
+        }
     </style>
 </head>
 <body>
 
+<div id="game-shell">
 <div id="game-container">
     <div id="hud">
         <div>STAGE: <span id="ui-stage" class="status-val">1</span>/50</div>
@@ -97,12 +195,13 @@
         <div>BUFF: <span id="ui-buff" class="status-val">None</span></div>
         <div>메디컬킷: <span id="ui-kit" style="color:#1dd1a1;">0</span>개</div>
     </div>
-    
+
+    <div id="board-wrap">
     <canvas id="gameCanvas" width="600" height="600"></canvas>
 
     <div id="overlay">
         <h1 id="overlay-title">스파이 고양이: 데스 미로 50</h1>
-        <p id="overlay-desc">출격할 요원을 선택하면 작전이 즉시 시작됩니다.</p>
+        <p id="overlay-desc">출격할 요원을 선택하면 작전이 즉시 시작됩니다. 컴퓨터는 방향키, 휴대폰은 화면 아래 방향 버튼으로 이동하세요.</p>
         
         <div id="char-select" class="char-select-container">
             <div class="char-box" onclick="selectCharacter('popo')">
@@ -120,6 +219,15 @@
         <div id="reward-zone" class="hidden" style="font-size: 50px; margin: 15px;">🍢🍖✨</div>
         <button id="overlay-btn" class="btn hidden" onclick="handleOverlayButton()">작전 시작</button>
     </div>
+    </div>
+    <p id="control-hint">컴퓨터: 방향키로 이동 · 휴대폰: 아래 ▲▼◀▶ 버튼</p>
+</div>
+<div id="touch-pad" aria-label="이동 버튼">
+    <button type="button" data-key="ArrowUp" aria-label="위">▲</button>
+    <button type="button" data-key="ArrowLeft" aria-label="왼쪽">◀</button>
+    <button type="button" data-key="ArrowDown" aria-label="아래">▼</button>
+    <button type="button" data-key="ArrowRight" aria-label="오른쪽">▶</button>
+</div>
 </div>
 
 <script>
@@ -445,7 +553,7 @@ function handleOverlayButton() {
         document.getElementById('overlay-btn').classList.add('hidden');
         document.getElementById('reward-zone').classList.add('hidden');
         document.getElementById('overlay-title').innerText = "스파이 고양이: 데스 미로 50";
-        document.getElementById('overlay-desc').innerText = "출격할 요원을 선택하면 작전이 즉시 시작됩니다.";
+        document.getElementById('overlay-desc').innerText = "출격할 요원을 선택하면 작전이 즉시 시작됩니다. 컴퓨터는 방향키, 휴대폰은 화면 아래 방향 버튼으로 이동하세요.";
     }
 }
 
@@ -524,6 +632,33 @@ function gameLoop() {
     draw(); 
     requestAnimationFrame(gameLoop);
 }
+
+(function enableTouchControls() {
+    var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var touch = (navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window);
+    if (coarse || touch) document.documentElement.classList.add('touch-device');
+
+    document.querySelectorAll('#touch-pad button').forEach(function (btn) {
+        var key = btn.getAttribute('data-key');
+        function press(e) {
+            e.preventDefault();
+            keysPressed[key] = true;
+        }
+        function release(e) {
+            if (e) e.preventDefault();
+            keysPressed[key] = false;
+        }
+        btn.addEventListener('pointerdown', press);
+        btn.addEventListener('pointerup', release);
+        btn.addEventListener('pointercancel', release);
+        btn.addEventListener('pointerleave', release);
+        btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    });
+
+    document.getElementById('gameCanvas').addEventListener('touchmove', function (e) {
+        e.preventDefault();
+    }, { passive: false });
+})();
 
 gameLoop();
 </script>

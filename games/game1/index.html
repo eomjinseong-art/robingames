@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>포포와 지지의 비밀 작전 가방 챙기기 - 무한 스테이지</title>
     <style>
         :root {
@@ -19,9 +19,11 @@
             user-select: none;
         }
 
+        html { overflow: hidden; max-width: 100%; -webkit-text-size-adjust: 100%; }
+
         body {
             margin: 0;
-            padding: 0;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             background-color: var(--spy-dark);
             color: #ffffff;
             font-family: 'Malgun Gothic', -apple-system, sans-serif;
@@ -30,6 +32,10 @@
             align-items: center;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
+            max-width: 100%;
+            touch-action: manipulation;
+            overscroll-behavior: none;
         }
 
         /* 메인 컨테이너 */
@@ -139,6 +145,7 @@
             background: radial-gradient(circle, #1e293b 10%, #0b0f19 90%);
             overflow: hidden;
             cursor: crosshair;
+            touch-action: none;
         }
 
         /* 그리드 가이드라인 효과로 복잡성 연출 */
@@ -231,6 +238,7 @@
             border: 2px solid var(--spy-neon);
             color: var(--spy-neon);
             padding: 14px 40px;
+            min-height: 48px;
             font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
@@ -238,6 +246,14 @@
             margin-top: 25px;
             box-shadow: 0 0 15px rgba(0,255,204,0.2);
             transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 420px) {
+            .title { font-size: 0.92rem; }
+            .target-display { font-size: 1.2rem; }
+            .intro-text { font-size: 0.88rem; }
+            #dashboard { padding: 10px 12px; }
         }
 
         .btn:hover {
@@ -299,7 +315,8 @@
             <div id="overlay-desc-container">
                 <p class="intro-text">
                     <b>"무한의 계단 스타일! 한순간도 방심할 수 없다!"</b><br>
-                    대시보드에 지시되는 마스터 아이템을 기밀실 안에서 순서대로 찾아 무한히 터치하세요! 
+                    대시보드에 지시되는 마스터 아이템을 기밀실 안에서 순서대로 찾아 무한히 터치하세요!<br>
+                    휴대폰에서는 장비를 손가락으로 터치하고, 컴퓨터에서는 마우스로 클릭하세요.
                 </p>
                 <div class="highlight-box" style="font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
                     💡 <b>고난이도 규칙 안내:</b><br>
@@ -380,7 +397,7 @@
             overlay.style.display = 'none';
             missionRoom.innerHTML = '';
             
-            missionRoom.addEventListener('mousedown', handleRoomClick);
+            missionRoom.addEventListener('pointerdown', handleRoomClick);
 
             initStage();
             startTimer();
@@ -449,10 +466,12 @@
                 const randomRotation = Math.floor(Math.random() * 60) - 30; 
                 span.style.transform = `translate(-50%, -50%) scale(${randomScale}) rotate(${randomRotation}deg)`;
 
-                span.addEventListener('mousedown', (e) => {
-                    e.stopPropagation(); 
+                span.addEventListener('pointerdown', (e) => {
+                    if (e.pointerType === 'mouse' && e.button !== 0) return;
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (!isPlaying) return;
-                    
+
                     handleItemClick(span, item, e);
                 });
 
@@ -504,9 +523,14 @@
         }
 
         function handleRoomClick(e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            if (e.target !== missionRoom) return;
+            e.preventDefault();
             if (!isPlaying) return;
             triggerPenalty(e.clientX, e.clientY);
         }
+
+        missionRoom.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
 
         function triggerPenalty(clientX, clientY) {
             combo = 0;
@@ -553,7 +577,7 @@
         function endGame() {
             isPlaying = false;
             clearInterval(gameInterval);
-            missionRoom.removeEventListener('mousedown', handleRoomClick);
+            missionRoom.removeEventListener('pointerdown', handleRoomClick);
 
             document.getElementById('stat-stage').textContent = stage;
             document.getElementById('stat-items').textContent = score;
