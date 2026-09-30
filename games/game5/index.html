@@ -22,8 +22,9 @@
   #stage { position: relative; width: 100%; height: 100%; max-width: calc(100dvh * 0.5625); max-height: 100dvh; overflow: hidden; background: #ffe3f1; box-shadow: 0 0 40px rgba(0,0,0,.5); }
   @supports not (height: 100dvh) { #stage { max-width: calc(100vh * 0.5625); max-height: 100vh; } }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  .hud { position: absolute; top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 5; }
+  .hud { position: absolute; top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 30; }
   .hud .btns { display: flex; gap: 6px; pointer-events: auto; }
+  .hud .icon-btn { position: relative; pointer-events: auto; touch-action: manipulation; -webkit-touch-callout: none; }
   .icon-btn { width: 44px; height: 44px; border-radius: 14px; border: 3px solid #3b2352; background: #fff6fb; font-size: 20px; cursor: pointer; box-shadow: 0 3px 0 #3b2352; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #3b2352; }
   .icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #3b2352; }
   .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 64px 14px 24px; text-align: center; z-index: 10; background: rgba(255, 227, 241, .35); overflow-y: auto; touch-action: pan-y; }
@@ -810,6 +811,7 @@ function loop(now) {
 let g = null;
 function toLogical(e) { const r = cvs.getBoundingClientRect(); const k = W / r.width; return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k }; }
 cvs.addEventListener('pointerdown', e => {
+  if (e.target !== cvs) return;
   e.preventDefault();
   if (state !== 'play') return;
   snd.init();
@@ -919,15 +921,37 @@ document.getElementById('howBtn').addEventListener('click', e => { e.stopPropaga
 document.getElementById('howClose').addEventListener('click', e => { e.stopPropagation(); show('titleScr'); });
 document.getElementById('resumeBtn').addEventListener('click', e => { e.stopPropagation(); resume(); });
 document.getElementById('quitBtn').addEventListener('click', e => { e.stopPropagation(); toTitle(); });
-document.getElementById('pauseBtn').addEventListener('click', e => { e.stopPropagation(); state === 'pause' ? resume() : pause(); });
-document.getElementById('muteBtn').addEventListener('click', e => { e.stopPropagation(); snd.init(); snd.setMute(!snd.muted); updateMuteBtn(); });
 document.getElementById('shareBtn').addEventListener('click', async e => {
   e.stopPropagation();
   const text = t('shareText', { b: store.d.best }); const url = location.origin + location.pathname;
   try { if (navigator.share) { await navigator.share({ title: t('title'), text, url }); return; } await navigator.clipboard.writeText(text + ' ' + url); toast(t('copied')); }
   catch (err) { toast(t('brag', { b: store.d.best })); }
 });
-document.querySelectorAll('.hud button, .hud a, .overlay button').forEach(el => el.addEventListener('pointerdown', e => e.stopPropagation()));
+document.querySelectorAll('.overlay button').forEach(el => el.addEventListener('pointerdown', e => e.stopPropagation()));
+// 상단 버튼(🏠 🌏 ⏸️ 🔊): 게임 중에도 확실히 눌리게.
+// 손을 뗄 때(pointerup) 바로 실행하고, 뒤따르는 click은 한 번 무시 (모바일 브라우저가 click을 늦추거나 삼켜도 동작).
+// 버튼 탭은 게임 입력(방귀/회전)으로 넘어가지 않음.
+function uiTap(el, fn) {
+  let pid = null, fired = -1e9;
+  const run = e => { fired = performance.now(); try { el.blur && el.blur(); } catch (err) {} fn(e); };
+  el.addEventListener('pointerdown', e => { e.stopPropagation(); pid = e.pointerId; });
+  el.addEventListener('pointerup', e => {
+    e.stopPropagation();
+    if (pid !== e.pointerId) return; pid = null;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const r = el.getBoundingClientRect();
+    if (e.clientX < r.left - 10 || e.clientX > r.right + 10 || e.clientY < r.top - 10 || e.clientY > r.bottom + 10) return;
+    run(e);
+  });
+  el.addEventListener('pointercancel', () => { pid = null; });
+  el.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); if (performance.now() - fired < 800) return; run(e); });
+  ['touchstart', 'touchend'].forEach(ev => el.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+}
+const homeBtn = document.getElementById('homeBtn');
+uiTap(homeBtn, () => { location.href = homeBtn.href; });
+uiTap(document.getElementById('pauseBtn'), () => { state === 'pause' ? resume() : pause(); });
+uiTap(document.getElementById('muteBtn'), () => { snd.init(); snd.setMute(!snd.muted); updateMuteBtn(); });
+
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 window.addEventListener('blur', () => pause());
 
@@ -951,7 +975,7 @@ function applyLang() {
   document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderSkins();
 }
-document.getElementById('langBtn').addEventListener('click', e => { e.stopPropagation(); lang = lang === 'ko' ? 'en' : 'ko'; localStorage.setItem(LANG_KEY, lang); applyLang(); snd.init(); snd.boing(); });
+uiTap(document.getElementById('langBtn'), () => { lang = lang === 'ko' ? 'en' : 'ko'; localStorage.setItem(LANG_KEY, lang); applyLang(); snd.init(); snd.boing(); if (state === 'play') pause(); });
 reset(); resize(); applyLang(); updateMuteBtn(); show('titleScr');
 requestAnimationFrame(loop);
 })();
