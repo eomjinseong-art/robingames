@@ -177,15 +177,18 @@ const t = (k, v = {}) => T[k][lang === 'ko' ? 0 : 1].replace(/\{(\w)\}/g, (_, x)
 const pick = a => a[lang === 'ko' ? 0 : 1];
 
 const SKINS = [
-  { e: '🐷', n: ['꿀꿀이', 'Piggy'], need: 0,  fx: ['뿡!', 'PFFT!'] },
+  { e: '🐷', g: '🐖', flip: 1, n: ['꿀꿀이', 'Piggy'], need: 0,  fx: ['뿡!', 'PFFT!'] },
   { e: '🐸', n: ['개굴이', 'Froggy'], need: 8,  fx: ['뽀옹~', 'Poot~'] },
-  { e: '🐔', n: ['꼬꼬닭', 'Chicky'], need: 15, fx: ['꼬뿡!', 'Bawk-toot!'] },
+  { e: '🐔', flip: 1, n: ['꼬꼬닭', 'Chicky'], need: 15, fx: ['꼬뿡!', 'Bawk-toot!'] },
   { e: '🐙', n: ['문어빵', 'Octo'], need: 25, fx: ['뿌르륵', 'Blurrrp'] },
-  { e: '🦄', n: ['유니콘', 'Unicorn'], need: 35, fx: ['반짝뿡✨', 'Sparkle toot✨'] },
+  { e: '🦄', flip: 1, n: ['유니콘', 'Unicorn'], need: 35, fx: ['반짝뿡✨', 'Sparkle toot✨'] },
   { e: '👽', n: ['외계인', 'Alien'], need: 50, fx: ['삐뿡?', 'Beep-toot?'] },
   { e: '👴', n: ['할아버지', 'Grandpa'], need: 70, fx: ['에헴뿡', 'Ahem-PFFT'] },
   { e: '💩', n: ['황금똥', 'Golden Poop'], need: 100, fx: ['뿌지직!', 'SPLORT!'] },
 ];
+// 인게임 스프라이트: 진행 방향(오른쪽)을 보도록 옆모습 이모지(왼쪽 보기)를 좌우 반전 → 방귀는 엉덩이(왼쪽)에서
+const sprite = s => s.g || s.e;
+const faceX = s => s.flip ? -1 : 1;
 const unlocked = i => store.d.best >= SKINS[i].need;
 
 /* ================== 사운드 (WebAudio 합성) ================== */
@@ -548,10 +551,11 @@ function render() {
   if (state !== 'title') {
     if (superT > 0) { ctx.fillStyle = 'rgba(255,211,42,.4)'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 10 + Math.sin(time * 20) * 3, 0, 6.28); ctx.fill(); }
     const sq = p.squash;
-    drawEmo(SKINS[store.d.skin].e, p.x, p.y, p.r * 2, p.rot, 1 / sq * (disco ? 1 + Math.sin(time * 16) * 0.15 : 1), sq);
+    const sk = SKINS[store.d.skin];
+    drawEmo(sprite(sk), p.x, p.y, p.r * 2, p.rot, faceX(sk) / sq * (disco ? 1 + Math.sin(time * 16) * 0.15 : 1), sq);
   } else {
     // 타이틀 데모: 둥실둥실
-    drawEmo(SKINS[store.d.skin].e, 180, 560 + Math.sin(time * 3) * 6, 30, Math.sin(time * 2) * 0.2);
+    drawEmo(sprite(SKINS[store.d.skin]), 180, 560 + Math.sin(time * 3) * 6, 30, Math.sin(time * 2) * 0.2, faceX(SKINS[store.d.skin]));
   }
   // 떠다니는 글자
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
