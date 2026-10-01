@@ -63,43 +63,123 @@
   var SVGNS = 'xmlns="http://www.w3.org/2000/svg"';
   function svgOpen(w, h, label) { return '<svg ' + SVGNS + ' viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + esc(label || '') + '">'; }
 
-  // 격자판: 오목·바둑(교차점: mode "line"), 오델로·체스(칸: mode "cell")
+  // 격자판: 오목·바둑·장기·샹치(교차점: mode "line"), 오델로·체스·쇼기·쿼리도·블로커스(칸: mode "cell")
+  var AID = 0;
+  var PCOL = { r: '#c0392b', g: '#1e8449', b: '#1f4fa8', k: '#111', w: '#fff', v: '#111' };
+  var FCOL = { blue: '#3d7be0', yellow: '#f5c518', red: '#e0453d', green: '#3fae5a', gray: '#999' };
   function svgGrid(d) {
-    var rows = d.rows || d.size || 8, cols = d.cols || d.size || 8, cell = d.cell || (Math.max(rows, cols) > 11 ? 20 : 30);
+    var rows = d.rows || d.size || 8, cols = d.cols || d.size || 8, cell = d.cell || (Math.max(rows, cols) > 11 ? 20 : (d.pieceStyle ? 34 : 30));
     var line = d.mode !== 'cell', pad = d.coords ? 24 : 14;
     var gw = line ? (cols - 1) * cell : cols * cell, gh = line ? (rows - 1) * cell : rows * cell;
-    var W = gw + pad + 14, H = gh + pad + 14, i, s = svgOpen(W, H, d.caption);
+    var W = gw + pad + 14, H = gh + pad + 14, i, j, s = svgOpen(W, H, d.caption), aid = 'ga' + (++AID);
     function X(c) { return pad + (line ? c * cell : c * cell + cell / 2); }
     function Y(r) { return pad + (line ? r * cell : r * cell + cell / 2); }
-    s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="10" fill="' + (line ? '#e9c27d' : '#2f8f5b') + '"/>';
-    var lc = line ? '#5a3a10' : '#14502f';
+    s += '<defs><marker id="' + aid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e74c3c"/></marker></defs>';
+    s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="10" fill="' + (d.bg || (line ? '#e9c27d' : '#2f8f5b')) + '"/>';
+    var lc = d.lineColor || (line ? '#5a3a10' : '#14502f');
+    if (!line && d.checker) for (i = 0; i < rows; i++) for (j = 0; j < cols; j++) s += '<rect x="' + (pad + j * cell) + '" y="' + (pad + i * cell) + '" width="' + cell + '" height="' + cell + '" fill="' + ((i + j) % 2 ? '#b58863' : '#f0d9b5') + '"/>';
+    (d.fills || []).forEach(function (f) { s += '<rect x="' + (pad + f[1] * cell + 1) + '" y="' + (pad + f[0] * cell + 1) + '" width="' + (cell - 2) + '" height="' + (cell - 2) + '" rx="2" fill="' + (FCOL[f[2]] || f[2]) + '" stroke="#2d1b00" stroke-width="1"/>'; });
     if (line) {
       for (i = 0; i < rows; i++) s += '<line x1="' + pad + '" y1="' + Y(i) + '" x2="' + (pad + gw) + '" y2="' + Y(i) + '" stroke="' + lc + '" stroke-width="1"/>';
-      for (i = 0; i < cols; i++) s += '<line x1="' + X(i) + '" y1="' + pad + '" x2="' + X(i) + '" y2="' + (pad + gh) + '" stroke="' + lc + '" stroke-width="1"/>';
+      for (i = 0; i < cols; i++) {
+        if (d.river != null && i > 0 && i < cols - 1) {
+          s += '<line x1="' + X(i) + '" y1="' + pad + '" x2="' + X(i) + '" y2="' + Y(d.river) + '" stroke="' + lc + '" stroke-width="1"/>';
+          s += '<line x1="' + X(i) + '" y1="' + Y(d.river + 1) + '" x2="' + X(i) + '" y2="' + (pad + gh) + '" stroke="' + lc + '" stroke-width="1"/>';
+        } else s += '<line x1="' + X(i) + '" y1="' + pad + '" x2="' + X(i) + '" y2="' + (pad + gh) + '" stroke="' + lc + '" stroke-width="1"/>';
+      }
+      if (d.river != null) s += '<text x="' + (pad + gw / 2) + '" y="' + ((Y(d.river) + Y(d.river + 1)) / 2 + 6) + '" font-size="' + (cell * 0.5) + '" text-anchor="middle" fill="' + lc + '" letter-spacing="6">' + esc(d.riverText || '楚 河　　漢 界') + '</text>';
+      (d.palace || []).forEach(function (p) {
+        s += '<line x1="' + X(p[1]) + '" y1="' + Y(p[0]) + '" x2="' + X(p[1] + 2) + '" y2="' + Y(p[0] + 2) + '" stroke="' + lc + '" stroke-width="1"/><line x1="' + X(p[1] + 2) + '" y1="' + Y(p[0]) + '" x2="' + X(p[1]) + '" y2="' + Y(p[0] + 2) + '" stroke="' + lc + '" stroke-width="1"/>';
+      });
     } else {
-      for (i = 0; i <= rows; i++) s += '<line x1="' + pad + '" y1="' + (pad + i * cell) + '" x2="' + (pad + gw) + '" y2="' + (pad + i * cell) + '" stroke="' + lc + '" stroke-width="1.5"/>';
-      for (i = 0; i <= cols; i++) s += '<line x1="' + (pad + i * cell) + '" y1="' + pad + '" x2="' + (pad + i * cell) + '" y2="' + (pad + gh) + '" stroke="' + lc + '" stroke-width="1.5"/>';
+      for (i = 0; i <= rows; i++) s += '<line x1="' + pad + '" y1="' + (pad + i * cell) + '" x2="' + (pad + gw) + '" y2="' + (pad + i * cell) + '" stroke="' + lc + '" stroke-width="' + (d.checker ? 0 : 1.5) + '"/>';
+      for (i = 0; i <= cols; i++) s += '<line x1="' + (pad + i * cell) + '" y1="' + pad + '" x2="' + (pad + i * cell) + '" y2="' + (pad + gh) + '" stroke="' + lc + '" stroke-width="' + (d.checker ? 0 : 1.5) + '"/>';
+      if (d.checker) s += '<rect x="' + pad + '" y="' + pad + '" width="' + gw + '" height="' + gh + '" fill="none" stroke="#5a3a10" stroke-width="2"/>';
     }
     if (d.coords) {
-      var tc = line ? '#5a3a10' : '#fff';
-      for (i = 0; i < cols; i++) s += '<text x="' + X(i) + '" y="' + (pad - 8) + '" font-size="11" text-anchor="middle" fill="' + tc + '">' + 'abcdefghijklmnopqrs'.charAt(i) + '</text>';
-      for (i = 0; i < rows; i++) s += '<text x="' + (pad - 12) + '" y="' + (Y(i) + 4) + '" font-size="11" text-anchor="middle" fill="' + tc + '">' + (i + 1) + '</text>';
+      var tc = d.coordColor || (line || d.checker || d.bg ? '#5a3a10' : '#fff');
+      var colL = d.colLabels || 'abcdefghijklmnopqrstu'.split(''), rowL = d.rowLabels || null;
+      for (i = 0; i < cols; i++) s += '<text x="' + X(i) + '" y="' + (pad - 8) + '" font-size="11" text-anchor="middle" fill="' + tc + '">' + esc(colL[i]) + '</text>';
+      for (i = 0; i < rows; i++) s += '<text x="' + (pad - 12) + '" y="' + (Y(i) + 4) + '" font-size="11" text-anchor="middle" fill="' + tc + '">' + esc(rowL ? rowL[i] : (i + 1)) + '</text>';
     }
     (d.stars || []).forEach(function (p) { s += '<circle cx="' + X(p[1]) + '" cy="' + Y(p[0]) + '" r="' + (line ? 2.6 : 3) + '" fill="' + lc + '"/>'; });
     if (d.line) { var a = d.line[0], b = d.line[1]; s += '<line x1="' + X(a[1]) + '" y1="' + Y(a[0]) + '" x2="' + X(b[1]) + '" y2="' + Y(b[0]) + '" stroke="#ff3b3b" stroke-width="' + (cell * 0.35) + '" stroke-linecap="round" opacity=".45"/>'; }
+    (d.walls || []).forEach(function (w) {
+      if (w[2] === 'h') s += '<rect class="wall" x="' + (pad + w[1] * cell + 2) + '" y="' + (pad + (w[0] + 1) * cell - 3) + '" width="' + (2 * cell - 4) + '" height="6" rx="2" fill="#8b4513" stroke="#3b1d00"/>';
+      else s += '<rect class="wall" x="' + (pad + (w[1] + 1) * cell - 3) + '" y="' + (pad + w[0] * cell + 2) + '" width="6" height="' + (2 * cell - 4) + '" rx="2" fill="#8b4513" stroke="#3b1d00"/>';
+    });
     var R = cell * 0.43;
     (d.stones || []).forEach(function (p) {
-      var bl = p[2] === 'b';
-      s += '<circle class="stone" cx="' + X(p[1]) + '" cy="' + Y(p[0]) + '" r="' + R + '" fill="' + (bl ? '#1b1b1b' : '#fafafa') + '" stroke="#111" stroke-width="1.2"/>';
+      var bl = p[2] === 'b', col = p[2] === 'b' ? '#1b1b1b' : p[2] === 'w' ? '#fafafa' : (FCOL[p[2]] || p[2]);
+      s += '<circle class="stone" cx="' + X(p[1]) + '" cy="' + Y(p[0]) + '" r="' + R + '" fill="' + col + '" stroke="#111" stroke-width="1.2"/>';
       if (p[3] != null) s += '<text x="' + X(p[1]) + '" y="' + (Y(p[0]) + R * 0.38) + '" font-size="' + (R * 1.05) + '" text-anchor="middle" fill="' + (bl ? '#fff' : '#111') + '" font-weight="700">' + esc(p[3]) + '</text>';
+    });
+    var st = d.pieceStyle || 'disc';
+    (d.pieces || []).forEach(function (p) {
+      var x = X(p[1]), y = Y(p[0]), col = PCOL[p[3]] || '#111', lab = esc(p[2]);
+      if (st === 'glyph') {
+        s += '<text class="piece" x="' + x + '" y="' + (y + cell * 0.32) + '" font-size="' + (cell * 0.86) + '" text-anchor="middle" font-family="DejaVu Sans,Segoe UI Symbol,Apple Symbols,Noto Sans Symbols2,sans-serif" fill="' + (p[3] === 'w' ? '#fff' : '#111') + '" stroke="' + (p[3] === 'w' ? '#111' : '#fff') + '" stroke-width="' + (p[3] === 'w' ? 1.2 : 0.6) + '" paint-order="stroke">' + lab + '\uFE0E</text>';
+      } else if (st === 'shogi') {
+        var h = cell * 0.46, w = cell * 0.38, rot = p[3] === 'v' ? ' transform="rotate(180 ' + x + ' ' + y + ')"' : '';
+        s += '<g class="piece"' + rot + '><path d="M' + x + ' ' + (y - h) + 'L' + (x + w * 0.8) + ' ' + (y - h * 0.6) + 'L' + (x + w) + ' ' + (y + h) + 'L' + (x - w) + ' ' + (y + h) + 'L' + (x - w * 0.8) + ' ' + (y - h * 0.6) + 'Z" fill="#f3d9a4" stroke="#5a3a10" stroke-width="1.2"/>';
+        s += '<text x="' + x + '" y="' + (y + (p[4] ? 2 : 6)) + '" font-size="' + (cell * 0.42) + '" text-anchor="middle" fill="' + (p[5] ? '#c0392b' : '#111') + '" font-weight="700">' + lab + '</text>';
+        if (p[4]) s += '<text x="' + x + '" y="' + (y + h - 2) + '" font-size="' + (cell * 0.22) + '" text-anchor="middle" fill="#5a3a10">' + esc(p[4]) + '</text>';
+        s += '</g>';
+      } else {
+        var rr = R * (p[4] || 1);
+        s += '<circle class="piece" cx="' + x + '" cy="' + y + '" r="' + rr + '" fill="#fdf3d8" stroke="' + col + '" stroke-width="2"/>';
+        s += '<text x="' + x + '" y="' + (y + rr * 0.36) + '" font-size="' + (rr * 1.0) + '" text-anchor="middle" fill="' + col + '" font-weight="700">' + lab + '</text>';
+      }
     });
     (d.flipped || []).forEach(function (p) { s += '<circle cx="' + X(p[1]) + '" cy="' + Y(p[0]) + '" r="' + (R * 0.45) + '" fill="none" stroke="#ff9f43" stroke-width="2.5"/>'; });
     if (d.last) s += '<circle cx="' + X(d.last[1]) + '" cy="' + Y(d.last[0]) + '" r="' + (R + 2) + '" fill="none" stroke="#ff3b3b" stroke-width="2.5"/>';
+    (d.arrows || []).forEach(function (a) { s += '<line x1="' + X(a[1]) + '" y1="' + Y(a[0]) + '" x2="' + X(a[3]) + '" y2="' + Y(a[2]) + '" stroke="#e74c3c" stroke-width="3" opacity=".85" marker-end="url(#' + aid + ')"/>'; });
     (d.marks || []).forEach(function (m) {
       var x = X(m[1]), y = Y(m[0]), k = cell * 0.25;
       if (m[2] === 'x') s += '<path d="M' + (x - k) + ' ' + (y - k) + 'L' + (x + k) + ' ' + (y + k) + 'M' + (x + k) + ' ' + (y - k) + 'L' + (x - k) + ' ' + (y + k) + '" stroke="#e00" stroke-width="3" stroke-linecap="round"/>';
       else if (m[2] === 'dot') s += '<circle cx="' + x + '" cy="' + y + '" r="' + (cell * 0.16) + '" fill="#ffd32a" stroke="#2d1b00" stroke-width="1"/>';
-      else s += '<text x="' + x + '" y="' + (y + 5) + '" font-size="14" text-anchor="middle" fill="#c00" font-weight="700">' + esc(m[3] || '') + '</text>';
+      else if (m[2] === 'sq') s += '<rect x="' + (x - cell / 2 + 2) + '" y="' + (y - cell / 2 + 2) + '" width="' + (cell - 4) + '" height="' + (cell - 4) + '" fill="none" stroke="#ffd32a" stroke-width="3"/>';
+      else s += '<text x="' + x + '" y="' + (y + 5) + '" font-size="14" text-anchor="middle" fill="#c00" font-weight="700" stroke="#fff" stroke-width="3" paint-order="stroke">' + esc(m[3] || '') + '</text>';
+    });
+    return s + '</svg>';
+  }
+
+  // 육각 판 (아발론류 일반 도식): 줄 길이 n..2n-1..n, 구슬 [[줄, 칸, "b"|"w"]], 화살표 [[줄,칸,줄,칸]]
+  function svgHex(d) {
+    var n = d.n || 5, rowsN = 2 * n - 1, dd = d.cell || 30, W = dd * rowsN + 30, H = Math.round(dd * 0.866 * (rowsN - 1) + dd + 30), aid = 'ha' + (++AID);
+    function len(r) { return n + Math.min(r, rowsN - 1 - r); }
+    function P(r, k) { return [W / 2 + (k - (len(r) - 1) / 2) * dd, 15 + dd / 2 + r * dd * 0.866]; }
+    var s = svgOpen(W, H, d.caption);
+    s += '<defs><marker id="' + aid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e74c3c"/></marker></defs>';
+    s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="14" fill="#5d6d7e"/>';
+    var occ = {};
+    (d.marbles || []).forEach(function (m) { occ[m[0] + ',' + m[1]] = m[2]; });
+    for (var r = 0; r < rowsN; r++) for (var k = 0; k < len(r); k++) {
+      var p = P(r, k), c = occ[r + ',' + k];
+      s += '<circle' + (c ? ' class="stone"' : '') + ' cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (dd * 0.42) + '" fill="' + (c === 'b' ? '#1b1b1b' : c === 'w' ? '#fafafa' : '#34495e') + '" stroke="#1c2833" stroke-width="1.2"/>';
+    }
+    (d.marks || []).forEach(function (m) { var p = P(m[0], m[1]); s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (dd * 0.47) + '" fill="none" stroke="#ffd32a" stroke-width="3"/>'; });
+    (d.arrows || []).forEach(function (a) { var p = P(a[0], a[1]), q = P(a[2], a[3]); s += '<line x1="' + p[0] + '" y1="' + p[1] + '" x2="' + q[0] + '" y2="' + q[1] + '" stroke="#e74c3c" stroke-width="4" marker-end="url(#' + aid + ')"/>'; });
+    return s + '</svg>';
+  }
+
+  // 솔리테어 배치: top [{label, card|null}], cols [{down:n, up:[codes], hl:[i]}]
+  function svgTableau(d) {
+    var top = d.top || [], cols = d.cols || [], n = Math.max(top.length, cols.length, 1), sp = 46;
+    var maxH = 0; cols.forEach(function (c) { var h = (c.down || 0) * 8 + Math.max(0, (c.up || []).length - 1) * 18 + 58; if (h > maxH) maxH = h; });
+    var topH = top.length ? 92 : 0, W = 12 + n * sp + 6, H = topH + maxH + 16, s = svgOpen(W, H, d.caption);
+    s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="12" fill="#1e7a4c"/>';
+    top.forEach(function (t, i) {
+      var x = 12 + i * sp;
+      if (t && t.label) s += '<text x="' + (x + 20) + '" y="14" font-size="10" text-anchor="middle" fill="#fff">' + esc(t.label) + '</text>';
+      if (t && t.card) s += card(t.card, x, 22, !!t.hl);
+      else if (t) s += '<rect x="' + x + '" y="22" width="40" height="58" rx="5" fill="none" stroke="#bfe9cf" stroke-width="1.5" stroke-dasharray="4 3"/>';
+    });
+    cols.forEach(function (c, i) {
+      var x = 12 + i * sp, y = topH + 8, k;
+      if (!(c.down || 0) && !(c.up || []).length) { s += '<rect x="' + x + '" y="' + y + '" width="40" height="58" rx="5" fill="none" stroke="#bfe9cf" stroke-width="1.5" stroke-dasharray="4 3"/>'; return; }
+      for (k = 0; k < (c.down || 0); k++) { s += card('XX', x, y, false); y += 8; }
+      (c.up || []).forEach(function (cd, j) { s += card(cd, x, y, (c.hl || []).indexOf(j) >= 0); y += 18; });
     });
     return s + '</svg>';
   }
@@ -160,16 +240,18 @@
   }
   function svgCards(d) {
     var rows = d.rows || [], rowH = 86, maxN = 1;
+    var SP = 46;
     rows.forEach(function (r) { var n = (r.cards || []).length + (r.back ? Math.min(r.back, 6) : 0); if (n > maxN) maxN = n; });
-    var W = Math.max(200, 14 + maxN * 46 + 10), H = rows.length * rowH + 6, s = svgOpen(W, H, d.caption);
+    if (maxN > 8) SP = 26;
+    var W = Math.max(200, 14 + (maxN - 1) * SP + 40 + 12), H = rows.length * rowH + 6, s = svgOpen(W, H, d.caption);
     s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="12" fill="#1e7a4c"/>';
     rows.forEach(function (r, ri) {
       var y0 = ri * rowH + 4, x = 12;
       s += '<text x="12" y="' + (y0 + 14) + '" font-size="13" fill="#fff" font-weight="700">' + esc(r.label || '') + (r.note ? ' <tspan fill="#ffd32a">' + esc(r.note) + '</tspan>' : '') + '</text>';
-      (r.cards || []).forEach(function (c, i) { s += card(c, x, y0 + 22, (r.hl || []).indexOf(i) >= 0); x += 46; });
+      (r.cards || []).forEach(function (c, i) { s += card(c, x, y0 + 22, (r.hl || []).indexOf(i) >= 0); x += SP; });
       if (r.back) {
         var k = Math.min(r.back, 6);
-        for (var i = 0; i < k; i++) { s += card('XX', x, y0 + 22, false); x += 46; }
+        for (var i = 0; i < k; i++) { s += card('XX', x, y0 + 22, false); x += SP; }
       }
       if (!(r.cards || []).length && !r.back) s += '<text x="12" y="' + (y0 + 56) + '" font-size="13" fill="#d7ffe0">' + esc(r.empty || '(빈손)') + '</text>';
     });
@@ -177,7 +259,7 @@
   }
   function diagram(d) {
     if (!d) return '';
-    var svg = d.type === 'mancala' ? svgMancala(d) : d.type === 'cards' ? svgCards(d) : svgGrid(d);
+    var svg = d.type === 'mancala' ? svgMancala(d) : d.type === 'cards' ? svgCards(d) : d.type === 'hex' ? svgHex(d) : d.type === 'tableau' ? svgTableau(d) : svgGrid(d);
     return '<figure class="diagram">' + svg + (d.caption ? '<figcaption>' + esc(d.caption) + '</figcaption>' : '') + '</figure>';
   }
 
