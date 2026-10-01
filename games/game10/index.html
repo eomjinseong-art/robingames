@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Toot King Hunt 뿡뿡 킹 잡기 👨‍🌾💨 | Nadoo Games 나두게임즈</title>
-<meta name="description" content="Toot King Hunt - a silly 5x5 puzzle: move your animals and catch the evil farmer and the witch! No chess knowledge needed. 뿡뿡 킹 잡기 - 농장 동물 친구들로 악덕 농장 주인과 마녀를 혼내 주자!">
+<title>Toot Farm Escape 뿡뿡 농장 탈출 👨‍🌾💨 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Farm Escape - a silly 5x5 puzzle: move your animals and catch the evil farmer and the witch! No chess knowledge needed. 뿡뿡 농장 탈출 - 농장 동물 친구들로 악덕 농장 주인과 마녀를 혼내 주자!">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nadoo Games 나두게임즈">
-<meta property="og:title" content="Toot King Hunt 💨 뿡뿡 킹 잡기 | Nadoo Games">
+<meta property="og:title" content="Toot Farm Escape 💨 뿡뿡 농장 탈출 | Nadoo Games">
 <meta property="og:description" content="Tap an animal, tap a glowing square, catch the evil farmer! 동물을 톡, 빛나는 칸을 톡! 악덕 농장 주인을 잡아요!">
 <meta property="og:url" content="https://robingames.vercel.app/games/game10/">
 <meta property="og:locale" content="en_US">
@@ -128,7 +128,7 @@
   <div class="overlay show" id="titleScr">
     <div class="card">
       <div style="font-size:44px">👨‍🌾💨🐷🦄</div>
-      <h1 data-i18n="title">뿡뿡 킹 잡기</h1>
+      <h1 data-i18n="title">뿡뿡 농장 탈출</h1>
       <p class="sub" data-i18n-html="sub"></p>
       <button class="big-btn" id="playBtn">▶ <span id="playLabel">Stage 1</span></button>
       <div class="stages" id="stages"></div>
@@ -207,7 +207,7 @@ const autoLang = () => (navigator.language || 'en').toLowerCase().startsWith('ko
 let lang = autoLang();
 try { lang = localStorage.getItem(LANG_KEY) || autoLang(); } catch (e) {}
 const T = {
-  title: ['뿡뿡 킹 잡기', 'Toot King Hunt'],
+  title: ['뿡뿡 농장 탈출', 'Toot Farm Escape'],
   sub: ['동물 친구를 <b>톡</b>, 빛나는 칸을 <b>톡!</b><br>농장을 탈출한 동물 친구들아, 악덕 농장 주인 👨‍🌾을 혼내 주자! 💨', 'Tap an animal, tap a <b>glowing</b> square!<br>The farm animals break free — catch the evil farmer 👨‍🌾! 💨'],
   how: ['소개 · 조작법 · 웃긴 포인트', 'About · Controls · Funny bits'],
   hIntroT: ['소개', 'About'], hCtrlT: ['조작법', 'Controls'], hFunT: ['웃긴 포인트', 'Funny bits'], gotIt: ['알겠어!', 'Got it!'],
@@ -230,7 +230,7 @@ const T = {
   needOne: ['친구를 1마리 이상 골라요!', 'Pick at least 1 pal!'], cantTeam: ['🤔 이 팀으론 {l}걸음 안에 못 잡아요! 다른 친구를 골라봐요', '🤔 This team can\'t win in {l} moves! Try other pals'],
   newFriend: ['🎉 새 친구 {e} {n} 등장!', '🎉 New friend: {e} {n}!'], allFriends: ['모든 친구를 모았어요! 💨 보너스 뿡!', 'You have every friend! Bonus toot! 💨'],
   locked: ['🔒 방귀 게이지를 채우면 열려요!', '🔒 Fill the fart meter to unlock!'], stageLocked: ['🔒 앞 스테이지를 먼저 깨요!', '🔒 Clear the previous stage first!'],
-  rest: ['😴 쉬는 중', '😴 resting'], allClear: ['🏆 모든 스테이지 클리어! 최고의 뿡뿡 킹 헌터!', '🏆 All stages cleared! Top Toot King Hunter!'],
+  rest: ['😴 쉬는 중', '😴 resting'], allClear: ['🏆 모든 스테이지 클리어! 농장 탈출 대성공!', '🏆 All stages cleared! The farm is free!'],
 };
 const t = (k, v = {}) => T[k][lang === 'ko' ? 0 : 1].replace(/\{(\w)\}/g, (_, x) => v[x]);
 const pick = a => a[lang === 'ko' ? 0 : 1];
@@ -803,7 +803,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
-  document.title = lang === 'ko' ? '뿡뿡 킹 잡기 👨‍🌾💨 | 나두게임즈' : 'Toot King Hunt 👨‍🌾💨 | Nadoo Games';
+  document.title = lang === 'ko' ? '뿡뿡 농장 탈출 👨‍🌾💨 | 나두게임즈' : 'Toot Farm Escape 👨‍🌾💨 | Nadoo Games';
   $('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderStages();
   if (state === 'team') openTeam(stageN);
