@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>나두 게임 가이드 - 보드게임·카드게임 초보 규칙 교과서 | 나두게임즈</title>
+<meta name="description" content="오목, 오델로, 만칼라, 도둑잡기, 원카드, 블랙잭 등 보드게임·카드게임 규칙을 그림으로 한 판씩 따라 하며 배우는 초보 가이드. 돈은 걸지 않아요.">
+<meta name="theme-color" content="#ffd32a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="나두게임즈 Nadoo Games">
+<meta property="og:title" content="나두 게임 가이드 - 초보 규칙 교과서">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="btn" href="/" data-t="home">🏠 홈</a>
+    <button class="btn" id="langBtn" type="button" aria-label="Language 언어">🌏 EN</button>
+  </div>
+  <header class="hero">
+    <h1>📚 <span data-t="gTitle">나두 게임 가이드</span><small data-t="gSub">처음 하는 사람을 위한 규칙 교과서</small></h1>
+    <p data-t="gIntro">보드게임·카드게임 규칙을 그림으로 한 판씩 따라 하며 배워요. 돈은 걸지 않아요!</p>
+  </header>
+  <div id="guideApp">
+    <section class="panel">
+      <h2>🎲 <span data-t="cats">게임 고르기</span></h2>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-cat="board" aria-selected="true" data-t="board">보드게임</button>
+        <button class="tab" role="tab" data-cat="card" aria-selected="false" data-t="card">카드게임</button>
+      </div>
+      <div class="ggrid" id="gameGrid" role="tabpanel"></div>
+      <p class="prog" style="margin-top:10px"><span data-t="legend">배지 설명</span>: <span class="badge ready">📗 <span data-t="ready">가이드 있음</span></span> <span class="badge soon">⏳ <span data-t="soon">준비 중</span></span> <span class="badge solo">🧍 <span data-t="solo">혼자 연습 가능</span></span> <span class="badge kids">🧒 <span data-t="kids">아이랑 하기 좋음</span></span></p>
+    </section>
+
+    <section class="panel">
+      <h2>🪜 <span data-t="order">추천 학습 순서 (쉬움 → 어려움)</span></h2>
+      <p class="prog" data-t="orderNote">★ 개수가 적은 것부터 차례로 해 보세요.</p>
+      <ol class="order" id="orderList"></ol>
+    </section>
+
+    <section class="panel">
+      <h2>♟️ <span data-t="cmp">체스·장기·샹치·쇼기 비교표</span></h2>
+      <div class="tbl-wrap">
+        <table class="cmp">
+          <tr><th>항목</th><th>체스 (서양)</th><th>장기 (한국)</th><th>샹치 (중국)</th><th>쇼기 (일본)</th></tr>
+          <tr><th>판</th><td>8×8 칸, 칸 안에 둠</td><td>9×10 선, 교차점에 둠 (가운데 강 없음)</td><td>9×10 선, 교차점에 둠 (가운데 강 '초하한계' 있음)</td><td>9×9 칸, 칸 안에 둠</td></tr>
+          <tr><th>기물 수</th><td>한쪽 16개</td><td>한쪽 16개</td><td>한쪽 16개</td><td>한쪽 20개</td></tr>
+          <tr><th>먼저 두는 쪽</th><td>백</td><td>초(楚, 초록·파랑)</td><td>홍(빨강)</td><td>선수(先手)</td></tr>
+          <tr><th>왕</th><td>킹: 판 어디든 1칸씩</td><td>궁(초·한): 궁성 9점 안에서만, 시작은 궁성 한가운데</td><td>장/수(將/帥): 궁성 안에서만 가로·세로 1칸, 두 왕이 가로막힘 없이 마주 보면 안 됨</td><td>왕장/옥장: 판 어디든 1칸씩</td></tr>
+          <tr><th>대포</th><td>없음</td><td>포: 다른 기물 하나를 꼭 넘어서 이동·잡기 (포는 포를 넘지도 잡지도 못함)</td><td>포(炮): 이동은 차처럼, 잡을 때만 하나를 넘음</td><td>없음</td></tr>
+          <tr><th>잡은 기물</th><td>판에서 제거</td><td>판에서 제거</td><td>판에서 제거</td><td>내 기물로 다시 판에 놓을 수 있음 (持ち駒)</td></tr>
+          <tr><th>승격</th><td>폰이 끝줄에 가면 퀸·룩·비숍·나이트로</td><td>없음</td><td>없음 (졸/병은 강을 건너면 옆으로도 이동)</td><td>상대 진영 3단에 들어가면 뒤집어 승격 가능</td></tr>
+          <tr><th>시작 배치 선택</th><td>고정</td><td>마·상 위치를 4가지 중 골라 차림</td><td>고정</td><td>고정</td></tr>
+          <tr><th>이기는 법</th><td>체크메이트 (둘 곳 없는 스테일메이트는 무승부)</td><td>외통 (장군을 피할 수 없게). 빅장·수 제한 시 점수 계산 (한 쪽 덤 1.5점)</td><td>외통, 또는 상대가 둘 수 있는 수가 없으면 승리</td><td>츠미 (왕을 피할 수 없게 몰기)</td></tr>
+          <tr><th>특수 규칙</th><td>캐슬링, 앙파상</td><td>궁성 대각선 이동, 궁끼리 마주 보면 '빅장'</td><td>상(象)은 강을 못 건넘, 마·상은 길이 막히면 못 감</td><td>니후(같은 줄에 보 2개) 금지, 보를 놓아 바로 외통 금지</td></tr>
+        </table>
+      </div>
+      <p class="prog" style="margin-top:6px">네 게임 모두 같은 조상(인도의 차투랑가 계열)에서 갈라졌다고 보는 게 일반적이에요. 세부 가이드는 준비 중이에요.</p>
+    </section>
+  </div>
+  <footer data-t="credit">© 나두게임즈 | 나두Ai</footer>
+</div>
+<script src="/guide/guide.js"></script>
+<script>NadooGuide.renderIndex();</script>
+</body>
+</html>
