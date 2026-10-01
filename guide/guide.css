@@ -1,0 +1,65 @@
+/* 나두게임즈 게임 가이드 공용 스타일 */
+:root { --ink:#2d1b00; --paper:#fff8dc; --yellow:#ffd32a; --pink:#ff7eb6; --mint:#7bed9f; --sky:#70d6ff; --orange:#ff9f43; --purple:#a29bfe; --soft:#5a3a10; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+body { font-family: 'Jua','Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif; color: var(--ink); line-height: 1.6;
+  background: linear-gradient(180deg,#7fdcff 0%,#b8f0ff 40%,#fff1a8 100%); background-attachment: fixed; min-height: 100vh;
+  padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+a { color: inherit; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.btn { font-family: inherit; font-size: 15px; font-weight: 700; color: var(--ink); background: var(--paper); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 12px; min-height: 44px; box-shadow: 0 3px 0 var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.hero { background: var(--yellow); border: 4px solid var(--ink); border-radius: 24px; padding: 16px; box-shadow: 0 5px 0 var(--ink); text-align: center; }
+.hero h1 { font-size: 30px; line-height: 1.2; word-break: keep-all; }
+.hero h1 small { display: block; font-size: 14px; letter-spacing: 1px; color: var(--soft); }
+.hero p { margin-top: 6px; word-break: keep-all; }
+.panel { background: var(--paper); border: 3px solid var(--ink); border-radius: 20px; padding: 14px; box-shadow: 0 4px 0 var(--ink); }
+.panel h2 { font-size: 21px; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; word-break: keep-all; }
+.panel h2 .no { background: var(--ink); color: var(--yellow); border-radius: 10px; font-size: 14px; padding: 1px 8px; }
+.panel h3 { font-size: 17px; margin: 10px 0 4px; }
+.panel p, .panel li { word-break: keep-all; font-size: 16px; }
+.panel ul, .panel ol { padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.note { background: #fff; border: 2px dashed var(--ink); border-radius: 14px; padding: 10px 12px; font-size: 15px; word-break: keep-all; }
+.note.warn { background: #ffe9a8; border-style: solid; }
+.badge { display: inline-block; font-size: 12px; line-height: 1.4; padding: 1px 7px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; white-space: nowrap; }
+.badge.solo { background: #c9f7ff; } .badge.kids { background: #ffe0f0; } .badge.soon { background: #eee; color: #666; border-style: dashed; } .badge.ready { background: var(--mint); }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tab { font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 14px; min-height: 44px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--pink); box-shadow: 0 3px 0 var(--ink); }
+.ggrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; margin-top: 10px; }
+.gcard { display: flex; flex-direction: column; gap: 4px; text-decoration: none; background: #fff; border: 3px solid var(--ink); border-radius: 18px; padding: 10px; box-shadow: 0 4px 0 var(--ink); min-height: 120px; }
+.gcard.ready:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.gcard.soon { border-style: dashed; box-shadow: none; opacity: .7; }
+.gcard .ic { font-size: 30px; line-height: 1.1; }
+.gcard b { font-size: 17px; word-break: keep-all; }
+.gcard .meta { font-size: 13px; color: var(--soft); }
+.gcard .bd { display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; }
+.order { list-style: none; padding: 0 !important; counter-reset: o; }
+.order li { counter-increment: o; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 4px 0; border-bottom: 1px dashed rgba(45,27,0,.25); }
+.order li::before { content: counter(o); background: var(--ink); color: #fff; border-radius: 50%; min-width: 26px; height: 26px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+.order a { font-weight: 700; }
+.stars { color: #e67e22; letter-spacing: 1px; white-space: nowrap; }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: #fff; }
+th, td { border: 2px solid var(--ink); padding: 6px 8px; text-align: left; vertical-align: top; word-break: keep-all; }
+th { background: #fff3b0; }
+table.cmp { min-width: 620px; }
+.glance th { width: 30%; white-space: nowrap; }
+.toc { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; position: sticky; top: 0; z-index: 5; background: rgba(184,240,255,.92); border-radius: 12px; }
+.toc a { flex-shrink: 0; font-size: 13px; text-decoration: none; background: #fff; border: 2px solid var(--ink); border-radius: 10px; padding: 3px 8px; }
+.diagram { margin: 8px 0; text-align: center; }
+.diagram svg { max-width: 100%; height: auto; display: inline-block; }
+.diagram figcaption { font-size: 13px; color: var(--soft); word-break: keep-all; }
+.steps { list-style: none; padding: 0 !important; counter-reset: s; gap: 12px !important; }
+.steps > li { counter-increment: s; background: #fff; border: 2px solid var(--ink); border-radius: 16px; padding: 10px; }
+.steps > li > p::before { content: counter(s) "단계 · "; font-weight: 700; color: #c0392b; }
+html[lang="en"] .steps > li > p::before { content: "Step " counter(s) " · "; }
+.gloss dt { font-weight: 700; margin-top: 6px; } .gloss dd { margin-left: 12px; word-break: keep-all; }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; font-size: 16px; cursor: pointer; word-break: keep-all; }
+.check input { width: 24px; height: 24px; flex-shrink: 0; accent-color: #27ae60; }
+.prog { font-size: 14px; color: var(--soft); }
+.cta { background: var(--mint); font-size: 17px; }
+footer { text-align: center; font-size: 13px; color: var(--soft); padding: 8px 0; }
+.err { background: #ffd6d6; }
+@media (max-width: 380px) { .hero h1 { font-size: 26px; } .ggrid { grid-template-columns: 1fr 1fr; } }
