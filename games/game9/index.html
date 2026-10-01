@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Toot Jump King 방귀 점프 킹 🐷💨 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Jump King - hold to charge a fart, release to jump! A silly one-button climbing game by Nadoo Games. 방귀 점프 킹 - 꾹 참았다가 뿡! 하늘 끝까지 점프!">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nadoo Games 나두게임즈">
+<meta property="og:title" content="Toot Jump King 💨 방귀 점프 킹 | Nadoo Games">
+<meta property="og:description" content="Hold to charge, release to TOOT! Climb from the sky to outer space. 꾹 눌러 방귀 충전, 떼면 뿡! 우주까지 올라가요!">
+<meta property="og:url" content="https://robingames.vercel.app/games/game9/">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+  html, body { height: 100%; overflow: hidden; background: #1b1446; }
+  body { font-family: 'Jua', 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif; color: #3b2352; touch-action: none; overscroll-behavior: none; }
+  #wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #stage { position: relative; width: 100%; height: 100%; max-width: calc(100dvh * 0.5625); max-height: 100dvh; overflow: hidden; background: #8fd3ff; box-shadow: 0 0 40px rgba(0,0,0,.5); }
+  @supports not (height: 100dvh) { #stage { max-width: calc(100vh * 0.5625); max-height: 100vh; } }
+  /* 입력 레이어(캔버스)는 z-index 1, UI 버튼은 z-index 30 → 버튼 탭이 점프로 새지 않음 */
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; z-index: 1; }
+  .hud { position: absolute; top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 30; }
+  .hud .btns { display: flex; gap: 6px; pointer-events: auto; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 14px; border: 3px solid #3b2352; background: #fffaf2; font-size: 20px; cursor: pointer; box-shadow: 0 3px 0 #3b2352; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #3b2352; touch-action: manipulation; }
+  .icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #3b2352; }
+  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 62px 16px 26px; text-align: center; z-index: 20; background: rgba(255, 227, 241, .25); overflow-y: auto; touch-action: pan-y; }
+  .overlay.show { display: flex; }
+  .card { background: #fffaf2; border: 4px solid #3b2352; border-radius: 24px; padding: 16px 14px; width: 100%; max-width: 330px; box-shadow: 0 6px 0 #3b2352; margin: auto 0; }
+  h1 { font-size: 32px; line-height: 1.1; color: #7a2e8e; text-shadow: 3px 3px 0 #ffd6ec; letter-spacing: -1px; }
+  h2 { font-size: 17px; color: #7a2e8e; margin: 10px 0 4px; }
+  .sub { font-size: 15px; margin-top: 6px; color: #5b3d6e; word-break: keep-all; }
+  .big-btn { font-family: inherit; font-size: 23px; font-weight: 900; width: 100%; padding: 13px; border-radius: 18px; border: 4px solid #3b2352; background: #ffd66b; color: #3b2352; box-shadow: 0 5px 0 #3b2352; cursor: pointer; margin-top: 10px; touch-action: manipulation; }
+  .big-btn.green { background: #9bf6c0; }
+  .big-btn.blue { background: #a9ddff; font-size: 17px; padding: 10px; }
+  .big-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b2352; }
+  .link-btn { font-family: inherit; background: none; border: none; color: #7a2e8e; font-size: 14px; text-decoration: underline; margin-top: 10px; cursor: pointer; touch-action: manipulation; }
+  .row { display: flex; gap: 8px; }
+  .row .big-btn { flex: 1; }
+  .skins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+  .skin { font-family: inherit; border: 3px solid #3b2352; border-radius: 14px; background: #fff; padding: 4px 0 2px; cursor: pointer; font-size: 26px; line-height: 1.1; position: relative; color: #3b2352; touch-action: manipulation; }
+  .skin small { display: block; font-size: 10px; color: #5b3d6e; }
+  .skin.sel { background: #ffd66b; }
+  .skin.locked { background: #ddd; filter: grayscale(1); opacity: .6; cursor: default; }
+  .best { font-size: 17px; margin-top: 8px; color: #7a2e8e; }
+  .howto { font-size: 14px; color: #5b3d6e; line-height: 1.55; word-break: keep-all; text-align: left; }
+  .howto b { color: #7a2e8e; }
+  .go-emoji { font-size: 60px; display: inline-block; animation: wob 1s ease-in-out infinite alternate; }
+  @keyframes wob { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.1); } }
+  .score-big { font-size: 54px; color: #7a2e8e; text-shadow: 3px 3px 0 #ffd6ec; line-height: 1; margin-top: 4px; }
+  .newrec { color: #ff4f8b; font-size: 20px; animation: pop .5s ease infinite alternate; }
+  @keyframes pop { from { transform: scale(1); } to { transform: scale(1.12); } }
+  .unlock { background: #9bf6c0; border: 3px dashed #3b2352; border-radius: 14px; padding: 6px; margin-top: 8px; font-size: 16px; }
+  .credit { position: absolute; bottom: max(4px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 11px; color: rgba(59,35,82,.7); z-index: 21; pointer-events: none; }
+  /* 글 없이도 알 수 있는 조작 데모: 꾹 누르기 → 빵빵 → 뿡! */
+  .demo { position: relative; height: 70px; margin-top: 8px; }
+  .demo .hand { position: absolute; left: 16%; top: 22px; font-size: 30px; animation: hold 2s ease-in-out infinite; }
+  .demo .bar { position: absolute; left: 32%; top: 14px; width: 12px; height: 46px; border: 2px solid #3b2352; border-radius: 6px; background: #fff; overflow: hidden; }
+  .demo .bar i { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#ff6b9a, #ffd66b, #9bf6c0); animation: fill 2s linear infinite; }
+  .demo .pig { position: absolute; left: 50%; top: 22px; font-size: 30px; animation: pigj 2s ease-in-out infinite; }
+  .demo .puff { position: absolute; left: 44%; top: 40px; font-size: 20px; opacity: 0; animation: puff 2s ease-out infinite; }
+  .demo .keys { position: absolute; right: 0; top: 18px; font-size: 13px; color: #5b3d6e; line-height: 1.6; }
+  .demo kbd { font-family: inherit; border: 2px solid #3b2352; border-bottom-width: 4px; border-radius: 6px; padding: 0 5px; background: #fff; display: inline-block; }
+  @keyframes hold { 0%,5% { transform: translateY(0); } 10%,60% { transform: translateY(8px) scale(.88); } 66%,100% { transform: translateY(0); } }
+  @keyframes fill { 0%,8% { height: 0; } 60% { height: 100%; } 62%,100% { height: 0; } }
+  @keyframes pigj { 0%,8% { transform: translate(0,6px) scale(1); } 60% { transform: translate(0,8px) scale(1.35); } 75% { transform: translate(28px,-22px) scale(1) rotate(-15deg); } 92%,100% { transform: translate(40px,4px) scale(1); } }
+  @keyframes puff { 0%,60% { opacity: 0; transform: scale(.5); } 64% { opacity: 1; } 90% { opacity: 0; transform: translate(-18px,10px) scale(1.6); } 100% { opacity: 0; } }
+  #toast { position: absolute; left: 50%; top: 20%; transform: translateX(-50%); background: #3b2352; color: #ffd66b; padding: 8px 14px; border-radius: 14px; font-size: 17px; z-index: 25; display: none; white-space: nowrap; pointer-events: none; }
+</style>
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <canvas id="c"></canvas>
+  <div class="hud" id="hud">
+    <div class="btns"><a class="icon-btn" href="../../index.html" aria-label="Nadoo Games home 홈" id="homeBtn">🏠</a></div>
+    <div class="btns">
+      <button class="icon-btn" id="langBtn" aria-label="Language 언어" style="width:auto;padding:0 8px;font-family:inherit;font-size:15px;font-weight:900">🌏 EN</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Pause 일시정지">⏸️</button>
+      <button class="icon-btn" id="muteBtn" aria-label="Sound 소리">🔊</button>
+    </div>
+  </div>
+
+  <div class="overlay show" id="titleScr">
+    <div class="card">
+      <div style="font-size:44px">👑🐖💨</div>
+      <h1 data-i18n="title">방귀 점프 킹</h1>
+      <p class="sub" data-i18n-html="sub"></p>
+      <p class="best" id="titleBest">🏆 0m</p>
+      <div class="skins" id="skins"></div>
+      <div class="demo" aria-hidden="true"><span class="hand">👆</span><span class="bar"><i></i></span><span class="puff">💨</span><span class="pig">🐷</span><span class="keys">⌨️ <kbd>Space</kbd><br>🖱️</span></div>
+      <button class="big-btn" id="startBtn">▶ <span data-i18n="start">뿡! 시작하기</span></button>
+      <button class="link-btn" id="howBtn">❓ <span data-i18n="how">소개 · 조작법 · 웃긴 포인트</span></button>
+    </div>
+  </div>
+
+  <div class="overlay" id="howScr">
+    <div class="card howto">
+      <h2>📖 <span data-i18n="hIntroT">소개</span></h2>
+      <p data-i18n-html="hIntro"></p>
+      <h2>🎮 <span data-i18n="hCtrlT">조작법</span></h2>
+      <p data-i18n-html="hCtrl"></p>
+      <h2>🤣 <span data-i18n="hFunT">웃긴 포인트</span></h2>
+      <p data-i18n-html="hFun"></p>
+      <button class="big-btn green" id="howClose">👍 <span data-i18n="gotIt">알겠어!</span></button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseScr">
+    <div class="card">
+      <div style="font-size:50px">😴💤</div>
+      <h1 style="font-size:28px" data-i18n="pauseT">잠깐 쉬는 중...</h1>
+      <p class="sub" data-i18n="pauseS">방귀 꾹 참는 중!</p>
+      <button class="big-btn green" id="resumeBtn">▶ <span data-i18n="resume">계속하기</span></button>
+      <button class="big-btn blue" id="quitBtn">🏠 <span data-i18n="quit">처음으로</span></button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overScr">
+    <div class="card">
+      <div class="go-emoji" id="goEmoji">🐷</div>
+      <h1 style="font-size:24px" id="goMsg">...</h1>
+      <div class="score-big" id="goScore">0m</div>
+      <div class="newrec" id="goNew" style="display:none">🎉 <span data-i18n="newrec">신기록!</span> 🎉</div>
+      <p class="best" id="goBest">🏆 0m</p>
+      <div class="unlock" id="goUnlock" style="display:none"></div>
+      <button class="big-btn green" id="retryBtn">🔄 <span data-i18n="retry">다시 뿡!</span></button>
+      <div class="row">
+        <button class="big-btn blue" id="shareBtn">📣 <span data-i18n="share">자랑하기</span></button>
+        <button class="big-btn blue" id="menuBtn">🐷 <span data-i18n="chars">캐릭터</span></button>
+      </div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <div class="credit" id="credit">© 나두게임즈 Nadoo Games | Developed by 나두Ai</div>
+</div></div>
+<script>
+(() => {
+'use strict';
+/* ================== 기본 설정 ================== */
+const W = 360, H = 640;                 // 논리 해상도 (세로형)
+const GRAV = 1800;                      // 중력 px/s²
+const VX = 330;                         // 옆으로 나는 속도 (방향은 자동 좌↔우)
+const VMIN = 430, VMAX = 1060;          // 방귀 파워 → 위로 튀는 속도
+const CHARGE_T = 1.15;                  // 게이지 0→100% 시간
+const OVER_T = 0.35;                    // 100%에서 더 참으면 자동 발사 (못 참음!)
+const ROUND = 45;                       // 한 판 45초
+const PX_M = 8;                         // 8px = 1m
+const PR = 17;                          // 캐릭터 반지름
+const PLAT_H = 18;
+const BEAN_T = 3;                       // 콩 효과 3초
+const cvs = document.getElementById('c');
+const ctx = cvs.getContext('2d');
+const stage = document.getElementById('stage');
+let scale = 1, dpr = 1, ox = 0, oy = 0;
+const emojiCache = {};
+
+function resize() {
+  const r = stage.getBoundingClientRect();
+  dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cvs.width = Math.round(r.width * dpr);
+  cvs.height = Math.round(r.height * dpr);
+  scale = Math.min(cvs.width / W, cvs.height / H);
+  ox = (cvs.width - W * scale) / 2; oy = (cvs.height - H * scale) / 2;
+  for (const k in emojiCache) delete emojiCache[k];
+}
+window.addEventListener('resize', resize);
+
+/* ================== 저장 ================== */
+const SKEY = 'tootJumpKing_v1';
+const store = (() => {
+  let d = { best: 0, skin: 0, plays: 0, beans: 0 };
+  try { Object.assign(d, JSON.parse(localStorage.getItem(SKEY) || '{}')); } catch (e) {}
+  return { d, save() { try { localStorage.setItem(SKEY, JSON.stringify(d)); } catch (e) {} } };
+})();
+
+/* ================== 언어 (KO/EN) ================== */
+const LANG_KEY = 'nadoo_lang';
+const autoLang = () => (navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+let lang = autoLang();
+try { lang = localStorage.getItem(LANG_KEY) || autoLang(); } catch (e) {}
+const T = {
+  title: ['방귀 점프 킹', 'Toot Jump King'],
+  sub: ['꾹~ 참았다가 <b>뿡!</b> 방귀 힘으로 점프!<br>하늘 → 우주 → 외계 행성까지 올라가요 🚀', 'Hold it in… then <b>TOOT!</b> Jump on fart power!<br>Sky → space → alien planet 🚀'],
+  start: ['뿡! 시작하기', 'TOOT! Start'], how: ['소개 · 조작법 · 웃긴 포인트', 'About · Controls · Funny bits'],
+  hIntroT: ['소개', 'About'], hCtrlT: ['조작법', 'Controls'], hFunT: ['웃긴 포인트', 'Funny bits'], gotIt: ['알겠어!', 'Got it!'],
+  hIntro: ['방귀 힘으로 점프하는 꿀꿀이! <b>45초</b> 동안 발판을 밟고 최대한 높이 올라가요. 높이 갈수록 하늘이 <b>우주</b>로, 우주가 <b>외계 행성</b>으로 바뀌어요 🌌👽',
+           'A piggy that jumps with fart power! Climb the platforms as high as you can in <b>45 seconds</b>. Go higher and the sky turns into <b>space</b>, then an <b>alien planet</b> 🌌👽'],
+  hCtrl: ['📱 화면 아무 데나 <b>꾹 누르고 있으면</b> 방귀 충전 (돼지가 빵빵해져요!)<br>👆 <b>손을 떼면 뿡!</b> 하고 점프 — 방향은 자동으로 왼쪽↔오른쪽<br>💥 너무 세면 벽·천장에 <b>쿵!</b> 너무 약하면 <b>뚝!</b><br>⌨️ PC: <b>Space</b> 꾹 누르기/떼기 · 마우스도 OK · P 일시정지 · M 소리',
+          '📱 <b>Press and hold</b> anywhere to charge a fart (the pig puffs up!)<br>👆 <b>Let go = TOOT!</b> and jump — direction flips left↔right by itself<br>💥 Too strong = <b>BONK!</b> on a wall or ceiling. Too weak = <b>plop!</b><br>⌨️ PC: hold/release <b>Space</b> · mouse works too · P pause · M sound'],
+  hFun: ['떨어지면 돼지가 <b>"으아악~"</b> 비명을 지르며 방귀 연기 꼬리를 길~게 남겨요 😱💨 <b>🫘 콩</b>을 먹으면 3초 동안 방귀 파워 <b>2배</b>! 우주까지 슝~ 높이 올라갈수록 <b>꼬꼬닭, 유니콘, 외계인…</b> 새 친구가 열려요!',
+         'Fall and the pig screams <b>"AAAH~"</b> while leaving a looong fart-smoke trail 😱💨 Eat a <b>🫘 bean</b> for 3 seconds of <b>DOUBLE</b> fart power — rocket to space! Climb higher to unlock <b>Chicky, Unicorn, Alien…</b>'],
+  pauseT: ['잠깐 쉬는 중...', 'Taking a break...'], pauseS: ['방귀 꾹 참는 중!', 'Holding in a fart…!'],
+  resume: ['계속하기', 'Resume'], quit: ['처음으로', 'Menu'], newrec: ['신기록!', 'NEW BEST!'], retry: ['다시 뿡!', 'Toot again!'],
+  share: ['자랑하기', 'Brag'], chars: ['캐릭터', 'Characters'],
+  best: ['🏆 최고 높이: {b}m', '🏆 Best height: {b}m'],
+  goBest: ['🏆 최고: {b}m · 🫘 {n}개', '🏆 Best: {b}m · 🫘 {n}'],
+  unlockNew: ['🔓 새 친구 등장! {l}', '🔓 New friend! {l}'],
+  unlockNext: ['다음 친구 {e}까지 {n}m 남았어요!', '{n}m more to unlock {e}!'],
+  locked: ['🔒 최고 {n}m를 넘으면 열려요!', '🔒 Reach {n}m to unlock!'],
+  bonk: ['쿵!', 'BONK!'], scream: ['으아악~', 'AAAH~'], plop: ['철푸덕', 'SPLAT'], bean: ['🫘 방귀 2배!!', '🫘 DOUBLE FART!!'],
+  hold: ['꾹~', 'Hold~'], timeUp: ['⏰ 끝!', "⏰ Time's up!"], leak: ['피식…', 'pfft…'],
+  space: ['🚀 우주 도착!', '🚀 SPACE!'], alien: ['👽 외계 행성!', '👽 ALIEN PLANET!'],
+  shareText: ['👑 방귀 점프 킹에서 {b}m 올라갔다! 너도 뿡! 해봐 💨', '👑 I tooted {b}m high in Toot Jump King! Your turn 💨'],
+  copied: ['📋 복사 완료! 친구에게 붙여넣기 해요', '📋 Copied! Paste it to a friend'], brag: ['📋 {b}m! 친구에게 자랑해요!', '📋 {b}m! Go brag to a friend!'],
+};
+const t = (k, v = {}) => T[k][lang === 'ko' ? 0 : 1].replace(/\{(\w)\}/g, (_, x) => v[x]);
+const pick = a => a[lang === 'ko' ? 0 : 1];
+const FAIL_MSG = [['엉덩이 배터리 방전!', 'Butt battery empty!'], ['방귀 다 썼다… 피식', 'All out of toots… pfft'], ['오늘의 방귀왕은 바로 나!', 'I am the fart king today!'], ['냄새는 남기고 간다~', 'I leave only the smell~'], ['방귀 조절 장인 도전 중', 'Fart control: in training'], ['우주까지 가려면 콩 더 먹자!', 'Eat more beans to reach space!']];
+
+/* ================== 캐릭터 (게임8과 같은 친구들, 높이로 해금) ================== */
+// g: 옆모습 이모지(왼쪽 보기) → 진행 방향으로 뒤집어 그림, 방귀는 엉덩이(뒤)에서
+const SKINS = [
+  { e: '🐷', g: '🐖', flip: 1, n: ['꿀꿀이', 'Piggy'], need: 0, fx: ['뿡!', 'TOOT!'] },
+  { e: '🐔', flip: 1, n: ['꼬꼬닭', 'Chicky'], need: 40, fx: ['꼬뿡!', 'Bawk-toot!'] },
+  { e: '🐸', n: ['개굴이', 'Froggy'], need: 90, fx: ['뽀옹~', 'Poot~'] },
+  { e: '🦄', flip: 1, n: ['유니콘', 'Unicorn'], need: 150, fx: ['반짝뿡✨', 'Sparkle toot✨'] },
+  { e: '🐙', n: ['문어빵', 'Octo'], need: 220, fx: ['뿌르륵', 'Blurrrp'] },
+  { e: '👽', n: ['외계인', 'Alien'], need: 300, fx: ['삐뿡?', 'Beep-toot?'] },
+  { e: '👴', n: ['할아버지', 'Grandpa'], need: 400, fx: ['에헴뿡', 'Ahem-PFFT'] },
+  { e: '💩', n: ['황금똥', 'Golden Poop'], need: 520, fx: ['뿌지직!', 'SPLORT!'] },
+];
+const sprite = s => s.g || s.e;
+const faceX = s => s.flip ? -1 : 1;           // 오른쪽을 볼 때의 x 스케일
+const unlocked = i => store.d.best >= SKINS[i].need;
+if (!SKINS[store.d.skin] || !unlocked(store.d.skin)) store.d.skin = 0;
+
+/* ================== 사운드 (WebAudio 합성) ================== */
+const snd = {
+  ac: null, muted: false, master: null, comp: null, an: null, sfx: null, musicBus: null, noiseBuf: null,
+  unlocked: false, el: null, musicOn: false, mTimer: null, mNext: 0, mStep: 0, chg: null, key: 0,
+  MASTER: 0.9, MUSIC: 0.2,
+  init() {
+    try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) {}  // iOS 17+: 무음 스위치 무시
+    if (!this.ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try { this.ac = new AC({ latencyHint: 'interactive' }); } catch (e) { this.ac = new AC(); }
+      const ac = this.ac;
+      this.master = ac.createGain(); this.master.gain.value = this.muted ? 0 : this.MASTER;
+      this.comp = ac.createDynamicsCompressor();
+      this.comp.threshold.value = -20; this.comp.knee.value = 12; this.comp.ratio.value = 4; this.comp.attack.value = 0.003; this.comp.release.value = 0.2;
+      const make = ac.createGain(); make.gain.value = 1.35;
+      this.an = ac.createAnalyser(); this.an.fftSize = 512;
+      this.master.connect(this.comp); this.comp.connect(make); make.connect(this.an); this.an.connect(ac.destination);
+      this.sfx = this.master;
+      this.musicBus = ac.createGain(); this.musicBus.gain.value = 0.0001; this.musicBus.connect(this.master);
+      const len = ac.sampleRate;
+      this.noiseBuf = ac.createBuffer(1, len, ac.sampleRate);
+      const ch = this.noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+      if (this.ac.addEventListener) this.ac.addEventListener('statechange', () => { if (this.ac.state === 'running' && this.musicOn) this.mNext = Math.max(this.mNext, this.ac.currentTime + 0.05); });
+    }
+    const ac = this.ac;
+    if (ac.state !== 'running') { try { const p = ac.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }  // suspended + iOS 'interrupted'
+    if (!this.unlocked) {   // WebKit: 제스처 안에서 무음 버퍼를 한 번 재생해야 풀림
+      try { const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0); this.unlocked = true; } catch (e) {}
+    }
+    // iOS 16 이하: 무음 스위치가 켜져 있으면 WebAudio가 묵음 → 조용한 <audio>를 재생해 '미디어 재생'으로 전환
+    if (!navigator.audioSession && /iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) && 'ontouchend' in document) {
+      if (!this.el) {
+        const sr = 8000, n = 800, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+        const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+        w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+        v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+        this.el = document.createElement('audio'); this.el.src = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+        this.el.loop = true; this.el.setAttribute('playsinline', ''); this.el.setAttribute('x-webkit-airplay', 'deny'); this.el.preload = 'auto';
+      }
+      if (this.el.paused && !document.hidden) { const p = this.el.play(); if (p && p.catch) p.catch(() => {}); }
+    }
+  },
+  get running() { return !!this.ac && this.ac.state === 'running'; },
+  level() { if (!this.an) return 0; const a = new Float32Array(this.an.fftSize); this.an.getFloatTimeDomainData(a); let s = 0; for (const x of a) s += x * x; return Math.sqrt(s / a.length); },
+  setMute(m) {
+    this.muted = m; try { localStorage.setItem('tootJumpKing_mute', m ? '1' : '0'); } catch (e) {}
+    if (this.master) this.master.gain.setTargetAtTime(m ? 0 : this.MASTER, this.ac.currentTime, 0.02);
+  },
+  sleep() { this.chargeStop(); if (this.el && !this.el.paused) this.el.pause(); if (this.ac && this.ac.state === 'running' && this.ac.suspend) this.ac.suspend().catch(() => {}); },
+  // ---- 배경음악: 통통 튀는 병맛 칩튠 (룩어헤드 스케줄러), 우주·외계로 가면 키가 올라감
+  startMusic() {
+    if (!this.ac || this.musicOn) return;
+    this.musicOn = true; this.mStep = 0; this.mNext = this.ac.currentTime + 0.08;
+    this.musicBus.gain.cancelScheduledValues(this.ac.currentTime);
+    this.musicBus.gain.setTargetAtTime(this.MUSIC, this.ac.currentTime, 0.15);
+    clearInterval(this.mTimer); this.mTimer = setInterval(() => this.tickMusic(), 60); this.tickMusic();
+  },
+  stopMusic() {
+    if (!this.musicOn) return;
+    this.musicOn = false; clearInterval(this.mTimer); this.mTimer = null;
+    if (this.ac) this.musicBus.gain.setTargetAtTime(0.0001, this.ac.currentTime, 0.06);
+  },
+  tickMusic() {
+    const ac = this.ac; if (!ac || !this.musicOn || ac.state !== 'running') return;
+    if (this.mNext < ac.currentTime - 0.05) this.mNext = ac.currentTime + 0.05;
+    const e8 = 60 / 138 / 2;
+    while (this.mNext < ac.currentTime + 0.3) { this.note(this.mStep, this.mNext, e8); this.mNext += e8; this.mStep++; }
+  },
+  note(step, t, e8) {
+    const ac = this.ac, bus = this.musicBus;
+    const PROG = [[0, 4, 7], [5, 9, 12], [-3, 0, 4], [7, 11, 14]];            // C F Am G
+    const MEL = [7, null, 7, 9, 7, null, 4, null,  12, null, 11, 9, 7, null, null, null,  4, 5, 7, null, 9, 7, 5, 4,  2, null, 7, null, 12, null, null, null];
+    const bar = Math.floor(step / 8) % 4, s8 = step % 8, ch = PROG[bar];
+    const hz = st => 261.63 * Math.pow(2, (st + this.key) / 12);
+    const blip = (f, dur, type, vol, slide) => {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(f * slide, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.02);
+    };
+    if (s8 % 2 === 0) blip(hz(ch[0] - 12), e8 * 1.5, 'triangle', 0.55);                         // 통통 베이스
+    if (s8 === 0 || s8 === 4) blip(150, 0.12, 'sine', 0.7, 0.3);                                  // 킥
+    if (s8 === 2 || s8 === 6) blip(hz(ch[1]), e8 * 0.5, 'square', 0.06);                          // 뽁 (코드)
+    if (s8 % 2 === 1) {                                                                            // 칙
+      const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+      n.buffer = this.noiseBuf; f.type = 'highpass'; f.frequency.value = 6000;
+      g.gain.setValueAtTime(0.16, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+      n.connect(f); f.connect(g); g.connect(bus); n.start(t, Math.random() * 0.5); n.stop(t + 0.05);
+    }
+    const m = MEL[(step % 32)];
+    if (m !== null) blip(hz(m + 12), e8 * 0.8, 'square', 0.12);                                   // 멜로디
+    if (step % 32 === 14) blip(hz(19), e8 * 1.8, 'sine', 0.2, 0.45);                              // 뿌잉~
+  },
+  // ---- 방귀 소리: 폰 스피커에서도 잘 들리게
+  fart(len = 0.22, base = 0, vol = 0.6, delay = 0) {
+    if (!this.ac || this.muted) return;
+    const ac = this.ac, t = ac.currentTime + delay;
+    const f0 = base ? Math.max(base, 60) * 1.4 : 105 + Math.random() * 70;
+    const o = ac.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f0 * 1.35, t); o.frequency.exponentialRampToValueAtTime(f0 * 0.75, t + len);
+    const o2 = ac.createOscillator(); o2.type = 'square';
+    o2.frequency.setValueAtTime(f0 * 2.02, t); o2.frequency.exponentialRampToValueAtTime(f0 * 1.5, t + len);
+    const lfo = ac.createOscillator(); lfo.frequency.value = 16 + Math.random() * 18;
+    const lg = ac.createGain(); lg.gain.value = f0 * 0.3; lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
+    const flt = ac.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 1700; flt.Q.value = 5;
+    const pk = ac.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 480; pk.Q.value = 1.2; pk.gain.value = 9;
+    const g2 = ac.createGain(); g2.gain.value = 0.35;
+    const trem = ac.createGain(); trem.gain.value = 0.65;
+    const am = ac.createOscillator(); am.type = 'square'; am.frequency.value = 24 + Math.random() * 16;
+    const amg = ac.createGain(); amg.gain.value = 0.35; am.connect(amg); amg.connect(trem.gain);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.015); g.gain.setValueAtTime(vol, t + len * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    o.connect(flt); o2.connect(g2); g2.connect(flt); flt.connect(pk); pk.connect(trem); trem.connect(g); g.connect(this.sfx);
+    const n = ac.createBufferSource(); n.buffer = this.noiseBuf;
+    const nf = ac.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 420; nf.Q.value = 0.9;
+    const ng = ac.createGain(); ng.gain.setValueAtTime(vol * 0.35, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + len * 0.85);
+    n.connect(nf); nf.connect(ng); ng.connect(this.sfx);
+    const end = t + len + 0.05;
+    o.start(t); o2.start(t); lfo.start(t); am.start(t); n.start(t, Math.random() * 0.5);
+    o.stop(end); o2.stop(end); lfo.stop(end); am.stop(end); n.stop(t + len);
+  },
+  tone(freq, dur, type = 'square', vol = 0.18, slideTo = 0, delay = 0) {
+    if (!this.ac || this.muted) return;
+    const t = this.ac.currentTime + delay;
+    const o = this.ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    const g = this.ac.createGain();
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + 0.02);
+  },
+  // 충전: "끄으응~" 올라가는 배 속 우르릉
+  chargeStart() {
+    if (!this.ac || this.muted || this.chg) return;
+    const ac = this.ac, t = ac.currentTime;
+    const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(70, t); o.frequency.linearRampToValueAtTime(190, t + CHARGE_T);
+    const l = ac.createOscillator(); l.frequency.setValueAtTime(9, t); l.frequency.linearRampToValueAtTime(22, t + CHARGE_T);
+    const lg = ac.createGain(); lg.gain.value = 18; l.connect(lg); lg.connect(o.frequency);
+    const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(380, t); f.frequency.linearRampToValueAtTime(1100, t + CHARGE_T); f.Q.value = 6;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.08);
+    o.connect(f); f.connect(g); g.connect(this.sfx); o.start(t); l.start(t);
+    this.chg = { o, l, g };
+  },
+  chargeStop() {
+    if (!this.chg || !this.ac) { this.chg = null; return; }
+    const { o, l, g } = this.chg, t = this.ac.currentTime;
+    try { g.gain.cancelScheduledValues(t); g.gain.setTargetAtTime(0.0001, t, 0.02); o.stop(t + 0.1); l.stop(t + 0.1); } catch (e) {}
+    this.chg = null;
+  },
+  // 비명: "으아악~" (포먼트 필터 + 비브라토, 음이 뚝뚝 떨어짐)
+  scream() {
+    if (!this.ac || this.muted) return;
+    const ac = this.ac, t = ac.currentTime, d = 1.3;
+    const o = ac.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(420, t); o.frequency.linearRampToValueAtTime(620, t + 0.15); o.frequency.exponentialRampToValueAtTime(170, t + d);
+    const v = ac.createOscillator(); v.frequency.value = 7; const vg = ac.createGain(); vg.gain.value = 28; v.connect(vg); vg.connect(o.frequency);
+    const f1 = ac.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 850; f1.Q.value = 3;
+    const f2 = ac.createBiquadFilter(); f2.type = 'bandpass'; f2.frequency.value = 1350; f2.Q.value = 4;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.9, t + 0.05); g.gain.setValueAtTime(0.9, t + d * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(f1); o.connect(f2); f1.connect(g); f2.connect(g); g.connect(this.sfx);
+    o.start(t); v.start(t); o.stop(t + d + 0.05); v.stop(t + d + 0.05);
+    this.fart(1.0, 75, 0.35, 0.05);
+  },
+  jump(p) { this.fart(0.18 + p * 0.5, 150 - p * 70, 0.55 + p * 0.3); },
+  land() { this.tone(140, 0.12, 'sine', 0.45, 55); },
+  splat() { this.tone(110, 0.25, 'triangle', 0.5, 40); this.fart(0.15, 60, 0.3, 0.02); },
+  bonk() { this.tone(900, 0.06, 'square', 0.18, 300); this.tone(240, 0.4, 'sine', 0.35, 700, 0.04); },
+  bean() { this.tone(660, 0.08, 'square', 0.12); [784, 988, 1175, 1568].forEach((f, i) => this.tone(f, 0.1, 'triangle', 0.16, 0, 0.06 + i * 0.06)); this.fart(0.5, 90, 0.5, 0.25); },
+  tick() { this.tone(1200, 0.05, 'square', 0.1); },
+  boing() { this.tone(300, 0.35, 'sine', 0.3, 900); },
+  fanfare() { [523, 659, 784, 659, 1047].forEach((f, i) => this.tone(f, 0.15, 'triangle', 0.18, 0, i * 0.11)); },
+  whoosh() { this.tone(200, 0.6, 'sine', 0.2, 1200); },
+};
+try { snd.muted = localStorage.getItem('tootJumpKing_mute') === '1'; } catch (e) {}   // 기본은 소리 ON
+// 모든 첫 제스처(터치 끝·클릭·키)에서 오디오를 깨움 — iOS는 touchend/click에서만 풀리므로 여러 이벤트에 등록
+['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, () => snd.init(), { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => { if (document.hidden) snd.sleep(); });
+window.addEventListener('pageshow', () => { if (snd.ac && snd.ac.state !== 'running') snd.ac.resume().catch(() => {}); });
+const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+
+/* ================== 이모지 캐시 (성능 + 고해상도) ================== */
+function emo(ch, size) {
+  const k = ch + size;
+  if (emojiCache[k]) return emojiCache[k];
+  const q = Math.max(2, Math.ceil(scale));
+  const c = document.createElement('canvas');
+  const px = Math.ceil(size * 1.3 * q);
+  c.width = c.height = px;
+  const x = c.getContext('2d');
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `${size * q}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+  x.fillText(ch, px / 2, px / 2 + size * 0.05 * q);
+  c._s = size * 1.3;
+  emojiCache[k] = c;
+  return c;
+}
+function drawEmo(ch, x, y, size, rot = 0, sx = 1, sy = 1) {
+  const img = emo(ch, Math.round(size));
+  const s = img._s;
+  ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot); if (sx !== 1 || sy !== 1) ctx.scale(sx, sy);
+  ctx.drawImage(img, -s / 2, -s / 2, s, s);
+  ctx.restore();
+}
+
+/* ================== 월드 (발판) ================== */
+// 월드 좌표: y는 아래가 +, 땅 윗면 = 0, 위로 갈수록 음수. 높이(m) = -y / PX_M
+let plats = [];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function genPlat(i) {
+  if (i === 0) return { i: 0, x: W / 2, w: W + 200, y: 0, ground: true };
+  const prev = plats[i - 1];
+  const side = i % 2 === 1 ? 1 : -1;              // 1: 오른쪽, -1: 왼쪽 (번갈아)
+  let p;
+  for (let tries = 0; tries < 14; tries++) {
+    const easy = tries > 8;
+    const w = Math.max(76, 124 - i * 1.3) * (easy ? 1.15 : 1);
+    const dy = easy ? 100 : 108 + Math.random() * 38 + Math.min(18, i * 0.6);
+    const cx = side > 0 ? W - 62 - Math.random() * 44 : 62 + Math.random() * 44;
+    p = { i, x: clamp(cx, w / 2 + 6, W - w / 2 - 6), w, y: prev.y - dy };
+    // 이전 발판의 '어느 자리'에 서 있어도 닿을 수 있는지 시뮬레이션으로 확인
+    const stands = prev.ground ? [100] : [prev.x - prev.w / 2 + 3, prev.x, prev.x + prev.w / 2 - 3];
+    let ok = true;
+    for (const sx of stands) { const r = sweetRange(sx, prev.y - PR, Math.sign(p.x - sx) || side, i - 1, false, p); if (!r.ok || r.hi - r.lo < (easy ? 0.06 : 0.1)) { ok = false; break; } }
+    if (ok) break;
+  }
+  return p;
+}
+let lastBean = 0;
+function ensurePlats(upto) { while (plats.length <= upto) { const p = genPlat(plats.length); plats.push(p); maybeBean(p); } }
+function maybeBean(p) {
+  if (p.i >= 5 && p.i - lastBean >= 6 && Math.random() < 0.3) { p.bean = { got: false, bob: Math.random() * 6 }; lastBean = p.i; }
+}
+const heightOf = y => Math.max(0, Math.round(-y / PX_M));
+
+/* ================== 물리 (게임과 시뮬레이션이 같은 함수를 씀) ================== */
+// b: {x,y,vx,vy,from,sup,bonked}  반환: 이벤트 배열
+function stepBody(b, dt, list) {
+  const ev = [];
+  const N = 4, h = dt / N;
+  for (let s = 0; s < N; s++) {
+    const py = b.y;
+    b.vy += GRAV * h;
+    b.x += b.vx * h; b.y += b.vy * h;
+    // 벽: 보통은 쿵! (콩 모드면 통통 튕김)
+    if (b.x < PR || b.x > W - PR) {
+      const sgn = b.x < PR ? 1 : -1;
+      b.x = b.x < PR ? PR : W - PR;
+      if (b.sup || b.bonked) { b.vx = Math.abs(b.vx) * sgn * (b.sup ? 1 : 0.3); }
+      else { b.vx = sgn * 60; b.vy = Math.max(b.vy, 40); b.bonked = true; ev.push({ t: 'bonk', w: 'wall', x: b.x, y: b.y }); }
+    }
+    for (const p of list) {
+      if (!p) continue;
+      const l = p.x - p.w / 2, r = p.x + p.w / 2;
+      // 착지: 위에서 아래로 발판 윗면을 지날 때 (모든 발판)
+      if (b.vy > 0 && py + PR <= p.y + 0.01 && b.y + PR >= p.y && b.x > l - PR * 0.4 && b.x < r + PR * 0.4) {
+        b.y = p.y - PR; ev.push({ t: 'land', i: p.i }); b.landed = p.i; return ev;
+      }
+      // 천장: 뛰어오른 발판보다 2칸 이상 위 발판의 아랫면에 머리 쿵!
+      if (!b.sup && !b.bonked && !p.ground && p.i >= b.from + 2 && b.vy < 0 && py - PR >= p.y + PLAT_H - 0.01 && b.y - PR < p.y + PLAT_H && b.x > l - PR * 0.5 && b.x < r + PR * 0.5) {
+        b.y = p.y + PLAT_H + PR; b.vy = 120; b.vx *= 0.3; b.bonked = true; ev.push({ t: 'bonk', w: 'ceil', x: b.x, y: b.y - PR });
+      }
+    }
+  }
+  return ev;
+}
+// 콩 = 방귀 파워(에너지) 2배 → 속도 √2배, 점프 높이 2배
+const launchV = (g, sup) => ({ vy: -(VMIN + g * (VMAX - VMIN)) * (sup ? 1.42 : 1), vxm: sup ? 1.15 : 1 });
+// 게이지 g로 뛰면 어느 발판에 착지하는지 (-1 = 못 잡음)
+function simulate(x, y, dir, from, g, sup, target) {
+  const v = launchV(g, sup);
+  const b = { x, y, vx: dir * VX * v.vxm, vy: v.vy, from, sup, bonked: false, landed: -1 };
+  const list = target ? [plats[from], target] : plats;
+  for (let k = 0; k < 360; k++) {
+    stepBody(b, 1 / 60, list);
+    if (b.landed >= 0) return b.landed;
+    if (b.y > y + 900) return -1;
+  }
+  return -1;
+}
+// 목표 발판(from+1)에 착지하는 게이지 구간 중 가장 넓은 구간
+function sweetRange(x, y, dir, from, sup, target) {
+  const tgtI = target ? target.i : from + 1;
+  let best = null, cur = null;
+  for (let k = 0; k <= 50; k++) {
+    const g = k / 50;
+    const hit = simulate(x, y, dir, from, g, sup, target) === tgtI;
+    if (hit) { if (!cur) cur = [g, g]; else cur[1] = g; }
+    if ((!hit || k === 50) && cur) { if (!best || cur[1] - cur[0] > best[1] - best[0]) best = cur; cur = null; }
+  }
+  return best ? { ok: true, lo: best[0], hi: best[1] } : { ok: false, lo: 0, hi: 0 };
+}
+
+/* ================== 게임 상태 ================== */
+let state = 'title'; // title | play | ending | pause | over
+let pig, camY, camTarget, puffs, floaters, trail, confetti, shake, flash, time = 0, timeLeft, roundBest, roundBeans, jumps, falls, bonks;
+let held = false, holdSrc = null, charging = false, chargeT = 0, overT = 0, beanT = 0, sweet = null, zoneShown = 0, prevState = 'play', lastTick = 0, bestAtStart = 0, endT = 0, maxM = 0;
+const stars = Array.from({ length: 90 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: 0.6 + Math.random() * 1.6, tw: Math.random() * 6 }));
+
+function reset() {
+  plats = []; lastBean = 0;
+  ensurePlats(12);
+  pig = { x: 100, y: -PR, vx: 0, vy: 0, walk: false, on: 0, from: 0, air: false, sup: false, bonked: false, dir: 1, face: 1, rot: 0, sq: 1, scream: false, launchY: -PR, dizzy: 0 };
+  pig.dir = Math.sign(plats[1].x - pig.x) || 1; pig.face = pig.dir;
+  camY = -H + 80; camTarget = camY;
+  puffs = []; floaters = []; trail = []; confetti = [];
+  shake = 0; flash = 0; timeLeft = ROUND; roundBest = 0; roundBeans = 0; jumps = 0; falls = 0; bonks = 0; maxM = 0;
+  held = false; holdSrc = null; charging = false; chargeT = 0; overT = 0; beanT = 0; zoneShown = 0; lastTick = 0; endT = 0;
+  snd.key = 0;
+  computeSweet();
+}
+function computeSweet() {
+  if (!pig || pig.air) { sweet = null; return; }
+  ensurePlats(pig.on + 12);
+  sweet = sweetRange(pig.x, pig.y, pig.dir, pig.on, beanT > 0);
+}
+
+function startGame() {
+  snd.init(); snd.startMusic();
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  reset();
+  state = 'play';
+  bestAtStart = store.d.best;
+  store.d.plays++; store.save();
+  show(null);
+  floaters.push({ x: W / 2, y: pig.y - 110, t: '👆 ' + t('hold') + ' → 💨', life: 2.4, big: true, rise: 0.1 });
+}
+
+function show(id) {
+  ['titleScr', 'pauseScr', 'overScr', 'howScr'].forEach(s => document.getElementById(s).classList.toggle('show', s === id));
+  document.getElementById('credit').style.display = (id === 'titleScr' || id === 'howScr') ? 'block' : 'none';
+  document.getElementById('pauseBtn').style.visibility = (state === 'play' || state === 'pause' || state === 'ending') ? 'visible' : 'hidden';
+}
+
+/* ================== 입력: 꾹 누르기 / 떼기 ================== */
+function pressDown(src) {
+  if (state !== 'play') return;
+  held = true; holdSrc = src;
+  tryStartCharge();
+}
+function tryStartCharge() {
+  if (!held || charging || state !== 'play' || pig.air || pig.dizzy > 0 || pig.walk) return;
+  charging = true; chargeT = 0; overT = 0;
+  snd.chargeStart();
+}
+function pressUp(src) {
+  if (src && holdSrc !== src) return;
+  held = false; holdSrc = null;
+  if (charging) launch(gauge());
+}
+const gauge = () => Math.min(1, chargeT / CHARGE_T);
+
+function launch(g) {
+  charging = false; snd.chargeStop();
+  if (state !== 'play') return;
+  const sup = beanT > 0;
+  const v = launchV(g, sup);
+  pig.vx = pig.dir * VX * v.vxm; pig.vy = v.vy;
+  pig.air = true; pig.sup = sup; pig.bonked = false; pig.from = pig.on; pig.launchY = pig.y; pig.scream = false; pig.face = pig.dir; pig.sq = 0.6;
+  jumps++; sweet = null;
+  snd.jump(g); buzz(Math.round(20 + g * 45));
+  shake = Math.max(shake, 3 + g * 6);
+  const sk = SKINS[store.d.skin];
+  const rx = pig.x - pig.dir * PR * 0.8;
+  const n = 8 + Math.round(g * 14);
+  for (let i = 0; i < n; i++) puffs.push({ x: rx, y: pig.y + 8, vx: -pig.dir * (40 + Math.random() * 120) + (Math.random() - 0.5) * 60, vy: 40 + Math.random() * 140, r: 6 + Math.random() * 8 + g * 6, life: 1, c: sup ? (Math.random() < 0.5 ? '#ffb86b' : '#ffe66b') : (Math.random() < 0.5 ? '#c8f7a8' : '#e6ffb8') });
+  floaters.push({ x: rx - pig.dir * 14, y: pig.y + 6, t: pick(sk.fx), life: 1.1, big: g > 0.45, size: Math.round(18 + g * 22), rise: 0.6 });
+}
+
+// 입력 레이어 = 캔버스. UI 버튼은 캔버스보다 위(z-index)에 있어서 버튼을 누르면 캔버스로 이벤트가 오지 않음
+cvs.addEventListener('pointerdown', e => {
+  if (e.target !== cvs) return;
+  e.preventDefault();
+  snd.init();
+  if (state === 'play') { try { cvs.setPointerCapture(e.pointerId); } catch (err) {} pressDown('p' + e.pointerId); }
+}, { passive: false });
+window.addEventListener('pointerup', e => pressUp('p' + e.pointerId));
+window.addEventListener('pointercancel', e => pressUp('p' + e.pointerId));
+cvs.addEventListener('contextmenu', e => e.preventDefault());
+// UI 버튼: 눌러도 점프/충전이 시작되지 않도록 전파 차단 (이중 안전장치)
+document.querySelectorAll('.hud button, .hud a, .overlay button').forEach(el => {
+  el.addEventListener('pointerdown', e => e.stopPropagation());
+  el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+});
+const isJumpKey = e => e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W';
+window.addEventListener('keydown', e => {
+  const k = e.key;
+  if (isJumpKey(e)) {
+    e.preventDefault();
+    if (e.repeat) return;
+    if (state === 'play') pressDown('key');
+    else if (state === 'title' && document.getElementById('titleScr').classList.contains('show')) startGame();
+    else if (state === 'over' && endT > 0.8) startGame();
+    else if (state === 'pause') resume();
+  } else if (k === 'Enter') {
+    if (state === 'title' || (state === 'over' && endT > 0.8)) { e.preventDefault(); startGame(); }
+  } else if (k === 'p' || k === 'P' || k === 'Escape') {
+    state === 'pause' ? resume() : pause();
+  } else if (k === 'm' || k === 'M') {
+    snd.init(); snd.setMute(!snd.muted); updateMuteBtn();
+  }
+});
+window.addEventListener('keyup', e => { if (isJumpKey(e)) { e.preventDefault(); pressUp('key'); } });
+
+/* ================== 이벤트 처리 ================== */
+function onLand(i) {
+  const p = plats[i];
+  const fell = pig.y > pig.launchY + 30;
+  pig.air = false; pig.on = i; pig.vx = 0; pig.vy = 0; pig.rot = 0; pig.sq = 1.5; pig.sup = false;
+  pig.x = p.ground ? clamp(pig.x, PR + 4, W - PR - 4) : clamp(pig.x, p.x - p.w / 2 + 2, p.x + p.w / 2 - 2);
+  if (pig.scream || fell) {
+    falls++; shake = Math.max(shake, 10); buzz([40, 30, 60]); snd.splat(); pig.dizzy = 0.45;
+    floaters.push({ x: pig.x, y: pig.y - 34, t: t('plop') + ' 😵', life: 1.2, big: true });
+    for (let k = 0; k < 10; k++) puffs.push({ x: pig.x + (Math.random() - 0.5) * 30, y: pig.y + PR, vx: (Math.random() - 0.5) * 220, vy: -Math.random() * 80, r: 5 + Math.random() * 6, life: 0.8, c: '#e9e3ff' });
+  } else {
+    snd.land(); buzz(15);
+    for (let k = 0; k < 6; k++) puffs.push({ x: pig.x + (Math.random() - 0.5) * 20, y: pig.y + PR, vx: (Math.random() - 0.5) * 160, vy: -Math.random() * 50, r: 4 + Math.random() * 4, life: 0.6, c: '#ffffff' });
+    if (pig.bonked) pig.dizzy = 0.3;
+  }
+  pig.scream = false; pig.bonked = false;
+  pig.walk = p.ground && Math.abs(pig.x - 100) > 3;   // 땅에 떨어지면 출발 자리로 뒤뚱뒤뚱
+  if (p.bean && !p.bean.got) collectBean(p);          // 콩 발판에 올라서기만 해도 냠!
+  ensurePlats(i + 12);
+  const nxt = plats[i + 1];
+  pig.dir = Math.sign(nxt.x - pig.x) || (pig.x < W / 2 ? 1 : -1);
+  pig.face = pig.dir;
+  // 높이 기록 + 해금
+  const hm = heightOf(p.y);
+  if (hm > roundBest) {
+    roundBest = hm;
+    if (hm > store.d.best) {
+      const prev = store.d.best;
+      store.d.best = hm; store.save();
+      const newly = SKINS.filter(s => s.need > prev && s.need <= hm);
+      if (newly.length) {
+        toast(t('unlockNew', { l: newly.map(s => s.e).join(' ') }));
+        snd.fanfare(); buzz([30, 40, 30, 40, 60]);
+        for (let k = 0; k < 40; k++) confetti.push({ x: W / 2, y: H * 0.3, vx: (Math.random() - 0.5) * 400, vy: -Math.random() * 380, c: `hsl(${Math.floor(Math.random() * 360)},90%,75%)`, life: 1.8, rot: Math.random() * 6 });
+      }
+    }
+  }
+  computeSweet();
+  if (state === 'play') tryStartCharge();
+}
+function onBonk(ev) {
+  bonks++;
+  snd.bonk(); buzz(60); shake = Math.max(shake, 9); flash = 0.4;
+  floaters.push({ x: ev.x, y: ev.y - 20, t: '💥 ' + t('bonk'), life: 1.1, big: true, size: 30 });
+  for (let k = 0; k < 8; k++) puffs.push({ x: ev.x, y: ev.y, vx: (Math.random() - 0.5) * 260, vy: (Math.random() - 0.5) * 260, r: 3 + Math.random() * 4, life: 0.6, c: '#ffe66b' });
+}
+function startScream() {
+  pig.scream = true;
+  snd.scream(); buzz([20, 20, 20, 20, 20]);
+  floaters.push({ x: pig.x, y: pig.y - 30, t: t('scream'), life: 1.6, big: true, follow: true, size: 26 });
+}
+function collectBean(p) {
+  p.bean.got = true; beanT = BEAN_T; roundBeans++; store.d.beans = (store.d.beans || 0) + 1; store.save();
+  snd.bean(); buzz([30, 40, 30]); flash = 0.5; shake = Math.max(shake, 6);
+  floaters.push({ x: W / 2, y: pig.y - 70, t: t('bean'), life: 1.6, big: true, size: 28 });
+  for (let k = 0; k < 18; k++) puffs.push({ x: pig.x, y: pig.y, vx: (Math.random() - 0.5) * 300, vy: (Math.random() - 0.5) * 300, r: 3 + Math.random() * 5, life: 0.9, c: Math.random() < 0.5 ? '#ffb86b' : '#ffe66b' });
+  if (!pig.air) computeSweet();
+}
+function endRound() {
+  state = 'ending'; endT = 0;
+  if (charging) { charging = false; snd.chargeStop(); floaters.push({ x: pig.x, y: pig.y - 30, t: t('leak'), life: 1.2 }); snd.fart(0.3, 70, 0.3); }
+  held = false; holdSrc = null;
+  floaters.push({ x: W / 2, y: camY + H * 0.36, t: t('timeUp'), life: 2, big: true, size: 40, rise: 0.2 });
+  snd.stopMusic(); snd.whoosh();
+}
+function gameOver() {
+  state = 'over'; endT = 0;
+  const isNew = roundBest > bestAtStart;
+  document.getElementById('goEmoji').textContent = SKINS[store.d.skin].e;
+  document.getElementById('goMsg').textContent = pick(FAIL_MSG[Math.floor(Math.random() * FAIL_MSG.length)]);
+  document.getElementById('goScore').textContent = roundBest + 'm';
+  document.getElementById('goNew').style.display = isNew && roundBest > 0 ? 'block' : 'none';
+  document.getElementById('goBest').textContent = t('goBest', { b: store.d.best, n: roundBeans });
+  const newly = SKINS.filter(s => s.need > bestAtStart && s.need <= store.d.best);
+  const u = document.getElementById('goUnlock');
+  if (newly.length) {
+    u.style.display = 'block'; u.style.background = '#9bf6c0';
+    u.textContent = t('unlockNew', { l: newly.map(s => s.e + ' ' + pick(s.n)).join(', ') });
+    setTimeout(() => snd.fanfare(), 400);
+  } else {
+    const next = SKINS.find(s => s.need > store.d.best);
+    u.style.display = next ? 'block' : 'none'; u.style.background = '#fff';
+    if (next) u.textContent = t('unlockNext', { e: next.e, n: next.need - store.d.best });
+  }
+  show('overScr');
+  renderSkins();
+}
+
+/* ================== 업데이트 (고정 60Hz) ================== */
+const zoneOf = m => ({ space: clamp((m - 80) / 50, 0, 1), alien: clamp((m - 220) / 60, 0, 1) });
+function update(dt) {
+  time += dt;
+  if (state === 'over' || state === 'title') { endT += dt; updateFx(dt); camY += (camTarget - camY) * 0.05; return; }
+  if (state === 'play') {
+    timeLeft -= dt;
+    const sec = Math.ceil(timeLeft);
+    if (sec <= 5 && sec >= 1 && sec !== lastTick) { lastTick = sec; snd.tick(); }
+    if (timeLeft <= 0) { timeLeft = 0; endRound(); }
+  } else if (state === 'ending') {
+    endT += dt;
+    if ((!pig.air && endT > 1.2) || endT > 5) { gameOver(); return; }
+  }
+  if (beanT > 0) { beanT -= dt; if (beanT <= 0) { beanT = 0; if (!pig.air) computeSweet(); } }
+  if (pig.dizzy > 0) { pig.dizzy -= dt; if (pig.dizzy <= 0) { pig.dizzy = 0; tryStartCharge(); } }
+
+  // 충전 (꾹 참는 중)
+  if (charging) {
+    chargeT += dt * (beanT > 0 ? 1.4 : 1);
+    if (Math.random() < 0.25) puffs.push({ x: pig.x - pig.dir * PR * 0.8, y: pig.y + 6, vx: -pig.dir * 30, vy: -20 - Math.random() * 30, r: 2 + Math.random() * 3, life: 0.5, c: '#d6ffb8' });
+    if (gauge() >= 1) { overT += dt; if (overT >= OVER_T) { held = false; holdSrc = null; launch(1); } }
+  }
+  // 비행
+  if (pig.air) {
+    const evs = stepBody(pig, dt, plats);
+    for (const ev of evs) { if (ev.t === 'bonk') onBonk(ev); else if (ev.t === 'land') onLand(ev.i); }
+    if (pig.air) {
+      if (Math.abs(pig.vx) > 20) pig.face = Math.sign(pig.vx);
+      if (!pig.scream && pig.vy > 250 && (pig.bonked || pig.y > pig.launchY + 40)) startScream();
+      pig.rot = pig.scream ? pig.rot + dt * 8 * pig.face : clamp(pig.vy / 1400, -0.4, 0.5) * pig.face;
+      if (pig.scream) trail.push({ x: pig.x - pig.face * 8, y: pig.y - 4, life: 1.6, w: 7 + Math.random() * 4 });
+      else if (pig.vy < 0 || pig.sup) puffs.push({ x: pig.x - pig.face * PR * 0.8, y: pig.y + 8, vx: -pig.face * 30 + (Math.random() - 0.5) * 30, vy: 60 + Math.random() * 40, r: 3 + Math.random() * 5, life: 0.6, c: pig.sup ? '#ffcf6b' : '#d6ffb8' });
+    }
+  }
+  pig.sq += (1 - pig.sq) * 0.18;
+  if (pig.walk && !pig.air && pig.dizzy <= 0) {
+    const d = 100 - pig.x, st = 240 * dt;
+    pig.face = Math.sign(d) || 1;
+    if (Math.abs(d) <= st) { pig.x = 100; pig.walk = false; pig.rot = 0; pig.dir = Math.sign(plats[1].x - pig.x) || 1; pig.face = pig.dir; computeSweet(); tryStartCharge(); }
+    else { pig.x += Math.sign(d) * st; pig.rot = Math.sin(time * 18) * 0.15; }
+  }
+  // 콩 줍기
+  for (let i = Math.max(1, pig.on - 3); i < Math.min(plats.length, pig.on + 14); i++) {
+    const p = plats[i];
+    if (p.bean && !p.bean.got) { p.bean.bob += dt * 4; if (Math.hypot(pig.x - p.x, pig.y - (p.y - 34 + Math.sin(p.bean.bob) * 4)) < PR + 16) collectBean(p); }
+  }
+  // 카메라
+  const look = pig.air ? pig.y : pig.y - 40;
+  camTarget = Math.min(-H + 80, look - H * 0.6);
+  camY += (camTarget - camY) * (pig.air && pig.vy > 600 ? 0.2 : 0.09);
+  // 구역 바뀜 알림 + 음악 키 업
+  const hm = heightOf(pig.y);
+  maxM = Math.max(maxM, hm);
+  if (zoneShown < 1 && hm >= 100) { zoneShown = 1; floaters.push({ x: W / 2, y: pig.y - 110, t: t('space'), life: 2, big: true, size: 30 }); snd.whoosh(); snd.key = 2; }
+  if (zoneShown < 2 && hm >= 240) { zoneShown = 2; floaters.push({ x: W / 2, y: pig.y - 110, t: t('alien'), life: 2, big: true, size: 30 }); snd.whoosh(); snd.key = 5; }
+  updateFx(dt);
+}
+function updateFx(dt) {
+  for (const pf of puffs) { pf.x += pf.vx * dt; pf.y += pf.vy * dt; pf.vx *= 0.95; pf.vy *= 0.95; pf.r += 12 * dt; pf.life -= dt * 1.5; }
+  puffs = puffs.filter(pf => pf.life > 0);
+  if (puffs.length > 220) puffs.splice(0, puffs.length - 220);
+  for (const tr of trail) tr.life -= dt * (pig && pig.scream ? 0.5 : 1.2);
+  trail = trail.filter(tr => tr.life > 0);
+  if (trail.length > 260) trail.splice(0, trail.length - 260);
+  for (const fl of floaters) { if (fl.follow && pig && pig.scream) { fl.x = pig.x; fl.y = pig.y - 36; } else fl.y -= 40 * (fl.rise ?? 1) * dt; fl.life -= dt; }
+  floaters = floaters.filter(fl => fl.life > 0);
+  for (const c of confetti) { c.x += c.vx * dt; c.y += c.vy * dt; c.vy += 500 * dt; c.rot += dt * 8; c.life -= dt; }
+  confetti = confetti.filter(c => c.life > 0);
+  if (shake > 0) shake = Math.max(0, shake - 36 * dt);
+  if (flash > 0) flash = Math.max(0, flash - dt * 2.5);
+}
+
+/* ================== 그리기 ================== */
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+const hex = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+const mix3 = (a, b, c, s, al) => { const A = hex(a), B = hex(b), C = hex(c); return `rgb(${A.map((v, i) => { const ab = v + (B[i] - v) * s; return Math.round(ab + (C[i] - ab) * al); }).join(',')})`; };
+function srand(n) { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+const INK = '#3b2352';
+const viewM = () => Math.max(0, -(camY + H * 0.5) / PX_M);
+
+function drawBackground() {
+  const z = zoneOf(viewM());
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, mix3('#86ccff', '#1d1650', '#7a4cc2', z.space, z.alien));
+  g.addColorStop(0.6, mix3('#bfe6ff', '#34287a', '#c08ae8', z.space, z.alien));
+  g.addColorStop(1, mix3('#ffe3f1', '#4b3590', '#9df0c8', z.space, z.alien));
+  ctx.fillStyle = g; ctx.fillRect(-40, -40, W + 80, H + 80);
+  // 별 반짝
+  const sa = z.space * (1 - z.alien * 0.4);
+  if (sa > 0.01) {
+    ctx.fillStyle = '#fff';
+    for (const s of stars) {
+      const y = ((s.y - camY * 0.12) % H + H) % H;
+      ctx.globalAlpha = sa * (0.5 + 0.5 * Math.sin(time * 2 + s.tw));
+      ctx.beginPath(); ctx.arc(s.x, y, s.r, 0, 6.28); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // 해 → 지구 → 외계 하늘
+  if (z.space < 1) { ctx.globalAlpha = 1 - z.space; drawEmo('🌞', 300, 130, 38, Math.sin(time) * 0.1); ctx.globalAlpha = 1; }
+  if (z.space > 0 && z.alien < 1) { ctx.globalAlpha = z.space * (1 - z.alien); drawEmo('🌍', 70, 600 - z.space * 120, 72, time * 0.05); ctx.globalAlpha = 1; }
+  if (z.alien > 0) {
+    ctx.globalAlpha = z.alien;
+    drawEmo('🪐', 270, 150, 90, -0.2);
+    ctx.fillStyle = '#ffd6f5'; ctx.beginPath(); ctx.arc(70, 120, 16, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#b8fff0'; ctx.beginPath(); ctx.arc(112, 92, 9, 0, 6.28); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  // 떠다니는 장식 (높이마다 다름, 패럴랙스)
+  const PAR = 0.5, BAND = 170;
+  const top = camY * PAR, k0 = Math.floor(-(top + H) / BAND) - 1, k1 = Math.ceil(-top / BAND) + 1;
+  for (let k = Math.max(1, k0); k <= k1; k++) {
+    const sy = -k * BAND - top;
+    const m = k * BAND / PAR / PX_M;
+    const zz = zoneOf(m), r = srand(k), x = 30 + srand(k + 9) * (W - 60);
+    if (zz.space < 0.5) {       // 구름
+      const s = 18 + r * 16;
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      const cx = ((x + time * (6 + r * 8)) % (W + 120)) - 60;
+      ctx.beginPath(); ctx.arc(cx, sy, s, 0, 6.28); ctx.arc(cx + s, sy + 5, s * 0.8, 0, 6.28); ctx.arc(cx - s, sy + 5, s * 0.75, 0, 6.28); ctx.fill();
+      if (r > 0.75) drawEmo('🐦', (cx + 90) % W, sy - 30, 18, 0, -1, 1);
+    } else if (zz.alien < 0.5) {
+      const E = ['🛰️', '☄️', '🌙', '⭐', '🚀', '🪐'];
+      drawEmo(E[Math.floor(r * E.length)], x, sy, 22 + r * 14, Math.sin(time + k) * 0.3);
+    } else {
+      const E = ['🛸', '👾', '🍄', '🌌', '👽', '🦠'];
+      drawEmo(E[Math.floor(r * E.length)], x + Math.sin(time + k) * 10, sy, 22 + r * 14, Math.sin(time * 1.5 + k) * 0.2);
+    }
+  }
+}
+
+function drawPlat(p, sy) {
+  if (p.ground) {
+    ctx.fillStyle = '#9ee89a'; ctx.fillRect(-40, sy, W + 80, 400);
+    ctx.fillStyle = '#7fd68a';
+    for (let x = -10; x < W + 20; x += 24) { ctx.beginPath(); ctx.arc(x, sy + 2, 12, 0, Math.PI); ctx.fill(); }
+    ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-40, sy); ctx.lineTo(W + 40, sy); ctx.stroke();
+    ['🌷', '🌼', '🍄', '🌷', '🌼'].forEach((e, i) => drawEmo(e, 24 + i * 78, sy + 36 + (i % 2) * 18, 18));
+    drawEmo('🏡', 300, sy - 24, 46);
+    return;
+  }
+  const z = zoneOf(heightOf(p.y));
+  const x = p.x - p.w / 2, w = p.w;
+  const col = z.alien > 0.5 ? ['#a8f5c0', '#6fdc9a'] : z.space > 0.5 ? ['#d8ccff', '#a996f0'] : (p.i % 3 === 0 ? ['#ffc2dc', '#ff9cc6'] : p.i % 3 === 1 ? ['#bff3ea', '#86e0d2'] : ['#ffe7a3', '#ffd06b']);
+  ctx.fillStyle = col[1]; roundRect(x, sy + 4, w, PLAT_H, 9); ctx.fill();
+  ctx.fillStyle = col[0]; roundRect(x, sy, w, PLAT_H - 2, 9); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = 3; roundRect(x, sy, w, PLAT_H + 2, 9); ctx.stroke();
+  if (z.space <= 0.5) {           // 솜사탕 구름 뚜껑
+    ctx.fillStyle = '#fff';
+    for (let bx = x + 10; bx < x + w - 6; bx += 16) { ctx.beginPath(); ctx.arc(bx, sy + 3, 7, Math.PI, 0); ctx.fill(); }
+  } else if (z.alien <= 0.5) {    // 운석 구멍
+    ctx.fillStyle = 'rgba(59,35,82,.25)';
+    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(x + w * (0.2 + k * 0.3), sy + 9, 5, 3, 0, 0, 6.28); ctx.fill(); }
+  } else {                        // 끈적 슬라임 방울
+    ctx.fillStyle = col[1];
+    for (let k = 0; k < 3; k++) { const dx = x + w * (0.25 + k * 0.25), dl = 6 + Math.sin(time * 2 + k + p.i) * 4; ctx.beginPath(); ctx.ellipse(dx, sy + PLAT_H + 2 + dl / 2, 3.5, dl / 2 + 2, 0, 0, 6.28); ctx.fill(); }
+    if (p.i % 2) drawEmo('👁️', x + w - 14, sy + 9, 12);
+  }
+  if (p.i % 5 === 0) {            // 높이 표지
+    ctx.font = "bold 12px 'Jua','Malgun Gothic',sans-serif"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = INK; ctx.fillText(heightOf(p.y) + 'm', p.x, sy + 11);
+  }
+}
+
+function drawPig() {
+  const sk = SKINS[store.d.skin];
+  const g = charging ? gauge() : 0;
+  const sy = pig.y - camY;
+  // 비명 방귀 연기 꼬리
+  if (trail.length > 1) {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let i = 1; i < trail.length; i++) {
+      const a = trail[i - 1], b = trail[i];
+      ctx.globalAlpha = Math.min(1, b.life) * 0.75; ctx.strokeStyle = i % 2 ? '#c8f7a8' : '#e6ffb8'; ctx.lineWidth = b.w;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y - camY); ctx.lineTo(b.x, b.y - camY); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (beanT > 0 || pig.sup) { ctx.fillStyle = 'rgba(255,207,107,.45)'; ctx.beginPath(); ctx.arc(pig.x, sy, PR + 10 + Math.sin(time * 20) * 3, 0, 6.28); ctx.fill(); }
+  const swell = 1 + g * 0.45;
+  const jit = g > 0.6 ? (Math.random() - 0.5) * g * 3 : 0;
+  const face = (pig.air || pig.walk) ? pig.face : pig.dir;
+  const sxs = face * faceX(sk) * swell / Math.sqrt(pig.sq);
+  const sys = swell * pig.sq * (charging ? 1 - g * 0.12 : 1);
+  drawEmo(sprite(sk), pig.x + jit, sy + (1 - sys) * PR * 0.5 + (charging ? g * 3 : 0), PR * 2.3, pig.rot, sxs, sys);
+  if (g > 0.5) {  // 빨개진 볼 + 땀
+    ctx.globalAlpha = Math.min(0.7, (g - 0.5) * 1.4); ctx.fillStyle = '#ff6b9a';
+    ctx.beginPath(); ctx.arc(pig.x + face * 9, sy + 5, 5 * swell, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1;
+    drawEmo('💦', pig.x - face * 12, sy - PR * swell - 6, 14, 0, -face, 1);
+  }
+  if (pig.dizzy > 0 || (pig.air && pig.bonked)) for (let k = 0; k < 3; k++) { const a = time * 6 + k * 2.1; drawEmo('💫', pig.x + Math.cos(a) * 18, sy - PR - 8 + Math.sin(a) * 5, 12); }
+  // 방향 화살표 + 게이지 (서 있을 때)
+  if (!pig.air && !pig.walk && state === 'play') {
+    const ax = pig.x + pig.dir * 34;
+    ctx.save(); ctx.translate(ax, sy - 26 + Math.sin(time * 6) * 2); ctx.scale(pig.dir, 1); ctx.rotate(-0.9);
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = INK; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(-8, -4); ctx.lineTo(4, -4); ctx.lineTo(4, -9); ctx.lineTo(13, 0); ctx.lineTo(4, 9); ctx.lineTo(4, 4); ctx.lineTo(-8, 4); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    const gx = clamp(pig.x - pig.dir * 38, 14, W - 26) - 6, gy = sy - 40, gh = 58, gw = 13;
+    ctx.fillStyle = '#fff'; roundRect(gx, gy, gw, gh, 6); ctx.fill();
+    if (sweet && sweet.ok && jumps < 4 && beanT <= 0) { // 처음 몇 번은 '딱 좋은 구간' 힌트
+      ctx.fillStyle = 'rgba(80,220,120,.6)'; ctx.fillRect(gx + 1, gy + gh - sweet.hi * gh, gw - 2, Math.max(3, (sweet.hi - sweet.lo) * gh));
+    }
+    if (g > 0) {
+      const fg = ctx.createLinearGradient(0, gy + gh, 0, gy);
+      fg.addColorStop(0, '#9bf6c0'); fg.addColorStop(0.55, '#ffd66b'); fg.addColorStop(1, '#ff6b9a');
+      ctx.fillStyle = fg; roundRect(gx + 1.5, gy + gh - g * gh + 1.5, gw - 3, Math.max(0, g * gh - 3), 5); ctx.fill();
+    }
+    ctx.strokeStyle = INK; ctx.lineWidth = 2.5; roundRect(gx, gy, gw, gh, 6); ctx.stroke();
+    if (g >= 1) drawEmo('😣', gx + gw / 2, gy - 11, 14 + Math.sin(time * 30) * 2);
+  }
+}
+
+function render() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#1b1446'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+  let sx = 0, sy = 0;
+  if (shake > 0) { sx = (Math.random() - 0.5) * shake; sy = (Math.random() - 0.5) * shake; }
+  ctx.setTransform(scale, 0, 0, scale, ox + sx * scale, oy + sy * scale);
+  drawBackground();
+  for (const p of plats) {
+    const s = p.y - camY;
+    if (s > H + 40 || (!p.ground && s < -40)) continue;
+    drawPlat(p, s);
+    if (p.bean && !p.bean.got) {
+      const by = s - 34 + Math.sin(p.bean.bob || 0) * 4;
+      ctx.fillStyle = 'rgba(255,230,107,.5)'; ctx.beginPath(); ctx.arc(p.x, by, 17 + Math.sin(time * 6) * 2, 0, 6.28); ctx.fill();
+      drawEmo('🫘', p.x, by, 24, Math.sin(time * 3) * 0.3);
+    }
+  }
+  for (const pf of puffs) { ctx.globalAlpha = Math.max(0, Math.min(1, pf.life)) * 0.8; ctx.fillStyle = pf.c; ctx.beginPath(); ctx.arc(pf.x, pf.y - camY, pf.r, 0, 6.28); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  drawPig();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const fl of floaters) {
+    ctx.globalAlpha = Math.min(1, fl.life * 1.5);
+    const size = fl.size || (fl.big ? 24 : 17);
+    ctx.font = `bold ${size}px 'Jua','Malgun Gothic',sans-serif`;
+    const half = Math.min(W / 2 - 8, ctx.measureText(fl.t).width / 2 + 6);
+    const x = clamp(fl.x, half, W - half), y = fl.y - camY;
+    ctx.lineWidth = 5; ctx.strokeStyle = INK; ctx.strokeText(fl.t, x, y);
+    ctx.fillStyle = fl.big ? '#ffd66b' : '#fff'; ctx.fillText(fl.t, x, y);
+  }
+  ctx.globalAlpha = 1;
+  for (const c of confetti) { ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rot); ctx.globalAlpha = Math.min(1, c.life); ctx.fillStyle = c.c; ctx.fillRect(-4, -2, 8, 4); ctx.restore(); }
+  ctx.globalAlpha = 1;
+  if (flash > 0) { ctx.fillStyle = `rgba(255,240,180,${flash * 0.5})`; ctx.fillRect(-40, -40, W + 80, H + 80); }
+  if (state === 'play' || state === 'pause' || state === 'ending') drawHud();
+}
+
+function drawHud() {
+  // 타이머(원형) + 현재 높이 + 최고 — 글 없이 숫자/그림만
+  const cx = W / 2, cy = 84, r = 22;
+  ctx.fillStyle = 'rgba(255,250,242,.92)'; roundRect(cx - 118, cy - 24, 236, 48, 22); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = 3; roundRect(cx - 118, cy - 24, 236, 48, 22); ctx.stroke();
+  const frac = timeLeft / ROUND;
+  ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, 6.28); ctx.fill();
+  ctx.fillStyle = timeLeft <= 5 ? '#ff6b9a' : '#9bf6c0';
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r - 4, -Math.PI / 2, -Math.PI / 2 + frac * 6.283); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, 6.28); ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const big = timeLeft <= 5 && timeLeft > 0 ? 1 + 0.15 * Math.sin(time * 20) : 1;
+  ctx.font = `bold ${Math.round(17 * big)}px 'Jua','Malgun Gothic',sans-serif`; ctx.fillStyle = INK; ctx.fillText(Math.ceil(timeLeft), cx, cy + 1);
+  ctx.font = "bold 18px 'Jua','Malgun Gothic',sans-serif";
+  ctx.textAlign = 'left'; ctx.fillText('📏' + heightOf(pig.y) + 'm', cx - 110, cy + 1);
+  ctx.textAlign = 'right'; ctx.fillText('🏆' + Math.max(store.d.best, roundBest), cx + 110, cy + 1);
+  if (beanT > 0) {
+    ctx.fillStyle = '#ffcf6b'; roundRect(cx - 50, cy + 30, 100 * (beanT / BEAN_T), 10, 5); ctx.fill();
+    ctx.strokeStyle = INK; ctx.lineWidth = 2; roundRect(cx - 50, cy + 30, 100, 10, 5); ctx.stroke();
+    drawEmo('🫘', cx - 64, cy + 35, 16);
+  }
+}
+
+/* ================== 메인 루프 ================== */
+let last = performance.now(), acc = 0;
+const STEP = 1 / 60;
+function loop(now) {
+  let dt = (now - last) / 1000; last = now;
+  if (dt > 0.1) dt = 0.1;
+  if (state !== 'pause') {
+    acc += dt;
+    let n = 0;
+    while (acc >= STEP && n < 6) { update(STEP); acc -= STEP; n++; }
+    if (n === 6) acc = 0;
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+
+/* ================== UI ================== */
+function renderSkins() {
+  const box = document.getElementById('skins');
+  box.innerHTML = '';
+  SKINS.forEach((s, i) => {
+    const b = document.createElement('button');
+    const ok = unlocked(i);
+    b.className = 'skin' + (ok ? '' : ' locked') + (store.d.skin === i ? ' sel' : '');
+    b.innerHTML = `${ok ? s.e : '❓'}<small>${ok ? pick(s.n) : '🔒' + s.need + 'm'}</small>`;
+    b.setAttribute('aria-label', ok ? pick(s.n) : t('locked', { n: s.need }));
+    b.addEventListener('pointerdown', e => e.stopPropagation());
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      snd.init();
+      if (!ok) { toast(t('locked', { n: s.need })); snd.tone(200, 0.15, 'square', 0.1); return; }
+      store.d.skin = i; store.save(); snd.fart(0.25); renderSkins();
+    });
+    box.appendChild(b);
+  });
+  document.getElementById('titleBest').textContent = t('best', { b: store.d.best });
+}
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast'); el.textContent = msg; el.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.display = 'none', 1800);
+}
+function pause() {
+  if (state !== 'play' && state !== 'ending') return;
+  prevState = state; state = 'pause';
+  held = false; holdSrc = null; if (charging) { charging = false; chargeT = 0; snd.chargeStop(); }
+  snd.stopMusic(); show('pauseScr'); document.getElementById('pauseBtn').textContent = '▶️';
+}
+function resume() {
+  if (state !== 'pause') return;
+  state = prevState; snd.init(); if (state === 'play') snd.startMusic();
+  show(null); document.getElementById('pauseBtn').textContent = '⏸️'; last = performance.now(); acc = 0;
+}
+function toTitle() { state = 'title'; snd.stopMusic(); snd.chargeStop(); reset(); show('titleScr'); renderSkins(); document.getElementById('pauseBtn').textContent = '⏸️'; }
+function updateMuteBtn() { const m = document.getElementById('muteBtn'); m.textContent = snd.muted ? '🔇' : '🔊'; m.setAttribute('aria-pressed', snd.muted ? 'true' : 'false'); }
+const ui = fn => e => { e.stopPropagation(); if (e.currentTarget && e.currentTarget.blur) e.currentTarget.blur(); fn(e); };
+
+document.getElementById('startBtn').addEventListener('click', ui(() => startGame()));
+document.getElementById('retryBtn').addEventListener('click', ui(() => startGame()));
+document.getElementById('menuBtn').addEventListener('click', ui(() => toTitle()));
+document.getElementById('resumeBtn').addEventListener('click', ui(() => resume()));
+document.getElementById('quitBtn').addEventListener('click', ui(() => toTitle()));
+document.getElementById('howBtn').addEventListener('click', ui(() => { snd.init(); snd.boing(); show('howScr'); }));
+document.getElementById('howClose').addEventListener('click', ui(() => { snd.init(); show('titleScr'); }));
+document.getElementById('pauseBtn').addEventListener('click', ui(() => { state === 'pause' ? resume() : pause(); }));
+document.getElementById('muteBtn').addEventListener('click', ui(() => { snd.init(); snd.setMute(!snd.muted); updateMuteBtn(); if (!snd.muted) snd.fart(0.2); }));
+document.getElementById('shareBtn').addEventListener('click', async e => {
+  e.stopPropagation();
+  const text = t('shareText', { b: store.d.best });
+  const url = location.origin + location.pathname;
+  try {
+    if (navigator.share) { await navigator.share({ title: t('title'), text, url }); return; }
+    await navigator.clipboard.writeText(text + ' ' + url); toast(t('copied'));
+  } catch (err) { toast(t('brag', { b: store.d.best })); }
+});
+// 탭을 벗어나면 자동 일시정지
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+window.addEventListener('blur', () => pause());
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+  document.title = lang === 'ko' ? '방귀 점프 킹 👑💨 | 나두게임즈' : 'Toot Jump King 👑💨 | Nadoo Games';
+  document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
+  renderSkins();
+}
+document.getElementById('langBtn').addEventListener('click', ui(() => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.boing(); }));
+
+/* ================== 읽기 전용 상태 (쇼츠 봇용) ================== */
+const snapshot = () => {
+  const zm = zoneOf(viewM());
+  const nb = plats.find(q => q.i > pig.on && q.bean && !q.bean.got);
+  const nx = SKINS.find(s => s.need > store.d.best);
+  return {
+    state, lang, timeLeft: +timeLeft.toFixed(2), round: ROUND,
+    height: heightOf(pig.y), roundBest, maxHeight: maxM, best: store.d.best, jumps, falls, bonks, beans: roundBeans,
+    charging, gauge: +gauge().toFixed(3), sweet: sweet ? { ok: sweet.ok, lo: sweet.lo, hi: sweet.hi } : null,
+    beanTime: +beanT.toFixed(2), beanActive: beanT > 0,
+    pig: { x: +pig.x.toFixed(1), y: +pig.y.toFixed(1), vx: +pig.vx.toFixed(1), vy: +pig.vy.toFixed(1), air: pig.air, walking: !!pig.walk, on: pig.on, dir: pig.dir, face: pig.face, screaming: pig.scream, bonked: pig.bonked, dizzy: pig.dizzy > 0 },
+    zone: zm.alien > 0.5 ? 'alien' : zm.space > 0.5 ? 'space' : 'sky', zoneMix: zm,
+    skin: store.d.skin, skinEmoji: SKINS[store.d.skin].e,
+    unlocked: SKINS.filter((s, i) => unlocked(i)).map(s => s.e),
+    next: nx ? { e: nx.e, need: nx.need } : null,
+    nextBean: nb ? { i: nb.i, x: nb.x, y: nb.y - 34 } : null,
+    platforms: plats.slice(Math.max(0, pig.on - 2), pig.on + 6).map(p => ({ i: p.i, x: p.x, w: p.w, y: p.y, bean: !!(p.bean && !p.bean.got) })),
+    audio: { state: snd.ac ? snd.ac.state : 'none', music: snd.musicOn, muted: snd.muted, level: +snd.level().toFixed(4) },
+    camY: +camY.toFixed(1),
+  };
+};
+const api = {};
+['state', 'timeLeft', 'height', 'roundBest', 'best', 'jumps', 'falls', 'bonks', 'charging', 'gauge', 'sweet', 'beanActive', 'pig', 'zone', 'skin', 'unlocked', 'audio', 'platforms', 'nextBean'].forEach(k => Object.defineProperty(api, k, { get: () => snapshot()[k], enumerable: true }));
+api.snapshot = snapshot;
+window.__tootjump = Object.freeze(api);
+
+resize(); reset(); applyLang(); updateMuteBtn(); show('titleScr');
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
