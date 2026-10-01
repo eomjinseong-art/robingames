@@ -448,9 +448,14 @@ function genPlat(i) {
     const cx = side > 0 ? W - 62 - Math.random() * 44 : 62 + Math.random() * 44;
     p = { i, x: clamp(cx, w / 2 + 6, W - w / 2 - 6), w, y: prev.y - dy };
     // 이전 발판의 '어느 자리'에 서 있어도 닿을 수 있는지 시뮬레이션으로 확인
-    const stands = prev.ground ? [100] : [prev.x - prev.w / 2 + 3, prev.x, prev.x + prev.w / 2 - 3];
-    let ok = true;
-    for (const sx of stands) { const r = sweetRange(sx, prev.y - PR, Math.sign(p.x - sx) || side, i - 1, false, p); if (!r.ok || r.hi - r.lo < (easy ? 0.06 : 0.1)) { ok = false; break; } }
+    // + 새 발판이 '천장'이 되어 그 전 점프(i-2 → i-1)를 너무 어렵게 만들지 않는지도 확인
+    const need = easy ? 0.06 : 0.1;
+    const okFrom = (a, b, list) => (a.ground ? [100] : [a.x - a.w / 2 + 3, a.x, a.x + a.w / 2 - 3]).every(sx => {
+      const r = sweetRange(sx, a.y - PR, Math.sign(b.x - sx) || 1, a.i, false, list, b.i);
+      return r.ok && r.hi - r.lo >= need;
+    });
+    let ok = okFrom(prev, p, [prev, p]);
+    if (ok && i >= 2) ok = okFrom(plats[i - 2], prev, [plats[i - 2], prev, p]);
     if (ok) break;
   }
   return p;
@@ -478,6 +483,15 @@ function stepBody(b, dt, list) {
       if (b.sup || b.bonked) { b.vx = Math.abs(b.vx) * sgn * (b.sup ? 1 : 0.3); }
       else { b.vx = sgn * 60; b.vy = Math.max(b.vy, 40); b.bonked = true; ev.push({ t: 'bonk', w: 'wall', x: b.x, y: b.y }); }
     }
+    if (b.sup) {   // 콩 파워 점프 = 자석 엉덩이: 닿을 수 있는 가장 높은 발판 쪽으로 슝~ 끌려감
+      if (b.tgt == null) {
+        const apex = b.y - (b.vy < 0 ? b.vy * b.vy / (2 * GRAV) : 0);
+        let tp = null;
+        for (const p of list) if (p && p.i > b.from && p.y > apex + PR + 8 && (!tp || p.i > tp.i)) tp = p;
+        b.tgt = tp ? tp.i : -1; b.tx = tp ? tp.x : b.x;
+      }
+      if (b.tgt >= 0) b.vx = clamp((b.tx - b.x) * 3, -450, 450);
+    }
     for (const p of list) {
       if (!p) continue;
       const l = p.x - p.w / 2, r = p.x + p.w / 2;
@@ -496,24 +510,22 @@ function stepBody(b, dt, list) {
 // 콩 = 방귀 파워(에너지) 2배 → 속도 √2배, 점프 높이 2배
 const launchV = (g, sup) => ({ vy: -(VMIN + g * (VMAX - VMIN)) * (sup ? 1.42 : 1), vxm: sup ? 1.15 : 1 });
 // 게이지 g로 뛰면 어느 발판에 착지하는지 (-1 = 못 잡음)
-function simulate(x, y, dir, from, g, sup, target) {
+function simulate(x, y, dir, from, g, sup, list) {
   const v = launchV(g, sup);
   const b = { x, y, vx: dir * VX * v.vxm, vy: v.vy, from, sup, bonked: false, landed: -1 };
-  const list = target ? [plats[from], target] : plats;
   for (let k = 0; k < 360; k++) {
     stepBody(b, 1 / 60, list);
-    if (b.landed >= 0) return b.landed;
+    if (b.landed >= 0) return b.bonked ? -2 : b.landed;     // 쿵! 하고 떨어져서 걸친 건 '성공'으로 안 침
     if (b.y > y + 900) return -1;
   }
   return -1;
 }
 // 목표 발판(from+1)에 착지하는 게이지 구간 중 가장 넓은 구간
-function sweetRange(x, y, dir, from, sup, target) {
-  const tgtI = target ? target.i : from + 1;
+function sweetRange(x, y, dir, from, sup, list = plats, tgtI = from + 1) {
   let best = null, cur = null;
   for (let k = 0; k <= 50; k++) {
     const g = k / 50;
-    const hit = simulate(x, y, dir, from, g, sup, target) === tgtI;
+    const hit = simulate(x, y, dir, from, g, sup, list) === tgtI;
     if (hit) { if (!cur) cur = [g, g]; else cur[1] = g; }
     if ((!hit || k === 50) && cur) { if (!best || cur[1] - cur[0] > best[1] - best[0]) best = cur; cur = null; }
   }
@@ -541,7 +553,7 @@ function reset() {
 function computeSweet() {
   if (!pig || pig.air) { sweet = null; return; }
   ensurePlats(pig.on + 12);
-  sweet = sweetRange(pig.x, pig.y, pig.dir, pig.on, beanT > 0);
+  sweet = beanT > 0 ? null : sweetRange(pig.x, pig.y, pig.dir, pig.on, false);   // 콩 모드는 자석 점프라 힌트 없음
 }
 
 function startGame() {
@@ -585,7 +597,7 @@ function launch(g) {
   const sup = beanT > 0;
   const v = launchV(g, sup);
   pig.vx = pig.dir * VX * v.vxm; pig.vy = v.vy;
-  pig.air = true; pig.sup = sup; pig.bonked = false; pig.from = pig.on; pig.launchY = pig.y; pig.scream = false; pig.face = pig.dir; pig.sq = 0.6;
+  pig.air = true; pig.sup = sup; pig.tgt = null; pig.bonked = false; pig.from = pig.on; pig.launchY = pig.y; pig.scream = false; pig.face = pig.dir; pig.sq = 0.6;
   jumps++; sweet = null;
   snd.jump(g); buzz(Math.round(20 + g * 45));
   shake = Math.max(shake, 3 + g * 6);
@@ -607,7 +619,7 @@ window.addEventListener('pointerup', e => pressUp('p' + e.pointerId));
 window.addEventListener('pointercancel', e => pressUp('p' + e.pointerId));
 cvs.addEventListener('contextmenu', e => e.preventDefault());
 // UI 버튼: 눌러도 점프/충전이 시작되지 않도록 전파 차단 (이중 안전장치)
-document.querySelectorAll('.hud button, .hud a, .overlay button').forEach(el => {
+document.querySelectorAll('.overlay button').forEach(el => {
   el.addEventListener('pointerdown', e => e.stopPropagation());
   el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 });
@@ -1057,8 +1069,28 @@ document.getElementById('resumeBtn').addEventListener('click', ui(() => resume()
 document.getElementById('quitBtn').addEventListener('click', ui(() => toTitle()));
 document.getElementById('howBtn').addEventListener('click', ui(() => { snd.init(); snd.boing(); show('howScr'); }));
 document.getElementById('howClose').addEventListener('click', ui(() => { snd.init(); show('titleScr'); }));
-document.getElementById('pauseBtn').addEventListener('click', ui(() => { state === 'pause' ? resume() : pause(); }));
-document.getElementById('muteBtn').addEventListener('click', ui(() => { snd.init(); snd.setMute(!snd.muted); updateMuteBtn(); if (!snd.muted) snd.fart(0.2); }));
+// 상단 버튼(🏠 🌏 ⏸️ 🔊): 게임 중에도 확실히 눌리게 — 손 뗄 때(pointerup) 바로 실행, 뒤따르는 click은 중복 무시.
+// 버튼 탭은 절대 충전/점프로 넘어가지 않음 (버튼이 캔버스보다 위 + 전파 차단 + 캔버스는 자기 자신에 닿은 탭만 처리)
+function uiTap(el, fn) {
+  let pid = null, fired = -1e9;
+  const run = e => { fired = performance.now(); try { el.blur && el.blur(); } catch (err) {} fn(e); };
+  el.addEventListener('pointerdown', e => { e.stopPropagation(); pid = e.pointerId; });
+  el.addEventListener('pointerup', e => {
+    e.stopPropagation();
+    if (pid !== e.pointerId) return; pid = null;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const r = el.getBoundingClientRect();
+    if (e.clientX < r.left - 10 || e.clientX > r.right + 10 || e.clientY < r.top - 10 || e.clientY > r.bottom + 10) return;
+    run(e);
+  });
+  el.addEventListener('pointercancel', () => { pid = null; });
+  el.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); if (performance.now() - fired < 800) return; run(e); });
+  ['touchstart', 'touchend'].forEach(ev => el.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+}
+const homeBtn = document.getElementById('homeBtn');
+uiTap(homeBtn, () => { location.href = homeBtn.href; });
+uiTap(document.getElementById('pauseBtn'), () => { state === 'pause' ? resume() : pause(); });
+uiTap(document.getElementById('muteBtn'), () => { snd.init(); snd.setMute(!snd.muted); updateMuteBtn(); if (!snd.muted) snd.fart(0.2); });
 document.getElementById('shareBtn').addEventListener('click', async e => {
   e.stopPropagation();
   const text = t('shareText', { b: store.d.best });
@@ -1080,7 +1112,7 @@ function applyLang() {
   document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderSkins();
 }
-document.getElementById('langBtn').addEventListener('click', ui(() => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.boing(); }));
+uiTap(document.getElementById('langBtn'), () => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.boing(); });
 
 /* ================== 읽기 전용 상태 (쇼츠 봇용) ================== */
 const snapshot = () => {
