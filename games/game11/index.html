@@ -663,7 +663,7 @@ function rivalFooled(ri) {
   updateScores(); log('rival_fooled', { who: rv.k });
 }
 function startFever() {
-  fever = true; feverUsed = true; feverEnd = gt + FEVER_MS; stage.classList.add('fever'); snd.bpm = 168; snd.key = 2; snd.fever();
+  fever = true; feverUsed = true; streak = 0; feverEnd = gt + FEVER_MS; stage.classList.add('fever'); snd.bpm = 168; snd.key = 2; snd.fever();
   banner(`🔥 ${t('fever')} 🔥<small>${t('feverSub')}</small>`, 1300); log('fever_on'); if (nextFlip !== Infinity) nextFlip = Math.min(nextFlip, gt + 500);
 }
 function endFever() { fever = false; stage.classList.remove('fever'); snd.bpm = 132; snd.key = 0; log('fever_off'); }
