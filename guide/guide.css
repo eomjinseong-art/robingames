@@ -63,3 +63,18 @@ html[lang="en"] .steps > li > p::before { content: "Step " counter(s) " · "; }
 footer { text-align: center; font-size: 13px; color: var(--soft); padding: 8px 0; }
 .err { background: #ffd6d6; }
 @media (max-width: 380px) { .hero h1 { font-size: 26px; } .ggrid { grid-template-columns: 1fr 1fr; } }
+.playbig { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 100%; text-decoration: none; text-align: center;
+  background: linear-gradient(180deg,#ff7eb6 0%,#ff4f9a 100%); color: #fff; border: 4px solid var(--ink); border-radius: 20px; padding: 14px 16px; min-height: 76px;
+  box-shadow: 0 5px 0 var(--ink); font-weight: 700; animation: pbPulse 2.4s ease-in-out infinite; }
+.playbig .pb-main { font-size: 25px; line-height: 1.2; text-shadow: 0 2px 0 rgba(45,27,0,.45); word-break: keep-all; }
+.playbig .pb-sub { font-size: 14px; color: #fff3b0; word-break: keep-all; }
+.playbig:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+@keyframes pbPulse { 50% { transform: scale(1.015); } }
+@media (prefers-reduced-motion: reduce) { .playbig { animation: none; } }
+.gcard.haspc { padding: 0; gap: 0; overflow: hidden; }
+.gcard.haspc .gmain { display: flex; flex-direction: column; gap: 4px; padding: 10px; text-decoration: none; flex: 1; }
+.gcard .playgo { display: block; text-align: center; text-decoration: none; font-weight: 700; font-size: 16px; color: #fff; background: #ff4f9a; border-top: 3px solid var(--ink); padding: 9px 6px; min-height: 44px; }
+.gcard .playgo:active { background: #e8357f; }
+/* 폰에서 목차(가로 스크롤)가 페이지 전체를 넓히지 않도록 */
+.wrap > * { min-width: 0; }
+.wrap > .wrap { width: 100%; margin: 0; }
