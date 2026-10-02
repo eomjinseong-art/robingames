@@ -138,7 +138,7 @@
   .credit { position: absolute; bottom: max(2px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 10px; color: rgba(58,29,92,.65); z-index: 51; pointer-events: none; }
   #stage.playing .credit { display: none; }
 </style>
-<script src="/counter.js" defer></script>
+<script src="/counter.js?v=2" defer></script>
 </head>
 <body>
 <div id="wrap"><div id="stage">
@@ -240,8 +240,8 @@ const T = {
   how: ['소개 · 조작법 · 웃긴 포인트', 'About · Controls · Funny bits'], hIntroT: ['소개', 'About'], hCtrlT: ['조작법', 'Controls'], hFunT: ['웃긴 포인트', 'Funny bits'], gotIt: ['알겠어!', 'Got it!'],
   hIntro: ['카드가 착착 뒤집혀요. 카드마다 방귀쟁이 동물이 1~5마리! 보이는 카드에 <b>같은 동물이 모두 합쳐 딱 5마리</b>면 종을 쳐요. 제일 빨리 친 사람이 카드를 몽땅 가져가요. 1분 동안 카드를 제일 많이 모으면 1등!',
            'Cards flip one by one. Each card shows 1-5 farting animals. When the visible cards show <b>exactly 5 of the same animal in total</b>, hit the bell. Fastest paw takes every card on the table. Most cards after 1 minute wins!'],
-  hCtrl: ['🔔 큰 종을 <b>톡!</b> 버튼은 이것 하나뿐 (PC: 스페이스바)<br>❌ 틀리게 치면 카드 -2장 + 잠깐 어질어질 💫<br>🐗 <b>낚시 카드</b>: 5마리 같지만 가짜가 섞였어요 (멧돼지·병아리·말·황소)<br>🫧 <b>트림 카드</b>: 트림은 방귀가 아니라서 0마리!<br>🔥 3번 연속 이기면 <b>피버 타임</b>: 카드가 빨라지고 점수 2배<br>👫 2~4인: 한 폰에서 각자 구석의 종을 쳐요 (동시 터치 OK)',
-          '🔔 <b>Tap</b> the big bell. That is the only button (PC: Space)<br>❌ Wrong tap = -2 cards + a dizzy moment 💫<br>🐗 <b>Decoy card</b>: looks like 5, but one is a fake (boar, chick, horse, ox)<br>🫧 <b>Burp card</b>: a burp is not a toot, so it counts as 0!<br>🔥 Win 3 in a row for <b>FEVER TIME</b>: faster cards, double points<br>👫 2-4 players: everyone smashes their own corner bell (multi-touch OK)'],
+  hCtrl: ['🔔 큰 종을 <b>톡!</b> 버튼은 이것 하나뿐 (PC: 스페이스바)<br>❌ 틀리게 치면 카드 -2장 + 잠깐 어질어질 💫<br>🐗 <b>낚시 카드</b>: 5마리 같지만 가짜가 섞였어요 (멧돼지·병아리·말)<br>🫧 <b>트림 카드</b>: 트림은 방귀가 아니라서 0마리!<br>🔥 3번 연속 이기면 <b>피버 타임</b>: 카드가 빨라지고 점수 2배<br>👫 2~4인: 한 폰에서 각자 구석의 종을 쳐요 (동시 터치 OK)',
+          '🔔 <b>Tap</b> the big bell. That is the only button (PC: Space)<br>❌ Wrong tap = -2 cards + a dizzy moment 💫<br>🐗 <b>Decoy card</b>: looks like 5, but one is a fake (boar, chick, horse)<br>🫧 <b>Burp card</b>: a burp is not a toot, so it counts as 0!<br>🔥 Win 3 in a row for <b>FEVER TIME</b>: faster cards, double points<br>👫 2-4 players: everyone smashes their own corner bell (multi-touch OK)'],
   hFun: ['맞히면 <b>"뿌아아앙!"</b> 초대형 방귀와 함께 내 반응 속도(ms)가 떠요. 돼지·닭·유니콘 손이 종으로 슝~ 날아오고, 내가 이길수록 걔네도 점점 빨라져요! 닭은 낚시 카드에 잘 낚여요 ㅋㅋ',
          'Get it right for a <b>"PFFFFFT!"</b> mega toot plus your reaction time in ms. The pig, chicken and unicorn paws fly at the bell, and they get faster every time you win! The chicken falls for decoys a lot, lol'],
   tap: ['땡!', 'DING!'], paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], restart: ['처음부터', 'Restart'], menu: ['메뉴로', 'Menu'], again: ['한 판 더!', 'Again!'],
@@ -436,7 +436,7 @@ try { snd.muted = localStorage.getItem('tootBell_mute') === '1'; } catch (e) {}
 /* ================== 데이터 ================== */
 const ANI = {
   pig: { e: '🐷', fake: '🐗', c: '#ff8fc0', c2: '#ffeef6' }, chk: { e: '🐔', fake: '🐤', c: '#ffc21a', c2: '#fff6d6' },
-  uni: { e: '🦄', fake: '🐴', c: '#b47cff', c2: '#f4ecff' }, cow: { e: '🐮', fake: '🐂', c: '#36b37e', c2: '#e6fbef' },
+  uni: { e: '🦄', fake: '🐴', c: '#b47cff', c2: '#f4ecff' },
 };
 const KEYS = Object.keys(ANI);
 const RIVALS = [
@@ -468,7 +468,7 @@ const realN = c => (c.kind === 'burp' ? 0 : c.n);
 const shownN = c => c.n + (c.fake || 0);
 const tops = (excl = -1, sub = null) => piles.map((p, i) => (i === sub?.i ? sub.c : i === excl ? null : p[p.length - 1] || null));
 function counts(list) {
-  const r = { pig: 0, chk: 0, uni: 0, cow: 0 }, s = { pig: 0, chk: 0, uni: 0, cow: 0 };
+  const r = { pig: 0, chk: 0, uni: 0 }, s = { pig: 0, chk: 0, uni: 0 };
   list.forEach(c => { if (c) { r[c.a] += realN(c); s[c.a] += shownN(c); } });
   return { r, s };
 }
@@ -497,7 +497,7 @@ function genCard(p) {
     const c = { a: pick(KEYS), n: 1 + Math.floor(rnd() * 5), kind: 'n' };
     if (!okWith(c).v || i > 8) return c;
   }
-  return { a: 'cow', n: 1, kind: 'n' };
+  return { a: 'pig', n: 1, kind: 'n' };
 }
 
 /* ================== 화면 만들기 ================== */
