@@ -31,28 +31,25 @@
   .icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #3a1d5c; }
   /* ---- 게임 화면 */
   #game { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 60px 10px max(10px, env(safe-area-inset-bottom)); gap: 7px; }
-  #topScores { width: 100%; max-width: 420px; display: flex; align-items: stretch; gap: 5px; flex: 0 0 auto; }
-  .info { flex: 0 0 137px; width: 137px; background: #fffbea; border: 3px solid #3a1d5c; border-radius: 13px; box-shadow: 0 3px 0 #3a1d5c; padding: 4px 6px 5px; font-size: 14px; }
-  .info .row1 { display: flex; justify-content: space-between; align-items: center; gap: 3px; }
-  .info b { font-size: 18px; }
-  .info .rx { font-size: 12px; }
-  #rivals { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 4px; width: auto; max-width: none; }
-  .my-score { position: relative; display: inline-flex; align-items: center; gap: 2px; min-width: 0; justify-content: center; padding: 1px 4px; background: #fff2a8; border: 2px solid #e45286; border-radius: 9px; box-shadow: 0 2px 0 #b83c6b; font-weight: 900; }
-  .my-score .my-score-label { font-size: 11px; }
-  .my-score b { font-size: 22px; line-height: 1; }
-  .my-score.leader { border-color: #e7a90c; box-shadow: 0 2px 0 #a96d00, 0 0 0 3px #ffe066; }
-  .my-score.leader::after, .rival.leader::after { content: '👑'; position: absolute; right: -7px; top: -13px; font-size: 17px; line-height: 1; }
-  .tbar { height: 9px; border-radius: 6px; background: #eadcff; overflow: hidden; margin-top: 3px; }
+  #topScores { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
+  #scoreRow { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .score-cell { position: relative; min-width: 0; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; border: 2px solid #3a1d5c; border-radius: 12px; background: rgba(255,255,255,.8); box-shadow: 0 3px 0 rgba(58,29,92,.3); color: #3a1d5c; }
+  .score-cell.player { background: #fff2a8; border: 3px solid #e45286; box-shadow: 0 3px 0 #b83c6b; }
+  .score-cell-label { display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-height: 20px; font-size: 12px; font-weight: 900; line-height: 1; white-space: nowrap; }
+  .score-cell .score-avatar { font-size: 22px; line-height: 1; }
+  .score-cell .score-role { font-size: 9px; color: #7b2fd6; letter-spacing: .2px; }
+  .score-cell > b, .score-cell .score-num { font-size: 27px; line-height: .95; font-weight: 900; }
+  .score-cell .my-rank { min-height: 11px; color: #7b2fd6; font-size: 10px; font-weight: 900; line-height: 1; }
+  .score-cell.leader { border-color: #e7a90c; box-shadow: 0 0 0 3px #ffe066, 0 4px 0 #a96d00; }
+  .score-cell.leader::after { content: '👑'; position: absolute; right: -6px; top: -14px; font-size: 17px; line-height: 1; }
+  .info { width: 100%; height: 24px; background: rgba(255,251,234,.92); border: 2px solid #3a1d5c; border-radius: 10px; padding: 2px 7px; font-size: 13px; }
+  .info .statbar { display: flex; align-items: center; gap: 5px; height: 100%; }
+  .info b { font-size: 15px; }
+  .info .rx { font-size: 11px; white-space: nowrap; }
+  .tbar { flex: 1; height: 5px; border-radius: 6px; background: #eadcff; overflow: hidden; margin: 0; }
   .tbar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #8a3ff0, #ff6fb5); }
-  #rivals { width: 100%; max-width: 420px; display: flex; justify-content: space-around; gap: 6px; }
-  .rival { min-width: 0; background: rgba(255,255,255,.75); border: 2px solid #3a1d5c; border-radius: 12px; text-align: center; padding: 2px 2px 3px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .rival .player-id { display: inline-flex; align-items: center; gap: 2px; min-height: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
-  .rival .seat-role { display: none; }
-  .rival .av { font-size: 22px; line-height: 1; display: inline-block; }
-  .rival .nm { display: none; }
-  .rival .sc { display: flex; align-items: baseline; justify-content: center; gap: 2px; margin: 1px 0 0; padding: 0; background: transparent; border: 0; border-radius: 0; font-weight: 900; }
-  .rival .score-label { font-size: 11px; } .rival .score-num { font-size: 25px; line-height: 1; }
-  .rival.leader { border-color: #e7a90c; box-shadow: 0 0 0 3px #ffe066, 0 4px 0 #a96d00; }
+  #rivals { display: contents; }
+  .rival { min-width: 0; }
   .rival.win .av { animation: boing .5s; } .rival.fool .av { animation: dizzy .6s; }
   @keyframes boing { 30% { transform: scale(1.4) rotate(-10deg); } 60% { transform: scale(.9) rotate(6deg); } }
   @keyframes dizzy { 25% { transform: rotate(-25deg); } 75% { transform: rotate(25deg); } }
@@ -111,10 +108,11 @@
   .mpb .base { background: linear-gradient(var(--pc), #3a1d5c 160%); }
   .mpb.top { transform: rotate(180deg); }
   #mb0 { left: 8px; bottom: max(14px, env(safe-area-inset-bottom)); } #mb1 { right: 8px; top: 62px; } #mb2 { right: 8px; bottom: max(14px, env(safe-area-inset-bottom)); } #mb3 { left: 8px; top: 62px; }
+  .mp #scoreRow { display: none; }
   .mp #rivals, .mp #bellZone { display: none; }
   .mp #game { padding-top: 196px; padding-bottom: 148px; }
   .mp .info { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: calc(100% - 300px); min-width: 84px; padding: 2px 4px 4px; font-size: 13px; text-align: center; }
-  .mp .info .row1 { justify-content: center; } .mp .info .solo-only { display: none; }
+  .mp .info .statbar { justify-content: center; } .mp .info .solo-only { display: none; }
   .mp .pile .own { font-size: 14px; }
   .hand { position: absolute; left: 0; top: 0; font-size: 46px; z-index: 28; pointer-events: none; opacity: 0; will-change: transform; filter: drop-shadow(0 3px 0 rgba(58,29,92,.4)); }
   .float { position: absolute; z-index: 40; pointer-events: none; font-size: 28px; font-weight: 900; color: #ffe066; -webkit-text-stroke: 1.5px #3a1d5c; text-shadow: 0 3px 0 #3a1d5c; white-space: nowrap; transform: translate(-50%, -50%); animation: floatUp 1.3s ease-out forwards; }
@@ -125,7 +123,8 @@
   #banner small { display: block; font-size: 22px; -webkit-text-stroke: 0; color: #3a1d5c; text-shadow: none; background: #ffe066; border: 3px solid #3a1d5c; border-radius: 14px; width: max-content; margin: 6px auto 0; padding: 0 10px; }
   #banner.show { display: block; animation: bannerPop .5s ease-out; }
   @keyframes bannerPop { 0% { transform: scale(.2) rotate(-12deg); } 70% { transform: scale(1.15) rotate(3deg); } 100% { transform: none; } }
-  #toast { position: absolute; left: 50%; top: 38%; transform: translateX(-50%); background: #3a1d5c; color: #ffe066; padding: 7px 14px; border-radius: 14px; font-size: 17px; z-index: 46; display: none; white-space: nowrap; pointer-events: none; max-width: 94%; overflow: hidden; text-overflow: ellipsis; }
+  #statusStrip { width: 100%; max-width: 420px; height: 26px; flex: 0 0 26px; display: flex; align-items: center; justify-content: center; overflow: visible; pointer-events: none; z-index: 46; }
+  #toast { background: #3a1d5c; color: #ffe066; padding: 3px 10px; border-radius: 10px; font-size: 13px; line-height: 1.2; display: none; white-space: nowrap; pointer-events: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .shake { animation: shk .35s; }
   @keyframes shk { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
   /* ---- 오버레이 */
@@ -171,12 +170,15 @@
 
   <div id="game">
     <div id="topScores">
-      <div class="info">
-        <div class="row1"><span>⏱️ <b id="timeTxt">60</b></span><span class="my-score solo-only" id="myScore"><span class="my-score-label">🙋 <span data-i18n="you">나</span></span><b id="scoreTxt">0</b>🃏</span><span class="solo-only rx">⚡ <b id="rxTxt">-</b></span></div>
-        <div class="tbar"><i id="timeFill"></i></div>
+      <div id="scoreRow">
+        <div class="score-cell player" id="myScore"><span class="score-cell-label">🙋 <span data-i18n="you">나</span></span><b id="scoreTxt">0</b><span class="my-rank" id="myRank">1등!</span></div>
+        <div id="rivals"></div>
       </div>
-      <div id="rivals"></div>
+      <div class="info">
+        <div class="statbar"><span>⏱️ <b id="timeTxt">60</b></span><div class="tbar"><i id="timeFill"></i></div><span class="solo-only rx">⚡ <b id="rxTxt">-</b></span></div>
+      </div>
     </div>
+    <div id="statusStrip"><div id="toast"></div></div>
     <div id="arena"><div id="grid"></div></div>
     <div id="hint" aria-live="polite"></div>
     <div id="bellZone"><button class="bell" id="bell0" aria-label="Bell 종"><span class="tap-cue" aria-hidden="true"><span class="tap-label" data-i18n="tapHere">여기 쳐!</span><span class="tap-ring"></span><span class="tap-hand">👇</span></span><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl" data-i18n="tap">땡!</span></button></div>
@@ -185,7 +187,6 @@
   <div id="hands"></div>
   <div id="fx"></div>
   <div id="banner"></div>
-  <div id="toast"></div>
 
   <div class="overlay show" id="titleScr">
     <div class="ocard">
@@ -265,7 +266,7 @@ const T = {
   hFun: ['맞히면 <b>"뿌아아앙!"</b> 초대형 방귀와 함께 내 반응 속도(ms)가 떠요. 돼지·닭·유니콘 손이 종으로 슝~ 날아오고, 내가 이길수록 걔네도 점점 빨라져요! 닭은 낚시 카드에 잘 낚여요 ㅋㅋ',
          'Get it right for a <b>"PFFFFFT!"</b> mega toot plus your reaction time in ms. The pig, chicken and unicorn paws fly at the bell, and they get faster every time you win! The chicken falls for decoys a lot, lol'],
   tap: ['땡!', 'DING!'], tapHere: ['여기 쳐!', 'TAP HERE!'], paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], restart: ['처음부터', 'Restart'], menu: ['메뉴로', 'Menu'], again: ['한 판 더!', 'Again!'],
-  you: ['나', 'ME'], pig: ['돼지', 'Pig'], chk: ['닭', 'Chicken'], uni: ['유니콘', 'Unicorn'],
+  you: ['나', 'ME'], scoreLead: ['1등!', '1st!'], scoreBehind: ['{n}점 뒤짐', '{n} behind'], pig: ['돼지', 'Pig'], chk: ['닭', 'Chicken'], uni: ['유니콘', 'Unicorn'],
   ready: ['준비~', 'Ready~'], go: ['뿡!', 'TOOT!'],
   myWin: ['뿌아아앙!! 💨', 'PFFFFFT!! 💨'], cards: ['+{n}장', '+{n} cards'],
   rivalWin: [['꿀꿀! 내 거!', '꼬끼오~ 빠름!', '반짝 뿡~ ✨'], ['Oink! Mine!', 'Bawk! Too fast!', 'Sparkle toot~ ✨']],
@@ -580,7 +581,7 @@ function renderHint() {
   hint.innerHTML = `<span class="hint-label">${t('cardAnimals')}</span><span class="hint-chips">${KEYS.map(k => `<span class="chip${r[k] === 5 ? ' five' : ''}">${ANI[k].e} ${r[k]}</span>`).join('')}</span>`;
 }
 function renderRivals() {
-  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="rival" id="rv${i}"><div class="player-id"><span class="seat-role">CPU</span><span class="av">${r.e}</span></div><div class="nm">${t(r.k)}</div><div class="sc"><span class="score-label">🃏</span><span class="score-num" id="rs${i}">${scores[i + 1]}</span></div></div>`).join('');
+  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="score-cell rival" id="rv${i}"><span class="score-cell-label"><span class="score-avatar">${r.e}</span><span class="score-role">CPU</span></span><b class="score-num" id="rs${i}">${scores[i + 1]}</b></div>`).join('');
   $('hands').innerHTML = RIVALS.map((r, i) => `<div class="hand" id="hand${i}">🫳</div>`).join('');
 }
 function buildMpBells() {
@@ -594,8 +595,10 @@ function buildMpBells() {
 }
 function updateLeaderStyles() {
   if (mode === 'solo') {
-    const best = Math.max(...scores); $('myScore').classList.toggle('leader', scores[0] === best);
-    RIVALS.forEach((r, i) => { const e = $('rv' + i); if (e) e.classList.toggle('leader', scores[i + 1] === best); });
+    const best = Math.max(...scores), leaders = scores.filter(x => x === best).length, leader = leaders === 1 ? scores.indexOf(best) : -1;
+    $('myRank').textContent = scores[0] < best ? t('scoreBehind', { n: best - scores[0] }) : t('scoreLead');
+    $('myScore').classList.toggle('leader', leader === 0);
+    RIVALS.forEach((r, i) => { const e = $('rv' + i); if (e) e.classList.toggle('leader', leader === i + 1); });
   } else {
     const best = Math.max(...scores.slice(0, nPlayers));
     for (let i = 0; i < nPlayers; i++) $('mb' + i).classList.toggle('leader', scores[i] === best);
@@ -671,22 +674,20 @@ function resolveWin(seat, isRival) {   // seat: 플레이어 자리(0~3). 솔로
     const ri = seat - 1, rv = RIVALS[ri], av = $('rv' + ri);
     target = center(av); av.classList.remove('win'); void av.offsetWidth; av.classList.add('win');
     snd.bell(0.4); snd.fart(0.3, 0, 0.45, 0.05); handP[ri] = 1;
-    float(T.rivalWin[L()][ri], target[0], target[1] + 95, 'bad');
-    toast(t('slow', { e: rv.e, ms }));
+    toast(T.rivalWin[L()][ri] + ' · ' + t('slow', { e: rv.e, ms }), 1500);
     streak = 0; log('rival_win', { who: rv.k, ms, cards, pts });
   } else {
     bellHit(seat); const b = bellEl(seat); target = center(b);
     snd.bell(0.55); snd.fart(0.75, 62, 0.75, 0.06); snd.fart(0.3, 0, 0.4, 0.5);
     hits++; lastRx = ms; if (!bestRxRound || ms < bestRxRound) bestRxRound = ms;
     const [bx, by] = mode === 'solo' ? center($('arena')) : target;
-    float(`⚡ ${ms}ms`, bx, by, 'big');
-    float(t('cards', { n: pts }) + (fever ? ' 🔥x2' : ''), target[0], target[1] - 70);
     if (mode === 'solo') {
-      $('rxTxt').textContent = ms + 'ms'; float(t('myWin'), bx, by - 70);
+      $('rxTxt').textContent = ms + 'ms';
       streak++; rivalBase = Math.max(330, rivalBase * 0.93);
       if (hits % 3 === 0) setTimeout(() => toast(t('faster')), 700);
       if (streak >= 3 && !fever) startFever();
     }
+    toast(t('myWin') + ' ' + t('cards', { n: pts }) + (fever ? ' 🔥x2' : '') + ' · ' + ms + 'ms', 1500);
     stage.classList.remove('shake'); void stage.offsetWidth; stage.classList.add('shake');
     log('win', { seat, ms, cards, pts, fever });
   }
@@ -699,7 +700,6 @@ function wrongTap(seat) {
   const kind = trap ? trap.kind : 'plain';
   if (kind === 'burp') { snd.burp(); toast(t('burp')); } else { snd.buzz(); toast(kind === 'decoy' ? t('decoy') : t('wrong')); }
   if (trap) bust(trap.a);
-  const [x, y] = center(b); float('-2', x, y - 60, 'bad');
   if (seat === 0) streak = 0;
   updateScores(); log('wrong', { seat, kind });
 }
@@ -711,7 +711,6 @@ function rivalFooled(ri) {
   av.classList.remove('fool'); void av.offsetWidth; av.classList.add('fool'); handP[ri] = 1;
   snd.bell(0.25); trap && trap.kind === 'burp' ? snd.burp() : snd.buzz(); toast(t('fooled', { e: rv.e }));
   if (trap) bust(trap.a);
-  const [x, y] = center(av); float('-2', x, y + 75, 'bad');
   updateScores(); log('rival_fooled', { who: rv.k });
 }
 function startFever() {
@@ -864,7 +863,7 @@ function applyLang() {
   document.title = lang === 'ko' ? '뿡 벨 🔔💨 | 나두게임즈' : 'Toot Bell 🔔💨 | Nadoo Games';
   $('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderBest(); renderOwners();
-  if (state !== 'title') { RIVALS.forEach((r, i) => { const n = document.querySelector('#rv' + i + ' .nm'); if (n) n.textContent = t(r.k); }); for (let p = 0; p < 4; p++) renderPile(p); renderHint(); }
+  if (state !== 'title') { RIVALS.forEach((r, i) => { const n = document.querySelector('#rv' + i + ' .nm'); if (n) n.textContent = t(r.k); }); for (let p = 0; p < 4; p++) renderPile(p); renderHint(); updateLeaderStyles(); }
 }
 uiTap($('langBtn'), () => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.tick(); });
 const ui = fn => () => { snd.init(); fn(); };
