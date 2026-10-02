@@ -10,7 +10,8 @@
     var pos = [[0, 4], [0, 4]], goal = [0, 0];
     pos[bottom] = [8, 4]; goal[bottom] = 0; pos[1 - bottom] = [0, 4]; goal[1 - bottom] = 8;
     var h = [], v = []; for (var i = 0; i < 64; i++) { h.push(0); v.push(0); }
-    return { pos: pos, goal: goal, walls: [10, 10], h: h, v: v, turn: 0, last: null, win: null };
+    var wo = []; for (i = 0; i < 128; i++) wo.push(0);
+    return { pos: pos, goal: goal, walls: [10, 10], h: h, v: v, wo: wo, turn: 0, last: null, win: null }; // wo: 벽 주인(0 없음, 선수+1), 가로 0..63 · 세로 64..127
   }
   function hW(h, r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8 && h[r * 8 + c] === 1; }
   // (r,c)에서 (dr,dc) 방향 한 칸 이동이 벽/판 끝에 막혔나
@@ -91,9 +92,9 @@
     return (mv.t === 'h' || mv.t === 'v') && wallLegal(s, mv.t, mv.r, mv.c);
   }
   function play(s, mv) {
-    var n = { pos: [s.pos[0].slice(), s.pos[1].slice()], goal: s.goal.slice(), walls: s.walls.slice(), h: s.h.slice(), v: s.v.slice(), turn: 1 - s.turn, last: { by: s.turn, mv: mv }, win: null };
+    var n = { pos: [s.pos[0].slice(), s.pos[1].slice()], goal: s.goal.slice(), walls: s.walls.slice(), h: s.h.slice(), v: s.v.slice(), wo: (s.wo || []).slice(), turn: 1 - s.turn, last: { by: s.turn, mv: mv }, win: null };
     if (mv.t === 'm') { n.pos[s.turn] = [mv.r, mv.c]; if (mv.r === s.goal[s.turn]) { n.win = { winner: s.turn }; n.turn = s.turn; } }
-    else { (mv.t === 'h' ? n.h : n.v)[mv.r * 8 + mv.c] = 1; n.walls[s.turn]--; }
+    else { (mv.t === 'h' ? n.h : n.v)[mv.r * 8 + mv.c] = 1; n.wo[(mv.t === 'h' ? 0 : 64) + mv.r * 8 + mv.c] = s.turn + 1; n.walls[s.turn]--; }
     return n;
   }
   function over(s) { return s.win; }

@@ -106,8 +106,8 @@
     (d.stars || []).forEach(function (p) { s += '<circle cx="' + X(p[1]) + '" cy="' + Y(p[0]) + '" r="' + (line ? 2.6 : 3) + '" fill="' + lc + '"/>'; });
     if (d.line) { var a = d.line[0], b = d.line[1]; s += '<line x1="' + X(a[1]) + '" y1="' + Y(a[0]) + '" x2="' + X(b[1]) + '" y2="' + Y(b[0]) + '" stroke="#ff3b3b" stroke-width="' + (cell * 0.35) + '" stroke-linecap="round" opacity=".45"/>'; }
     (d.walls || []).forEach(function (w) {
-      if (w[2] === 'h') s += '<rect class="wall" x="' + (pad + w[1] * cell + 2) + '" y="' + (pad + (w[0] + 1) * cell - 3) + '" width="' + (2 * cell - 4) + '" height="6" rx="2" fill="#8b4513" stroke="#3b1d00"/>';
-      else s += '<rect class="wall" x="' + (pad + (w[1] + 1) * cell - 3) + '" y="' + (pad + w[0] * cell + 2) + '" width="6" height="' + (2 * cell - 4) + '" rx="2" fill="#8b4513" stroke="#3b1d00"/>';
+      if (w[2] === 'h') s += '<rect class="wall" x="' + (pad + w[1] * cell + 2) + '" y="' + (pad + (w[0] + 1) * cell - 4) + '" width="' + (2 * cell - 4) + '" height="8" rx="3" fill="#e8452c" stroke="#fff" stroke-width="1.5" style="filter:drop-shadow(0 1px 1.2px rgba(0,0,0,.55))"/>';
+      else s += '<rect class="wall" x="' + (pad + (w[1] + 1) * cell - 4) + '" y="' + (pad + w[0] * cell + 2) + '" width="8" height="' + (2 * cell - 4) + '" rx="3" fill="#e8452c" stroke="#fff" stroke-width="1.5" style="filter:drop-shadow(0 1px 1.2px rgba(0,0,0,.55))"/>';
     });
     var R = cell * 0.43;
     (d.stones || []).forEach(function (p) {
