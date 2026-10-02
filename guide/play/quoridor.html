@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>쿼리도 PC 대국 | 나두게임즈</title>
+<meta name="description" content="쿼리도 2인 컴퓨터와 한 판: 초급·중급·고급 AI, 벽 10개씩, 길 막기 금지 자동 확인, 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/quoridor.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var C = 44, P = 12, S = P * 2 + C * 9, R = NadooRules.quoridor, mode = 'm', ghost = null;
+  function wallRect(t, r, c, fill, extra) {
+    if (t === 'h') return '<rect' + (extra || '') + ' x="' + (P + c * C + 3) + '" y="' + (P + (r + 1) * C - 4) + '" width="' + (2 * C - 6) + '" height="8" rx="3" fill="' + fill + '" stroke="#3b1d00"/>';
+    return '<rect' + (extra || '') + ' x="' + (P + (c + 1) * C - 4) + '" y="' + (P + r * C + 3) + '" width="8" height="' + (2 * C - 6) + '" rx="3" fill="' + fill + '" stroke="#3b1d00"/>';
+  }
+  var modeBtns;
+  NadooPlay.start({
+    id: 'quoridor',
+    text: {
+      title: ['쿼리도', 'Quoridor'], sub: ['2인 · 9×9 · 벽 10개씩', '2 players · 9×9 · 10 walls each'],
+      side0: ['내가 먼저', 'I go first'], side1: ['컴퓨터 먼저', 'Computer first'],
+      rulesNote: ['규칙(가이드와 같음): 차례마다 ① 말을 가로·세로 1칸 이동 또는 ② 벽 1개 놓기. 빨간 내 말(아래)은 맨 위 줄, 파란 컴퓨터 말은 맨 아래 줄에 먼저 닿으면 승리. 바로 앞 상대 말은 뛰어넘고, 뒤가 막혔으면 대각선 옆으로. 벽은 겹치거나 십자로 놓을 수 없고, 누구의 길도 완전히 막을 수 없어요(자동 확인). 벽 놓기: 가로/세로 벽을 고르고 홈의 교차점을 누르면 미리보기 → 같은 곳을 한 번 더 누르면 놓아요.',
+        'Rules (same as the guide): each turn either move your pawn 1 step or place 1 wall. Your red pawn (bottom) wins at the top row; the blue computer pawn at the bottom row. Jump an adjacent pawn; if blocked behind, step diagonally. Walls cannot overlap or cross and may never cut off anyone\'s path (checked automatically). To place a wall: pick horizontal/vertical, tap a groove crossing to preview, tap the same spot again to place.'],
+      mMove: ['🚶 말 이동', '🚶 Move'], mH: ['➖ 가로 벽', '➖ Horizontal wall'], mV: ['❙ 세로 벽', '❙ Vertical wall'],
+      walls: ['남은 벽', 'Walls left'], steps: ['목표까지', 'Steps to goal'], bad: ['거기엔 벽을 놓을 수 없어요 (겹침·십자·길 막힘)', 'You cannot place a wall there (overlap, cross or blocks a path)'],
+      again: ['같은 곳을 한 번 더 누르면 벽을 놓아요', 'Tap the same spot again to place the wall'], noWalls: ['벽을 다 썼어요', 'No walls left']
+    },
+    extraControls: function (el, api) {
+      el.innerHTML = '<div class="seg" role="group" style="justify-content:center">' + [['m', 'mMove'], ['h', 'mH'], ['v', 'mV']].map(function (x) {
+        return '<button type="button" data-m="' + x[0] + '" aria-pressed="' + (mode === x[0]) + '">' + api.esc(api.t(x[1])) + '</button>';
+      }).join('') + '</div>';
+      modeBtns = el.querySelectorAll('button');
+      Array.prototype.forEach.call(modeBtns, function (b) {
+        b.addEventListener('click', function () { mode = b.getAttribute('data-m'); ghost = null; Array.prototype.forEach.call(modeBtns, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); api.redraw(); });
+      });
+    },
+    info: function (s, api, cur) {
+      var me = cur.human, pc = 1 - me, d = function (p) { return R.dist(s.h, s.v, s.pos[p][0], s.pos[p][1], s.goal[p]); };
+      return api.esc(api.t('walls')) + ': ' + api.esc(api.t('me')) + ' <b>' + s.walls[me] + '</b> · ' + api.esc(api.t('pc')) + ' <b>' + s.walls[pc] + '</b><br>' +
+        api.esc(api.t('steps')) + ': ' + api.esc(api.t('me')) + ' <b>' + d(me) + '</b> · ' + api.esc(api.t('pc')) + ' <b>' + d(pc) + '</b>';
+    },
+    render: function (el, s, ctx, api) {
+      var me = ctx.human, h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="quoridor board">';
+      h += '<rect x="0" y="0" width="' + S + '" height="' + S + '" rx="12" fill="#7a5230"/>';
+      for (var r = 0; r < 9; r++) for (var c = 0; c < 9; c++) {
+        var goalRow = r === s.goal[me] ? '#f3c9c4' : (r === s.goal[1 - me] ? '#c9daf3' : '#d9b38c');
+        h += '<rect x="' + (P + c * C + 3) + '" y="' + (P + r * C + 3) + '" width="' + (C - 6) + '" height="' + (C - 6) + '" rx="5" fill="' + goalRow + '"/>';
+      }
+      for (var i = 0; i < 64; i++) { if (s.h[i]) h += wallRect('h', i >> 3, i & 7, '#8b4513'); if (s.v[i]) h += wallRect('v', i >> 3, i & 7, '#8b4513'); }
+      if (s.last && s.last.mv.t !== 'm') h += wallRect(s.last.mv.t, s.last.mv.r, s.last.mv.c, 'none', ' stroke-width="3" style="stroke:#ffd32a"');
+      [[me, '#e0453d', api.t('me')], [1 - me, '#3d7be0', 'PC']].forEach(function (x) {
+        var p = s.pos[x[0]], cx = P + p[1] * C + C / 2, cy = P + p[0] * C + C / 2;
+        h += '<circle class="stone" cx="' + cx + '" cy="' + cy + '" r="' + (C * 0.36) + '" fill="' + x[1] + '" stroke="#111" stroke-width="1.5"/>';
+        h += '<text x="' + cx + '" y="' + (cy + 5) + '" font-size="' + (x[2].length > 2 ? 10 : 14) + '" text-anchor="middle" fill="#fff" font-weight="700">' + api.esc(x[2]) + '</text>';
+      });
+      if (ctx.myTurn && mode === 'm') R.pawnMoves(s, me).forEach(function (m) {
+        if (ctx.hints) h += '<circle class="hint" cx="' + (P + m.c * C + C / 2) + '" cy="' + (P + m.r * C + C / 2) + '" r="8" fill="#ffd32a" stroke="#2d1b00"/>';
+      });
+      if (ghost) h += wallRect(ghost.t, ghost.r, ghost.c, ghost.ok ? 'rgba(46,204,113,.85)' : 'rgba(231,76,60,.8)');
+      h += '</svg>';
+      el.innerHTML = h;
+      var svg = el.firstChild;
+      svg.addEventListener('click', function (ev) {
+        if (!ctx.myTurn) return;
+        var p = NadooPlay.pt(svg, ev);
+        if (mode === 'm') {
+          var c = Math.floor((p.x - P) / C), r = Math.floor((p.y - P) / C);
+          if (r >= 0 && r < 9 && c >= 0 && c < 9) api.move({ t: 'm', r: r, c: c });
+          return;
+        }
+        if (s.walls[me] <= 0) { api.say(api.t('noWalls')); return; }
+        var gi = Math.min(8, Math.max(1, Math.round((p.y - P) / C))), gj = Math.min(8, Math.max(1, Math.round((p.x - P) / C)));
+        var w = { t: mode, r: gi - 1, c: gj - 1 };
+        if (ghost && ghost.t === w.t && ghost.r === w.r && ghost.c === w.c && ghost.ok) { ghost = null; api.move(w); return; }
+        w.ok = R.legal(s, w); ghost = w;
+        api.say(w.ok ? api.t('again') : api.t('bad'));
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

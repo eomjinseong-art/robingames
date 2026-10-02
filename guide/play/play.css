@@ -1,0 +1,19 @@
+/* 나두 PC 대국 공용 스타일 (guide.css 위에 덧붙임) */
+.seg { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 4px 0; }
+.seg .lab { font-size: 14px; color: var(--soft); min-width: 58px; }
+.seg button { font-family: inherit; font-size: 15px; color: var(--ink); background: #fff; border: 3px solid var(--ink); border-radius: 12px; padding: 4px 12px; min-height: 40px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--pink); box-shadow: 0 3px 0 var(--ink); }
+.status { font-size: 18px; font-weight: 700; text-align: center; min-height: 30px; word-break: keep-all; }
+.status.win { color: #1e8449; } .status.lose { color: #c0392b; }
+.boardwrap { display: flex; justify-content: center; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.boardwrap svg { width: 100%; max-width: 560px; height: auto; display: block; }
+.boardwrap svg .hit { cursor: pointer; }
+.info { text-align: center; font-size: 15px; }
+.actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.stats { font-size: 14px; color: var(--soft); text-align: center; }
+.thinking { animation: blink 1s infinite; } @keyframes blink { 50% { opacity: .45; } }
+.badge.pc { background: #ffe58a; }
+#playApp .hero { padding: 8px 12px; }
+#playApp .hero h1 { font-size: 22px; }
+#playApp .hero h1 small { font-size: 13px; }
+#playApp .panel { padding: 10px 12px; }

@@ -6,6 +6,9 @@
  },
  "emoji": "🔘",
  "intro": "끼우면 뒤집힌다! 규칙은 한 줄이지만 마지막 한 수로 판이 뒤집히는 게임이에요.",
+ "play": {
+  "url": "/guide/play/othello.html"
+ },
  "glance": {
   "players": "2명",
   "time": "한 판 20~40분",

@@ -6,6 +6,9 @@
  },
  "emoji": "🫘",
  "intro": "씨앗을 한 개씩 뿌리며 계산하는 게임. 덧셈·뺄셈 연습에도 좋아요. 여기서는 가장 많이 쓰는 '칼라(Kalah)' 규칙으로 설명해요.",
+ "play": {
+  "url": "/guide/play/mancala.html"
+ },
  "glance": {
   "players": "2명",
   "time": "한 판 10~20분",

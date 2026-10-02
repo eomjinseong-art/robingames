@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>오델로 PC 대국 | 나두게임즈</title>
+<meta name="description" content="오델로(리버시) 컴퓨터와 한 판: 초급·중급·고급 AI, 흑/백 선택, 둘 곳 표시, 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/othello.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var C = 46, P = 22, S = P + C * 8 + 10, R = NadooRules.othello, L = 'abcdefgh';
+  NadooPlay.start({
+    id: 'othello',
+    text: {
+      title: ['오델로', 'Othello'], sub: ['8×8 · 리버시', '8×8 · Reversi'],
+      side0: ['먼저 두기 (흑 ●)', 'Go first (Black ●)'], side1: ['나중 두기 (백 ○)', 'Go second (White ○)'],
+      rulesNote: ['규칙: 흑부터. 상대 돌을 내 돌 사이에 끼우는 자리에만 둘 수 있고, 끼인 돌은 모두 뒤집어요. 둘 곳이 없으면 자동으로 패스, 둘 다 없으면 끝나고 돌이 많은 쪽이 이겨요.',
+        'Rules: Black first. You must sandwich opponent discs; all sandwiched discs flip. No legal move = automatic pass. When neither can move, most discs wins.']
+    },
+    info: function (s, api, cur) {
+      var c = R.count(s.b), me = cur.human === 0 ? c[0] : c[1], pc = cur.human === 0 ? c[1] : c[0];
+      return api.esc(api.t('me')) + ' ' + (cur.human === 0 ? '●' : '○') + ' <b>' + me + '</b> : <b>' + pc + '</b> ' + (cur.human === 0 ? '○' : '●') + ' ' + api.esc(api.t('pc'));
+    },
+    note: function (s, api, cur) {
+      if (!s.passed || s.win) return '';
+      return s.turn === cur.human ? api.t('pcPass') : api.t('mePass');
+    },
+    render: function (el, s, ctx, api) {
+      var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="othello board">';
+      h += '<rect x="0" y="0" width="' + S + '" height="' + S + '" rx="12" fill="#2f8f5b"/>';
+      for (var i = 0; i <= 8; i++) {
+        h += '<line x1="' + P + '" y1="' + (P + i * C) + '" x2="' + (P + 8 * C) + '" y2="' + (P + i * C) + '" stroke="#14502f" stroke-width="1.5"/>';
+        h += '<line x1="' + (P + i * C) + '" y1="' + P + '" x2="' + (P + i * C) + '" y2="' + (P + 8 * C) + '" stroke="#14502f" stroke-width="1.5"/>';
+      }
+      for (i = 0; i < 8; i++) {
+        h += '<text x="' + (P + i * C + C / 2) + '" y="15" font-size="12" text-anchor="middle" fill="#fff">' + L[i] + '</text>';
+        h += '<text x="10" y="' + (P + i * C + C / 2 + 4) + '" font-size="12" text-anchor="middle" fill="#fff">' + (i + 1) + '</text>';
+      }
+      var fl = {}; (s.flips || []).forEach(function (k) { fl[k] = 1; });
+      for (var k = 0; k < 64; k++) {
+        var v = s.b[k], x = P + (k & 7) * C + C / 2, y = P + (k >> 3) * C + C / 2;
+        if (v) h += '<circle class="stone" cx="' + x + '" cy="' + y + '" r="' + (C * 0.4) + '" fill="' + (v === 1 ? '#1b1b1b' : '#fafafa') + '" stroke="#111" stroke-width="1.2"/>';
+        if (fl[k]) h += '<circle cx="' + x + '" cy="' + y + '" r="' + (C * 0.16) + '" fill="none" stroke="#ff9f43" stroke-width="2.5"/>';
+      }
+      if (s.last >= 0) h += '<rect x="' + (P + (s.last & 7) * C + 3) + '" y="' + (P + (s.last >> 3) * C + 3) + '" width="' + (C - 6) + '" height="' + (C - 6) + '" fill="none" stroke="#ff3b3b" stroke-width="3" rx="4"/>';
+      if (ctx.hints && ctx.myTurn) R.moves(s).forEach(function (m) { h += '<circle class="hint" cx="' + (P + (m & 7) * C + C / 2) + '" cy="' + (P + (m >> 3) * C + C / 2) + '" r="' + (C * 0.14) + '" fill="#ffd32a" stroke="#2d1b00" stroke-width="1"/>'; });
+      h += '</svg>';
+      el.innerHTML = h;
+      var svg = el.firstChild;
+      svg.addEventListener('click', function (ev) {
+        var p = NadooPlay.pt(svg, ev), c = Math.floor((p.x - P) / C), r = Math.floor((p.y - P) / C);
+        if (r < 0 || r > 7 || c < 0 || c > 7) return;
+        api.move(r * 8 + c);
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

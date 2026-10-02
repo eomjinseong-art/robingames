@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>만칼라 PC 대국 | 나두게임즈</title>
+<meta name="description" content="만칼라(칼라 규칙) 컴퓨터와 한 판: 초급·중급·고급 AI, 한 번 더·잡기 규칙, 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/mancala.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var cw = 56, W = cw * 8 + 20, H = 200;
+  // 화면 자리 → 배열 번호. 아래 줄 = 나, 오른쪽 집 = 내 집
+  function layout(h) { // h = 사람 선수 번호
+    var me = h * 7, pc = (1 - h) * 7, top = [];
+    for (var i = 0; i < 6; i++) top.push(pc + 5 - i);
+    return { bottom: [me, me + 1, me + 2, me + 3, me + 4, me + 5], top: top, R: me + 6, L: pc + 6 };
+  }
+  function seeds(cx, cy, n, rad) {
+    var o = '', m = Math.min(n, 14);
+    for (var i = 0; i < m; i++) { var a = i * 2.399, rr = rad * 0.6 * Math.sqrt((i + 0.5) / Math.max(m, 1)); o += '<circle cx="' + (cx + rr * Math.cos(a)).toFixed(1) + '" cy="' + (cy + rr * Math.sin(a)).toFixed(1) + '" r="3.4" fill="' + ['#6ab04c', '#e056fd', '#f0932b', '#22a6b3'][i % 4] + '" opacity=".9"/>'; }
+    return o;
+  }
+  NadooPlay.start({
+    id: 'mancala',
+    text: {
+      title: ['만칼라', 'Mancala'], sub: ['칼라 규칙 · 6구멍 × 4개', 'Kalah · 6 pits × 4 seeds'],
+      side0: ['내가 먼저', 'I go first'], side1: ['컴퓨터 먼저', 'Computer first'],
+      rulesNote: ['규칙(가이드와 같음): 내 줄(아래) 구멍 하나를 눌러 씨앗을 시계 반대 방향(→)으로 한 개씩 뿌려요. 상대 집은 건너뛰고, 마지막 씨앗이 내 집(오른쪽)에 들어가면 한 번 더! 마지막 씨앗이 내 쪽 빈 구멍에 떨어지고 맞은편에 씨앗이 있으면 둘 다 내 집으로(잡기). 한쪽 줄이 다 비면 끝, 남은 씨앗은 그 줄 주인 집으로.',
+        'Rules (same as the guide): tap one of your pits (bottom row) to sow counter-clockwise (→). Skip the opponent\'s store. Last seed in your store (right) = extra turn. Last seed in your own empty pit with seeds opposite = capture both. When one row is empty the game ends; remaining seeds go to that row\'s owner.']
+    },
+    info: function (s, api, cur) {
+      var L = layout(cur.human);
+      return api.esc(api.t('me')) + ' <b>' + s.p[L.R] + '</b> : <b>' + s.p[L.L] + '</b> ' + api.esc(api.t('pc'));
+    },
+    note: function (s, api, cur) {
+      if (!s.last || s.win) return '';
+      var me = s.last.by === cur.human, out = [];
+      if (s.cap) out.push(me ? api.t('meCap') : api.t('pcCap'));
+      if (s.extra) out.push(me ? api.t('meExtra') : api.t('pcExtra'));
+      return out.join(' ');
+    },
+    render: function (el, s, ctx, api) {
+      var L = layout(ctx.human), legal = {}, hl = {};
+      if (ctx.myTurn) NadooRules.mancala.moves(s).forEach(function (m) { legal[ctx.human * 7 + m] = 1; });
+      if (s.last) { (s.last.path || []).forEach(function (i) { hl[i] = 1; }); }
+      var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="mancala board">';
+      h += '<rect x="2" y="18" width="' + (W - 4) + '" height="' + (H - 36) + '" rx="40" fill="#c98b4a" stroke="#5a3a10" stroke-width="3"/>';
+      function pit(idx, cx, cy, store) {
+        var stroke = s.last && s.last.pit === idx ? '#e74c3c' : (s.cap && s.cap.indexOf(idx) >= 0 ? '#8e44ad' : (hl[idx] ? '#ffd32a' : '#5a3a10'));
+        var sw = stroke === '#5a3a10' ? 2 : 4, o = '', n = s.p[idx], canTap = legal[idx];
+        if (store) o += '<rect x="' + (cx - 22) + '" y="' + (cy - 60) + '" width="44" height="120" rx="22" fill="#8a5a2b" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+        else o += '<circle cx="' + cx + '" cy="' + cy + '" r="23" fill="#8a5a2b" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+        if (canTap && ctx.hints) o += '<circle class="hint" cx="' + cx + '" cy="' + cy + '" r="27" fill="none" stroke="#7bed9f" stroke-width="3" stroke-dasharray="5 3"/>';
+        o += seeds(cx, cy, n, 22);
+        o += '<text x="' + cx + '" y="' + (cy + 7) + '" font-size="19" font-weight="700" text-anchor="middle" fill="#fff" stroke="#2d1b00" stroke-width="3" paint-order="stroke">' + n + '</text>';
+        if (canTap) o += '<circle class="hit" data-i="' + (idx % 7) + '" cx="' + cx + '" cy="' + cy + '" r="27" fill="transparent"/>';
+        return o;
+      }
+      h += pit(L.L, 10 + cw / 2, H / 2, true) + pit(L.R, 10 + cw * 7.5, H / 2, true);
+      for (var i = 0; i < 6; i++) { h += pit(L.top[i], 10 + cw * (i + 1.5), 58, false); h += pit(L.bottom[i], 10 + cw * (i + 1.5), H - 58, false); }
+      h += '<text x="' + (W / 2) + '" y="13" font-size="13" text-anchor="middle" fill="#2d1b00">' + api.esc(api.t('topLab')) + '</text>';
+      h += '<text x="' + (W / 2) + '" y="' + (H - 3) + '" font-size="13" text-anchor="middle" fill="#2d1b00">' + api.esc(api.t('botLab')) + '</text>';
+      h += '<text x="' + (10 + cw / 2) + '" y="' + (H / 2 + 76) + '" font-size="12" text-anchor="middle" fill="#2d1b00">' + api.esc(api.t('pcStore')) + '</text>';
+      h += '<text x="' + (10 + cw * 7.5) + '" y="' + (H / 2 + 76) + '" font-size="12" text-anchor="middle" fill="#2d1b00">' + api.esc(api.t('myStore')) + '</text>';
+      h += '</svg>';
+      el.innerHTML = h;
+      Array.prototype.forEach.call(el.querySelectorAll('.hit'), function (c) { c.addEventListener('click', function () { api.move(+c.getAttribute('data-i')); }); });
+    }
+  });
+})();
+</script>
+</body>
+</html>
