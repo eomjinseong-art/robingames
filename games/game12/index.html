@@ -12,10 +12,30 @@
 <meta property="og:url" content="https://robingames.vercel.app/games/game12/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌨️</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Fonts: Special Elite (Apache License 2.0), Nanum Gothic Coding (SIL Open Font License 1.1) — both free for commercial use -->
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<!-- Self-hosted fonts: Special Elite (Apache License 2.0), Nanum Gothic Coding (SIL Open Font License 1.1). -->
+<style>
+  @font-face {
+    font-family: 'Special Elite';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url('./fonts/special-elite.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Nanum Gothic Coding';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url('./fonts/nanum-gothic-coding-400.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Nanum Gothic Coding';
+    font-style: normal;
+    font-weight: 700;
+    font-display: block;
+    src: url('./fonts/nanum-gothic-coding-700.woff2') format('woff2');
+  }
+</style>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
   html, body { height: 100%; overflow: hidden; }
@@ -85,14 +105,14 @@
   #line span.cur::before { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 3px; background: #d33; animation: blink .8s steps(2) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
   @keyframes stamp { from { transform: scale(1.5) translateY(-4px); } to { transform: scale(1); } }
-  #ding { position: absolute; right: 12px; top: 6px; font-size: 26px; color: #d33; font-weight: 900; display: none; font-family: 'Special Elite', monospace; }
+  #ding { position: absolute; right: 12px; top: 6px; font-size: 26px; color: #d33; font-weight: 900; display: none; font-family: 'Special Elite', 'Nanum Gothic Coding', monospace; }
   #ding.show { display: block; animation: popd .6s ease-out forwards; }
   @keyframes popd { 0% { scale: .5; opacity: 1; } 40% { scale: 1.4; } 100% { opacity: 0; translate: 0 -20px; } }
-  #inp { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0.01; font-size: 16px; color: transparent; caret-color: transparent; background: transparent; border: none; outline: none; z-index: 3; -webkit-user-select: text; user-select: text; }
+  #inp { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0.01; font-family: 'Special Elite', 'Nanum Gothic Coding', monospace; font-size: 16px; color: transparent; caret-color: transparent; background: transparent; border: none; outline: none; z-index: 3; -webkit-user-select: text; user-select: text; }
   #tapHint { text-align: center; color: #ffe9c2; font-size: 14px; flex: none; }
   #letter { position: absolute; inset: 0; padding: calc(max(8px, env(safe-area-inset-top)) + 54px) 10px 10px; display: none; flex-direction: column; gap: 8px; z-index: 5; }
   #letter.on { display: flex; }
-  #ltxt { flex: 1; min-height: 160px; width: 100%; resize: none; border: 3px solid #2a1a10; border-radius: 10px; padding: 18px 20px; font-size: 20px; line-height: 1.6; color: #2a2320; outline: none; background: #efdcb4; background-image: radial-gradient(ellipse at 50% 40%, rgba(255,250,235,.7), rgba(180,140,80,.35) 100%); box-shadow: inset 0 0 40px rgba(120,80,30,.35); -webkit-user-select: text; user-select: text; touch-action: manipulation; }
+  #ltxt { flex: 1; min-height: 160px; width: 100%; resize: none; border: 3px solid #2a1a10; border-radius: 10px; padding: 18px 20px; font-family: 'Special Elite', 'Nanum Gothic Coding', monospace; font-size: 20px; line-height: 1.6; color: #2a2320; outline: none; background: #efdcb4; background-image: radial-gradient(ellipse at 50% 40%, rgba(255,250,235,.7), rgba(180,140,80,.35) 100%); box-shadow: inset 0 0 40px rgba(120,80,30,.35); -webkit-user-select: text; user-select: text; touch-action: manipulation; }
   #lbtns { display: flex; gap: 6px; flex: none; } #lbtns .big-btn { margin-top: 0; font-size: 17px; padding: 9px 0; }
   .langpick { display: flex; gap: 8px; margin-top: 8px; }
   .langpick button { flex: 1; font-family: inherit; font-size: 18px; padding: 8px 0; border-radius: 14px; border: 3px solid #3b2352; background: #fff; cursor: pointer; touch-action: manipulation; }
@@ -165,6 +185,11 @@
 (() => {
 'use strict';
 const MUTE_KEY = 'tootType_mute', SAVE_KEY = 'tootType_v1';
+const typewriterFontsReady = document.fonts ? Promise.all([
+  document.fonts.load('400 46px \"Special Elite\"'),
+  document.fonts.load('400 46px \"Nanum Gothic Coding\"'),
+  document.fonts.load('700 46px \"Nanum Gothic Coding\"')
+]).then(() => document.fonts.ready) : Promise.resolve();
 const MUSIC_PROG = [[0, 4, 7], [-3, 0, 4], [5, 9, 12], [7, 11, 14]];
 const MUSIC_MEL = [7, null, null, 9, null, null, 7, null, 4, null, null, null, 2, null, 4, null, 5, null, null, 7, null, null, 9, null, 7, null, null, null, null, null, null, null];
 const T = {
@@ -433,7 +458,8 @@ inp.addEventListener('input', e => {
 inp.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
 $('paper').addEventListener('pointerdown', () => { if (state === 'play') setTimeout(() => inp.focus(), 0); });
 
-function startRace() {
+async function startRace() {
+  await typewriterFontsReady;
   mode = 'race'; state = 'play'; timeLeft = ROUND; started = false; units = 0; okChars = 0; badChars = 0; lines = 0; bag = [];
   $('prev').innerHTML = ''; $('game').classList.add('on'); $('letter').classList.remove('on'); show(null);
   $('sSpeedL').textContent = tl === 'ko' ? t('spdKo') : t('spdEn');
@@ -468,7 +494,8 @@ function endRace() {
 /* ===== 편지 ===== */
 const ltxt = $('ltxt');
 let lineDinged = false;
-function startLetter() {
+async function startLetter() {
+  await typewriterFontsReady;
   mode = 'letter'; state = 'letter'; $('game').classList.remove('on'); $('letter').classList.add('on'); show(null);
   ltxt.className = 'tw' + (tl === 'ko' ? ' ko' : ''); ltxt.placeholder = t('letterPh');
   $('pauseBtn').style.visibility = 'hidden';
@@ -483,7 +510,7 @@ ltxt.addEventListener('input', e => {
 });
 async function savePng() {
   const text = ltxt.value.trim(); if (!text) { toast(t('empty')); return; }
-  try { await Promise.all([document.fonts.load('46px "Special Elite"'), document.fonts.load('bold 46px "Nanum Gothic Coding"')]); } catch (e) {}
+  await typewriterFontsReady;
   const W = 1080, H = 1440, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
   // 낡은 종이
   x.fillStyle = '#f1dfb8'; x.fillRect(0, 0, W, H);
