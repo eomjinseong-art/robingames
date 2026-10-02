@@ -15,11 +15,19 @@
 <div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
 <script src="/guide/play/jx.core.js"></script>
 <script src="/guide/play/janggi.rules.js"></script>
-<script src="/guide/play/jx.ui.js?v=20261002d"></script>
+<script src="/guide/play/jx.ui.js?v=20261002e"></script>
 <script src="/guide/play/play.js?v=20261002d"></script>
 <script>
 (function () {
   var R = NadooRules.janggi;
+  var GK = 'nadoo_play_janggi_glyph', glyph = 'ko';
+  try { if (localStorage.getItem(GK) === 'hanja') glyph = 'hanja'; } catch (e) {}
+  var KO = [['', '초', '사', '상', '마', '차', '포', '졸'], ['', '한', '사', '상', '마', '차', '포', '병']];
+  var HJ = [['', '楚', '士', '象', '馬', '車', '包', '卒'], ['', '漢', '士', '象', '馬', '車', '包', '兵']];
+  var HF = "'Noto Serif CJK KR','Noto Serif KR','Source Han Serif K','Noto Serif CJK TC','Noto Serif TC','Songti TC','Songti SC','AppleMyungjo','Batang','BatangChe','MingLiU','PMingLiU','SimSun','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',serif";
+  var draw = NadooJXUI({ R: R, river: false, colors: ['#1e8449', '#c0392b'],
+    labels: function () { return glyph === 'hanja' ? HJ : KO; },
+    font: function () { return glyph === 'hanja' ? HF : ''; } });
   NadooPlay.start({
     id: 'janggi',
     text: {
@@ -28,7 +36,7 @@
       rulesNote: ['규칙(가이드와 같음): 기물을 누른 다음 갈 점을 눌러요. 궁·사는 궁성 안(대각선 선 포함), 차·포·졸도 궁성 대각선을 쓸 수 있어요. 포는 꼭 하나를 넘어서 가고 잡으며, 포는 포를 넘거나 잡지 못해요. 마·상은 멱이 막히면 못 가요. 외통이면 승리. 빅장(두 궁이 사이 없이 마주 봄)을 만들면 상대는 바로 풀어야 하고, 못 풀면 점수(차13 포7 마5 상3 사3 졸2, 한 +1.5)로 승패를 정해요. 200수가 되면 점수 계산. 차림은 양쪽 마상상마로 고정했어요.',
         'Rules (same as the guide): tap a piece, then a point. General and guards stay in the palace (diagonals included); chariot, cannon and soldier can use palace diagonals too. Cannons must jump exactly one piece to move or capture and can never jump or capture cannons. Horse/elephant moves are blocked by pieces in the way. Checkmate wins. If a move makes the generals face each other (bikjang), the opponent must break it at once, otherwise the game is decided by points (chariot 13, cannon 7, horse 5, elephant 3, guard 3, soldier 2, Han +1.5). After 200 moves points decide. Setup is fixed to horse-elephant-elephant-horse.'],
       check: ['장군!', 'Check (janggun)!'], bik: ['빅장! 빅장을 풀어야 해요.', 'Bikjang! It must be broken now.'], pass: ['둘 곳이 없어 한 수 쉬어요.', 'No legal move: pass.'],
-      pts: ['점수', 'Points'], why_mate: ['외통', 'Checkmate'], why_bik: ['빅장 → 점수 계산', 'Bikjang → points'], why_limit: ['200수 → 점수 계산', '200 moves → points'], why_stuck: ['둘 곳 없음 → 점수 계산', 'No moves → points']
+      pts: ['점수', 'Points'], why_mate: ['외통', 'Checkmate'], why_bik: ['빅장 → 점수 계산', 'Bikjang → points'], why_limit: ['200수 → 점수 계산', '200 moves → points'], why_stuck: ['둘 곳 없음 → 점수 계산', 'No moves → points'], glyph: ['글자:', 'Labels:']
     },
     info: function (s, api, cur) {
       var p = R.points(s.b), me = cur.human, h = api.esc(api.t('pts')) + ': ' + api.esc(api.t('me')) + ' <b>' + p[me] + '</b> · ' + api.esc(api.t('pc')) + ' <b>' + p[1 - me] + '</b>';
@@ -38,7 +46,19 @@
       if (s.passed) h += '<br>' + api.esc(api.t('pass'));
       return h;
     },
-    render: NadooJXUI({ R: R, river: false, colors: ['#1e8449', '#c0392b'], labels: [['', '초', '사', '상', '마', '차', '포', '졸'], ['', '한', '사', '상', '마', '차', '포', '병']] })
+    render: function (el, s, ctx, api) {
+      draw(el, s, ctx, api);
+      var bar = document.getElementById('hjBar');
+      if (!bar) {
+        bar = document.createElement('div'); bar.id = 'hjBar'; bar.className = 'seg'; bar.style.cssText = 'justify-content:center;align-items:center;margin-top:8px';
+        bar.innerHTML = '<b style="margin-right:4px">' + api.esc(api.t('glyph')) + '</b><button class="btn" type="button" data-hj="ko">한글</button><button class="btn" type="button" data-hj="hanja" lang="zh-Hant" style="font-family:' + HF.replace(/"/g, '') + '">漢字</button>';
+        Array.prototype.forEach.call(bar.querySelectorAll('[data-hj]'), function (b) {
+          b.addEventListener('click', function () { glyph = b.getAttribute('data-hj'); try { localStorage.setItem(GK, glyph); } catch (e) {} api.redraw(); });
+        });
+        el.parentNode.insertBefore(bar, el.nextSibling);
+      }
+      Array.prototype.forEach.call(bar.querySelectorAll('[data-hj]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-hj') === glyph ? 'true' : 'false'); });
+    }
   });
 })();
 </script>
