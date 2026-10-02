@@ -19,14 +19,14 @@
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url('./fonts/special-elite.woff2?v=2') format('woff2');
+    src: url('./fonts/special-elite.woff2?v=3') format('woff2');
   }
   @font-face {
     font-family: 'Nadoo DOS Myungjo';
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url('./fonts/dos-myungjo.woff2?v=2') format('woff2');
+    src: url('./fonts/dos-myungjo.woff2?v=3') format('woff2');
   }
 </style>
 <style>
@@ -105,7 +105,16 @@
   #tapHint { text-align: center; color: #ffe9c2; font-size: 14px; flex: none; }
   #letter { position: absolute; inset: 0; padding: calc(max(8px, env(safe-area-inset-top)) + 54px) 10px 10px; display: none; flex-direction: column; gap: 8px; z-index: 5; }
   #letter.on { display: flex; }
-  #ltxt { flex: 1; min-height: 160px; width: 100%; resize: none; border: 3px solid #2a1a10; border-radius: 10px; padding: 18px 20px; font-family: 'Special Elite', 'Nadoo DOS Myungjo', monospace; font-size: 20px; line-height: 1.6; color: #2a2320; outline: none; background: #efdcb4; background-image: radial-gradient(ellipse at 50% 40%, rgba(255,250,235,.7), rgba(180,140,80,.35) 100%); box-shadow: inset 0 0 40px rgba(120,80,30,.35); -webkit-user-select: text; user-select: text; touch-action: manipulation; }
+  #letterPaper { position: relative; flex: 1; min-height: 160px; }
+  #ltxt { width: 100%; height: 100%; min-height: 0; resize: none; border: 3px solid #2a1a10; border-radius: 10px; padding: 18px 20px; font-family: 'Special Elite', 'Nadoo DOS Myungjo', monospace; font-size: 20px; line-height: 1.6; color: #2a2320; outline: none; background: #efdcb4; background-image: radial-gradient(ellipse at 50% 40%, rgba(255,250,235,.7), rgba(180,140,80,.35) 100%); box-shadow: inset 0 0 40px rgba(120,80,30,.35); -webkit-user-select: text; user-select: text; touch-action: manipulation; }
+  #paperDatePreview, #paperFooterPreview, #paperStampPreview { position: absolute; z-index: 2; pointer-events: none; color: rgba(42,35,32,.68); }
+  #paperDatePreview { top: 16px; right: 22px; font: 14px 'Special Elite', 'Nadoo DOS Myungjo', monospace; transform: rotate(-1deg); }
+  #paperFooterPreview { left: 20px; bottom: 14px; max-width: calc(100% - 175px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 13px 'Special Elite', 'Nadoo DOS Myungjo', monospace; }
+  #paperStampPreview { right: 24px; bottom: 44px; width: 72px; height: 72px; border: 3px solid rgba(200,32,42,.72); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; color: rgba(200,32,42,.82); font: 28px 'Special Elite', 'Nadoo DOS Myungjo', sans-serif; line-height: 1; text-align: center; white-space: nowrap; transform: rotate(-11deg); }
+  #paperStampPreview::after { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(200,32,42,.65); border-radius: 50%; }
+  #letterMeta { display: flex; gap: 6px; flex: none; }
+  #letterMeta label { flex: 1; min-width: 0; color: #ffe9c2; font-size: 12px; text-align: left; }
+  #letterMeta input { display: block; width: 100%; height: 34px; margin-top: 2px; padding: 5px 8px; border: 2px solid #2a1a10; border-radius: 8px; background: #fffaf2; color: #2a2320; font: 14px 'Special Elite', 'Nadoo DOS Myungjo', monospace; outline: none; }
   #lbtns { display: flex; gap: 6px; flex: none; } #lbtns .big-btn { margin-top: 0; font-size: 17px; padding: 9px 0; }
   .langpick { display: flex; gap: 8px; margin-top: 8px; }
   .langpick button { flex: 1; font-family: inherit; font-size: 18px; padding: 8px 0; border-radius: 14px; border: 3px solid #3b2352; background: #fff; cursor: pointer; touch-action: manipulation; }
@@ -116,7 +125,7 @@
   #overStats { font-size: 18px; margin-top: 6px; line-height: 1.6; }
   .demo { font-size: 26px; margin-top: 6px; } .demo span { display: inline-block; animation: wob .4s infinite alternate; }
 </style>
-<script src="/counter.js?v=2" defer></script>
+<script src="/counter.js?v=3" defer></script>
 </head>
 <body>
 <div id="wrap"><div id="stage">
@@ -132,7 +141,16 @@
     <div id="tapHint" data-i18n="tapHint">⌨️ 종이를 누르면 키보드가 나와요</div>
   </div>
   <div id="letter">
-    <textarea id="ltxt" class="tw" maxlength="700" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+    <div id="letterPaper">
+      <textarea id="ltxt" class="tw" maxlength="700" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      <div id="paperDatePreview" aria-hidden="true"></div>
+      <div id="paperFooterPreview" aria-hidden="true"></div>
+      <div id="paperStampPreview" aria-hidden="true"></div>
+    </div>
+    <div id="letterMeta">
+      <label><span data-i18n="footerLabel">바닥글</span><input id="footerInput" type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Footer 바닥글"></label>
+      <label><span data-i18n="stampLabel">도장</span><input id="stampInput" type="text" maxlength="6" autocomplete="off" spellcheck="false" aria-label="Stamp 도장"></label>
+    </div>
     <div id="lbtns"><button class="big-btn green" id="saveBtn" data-i18n="savePng">💾 그림으로 저장</button><button class="big-btn blue" id="clearBtn" data-i18n="clear">🧽 새 종이</button><button class="big-btn pink" id="lMenuBtn" data-i18n="menu">메뉴</button></div>
   </div>
   <div class="hud" id="hud">
@@ -177,7 +195,7 @@
 <script>
 (() => {
 'use strict';
-const MUTE_KEY = 'tootType_mute', SAVE_KEY = 'tootType_v1';
+const MUTE_KEY = 'tootType_mute', SAVE_KEY = 'tootType_v1', LETTER_KEY = 'tootType_letter_v1';
 const typewriterFontsReady = document.fonts ? Promise.all([
   document.fonts.load('400 46px \"Special Elite\"'),
   document.fonts.load('400 46px \"Nadoo DOS Myungjo\"')
@@ -194,6 +212,7 @@ const T = {
   sTime: ['시간', 'Time'], sAcc: ['정확도', 'Accuracy'], spdKo: ['타수', 'Keys/min'], spdEn: ['WPM', 'WPM'],
   tapHint: ['⌨️ 종이를 누르면 키보드가 나와요 · 첫 글자를 치면 시작!', '⌨️ Tap the paper for the keyboard · timer starts on your first key!'],
   savePng: ['💾 그림으로 저장', '💾 Save picture'], clear: ['🧽 새 종이', '🧽 New paper'], menu: ['메뉴', 'Menu'],
+  footerLabel: ['바닥글', 'Footer'], stampLabel: ['도장', 'Stamp'],
   paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], quit: ['처음으로', 'Quit'], again: ['한 판 더! ⌨️', 'One more! ⌨️'],
   best: ['🏆 최고: 한글 {k}타 · 영어 {e} WPM', '🏆 Best: Korean {k} keys/min · English {e} WPM'],
   r3: ['타자 방귀왕!', 'Typing Toot King!'], r2: ['닭을 이겼다!', 'You beat the chicken!'], r1: ['뿡! 좋아요!', 'Toot! Nice!'], r0: ['뿌직… 다시!', 'Splrt… again!'],
@@ -349,7 +368,11 @@ const STAR = { ko: [60, 140, 240], en: [10, 20, 35] };
 const ROUND = 60;
 let store = { bestKo: 0, bestEn: 0, tl: null };
 try { Object.assign(store, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) {}
+const LETTER_DEFAULTS = { footer: 'Toot Typewriter · nadoo games', stamp: '나두' };
+let letterMeta = { ...LETTER_DEFAULTS };
+try { Object.assign(letterMeta, JSON.parse(localStorage.getItem(LETTER_KEY) || '{}')); } catch (e) {}
 const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(store)); } catch (e) {} };
+const saveLetterMeta = () => { try { localStorage.setItem(LETTER_KEY, JSON.stringify(letterMeta)); } catch (e) {} };
 let tl = store.tl || lang;   // 타자 언어
 let state = 'title', mode = 'race', timeLeft = ROUND, started = false, last = 0;
 let target = '', judged = 0, composing = false, units = 0, okChars = 0, badChars = 0, lines = 0, bag = [], marks = [], meX = 0;
@@ -484,12 +507,39 @@ function endRace() {
 }
 
 /* ===== 편지 ===== */
-const ltxt = $('ltxt');
+const ltxt = $('ltxt'), footerInput = $('footerInput'), stampInput = $('stampInput');
+const paperDatePreview = $('paperDatePreview'), paperFooterPreview = $('paperFooterPreview'), paperStampPreview = $('paperStampPreview');
 let lineDinged = false;
+function todayText() { const d = new Date(); return d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.'; }
+function fitStampPreview() {
+  if (!paperStampPreview.clientWidth || !paperStampPreview.textContent) return;
+  const measure = document.createElement('canvas').getContext('2d'), text = paperStampPreview.textContent;
+  let size = 28;
+  while (size > 10) {
+    measure.font = size + 'px "Special Elite", "Nadoo DOS Myungjo", sans-serif';
+    if (measure.measureText(text).width <= paperStampPreview.clientWidth - 12) break;
+    size -= 1;
+  }
+  paperStampPreview.style.fontSize = size + 'px';
+}
+function updateLetterMeta() {
+  footerInput.value = letterMeta.footer;
+  stampInput.value = letterMeta.stamp;
+  paperDatePreview.textContent = todayText();
+  paperFooterPreview.textContent = letterMeta.footer.trim();
+  paperFooterPreview.style.display = letterMeta.footer.trim() ? 'block' : 'none';
+  paperStampPreview.textContent = letterMeta.stamp;
+  paperStampPreview.style.display = letterMeta.stamp ? 'flex' : 'none';
+  requestAnimationFrame(fitStampPreview);
+}
+footerInput.addEventListener('input', e => { letterMeta.footer = e.target.value; saveLetterMeta(); updateLetterMeta(); });
+stampInput.addEventListener('input', e => { letterMeta.stamp = e.target.value.slice(0, 6); saveLetterMeta(); updateLetterMeta(); });
+updateLetterMeta();
 async function startLetter() {
   await typewriterFontsReady;
   mode = 'letter'; state = 'letter'; $('game').classList.remove('on'); $('letter').classList.add('on'); show(null);
   ltxt.className = 'tw' + (tl === 'ko' ? ' ko' : ''); ltxt.placeholder = t('letterPh');
+  updateLetterMeta();
   $('pauseBtn').style.visibility = 'hidden';
   ltxt.focus(); snd.startMusic();
 }
@@ -514,7 +564,9 @@ async function savePng() {
   const fam = '46px "Special Elite", "Nadoo DOS Myungjo", monospace';
   x.font = fam; x.textBaseline = 'alphabetic';
   const L = 110, R = W - 110, LH = 66; let cx = L, cy = 210;
-  const d = new Date(); x.fillStyle = 'rgba(40,32,28,.8)'; x.textAlign = 'right'; x.fillText(d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.', R, 140); x.textAlign = 'left';
+  x.font = '36px "Special Elite", "Nadoo DOS Myungjo", monospace';
+  x.fillStyle = 'rgba(40,32,28,.8)'; x.textAlign = 'right'; x.fillText(todayText(), R, 140); x.textAlign = 'left';
+  x.font = fam;
   const toks = text.match(/\n|[^\s]+|[ \t]+/g) || [];
   const chars = [];
   for (const tk of toks) {
@@ -537,13 +589,17 @@ async function savePng() {
     if (Math.random() < 0.025) { x.save(); x.filter = 'blur(4px)'; x.fillStyle = 'rgba(30,24,20,.3)'; x.fillText(ch, cx + 4, cy + 3); x.restore(); }
     cx += w;
   }
-  // 도장 '나두'
+  // 사용자 지정 도장
+  const stampText = letterMeta.stamp.slice(0, 6);
   x.save(); x.translate(W - 220, H - 200); x.rotate(-0.2); x.globalAlpha = 0.82;
   x.strokeStyle = '#c8202a'; x.fillStyle = '#c8202a'; x.lineWidth = 9; x.beginPath(); x.arc(0, 0, 92, 0, Math.PI * 2); x.stroke(); x.lineWidth = 3; x.beginPath(); x.arc(0, 0, 76, 0, Math.PI * 2); x.stroke();
-  x.font = '64px "Nadoo DOS Myungjo", "Special Elite", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('나두', 0, 4);
+  let stampSize = 64; x.font = stampSize + 'px "Special Elite", "Nadoo DOS Myungjo", sans-serif';
+  while (stampSize > 16 && x.measureText(stampText).width > 145) { stampSize -= 2; x.font = stampSize + 'px "Special Elite", "Nadoo DOS Myungjo", sans-serif'; }
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(stampText, 0, 4);
   x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.globalAlpha = Math.random() * 0.8; x.fillRect((Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200, Math.random() * 4, Math.random() * 4); }
   x.restore();
-  x.fillStyle = 'rgba(80,55,30,.55)'; x.font = '26px "Special Elite", monospace'; x.textAlign = 'left'; x.fillText('Toot Typewriter · nadoo games', L, H - 70);
+  const footerText = letterMeta.footer.trim();
+  if (footerText) { x.fillStyle = 'rgba(80,55,30,.55)'; x.font = '26px "Special Elite", "Nadoo DOS Myungjo", monospace'; x.textAlign = 'left'; x.fillText(footerText, L, H - 70); }
   lastPng = { w: W, h: H, chars: text.length };
   c.toBlob(b => { if (!b) return; const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'nadoo-letter.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); toast(t('saved')); snd.fart(0.3); ding(); }, 'image/png');
 }
@@ -572,7 +628,7 @@ uiTap($('muteBtn'), () => { snd.init(); snd.setMute(!snd.muted); updateMuteBtn()
 uiTap($('langBtn'), () => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.boing(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 function applyLang() {
-  applyLangBase(); $('bestTxt').textContent = bestLine(); ltxt.placeholder = t('letterPh');
+  applyLangBase(); $('bestTxt').textContent = bestLine(); ltxt.placeholder = t('letterPh'); updateLetterMeta();
   $('sSpeedL').textContent = tl === 'ko' ? t('spdKo') : t('spdEn');
 }
 
