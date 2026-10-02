@@ -38,15 +38,21 @@
   .tbar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #8a3ff0, #ff6fb5); }
   #rivals { width: 100%; max-width: 420px; display: flex; justify-content: space-around; gap: 6px; }
   .rival { flex: 1; max-width: 120px; background: rgba(255,255,255,.75); border: 3px solid #3a1d5c; border-radius: 16px; text-align: center; padding: 2px 0 3px; position: relative; }
-  .rival .av { font-size: 34px; line-height: 1.1; display: inline-block; }
-  .rival .nm { font-size: 12px; } .rival .sc { font-size: 15px; font-weight: 900; }
+  .rival .player-id { display: inline-flex; align-items: center; gap: 3px; min-height: 36px; padding: 0 7px; background: #f7ecff; border: 2px solid #7b2fd6; border-radius: 11px; }
+  .rival .seat-role { font-size: 9px; font-weight: 900; color: #7b2fd6; letter-spacing: .3px; }
+  .rival .av { font-size: 30px; line-height: 1.1; display: inline-block; }
+  .rival .nm { font-size: 12px; font-weight: 900; } .rival .sc { font-size: 15px; font-weight: 900; }
   .rival.win .av { animation: boing .5s; } .rival.fool .av { animation: dizzy .6s; }
   @keyframes boing { 30% { transform: scale(1.4) rotate(-10deg); } 60% { transform: scale(.9) rotate(6deg); } }
   @keyframes dizzy { 25% { transform: rotate(-25deg); } 75% { transform: rotate(25deg); } }
   #arena { flex: 1; min-height: 0; width: 100%; max-width: 420px; display: flex; align-items: center; justify-content: center; }
   #grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; width: var(--gw, 300px); height: calc(var(--gw, 300px) * 1.1); }
   .pile { position: relative; border-radius: 18px; background: rgba(58,29,92,.12); border: 3px dashed rgba(58,29,92,.35); }
-  .pile .own { position: absolute; left: -6px; top: -10px; z-index: 5; font-size: 18px; background: #fffbea; border: 2px solid #3a1d5c; border-radius: 12px; padding: 0 5px; line-height: 1.25; }
+  .pile .own { position: absolute; left: -6px; top: -10px; z-index: 5; display: inline-flex; align-items: center; gap: 3px; font-size: 15px; background: #f7ecff; border: 2px solid #7b2fd6; border-radius: 12px; padding: 1px 6px; line-height: 1.25; box-shadow: 0 2px 0 rgba(58,29,92,.25); white-space: nowrap; }
+  .pile .own.player { background: #fff2a8; border: 3px solid #e45286; color: #3a1d5c; box-shadow: 0 3px 0 #b83c6b; }
+  .pile .own .seat-avatar { font-size: 19px; line-height: 1; }
+  .pile .own .seat-name { font-weight: 900; }
+  .pile .own .seat-role { font-size: 9px; font-weight: 900; color: #7b2fd6; letter-spacing: .3px; }
   .pile .cnt { position: absolute; right: -4px; bottom: -8px; z-index: 5; font-size: 12px; background: #3a1d5c; color: #ffe066; border-radius: 10px; padding: 0 6px; }
   .card { position: absolute; inset: 0; border-radius: 16px; background: #fff; border: 5px solid var(--c, #ff9ec7); box-shadow: 0 4px 0 #3a1d5c, 0 0 0 2px #3a1d5c; overflow: hidden; transition: transform .45s cubic-bezier(.5,-0.2,.6,1), opacity .45s; }
   .card.under { transform: translate(4px, 4px) rotate(3deg); filter: brightness(.9); }
@@ -63,9 +69,11 @@
   .card.bust::after { content: '❌'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 70px; opacity: .85; }
   .card .ic.fake.reveal { outline: 4px solid #ff3355; border-radius: 50%; background: rgba(255,51,85,.2); }
   .card.won { box-shadow: 0 0 0 4px #fff, 0 0 26px 8px #ffe066; }
-  #hint { display: flex; gap: 6px; justify-content: center; min-height: 30px; }
+  #hint { display: flex; flex-direction: column; align-items: center; gap: 3px; justify-content: center; min-height: 43px; }
   #hint.off { visibility: hidden; }
-  .chip { background: #fffbea; border: 2px solid #3a1d5c; border-radius: 14px; padding: 1px 8px; font-size: 18px; min-width: 56px; text-align: center; }
+  .hint-label { display: inline-block; background: rgba(255,255,255,.58); border: 2px dashed rgba(58,29,92,.55); border-radius: 999px; padding: 0 8px; color: #5a3c78; font-size: 11px; font-weight: 900; letter-spacing: .1px; }
+  .hint-chips { display: flex; gap: 6px; justify-content: center; }
+  .chip { background: #fffbea; border: 2px solid #3a1d5c; border-radius: 14px; padding: 1px 8px; font-size: 18px; min-width: 56px; text-align: center; box-shadow: 0 2px 0 rgba(58,29,92,.22); }
   .chip.five { background: #ff6fb5; color: #fff; animation: pulse .35s infinite alternate; }
   @keyframes pulse { to { transform: scale(1.15); } }
   #bellZone { position: relative; width: 100%; display: flex; justify-content: center; padding-bottom: 14px; }
@@ -89,6 +97,7 @@
   .mp #game { padding-top: 196px; padding-bottom: 148px; }
   .mp .info { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: calc(100% - 300px); min-width: 84px; padding: 2px 4px 4px; font-size: 13px; text-align: center; }
   .mp .info .row1 { justify-content: center; } .mp .info .solo-only { display: none; }
+  .mp .pile .own { font-size: 14px; }
   .hand { position: absolute; left: 0; top: 0; font-size: 46px; z-index: 28; pointer-events: none; opacity: 0; will-change: transform; filter: drop-shadow(0 3px 0 rgba(58,29,92,.4)); }
   .float { position: absolute; z-index: 40; pointer-events: none; font-size: 28px; font-weight: 900; color: #ffe066; -webkit-text-stroke: 1.5px #3a1d5c; text-shadow: 0 3px 0 #3a1d5c; white-space: nowrap; transform: translate(-50%, -50%); animation: floatUp 1.3s ease-out forwards; }
   .float.big { font-size: 50px; color: #fff; }
@@ -149,7 +158,7 @@
     </div>
     <div id="rivals"></div>
     <div id="arena"><div id="grid"></div></div>
-    <div id="hint"></div>
+    <div id="hint" aria-live="polite"></div>
     <div id="bellZone"><button class="bell" id="bell0" aria-label="Bell 종"><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl" data-i18n="tap">땡!</span></button></div>
   </div>
   <div id="mpBells"></div>
@@ -226,7 +235,7 @@ const T = {
   title: ['뿡 벨', 'TOOT BELL'], title2: ['TOOT BELL', '뿡 벨'],
   sub: ['카드 위 <b>같은 동물이 딱 5마리</b>가 되면<br><b>종을 쾅!</b> 제일 빠른 사람이 카드를 다 가져가요 💨', 'When the cards show <b>exactly 5 of the same animal</b>,<br><b>SMASH the bell!</b> Fastest paw takes all the cards 💨'],
   play: ['돼지·닭·유니콘이랑 대결!', 'Battle Pig, Chicken & Unicorn!'], mpNote: ['한 폰으로 같이! 각자 구석 종을 쳐요', 'Play together on one phone! Each player gets a corner bell'],
-  hintOn: ['동물 수 힌트 켜짐', 'Count hint ON'], hintOff: ['동물 수 힌트 꺼짐', 'Count hint OFF'],
+  hintOn: ['동물 수 힌트 켜짐', 'Count hint ON'], hintOff: ['동물 수 힌트 꺼짐', 'Count hint OFF'], cardAnimals: ['카드 속 동물 수', 'Animals on cards'],
   best: ['최고 점수 {s}장 · 최고 반응 {r}', 'Best score {s} cards · Best reaction {r}'],
   how: ['소개 · 조작법 · 웃긴 포인트', 'About · Controls · Funny bits'], hIntroT: ['소개', 'About'], hCtrlT: ['조작법', 'Controls'], hFunT: ['웃긴 포인트', 'Funny bits'], gotIt: ['알겠어!', 'Got it!'],
   hIntro: ['카드가 착착 뒤집혀요. 카드마다 방귀쟁이 동물이 1~5마리! 보이는 카드에 <b>같은 동물이 모두 합쳐 딱 5마리</b>면 종을 쳐요. 제일 빨리 친 사람이 카드를 몽땅 가져가요. 1분 동안 카드를 제일 많이 모으면 1등!',
@@ -236,7 +245,7 @@ const T = {
   hFun: ['맞히면 <b>"뿌아아앙!"</b> 초대형 방귀와 함께 내 반응 속도(ms)가 떠요. 돼지·닭·유니콘 손이 종으로 슝~ 날아오고, 내가 이길수록 걔네도 점점 빨라져요! 닭은 낚시 카드에 잘 낚여요 ㅋㅋ',
          'Get it right for a <b>"PFFFFFT!"</b> mega toot plus your reaction time in ms. The pig, chicken and unicorn paws fly at the bell, and they get faster every time you win! The chicken falls for decoys a lot, lol'],
   tap: ['땡!', 'DING!'], paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], restart: ['처음부터', 'Restart'], menu: ['메뉴로', 'Menu'], again: ['한 판 더!', 'Again!'],
-  you: ['나', 'YOU'], pig: ['돼지', 'Pig'], chk: ['닭', 'Chicken'], uni: ['유니콘', 'Unicorn'],
+  you: ['나', 'ME'], pig: ['돼지', 'Pig'], chk: ['닭', 'Chicken'], uni: ['유니콘', 'Unicorn'],
   ready: ['준비~', 'Ready~'], go: ['뿡!', 'TOOT!'],
   myWin: ['뿌아아앙!! 💨', 'PFFFFFT!! 💨'], cards: ['+{n}장', '+{n} cards'],
   rivalWin: [['꿀꿀! 내 거!', '꼬끼오~ 빠름!', '반짝 뿡~ ✨'], ['Oink! Mine!', 'Bawk! Too fast!', 'Sparkle toot~ ✨']],
@@ -436,6 +445,7 @@ const RIVALS = [
   { k: 'uni', e: '🦄', mult: 0.94, vr: 0.2, fool: 0.08 },
 ];
 const PCOL = ['#ff5d73', '#4da3ff', '#3fcf7a', '#ffb02e'];
+const PLAYER_EMOJIS = ['🙋', '🧑', '👩', '👨'];
 const POS = { 1: [50, 50], 2: [[30, 30], [70, 70]], 3: [[26, 24], [50, 50], [74, 76]], 4: [[30, 28], [70, 28], [30, 72], [70, 72]], 5: [[27, 24], [73, 24], [50, 50], [27, 76], [73, 76]] };
 POS[1] = [[50, 50]];
 const ROUND_MS = 60000, FEVER_MS = 7000;
@@ -506,8 +516,20 @@ function buildGrid() {
 function renderOwners() {
   for (let p = 0; p < 4; p++) {
     const o = document.querySelector('#pile' + p + ' .own'); if (!o) continue;
-    if (mode === 'solo') o.textContent = p === 0 ? '🙋 ' + t('you') : RIVALS[p - 1].e;
-    else { o.textContent = String(p + 1); o.style.display = 'none'; }
+    o.style.display = '';
+    if (mode === 'solo') {
+      if (p === 0) {
+        o.className = 'own player';
+        o.innerHTML = `<span class="seat-avatar">${PLAYER_EMOJIS[0]}</span><span class="seat-name">${t('you')}</span>`;
+      } else {
+        const r = RIVALS[p - 1];
+        o.className = 'own cpu';
+        o.innerHTML = `<span class="seat-role">CPU</span><span class="seat-avatar">${r.e}</span><span class="seat-name">${t(r.k)}</span>`;
+      }
+    } else {
+      o.className = 'own player';
+      o.innerHTML = `<span class="seat-avatar">${PLAYER_EMOJIS[p]}</span><span class="seat-name">P${p + 1}</span>`;
+    }
   }
 }
 function cardEl(c, fresh) {
@@ -535,24 +557,24 @@ function renderPile(p, fresh) {
 function renderHint() {
   hint.classList.toggle('off', !hintOn);
   const { r } = counts(tops());
-  hint.innerHTML = KEYS.map(k => `<span class="chip${r[k] === 5 ? ' five' : ''}">${ANI[k].e} ${r[k]}</span>`).join('');
+  hint.innerHTML = `<span class="hint-label">${t('cardAnimals')}</span><span class="hint-chips">${KEYS.map(k => `<span class="chip${r[k] === 5 ? ' five' : ''}">${ANI[k].e} ${r[k]}</span>`).join('')}</span>`;
 }
 function renderRivals() {
-  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="rival" id="rv${i}"><span class="av">${r.e}</span><div class="nm">${t(r.k)}</div><div class="sc">🃏 <span id="rs${i}">${scores[i + 1]}</span></div></div>`).join('');
+  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="rival" id="rv${i}"><div class="player-id"><span class="seat-role">CPU</span><span class="av">${r.e}</span></div><div class="nm">${t(r.k)}</div><div class="sc">🃏 <span id="rs${i}">${scores[i + 1]}</span></div></div>`).join('');
   $('hands').innerHTML = RIVALS.map((r, i) => `<div class="hand" id="hand${i}">🫳</div>`).join('');
 }
 function buildMpBells() {
   const box = $('mpBells'); box.innerHTML = '';
   for (let i = 0; i < 4; i++) {
     const b = document.createElement('button'); b.className = 'bell mpb' + (i === 1 || i === 3 ? ' top' : '') + (i < nPlayers ? ' on' : ''); b.id = 'mb' + i;
-    b.style.setProperty('--pc', PCOL[i]); b.setAttribute('aria-label', 'P' + (i + 1) + ' bell');
-    b.innerHTML = `<span class="sc" id="ms${i}">P${i + 1} · 0</span><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl">P${i + 1}</span>`;
+    b.style.setProperty('--pc', PCOL[i]); b.setAttribute('aria-label', PLAYER_EMOJIS[i] + ' P' + (i + 1) + ' bell');
+    b.innerHTML = `<span class="sc" id="ms${i}">${PLAYER_EMOJIS[i]} P${i + 1} · 0</span><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl">${PLAYER_EMOJIS[i]} P${i + 1}</span>`;
     box.appendChild(b); bindBell(b, i);
   }
 }
 function updateScores() {
   if (mode === 'solo') { $('scoreTxt').textContent = scores[0]; RIVALS.forEach((r, i) => { const e = $('rs' + i); if (e) e.textContent = scores[i + 1]; }); }
-  else for (let i = 0; i < nPlayers; i++) $('ms' + i).textContent = `P${i + 1} · ${scores[i]}`;
+  else for (let i = 0; i < nPlayers; i++) $('ms' + i).textContent = `${PLAYER_EMOJIS[i]} P${i + 1} · ${scores[i]}`;
 }
 function layout() {
   const a = $('arena').getBoundingClientRect();
@@ -683,7 +705,7 @@ function endRound() {
   state = 'over'; stage.classList.remove('playing', 'fever'); snd.stopMusic(); fever = false;
   const seats = mode === 'solo' ? [0, 1, 2, 3] : [...Array(nPlayers).keys()];
   const order = seats.slice().sort((a, b) => scores[b] - scores[a]);
-  const name = s => (mode === 'solo' ? (s === 0 ? '🙋 ' + t('you') : RIVALS[s - 1].e + ' ' + t(RIVALS[s - 1].k)) : `<span style="color:${PCOL[s]}">●</span> P${s + 1}`);
+  const name = s => (mode === 'solo' ? (s === 0 ? PLAYER_EMOJIS[0] + ' ' + t('you') : `<span class="seat-role">CPU</span> ${RIVALS[s - 1].e} ${t(RIVALS[s - 1].k)}`) : `${PLAYER_EMOJIS[s]} P${s + 1}`);
   $('rankList').innerHTML = order.map((s, i) => `<div class="${mode === 'solo' && s === 0 ? 'me' : ''}"><span>${['🥇', '🥈', '🥉', '4️⃣'][i]} ${name(s)}</span><b>🃏 ${scores[s]}</b></div>`).join('');
   let info = '', newBest = false;
   if (mode === 'solo') {
@@ -697,7 +719,7 @@ function endRound() {
     log('round_end', { rank, scores: scores.slice(), bestRx: bestRxRound, hits, misses, newBest });
   } else {
     const tie = order.length > 1 && scores[order[0]] === scores[order[1]];
-    $('overEmoji').textContent = tie ? '🤝🔔' : '🏆🔔💨'; $('overMsg').textContent = tie ? t('tie') : t('mpWin', { p: 'P' + (order[0] + 1) });
+    $('overEmoji').textContent = tie ? '🤝🔔' : '🏆🔔💨'; $('overMsg').textContent = tie ? t('tie') : t('mpWin', { p: PLAYER_EMOJIS[order[0]] + ' P' + (order[0] + 1) });
     snd.fanfare(); log('round_end', { scores: scores.slice(0, nPlayers) });
   }
   store.d.plays++; store.save(); firstEver = false;
@@ -812,7 +834,7 @@ function applyLang() {
   document.title = lang === 'ko' ? '뿡 벨 🔔💨 | 나두게임즈' : 'Toot Bell 🔔💨 | Nadoo Games';
   $('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderBest(); renderOwners();
-  if (state !== 'title') { RIVALS.forEach((r, i) => { const n = document.querySelector('#rv' + i + ' .nm'); if (n) n.textContent = t(r.k); }); for (let p = 0; p < 4; p++) renderPile(p); }
+  if (state !== 'title') { RIVALS.forEach((r, i) => { const n = document.querySelector('#rv' + i + ' .nm'); if (n) n.textContent = t(r.k); }); for (let p = 0; p < 4; p++) renderPile(p); renderHint(); }
 }
 uiTap($('langBtn'), () => { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} applyLang(); snd.init(); snd.tick(); });
 const ui = fn => () => { snd.init(); fn(); };
