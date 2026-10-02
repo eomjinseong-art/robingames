@@ -34,6 +34,11 @@
   .info { width: 100%; max-width: 420px; background: #fffbea; border: 3px solid #3a1d5c; border-radius: 16px; box-shadow: 0 4px 0 #3a1d5c; padding: 4px 10px 6px; font-size: 17px; }
   .info .row1 { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .info b { font-size: 20px; }
+  .my-score { position: relative; display: inline-flex; align-items: center; gap: 4px; min-width: 92px; justify-content: center; padding: 1px 7px; background: #fff2a8; border: 3px solid #e45286; border-radius: 12px; box-shadow: 0 2px 0 #b83c6b; font-weight: 900; }
+  .my-score .my-score-label { font-size: 13px; }
+  .my-score b { font-size: 27px; line-height: 1; }
+  .my-score.leader { border-color: #e7a90c; box-shadow: 0 2px 0 #a96d00, 0 0 0 3px #ffe066; }
+  .my-score.leader::after, .rival.leader::after { content: '👑'; position: absolute; right: -7px; top: -13px; font-size: 17px; line-height: 1; }
   .tbar { height: 9px; border-radius: 6px; background: #eadcff; overflow: hidden; margin-top: 3px; }
   .tbar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #8a3ff0, #ff6fb5); }
   #rivals { width: 100%; max-width: 420px; display: flex; justify-content: space-around; gap: 6px; }
@@ -41,7 +46,10 @@
   .rival .player-id { display: inline-flex; align-items: center; gap: 3px; min-height: 36px; padding: 0 7px; background: #f7ecff; border: 2px solid #7b2fd6; border-radius: 11px; }
   .rival .seat-role { font-size: 9px; font-weight: 900; color: #7b2fd6; letter-spacing: .3px; }
   .rival .av { font-size: 30px; line-height: 1.1; display: inline-block; }
-  .rival .nm { font-size: 12px; font-weight: 900; } .rival .sc { font-size: 15px; font-weight: 900; }
+  .rival .nm { font-size: 12px; font-weight: 900; }
+  .rival .sc { display: flex; align-items: baseline; justify-content: center; gap: 3px; margin: 1px 4px 0; padding: 1px 5px 2px; background: #fff2a8; border: 2px solid #3a1d5c; border-radius: 10px; font-weight: 900; }
+  .rival .score-label { font-size: 13px; } .rival .score-num { font-size: 26px; line-height: 1; }
+  .rival.leader { border-color: #e7a90c; box-shadow: 0 0 0 3px #ffe066, 0 4px 0 #a96d00; }
   .rival.win .av { animation: boing .5s; } .rival.fool .av { animation: dizzy .6s; }
   @keyframes boing { 30% { transform: scale(1.4) rotate(-10deg); } 60% { transform: scale(.9) rotate(6deg); } }
   @keyframes dizzy { 25% { transform: rotate(-25deg); } 75% { transform: rotate(25deg); } }
@@ -76,17 +84,24 @@
   .chip { background: #fffbea; border: 2px solid #3a1d5c; border-radius: 14px; padding: 1px 8px; font-size: 18px; min-width: 56px; text-align: center; box-shadow: 0 2px 0 rgba(58,29,92,.22); }
   .chip.five { background: #ff6fb5; color: #fff; animation: pulse .35s infinite alternate; }
   @keyframes pulse { to { transform: scale(1.15); } }
-  #bellZone { position: relative; width: 100%; display: flex; justify-content: center; padding-bottom: 14px; }
+  #bellZone { position: relative; width: 100%; display: flex; justify-content: center; padding: 42px 0 14px; }
   .bell { position: relative; border: none; background: none; cursor: pointer; touch-action: none; font-family: inherit; color: #3a1d5c; }
   .bell .dome { position: absolute; left: 10%; right: 10%; top: 12%; bottom: 26%; border-radius: 50% 50% 12% 12% / 70% 70% 12% 12%; background: radial-gradient(circle at 35% 30%, #fffbe0 0, #ffd84a 22%, #e7a90c 70%, #b07400 100%); border: 4px solid #3a1d5c; box-shadow: inset -8px -6px 0 rgba(0,0,0,.12); }
   .bell .knob { position: absolute; left: 50%; top: 2%; width: 18%; height: 16%; transform: translateX(-50%); border-radius: 40% 40% 20% 20%; background: #e7a90c; border: 4px solid #3a1d5c; }
   .bell .base { position: absolute; left: 0; right: 0; bottom: 6%; height: 22%; border-radius: 16px; background: linear-gradient(#a65cff, #6a23c9); border: 4px solid #3a1d5c; box-shadow: 0 6px 0 #3a1d5c; }
   .bell .lbl { position: absolute; left: 0; right: 0; bottom: 9%; text-align: center; color: #fff; font-size: 17px; font-weight: 900; pointer-events: none; z-index: 2; text-shadow: 0 2px 0 #3a1d5c; }
+  .bell .tap-cue { position: absolute; left: 50%; top: -40px; width: 150px; height: 58px; transform: translateX(-50%); pointer-events: none; z-index: 4; }
+  .bell .tap-ring { position: absolute; left: 50%; bottom: -8px; width: 42px; height: 42px; transform: translateX(-50%); border: 4px solid #ff4c86; border-radius: 50%; animation: ringPulse 1s ease-in-out infinite; }
+  .bell .tap-hand { position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%); font-size: 30px; line-height: 1; animation: tapNudge .8s ease-in-out infinite; }
+  .bell .tap-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); background: #ff4c86; color: #fff; border: 3px solid #3a1d5c; border-radius: 12px; padding: 1px 8px; font-size: 14px; font-weight: 900; white-space: nowrap; text-shadow: 0 1px 0 #3a1d5c; }
+  @keyframes ringPulse { 50% { transform: translateX(-50%) scale(1.24); opacity: .35; } }
+  @keyframes tapNudge { 50% { transform: translate(-50%, 5px); } }
   .bell.hit .dome, .bell.hit .knob { transform: translateY(8%) scaleY(.9); }
   .bell.hit .knob { transform: translate(-50%, 30%); }
+  .bell.hit .base { transform: translateY(5px) scale(.98); }
   .bell.stun { filter: grayscale(.9) brightness(.85); animation: shk .4s; }
   .bell.stun::after { content: '💫'; position: absolute; left: 50%; top: -12%; transform: translateX(-50%); font-size: 34px; }
-  #bell0 { width: min(46vw, 190px, 22dvh); aspect-ratio: 1.05; }
+  #bell0 { width: min(60vw, 220px, 25dvh); aspect-ratio: 1.05; }
   .mpb { position: absolute; width: 132px; height: 126px; z-index: 25; display: none; }
   .mp .mpb.on { display: block; }
   .mpb .sc { position: absolute; left: 0; right: 0; top: -2px; text-align: center; font-size: 15px; font-weight: 900; z-index: 3; }
@@ -107,7 +122,7 @@
   #banner small { display: block; font-size: 22px; -webkit-text-stroke: 0; color: #3a1d5c; text-shadow: none; background: #ffe066; border: 3px solid #3a1d5c; border-radius: 14px; width: max-content; margin: 6px auto 0; padding: 0 10px; }
   #banner.show { display: block; animation: bannerPop .5s ease-out; }
   @keyframes bannerPop { 0% { transform: scale(.2) rotate(-12deg); } 70% { transform: scale(1.15) rotate(3deg); } 100% { transform: none; } }
-  #toast { position: absolute; left: 50%; top: 23%; transform: translateX(-50%); background: #3a1d5c; color: #ffe066; padding: 7px 14px; border-radius: 14px; font-size: 17px; z-index: 46; display: none; white-space: nowrap; pointer-events: none; max-width: 94%; overflow: hidden; text-overflow: ellipsis; }
+  #toast { position: absolute; left: 50%; top: 38%; transform: translateX(-50%); background: #3a1d5c; color: #ffe066; padding: 7px 14px; border-radius: 14px; font-size: 17px; z-index: 46; display: none; white-space: nowrap; pointer-events: none; max-width: 94%; overflow: hidden; text-overflow: ellipsis; }
   .shake { animation: shk .35s; }
   @keyframes shk { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
   /* ---- 오버레이 */
@@ -153,13 +168,13 @@
 
   <div id="game">
     <div class="info">
-      <div class="row1"><span>⏱️ <b id="timeTxt">60</b></span><span class="solo-only">🃏 <b id="scoreTxt">0</b></span><span class="solo-only">⚡ <b id="rxTxt">-</b></span></div>
+      <div class="row1"><span>⏱️ <b id="timeTxt">60</b></span><span class="my-score solo-only" id="myScore"><span class="my-score-label">🙋 <span data-i18n="you">나</span></span><b id="scoreTxt">0</b>🃏</span><span class="solo-only">⚡ <b id="rxTxt">-</b></span></div>
       <div class="tbar"><i id="timeFill"></i></div>
     </div>
     <div id="rivals"></div>
     <div id="arena"><div id="grid"></div></div>
     <div id="hint" aria-live="polite"></div>
-    <div id="bellZone"><button class="bell" id="bell0" aria-label="Bell 종"><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl" data-i18n="tap">땡!</span></button></div>
+    <div id="bellZone"><button class="bell" id="bell0" aria-label="Bell 종"><span class="tap-cue" aria-hidden="true"><span class="tap-label" data-i18n="tapHere">여기 쳐!</span><span class="tap-ring"></span><span class="tap-hand">👇</span></span><span class="knob"></span><span class="dome"></span><span class="base"></span><span class="lbl" data-i18n="tap">땡!</span></button></div>
   </div>
   <div id="mpBells"></div>
   <div id="hands"></div>
@@ -244,7 +259,7 @@ const T = {
           '🔔 <b>Tap</b> the big bell. That is the only button (PC: Space)<br>❌ Wrong tap = -2 cards + a dizzy moment 💫<br>🐗 <b>Decoy card</b>: looks like 5, but one is a fake (boar, chick, horse)<br>🫧 <b>Burp card</b>: a burp is not a toot, so it counts as 0!<br>🔥 Win 3 in a row for <b>FEVER TIME</b>: faster cards, double points<br>👫 2-4 players: everyone smashes their own corner bell (multi-touch OK)'],
   hFun: ['맞히면 <b>"뿌아아앙!"</b> 초대형 방귀와 함께 내 반응 속도(ms)가 떠요. 돼지·닭·유니콘 손이 종으로 슝~ 날아오고, 내가 이길수록 걔네도 점점 빨라져요! 닭은 낚시 카드에 잘 낚여요 ㅋㅋ',
          'Get it right for a <b>"PFFFFFT!"</b> mega toot plus your reaction time in ms. The pig, chicken and unicorn paws fly at the bell, and they get faster every time you win! The chicken falls for decoys a lot, lol'],
-  tap: ['땡!', 'DING!'], paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], restart: ['처음부터', 'Restart'], menu: ['메뉴로', 'Menu'], again: ['한 판 더!', 'Again!'],
+  tap: ['땡!', 'DING!'], tapHere: ['여기 쳐!', 'TAP HERE!'], paused: ['잠깐 멈춤', 'Paused'], resume: ['계속하기', 'Resume'], restart: ['처음부터', 'Restart'], menu: ['메뉴로', 'Menu'], again: ['한 판 더!', 'Again!'],
   you: ['나', 'ME'], pig: ['돼지', 'Pig'], chk: ['닭', 'Chicken'], uni: ['유니콘', 'Unicorn'],
   ready: ['준비~', 'Ready~'], go: ['뿡!', 'TOOT!'],
   myWin: ['뿌아아앙!! 💨', 'PFFFFFT!! 💨'], cards: ['+{n}장', '+{n} cards'],
@@ -560,7 +575,7 @@ function renderHint() {
   hint.innerHTML = `<span class="hint-label">${t('cardAnimals')}</span><span class="hint-chips">${KEYS.map(k => `<span class="chip${r[k] === 5 ? ' five' : ''}">${ANI[k].e} ${r[k]}</span>`).join('')}</span>`;
 }
 function renderRivals() {
-  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="rival" id="rv${i}"><div class="player-id"><span class="seat-role">CPU</span><span class="av">${r.e}</span></div><div class="nm">${t(r.k)}</div><div class="sc">🃏 <span id="rs${i}">${scores[i + 1]}</span></div></div>`).join('');
+  $('rivals').innerHTML = RIVALS.map((r, i) => `<div class="rival" id="rv${i}"><div class="player-id"><span class="seat-role">CPU</span><span class="av">${r.e}</span></div><div class="nm">${t(r.k)}</div><div class="sc"><span class="score-label">🃏</span><span class="score-num" id="rs${i}">${scores[i + 1]}</span></div></div>`).join('');
   $('hands').innerHTML = RIVALS.map((r, i) => `<div class="hand" id="hand${i}">🫳</div>`).join('');
 }
 function buildMpBells() {
@@ -572,9 +587,19 @@ function buildMpBells() {
     box.appendChild(b); bindBell(b, i);
   }
 }
+function updateLeaderStyles() {
+  if (mode === 'solo') {
+    const best = Math.max(...scores); $('myScore').classList.toggle('leader', scores[0] === best);
+    RIVALS.forEach((r, i) => { const e = $('rv' + i); if (e) e.classList.toggle('leader', scores[i + 1] === best); });
+  } else {
+    const best = Math.max(...scores.slice(0, nPlayers));
+    for (let i = 0; i < nPlayers; i++) $('mb' + i).classList.toggle('leader', scores[i] === best);
+  }
+}
 function updateScores() {
   if (mode === 'solo') { $('scoreTxt').textContent = scores[0]; RIVALS.forEach((r, i) => { const e = $('rs' + i); if (e) e.textContent = scores[i + 1]; }); }
   else for (let i = 0; i < nPlayers; i++) $('ms' + i).textContent = `${PLAYER_EMOJIS[i]} P${i + 1} · ${scores[i]}`;
+  updateLeaderStyles();
 }
 function layout() {
   const a = $('arena').getBoundingClientRect();
@@ -641,7 +666,7 @@ function resolveWin(seat, isRival) {   // seat: 플레이어 자리(0~3). 솔로
     const ri = seat - 1, rv = RIVALS[ri], av = $('rv' + ri);
     target = center(av); av.classList.remove('win'); void av.offsetWidth; av.classList.add('win');
     snd.bell(0.4); snd.fart(0.3, 0, 0.45, 0.05); handP[ri] = 1;
-    float(T.rivalWin[L()][ri], target[0], target[1] + 40, 'bad');
+    float(T.rivalWin[L()][ri], target[0], target[1] + 95, 'bad');
     toast(t('slow', { e: rv.e, ms }));
     streak = 0; log('rival_win', { who: rv.k, ms, cards, pts });
   } else {
@@ -681,7 +706,7 @@ function rivalFooled(ri) {
   av.classList.remove('fool'); void av.offsetWidth; av.classList.add('fool'); handP[ri] = 1;
   snd.bell(0.25); trap && trap.kind === 'burp' ? snd.burp() : snd.buzz(); toast(t('fooled', { e: rv.e }));
   if (trap) bust(trap.a);
-  const [x, y] = center(av); float('-2', x, y + 30, 'bad');
+  const [x, y] = center(av); float('-2', x, y + 75, 'bad');
   updateScores(); log('rival_fooled', { who: rv.k });
 }
 function startFever() {
