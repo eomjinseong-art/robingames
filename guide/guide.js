@@ -30,7 +30,7 @@
     tips: ['초보 전략 3가지', '3 beginner tips'], mistakes: ['자주 하는 실수', 'Common mistakes'],
     item: ['항목', 'Item'], korean: ['한국식', 'Korean'], intl: ['해외·공식', 'International'],
     saved: ['체크하면 이 기기에 자동 저장돼요.', 'Saved on this device automatically.'], reset: ['진도 지우기', 'Reset'],
-    playNow: ['🎮 가이드 읽고 바로 해 보기', '🎮 Play it now'],
+    playNow: ['🎮 가이드 읽고 바로 해 보기', '🎮 Play it now'], pc: ['PC 대국', 'vs Computer'],
     notFound: ['이 게임 가이드를 찾을 수 없어요.', 'Guide not found.'], loadErr: ['불러오기에 실패했어요. 새로고침해 보세요.', 'Failed to load. Please refresh.'],
     soonPage: ['이 게임 가이드는 아직 준비 중이에요.', 'This guide is coming soon.'], credit: ['© 나두게임즈 | 나두Ai', '© Nadoo Games | 나두Ai'],
     top: ['맨 위로 ↑', 'Top ↑']
@@ -47,6 +47,7 @@
     if (g.status === 'ready') h += '<span class="badge ready">📗 ' + esc(t('ready')) + '</span>'; else h += '<span class="badge soon">⏳ ' + esc(t('soon')) + '</span>';
     if (g.solo) h += '<span class="badge solo">🧍 ' + esc(t('solo')) + '</span>';
     if (g.kids) h += '<span class="badge kids">🧒 ' + esc(t('kids')) + '</span>';
+    if (g.pc) h += '<span class="badge pc">🤖 ' + esc(t('pc')) + '</span>';
     return h;
   }
   function applyStatic() {
