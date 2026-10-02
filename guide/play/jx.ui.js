@@ -4,7 +4,7 @@
   window.NadooJXUI = function (opt) { // opt: {R, river:bool, labels:[[..8],[..8]], colors:[c0,c1]}
     var C = 40, P = 26, W = P * 2 + C * 8, H = P * 2 + C * 9, sel = -1;
     return function render(el, s, ctx, api) {
-      var flip = ctx.human === 1, legal = ctx.myTurn ? opt.R.moves(s) : [], dests = {}, i;
+      var flip = ctx.view === 1, legal = ctx.myTurn ? opt.R.moves(s) : [], dests = {}, i;
       if (sel >= 0) legal.forEach(function (m) { if (m.f === sel) dests[m.t] = 1; });
       function XY(k) { var r = (k / 9) | 0, c = k % 9; if (flip) { r = 9 - r; c = 8 - c; } return [P + c * C, P + r * C]; }
       var lc = '#5a3a10', h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="board">';

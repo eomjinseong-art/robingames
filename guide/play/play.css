@@ -17,3 +17,10 @@
 #playApp .hero h1 { font-size: 22px; }
 #playApp .hero h1 small { font-size: 13px; }
 #playApp .panel { padding: 10px 12px; }
+/* 둘이서(마주 앉기): 위 칸은 2P용으로 180° 돌림, 차례가 아닌 쪽 도구는 잠금 */
+.seat { display: flex; flex-direction: column; gap: 6px; transition: box-shadow .2s, background .2s; }
+.seat2 { transform: rotate(180deg); }
+.seat.turn { background: #fff3b0; box-shadow: 0 0 0 4px var(--pink), 0 4px 0 var(--ink); }
+.seat.off .ctl { opacity: .4; pointer-events: none; }
+.seat .status { font-size: 19px; }
+.boardpanel { padding: 6px; }
