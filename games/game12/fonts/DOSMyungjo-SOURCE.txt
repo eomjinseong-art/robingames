@@ -1,0 +1,4 @@
+DOSMyungjo (도스명조), exposed in CSS as Nadoo DOS Myungjo
+Original source: https://github.com/hurss/fonts
+Original file: ttf/DOSMyungjo.ttf from fonts_220507.zip
+The font is distributed under the MIT License. This webfont is a Unicode-subsetted WOFF2 derivative for game12.
