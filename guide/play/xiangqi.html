@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>샹치 PC 대국 | 나두게임즈</title>
+<meta name="description" content="샹치(중국 장기) 컴퓨터와 한 판: 초급·중급·고급 AI, 홍/흑 선택, 강·비장 규칙, 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/jx.core.js"></script>
+<script src="/guide/play/xiangqi.rules.js"></script>
+<script src="/guide/play/jx.ui.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var R = NadooRules.xiangqi;
+  NadooPlay.start({
+    id: 'xiangqi',
+    text: {
+      title: ['샹치', 'Xiangqi'], sub: ['중국 장기 · 강(楚河漢界)', 'Chinese chess · with river'],
+      side0: ['먼저 두기 (홍 · 빨강)', 'Go first (Red)'], side1: ['나중 두기 (흑 · 검정)', 'Go second (Black)'],
+      rulesNote: ['규칙(가이드와 같음): 기물을 누른 다음 갈 점을 눌러요. 장·사는 궁성 안, 상은 밭 전(田) 자로 2칸(눈이 막히면 못 감, 강 못 건넘), 마는 멱이 막히면 못 가요. 포는 차처럼 움직이고 잡을 때만 정확히 하나를 넘어요(포도 넘을 수 있음). 병은 강을 건넌 뒤 옆으로도 가요. 두 장이 사이 없이 마주 보는 수는 둘 수 없어요. 둘 수 있는 수가 없으면(장군이 아니어도) 져요. 300수가 되면 무승부 (장장 반복 판정은 생략).',
+        'Rules (same as the guide): tap a piece, then a point. General and advisors stay in the palace; elephants move exactly two diagonally (blocked eye, cannot cross the river); horses can be blocked. Cannons move like chariots and capture by jumping exactly one piece (cannons included). Soldiers move sideways after crossing the river. Generals may never face each other on an open file. No legal move (even without check) loses. 300 moves = draw (perpetual-check rule not implemented).'],
+      check: ['장군!', 'Check!'], why_mate: ['외통', 'Checkmate'], why_stalemate: ['둘 곳 없음 → 패', 'No legal move → loss'], why_limit: ['300수 → 무승부', '300 moves → draw']
+    },
+    info: function (s, api) { return s.win ? '<b>' + api.esc(api.t('why_' + s.win.why)) + '</b>' : (s.check ? '<b style="color:#c0392b">' + api.esc(api.t('check')) + '</b>' : ''); },
+    render: NadooJXUI({ R: R, river: true, colors: ['#c0392b', '#111'], labels: [['', '帥', '仕', '相', '傌', '俥', '炮', '兵'], ['', '將', '士', '象', '馬', '車', '砲', '卒']] })
+  });
+})();
+</script>
+</body>
+</html>

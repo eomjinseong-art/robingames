@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>바둑 PC 대국 | 나두게임즈</title>
+<meta name="description" content="9×9 바둑 컴퓨터와 한 판: 초급·중급·고급 AI(몬테카를로 탐색), 흑/백 선택, 패·자충수 규칙, 통과, 계가.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/baduk.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var N = 9, C = 44, P = 28, S = P * 2 + C * (N - 1), R = NadooRules.baduk;
+  function X(c) { return P + c * C; }
+  NadooPlay.start({
+    id: 'baduk',
+    text: {
+      title: ['바둑', 'Go (Baduk)'], sub: ['9×9 · 덤 7.5 · 영역 계가', '9×9 · komi 7.5 · area scoring'],
+      side0: ['먼저 두기 (흑 ●)', 'Go first (Black ●)'], side1: ['나중 두기 (백 ○, 덤 7.5)', 'Go second (White ○, komi 7.5)'],
+      rulesNote: ['규칙(가이드와 같음): 교차점을 눌러 돌을 둬요. 활로를 모두 막으면 따내요. 자충수(따내지도 못하면서 활로가 없는 수)는 못 두고, 패는 바로 되따낼 수 없어요. 더 둘 곳이 없으면 \'통과\'를 누르고, 둘 다 연달아 통과하면 끝나요. 계가는 판 위 내 돌 + 내 돌로만 둘러싼 빈 점(중국식, 백 덤 7.5)이에요. 죽은 돌(사석)은 컴퓨터가 끝내기를 여러 번 시뮬레이션해서 추정해 들어내요(✕ 표시). 250수가 되면 그 자리에서 계가해요. 초급에서는 따낼 수 있는 곳(노란 점)과 단수(활로 1개)인 내 돌(빨간 테두리)을 보여 줘요.',
+        'Rules (same as the guide): tap an intersection to play. Surrounded stones are captured. Suicide is illegal unless it captures, and an immediate ko recapture is not allowed. Press Pass when nothing is left; two passes in a row end the game. Scoring = your stones on the board + empty points surrounded only by your stones (area scoring, komi 7.5 for White). Dead stones are estimated by simulated play-outs and removed (marked ✕). At move 250 the game is scored as is. Easy shows capturable points (yellow) and your stones in atari (red ring).'],
+      pass: ['✋ 통과 (패스)', '✋ Pass'], caps: ['따낸 돌', 'Captures'], passed: ['통과했어요.', 'passed.'],
+      result: ['계가', 'Score'], black: ['흑', 'Black'], white: ['백', 'White'], komiInc: ['덤 포함', 'incl. komi']
+    },
+    extraControls: function (el, api) {
+      el.innerHTML = '<div class="actions"><button class="btn" id="passBtn" type="button">' + api.esc(api.t('pass')) + '</button></div>';
+      el.querySelector('#passBtn').addEventListener('click', function () { api.move(-1); });
+    },
+    info: function (s, api, cur) {
+      var h = api.esc(api.t('caps')) + ': ' + api.esc(api.t('black')) + ' ' + s.caps[0] + ' · ' + api.esc(api.t('white')) + ' ' + s.caps[1];
+      if (s.last && s.last.m === -1 && !s.win) h += '<br>' + api.esc(s.last.by === cur.human ? api.t('me') : api.t('pc')) + ' ' + api.esc(api.t('passed'));
+      if (s.win && s.win.score) h += '<br><b>' + api.esc(api.t('result')) + ': ' + api.esc(api.t('black')) + ' ' + s.win.score[0] + ' : ' + api.esc(api.t('white')) + ' ' + s.win.score[1] + '</b> (' + api.esc(api.t('komiInc')) + ')';
+      return h;
+    },
+    render: function (el, s, ctx, api) {
+      var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="go board">', k;
+      h += '<rect x="0" y="0" width="' + S + '" height="' + S + '" rx="12" fill="#e9c27d"/>';
+      for (var i = 0; i < N; i++) { h += '<line x1="' + X(0) + '" y1="' + X(i) + '" x2="' + X(N - 1) + '" y2="' + X(i) + '" stroke="#5a3a10"/>'; h += '<line x1="' + X(i) + '" y1="' + X(0) + '" x2="' + X(i) + '" y2="' + X(N - 1) + '" stroke="#5a3a10"/>'; }
+      [[2, 2], [2, 6], [4, 4], [6, 2], [6, 6]].forEach(function (p) { h += '<circle cx="' + X(p[1]) + '" cy="' + X(p[0]) + '" r="3.5" fill="#5a3a10"/>'; });
+      var dead = {}; if (s.win && s.win.dead) s.win.dead.forEach(function (p) { dead[p] = 1; });
+      for (k = 0; k < 81; k++) {
+        var v = s.b[k]; if (!v) continue;
+        var x = X(k % N), y = X((k / N) | 0);
+        h += '<circle class="stone" cx="' + x + '" cy="' + y + '" r="' + (C * 0.46) + '" fill="' + (v === 1 ? '#1b1b1b' : '#fafafa') + '" stroke="#111" stroke-width="1.2"' + (dead[k] ? ' opacity=".55"' : '') + '/>';
+        if (dead[k]) h += '<path d="M' + (x - 8) + ' ' + (y - 8) + 'L' + (x + 8) + ' ' + (y + 8) + 'M' + (x + 8) + ' ' + (y - 8) + 'L' + (x - 8) + ' ' + (y + 8) + '" stroke="#e00" stroke-width="3"/>';
+      }
+      if (s.last && s.last.m >= 0) h += '<circle cx="' + X(s.last.m % N) + '" cy="' + X((s.last.m / N) | 0) + '" r="6" fill="#ff3b3b"/>';
+      if (ctx.hints && ctx.myTurn) {
+        var me = ctx.human + 1, ms = R.moves(s), legalSet = {}; ms.forEach(function (m) { legalSet[m] = 1; });
+        var seen = {};
+        for (k = 0; k < 81; k++) {
+          var c = s.b[k]; if (!c || seen[k]) continue;
+          var st = [k], grp = [], libs = {}; seen[k] = 1;
+          while (st.length) { var q = st.pop(); grp.push(q); var r = (q / N) | 0, cc = q % N; [[r - 1, cc], [r + 1, cc], [r, cc - 1], [r, cc + 1]].forEach(function (a) { if (a[0] < 0 || a[0] >= N || a[1] < 0 || a[1] >= N) return; var y2 = a[0] * N + a[1]; if (!s.b[y2]) libs[y2] = 1; else if (s.b[y2] === c && !seen[y2]) { seen[y2] = 1; st.push(y2); } }); }
+          var L = Object.keys(libs);
+          if (L.length === 1) {
+            if (c !== me && legalSet[+L[0]]) h += '<circle class="hint" cx="' + X(+L[0] % N) + '" cy="' + X((+L[0] / N) | 0) + '" r="8" fill="#ffd32a" stroke="#2d1b00"/>';
+            if (c === me) grp.forEach(function (g) { h += '<circle class="hint" cx="' + X(g % N) + '" cy="' + X((g / N) | 0) + '" r="' + (C * 0.48) + '" fill="none" stroke="#e74c3c" stroke-width="3"/>'; });
+          }
+        }
+      }
+      h += '</svg>';
+      el.innerHTML = h;
+      var svg = el.firstChild;
+      svg.addEventListener('click', function (ev) {
+        var pt = NadooPlay.pt(svg, ev), c = Math.round((pt.x - P) / C), r = Math.round((pt.y - P) / C);
+        if (r < 0 || r >= N || c < 0 || c >= N) return;
+        api.move(r * N + c);
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

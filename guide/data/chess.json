@@ -6,6 +6,9 @@
  },
  "emoji": "♟️",
  "intro": "전 세계에서 가장 많이 두는 전략 보드게임. 기물 6종류의 움직임만 외우면 바로 시작할 수 있어요.",
+ "play": {
+  "url": "/guide/play/chess.html"
+ },
  "glance": {
   "players": "2명",
   "time": "한 판 10~60분 (친선)",

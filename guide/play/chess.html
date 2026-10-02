@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>체스 PC 대국 | 나두게임즈</title>
+<meta name="description" content="체스 컴퓨터와 한 판: 초급·중급·고급 AI(자체 엔진), 백/흑 선택, 캐슬링·앙파상·프로모션, 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/chess.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var C = 46, P = 18, S = P * 2 + C * 8, R = NadooRules.chess, sel = -1, promo = 5;
+  var GL = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' }, FILES = 'abcdefgh';
+  NadooPlay.start({
+    id: 'chess',
+    text: {
+      title: ['체스', 'Chess'], sub: ['캐슬링·앙파상·프로모션 포함', 'Castling, en passant & promotion included'],
+      side0: ['먼저 두기 (백 ♔)', 'Go first (White)'], side1: ['나중 두기 (흑 ♚)', 'Go second (Black)'],
+      rulesNote: ['규칙(가이드와 같음): 내 기물을 누른 다음 갈 칸을 눌러요. 캐슬링은 킹을 2칸 옮기면 돼요. 앙파상·프로모션(아래에서 기물 선택, 기본 퀸) 모두 돼요. 체크메이트하면 승리, 스테일메이트·3회 반복·50수·기물 부족은 무승부. 초급에서는 갈 수 있는 칸을 점으로 보여 줘요.',
+        'Rules (same as the guide): tap your piece, then its destination. Castle by moving the king two squares. En passant and promotion (choose below, default queen) work. Checkmate wins; stalemate, threefold repetition, 50-move rule and insufficient material are draws. Easy shows legal squares with dots.'],
+      promo: ['승격 기물', 'Promote to'], check: ['체크!', 'Check!'],
+      why_mate: ['체크메이트', 'Checkmate'], why_stalemate: ['스테일메이트 (무승부)', 'Stalemate (draw)'], why_fifty: ['50수 규칙 (무승부)', '50-move rule (draw)'],
+      why_repeat: ['같은 국면 3번 (무승부)', 'Threefold repetition (draw)'], why_material: ['기물 부족 (무승부)', 'Insufficient material (draw)']
+    },
+    extraControls: function (el, api) {
+      var names = api.lang() === 'ko' ? ['퀸', '룩', '비숍', '나이트'] : ['Queen', 'Rook', 'Bishop', 'Knight'], vals = [5, 4, 3, 2];
+      el.innerHTML = '<div class="seg" style="justify-content:center"><span class="lab">' + api.esc(api.t('promo')) + '</span>' + vals.map(function (v, i) { return '<button type="button" data-p="' + v + '" aria-pressed="' + (promo === v) + '">' + GL[v] + ' ' + names[i] + '</button>'; }).join('') + '</div>';
+      var bs = el.querySelectorAll('button');
+      Array.prototype.forEach.call(bs, function (b) { b.addEventListener('click', function () { promo = +b.getAttribute('data-p'); Array.prototype.forEach.call(bs, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); }); });
+    },
+    info: function (s, api) { return s.win && s.win.why ? '<b>' + api.esc(api.t('why_' + s.win.why)) + '</b>' : (s.check ? '<b style="color:#c0392b">' + api.esc(api.t('check')) + '</b>' : ''); },
+    render: function (el, s, ctx, api) {
+      var flip = ctx.human === 1, legal = ctx.myTurn ? R.moves(s) : [], dests = {};
+      if (sel >= 0) legal.forEach(function (m) { if (m.f === sel) dests[m.t] = 1; });
+      function XY(i) { var r = i >> 3, c = i & 7; if (flip) { r = 7 - r; c = 7 - c; } return [P + c * C, P + r * C]; }
+      var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="chess board">';
+      h += '<rect x="0" y="0" width="' + S + '" height="' + S + '" rx="10" fill="#e9c27d"/>';
+      for (var i = 0; i < 64; i++) {
+        var xy = XY(i), dark = ((i >> 3) + (i & 7)) % 2 === 1;
+        h += '<rect x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="' + (dark ? '#b58863' : '#f0d9b5') + '"/>';
+        if (s.last && (s.last.f === i || s.last.t === i)) h += '<rect x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="#f7e463" opacity=".55"/>';
+        if (i === sel) h += '<rect x="' + (xy[0] + 2) + '" y="' + (xy[1] + 2) + '" width="' + (C - 4) + '" height="' + (C - 4) + '" fill="none" stroke="#27ae60" stroke-width="4"/>';
+      }
+      for (var k = 0; k < 8; k++) {
+        var f = flip ? 7 - k : k;
+        h += '<text x="' + (P + k * C + C / 2) + '" y="' + (S - 4) + '" font-size="11" text-anchor="middle" fill="#5a3a10">' + FILES[f] + '</text>';
+        h += '<text x="8" y="' + (P + k * C + C / 2 + 4) + '" font-size="11" text-anchor="middle" fill="#5a3a10">' + (flip ? k + 1 : 8 - k) + '</text>';
+      }
+      if (s.check) { var ks = R.kingSq(s.b, s.turn), kx = XY(ks); h += '<circle cx="' + (kx[0] + C / 2) + '" cy="' + (kx[1] + C / 2) + '" r="' + (C * 0.47) + '" fill="#e74c3c" opacity=".55"/>'; }
+      for (i = 0; i < 64; i++) {
+        var p = s.b[i]; if (!p) continue;
+        var w = (p >> 3) === 0, xy2 = XY(i);
+        h += '<text class="piece" x="' + (xy2[0] + C / 2) + '" y="' + (xy2[1] + C * 0.8) + '" font-size="' + (C * 0.82) + '" text-anchor="middle" font-family="DejaVu Sans,Segoe UI Symbol,Apple Symbols,Noto Sans Symbols2,sans-serif" fill="' + (w ? '#fff' : '#111') + '" stroke="' + (w ? '#111' : '#fff') + '" stroke-width="' + (w ? 1.3 : 0.7) + '" paint-order="stroke">' + GL[p & 7] + '\uFE0E</text>';
+      }
+      if (ctx.hints) Object.keys(dests).forEach(function (t) { var d = XY(+t); h += '<circle class="hint" cx="' + (d[0] + C / 2) + '" cy="' + (d[1] + C / 2) + '" r="' + (s.b[+t] ? C * 0.44 : 7) + '" fill="' + (s.b[+t] ? 'none' : '#27ae60') + '" stroke="#27ae60" stroke-width="3" opacity=".8"/>'; });
+      h += '</svg>';
+      el.innerHTML = h;
+      var svg = el.firstChild;
+      svg.addEventListener('click', function (ev) {
+        if (!ctx.myTurn) return;
+        var pt = NadooPlay.pt(svg, ev), c = Math.floor((pt.x - P) / C), r = Math.floor((pt.y - P) / C);
+        if (r < 0 || r > 7 || c < 0 || c > 7) return;
+        if (flip) { r = 7 - r; c = 7 - c; }
+        var sq = r * 8 + c, pc = s.b[sq];
+        if (sel >= 0 && dests[sq]) {
+          var mv = legal.filter(function (m) { return m.f === sel && m.t === sq; }), pick = mv.filter(function (m) { return m.p === promo; })[0] || mv[0];
+          sel = -1; api.move({ f: pick.f, t: pick.t, p: pick.p }); return;
+        }
+        sel = pc && (pc >> 3) === ctx.human && sq !== sel ? sq : -1;
+        api.redraw();
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

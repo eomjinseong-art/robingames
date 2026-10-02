@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>아발론 PC 대국 | 나두게임즈</title>
+<meta name="description" content="아발론 컴퓨터와 한 판: 초급·중급·고급 AI, 줄 이동·옆 이동·스미토(밀기), 무르기.">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="stylesheet" href="/guide/play/play.css">
+<script src="/counter.js" defer></script>
+</head>
+<body>
+<div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
+<script src="/guide/play/abalone.rules.js"></script>
+<script src="/guide/play/play.js"></script>
+<script>
+(function () {
+  var R = NadooRules.abalone, D = 40, W = D * 9 + 30, H = Math.round(D * 0.866 * 8 + D + 30), sel = [];
+  var ARW = ['→', '←', '↘', '↖', '↙', '↗'];
+  function pos(i, flip) { var c = R.CELLS[i], x = W / 2 + (c[0] + c[1] / 2) * D, y = H / 2 + c[1] * D * 0.866; return flip ? [W - x, H - y] : [x, y]; }
+  var padEl = null, lastS = null, lastCtx = null, apiRef = null;
+  function drawPad() {
+    if (!padEl || !lastS) return;
+    var flip = lastCtx.human === 0;
+    var order = [5, 0, 2, 4, 1, 3]; // 화면 방향 순서: ↗ → ↘ ↙ ← ↖
+    padEl.innerHTML = order.map(function (sd) {
+      var d = flip ? sd ^ 1 : sd, ok = lastCtx.myTurn && sel.length && R.legal(lastS, { c: sel, d: d });
+      return '<button type="button" data-d="' + d + '"' + (ok ? '' : ' disabled style="opacity:.35"') + '>' + ARW[sd] + '</button>';
+    }).join('');
+    Array.prototype.forEach.call(padEl.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () { var d = +b.getAttribute('data-d'), c = sel.slice(); sel = []; apiRef.move({ c: R.orderLine(c), d: d }); });
+    });
+  }
+  NadooPlay.start({
+    id: 'abalone',
+    text: {
+      title: ['아발론', 'Abalone'], sub: ['기본 시작 배치 · 6개 떨어뜨리면 승리', 'Standard start · push off 6 to win'],
+      side0: ['먼저 두기 (흑 ●)', 'Go first (Black ●)'], side1: ['나중 두기 (백 ○)', 'Go second (White ○)'],
+      rulesNote: ['규칙(가이드와 같음): 내 구슬을 1~3개(한 줄로 이어진) 눌러 고른 뒤 아래 화살표로 방향을 골라요. 줄 방향이면 줄 이동, 다른 방향이면 옆 이동(도착 칸이 모두 비어야 함). 줄 이동으로 더 적은 수의 상대 구슬을 밀 수 있어요(3>2·1, 2>1). 밀린 줄 뒤는 빈칸이거나 판 밖이어야 하고, 내 구슬을 스스로 떨어뜨릴 수는 없어요. 상대 구슬 6개를 먼저 떨어뜨리면 승리 (400수가 되면 덜 잃은 쪽 승). 초급에서는 밀기가 되는 구슬을 노랗게 보여 줘요.',
+        'Rules (same as the guide): tap 1–3 of your marbles in a line, then pick a direction below. Along the line = inline move, otherwise broadside (all target cells must be empty). Inline moves can push fewer enemy marbles (3>2·1, 2>1) into an empty cell or off the board; you can never push your own off. First to push off 6 wins (after 400 moves, fewer losses wins). Easy highlights marbles that can push.'],
+      off: ['떨어진 구슬', 'Pushed off'], pick: ['구슬을 고르고 방향을 눌러요', 'Pick marbles, then a direction'], clear: ['선택 취소', 'Clear']
+    },
+    extraControls: function (el, api) {
+      apiRef = api;
+      el.innerHTML = '<div class="seg" style="justify-content:center" id="abPad"></div><p class="prog" style="text-align:center">' + api.esc(api.t('pick')) + ' · <button type="button" class="btn" id="abClr" style="min-height:34px;padding:2px 10px">' + api.esc(api.t('clear')) + '</button></p>';
+      padEl = el.querySelector('#abPad');
+      el.querySelector('#abClr').addEventListener('click', function () { sel = []; api.redraw(); });
+      drawPad();
+    },
+    info: function (s, api, cur) { return api.esc(api.t('off')) + ': ' + api.esc(api.t('me')) + ' <b>' + s.off[cur.human] + '</b>/6 · ' + api.esc(api.t('pc')) + ' <b>' + s.off[1 - cur.human] + '</b>/6'; },
+    render: function (el, s, ctx, api) {
+      apiRef = api; lastS = s; lastCtx = ctx;
+      if (!ctx.myTurn) sel = [];
+      var flip = ctx.human === 0, me = ctx.human + 1, push = {};
+      if (ctx.hints && ctx.myTurn) R.moves(s).forEach(function (m) { if (m.c.some(function (c) { var n = R.NB[c][m.d]; return n >= 0 && s.b[n] === 3 - me && m.c.length > 1; })) m.c.forEach(function (c) { push[c] = 1; }); });
+      var lastSet = {}; if (s.last) s.last.c.forEach(function (c) { var n = R.NB[c][s.last.d]; if (n >= 0) lastSet[n] = 1; });
+      var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="abalone board">';
+      h += '<polygon points="' + [[-4, 0], [-2, -4], [2, -4], [4, 0], [2, 4], [-2, 4]].map(function (q) { var x = W / 2 + q[0] * D * 1.13, y = H / 2 + q[1] * D * 0.866 * 1.13; return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ') + '" fill="#5d6d7e" stroke="#2c3e50" stroke-width="3"/>';
+      for (var i = 0; i < 61; i++) {
+        var p = pos(i, flip), v = s.b[i];
+        h += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (D * 0.44) + '" fill="' + (v === 1 ? '#1b1b1b' : v === 2 ? '#fafafa' : '#34495e') + '" stroke="#1c2833" stroke-width="1.3"' + (v ? ' class="stone"' : '') + '/>';
+        if (push[i]) h += '<circle class="hint" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (D * 0.5) + '" fill="none" stroke="#ffd32a" stroke-width="3"/>';
+        if (sel.indexOf(i) >= 0) h += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (D * 0.5) + '" fill="none" stroke="#2ecc71" stroke-width="4"/>';
+        if (lastSet[i]) h += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="5" fill="#e74c3c"/>';
+      }
+      h += '</svg>';
+      el.innerHTML = h;
+      var svg = el.firstChild;
+      svg.addEventListener('click', function (ev) {
+        if (!ctx.myTurn) return;
+        var pt = NadooPlay.pt(svg, ev), best = -1, bd = 1e9;
+        for (var k = 0; k < 61; k++) { var q = pos(k, flip), dd = (q[0] - pt.x) * (q[0] - pt.x) + (q[1] - pt.y) * (q[1] - pt.y); if (dd < bd) { bd = dd; best = k; } }
+        if (bd > D * D * 0.3 || s.b[best] !== me) return;
+        var at = sel.indexOf(best);
+        if (at >= 0) sel.splice(at, 1);
+        else { sel.push(best); if (sel.length > 3 || (sel.length > 1 && !inLine(sel))) sel = [best]; }
+        api.redraw();
+      });
+      drawPad();
+    }
+  });
+  function inLine(c) { var o = R.orderLine(c); for (var d = 0; d < 6; d += 2) { var ok = true; for (var i = 1; i < o.length; i++) if (R.NB[o[i - 1]][d] !== o[i]) ok = false; if (ok) return true; } return false; }
+})();
+</script>
+</body>
+</html>
