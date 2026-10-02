@@ -6,7 +6,7 @@
 - `game.html?id=<id>` : 게임 한 개를 `data/<id>.json`에서 읽어 그리는 공용 페이지
 - `guide.js` : 렌더러 (목록·게임 페이지 + SVG 도식: 격자판 / 만칼라 판 / 카드)
 - `guide.css` : 공용 스타일
-- `play/<id>.html` : 컴퓨터와 한 판 (오목·오델로·만칼라·쿼리도). 규칙·AI는 `play/<id>.rules.js`(Web Worker `play/worker.js`에서 계산), 공용 틀 `play/play.js`. 목록에 `"pc": true`면 '🤖 PC 대국' 배지
+- `play/<id>.html` : 컴퓨터와 한 판 (오목·오델로·만칼라·쿼리도·체스·아발론·장기·샹치·바둑 9×9). 장기·샹치는 공용 엔진 `play/jx.core.js` + 판 그리기 `play/jx.ui.js`. 규칙·AI는 `play/<id>.rules.js`(Web Worker `play/worker.js`에서 계산), 공용 틀 `play/play.js`. 목록에 `"pc": true`면 '🤖 PC 대국' 배지
 - `data/index.json` : 전체 게임 목록 (27개, 모두 가이드 있음). `status`가 `ready`면 링크, `soon`이면 '준비 중'
 
 ## 새 게임 추가하는 법 (2단계)
