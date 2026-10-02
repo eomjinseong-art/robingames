@@ -4,6 +4,7 @@
   window.NadooJXUI = function (opt) { // opt: {R, river:bool, labels:[[..8],[..8]], colors:[c0,c1]}
     var C = 40, P = 26, W = P * 2 + C * 8, H = P * 2 + C * 9, sel = -1;
     return function render(el, s, ctx, api) {
+      var LB = typeof opt.labels === 'function' ? opt.labels() : opt.labels, FF = typeof opt.font === 'function' ? opt.font() : opt.font;
       var flip = ctx.view === 1, legal = ctx.myTurn ? opt.R.moves(s) : [], dests = {}, i;
       if (sel >= 0) legal.forEach(function (m) { if (m.f === sel) dests[m.t] = 1; });
       function XY(k) { var r = (k / 9) | 0, c = k % 9; if (flip) { r = 9 - r; c = 8 - c; } return [P + c * C, P + r * C]; }
@@ -28,7 +29,7 @@
         var sd = p >> 3, t = p & 7, xy2 = XY(i), col = opt.colors[sd], rr = C * (t === 1 ? 0.47 : (t === 2 || t === 7) ? 0.37 : 0.43);
         h += '<circle class="piece" cx="' + xy2[0] + '" cy="' + xy2[1] + '" r="' + rr + '" fill="#fdf3d8" stroke="' + col + '" stroke-width="' + (i === sel ? 4 : 2.2) + '"/>';
         if (i === sel) h += '<circle cx="' + xy2[0] + '" cy="' + xy2[1] + '" r="' + (rr + 4) + '" fill="none" stroke="#27ae60" stroke-width="3"/>';
-        h += '<text x="' + xy2[0] + '" y="' + (xy2[1] + rr * 0.38) + '" font-size="' + (rr * 1.05) + '" text-anchor="middle" fill="' + col + '" font-weight="700">' + opt.labels[sd][t] + '</text>';
+        h += '<text x="' + xy2[0] + '" y="' + (xy2[1] + rr * 0.38) + '" font-size="' + (rr * 1.05) + '" text-anchor="middle" fill="' + col + '" font-weight="700"' + (FF ? ' font-family="' + FF + '"' : '') + '>' + LB[sd][t] + '</text>';
       }
       if (ctx.hints) Object.keys(dests).forEach(function (k) { var d = XY(+k); h += '<circle class="hint" cx="' + d[0] + '" cy="' + d[1] + '" r="' + (s.b[+k] ? C * 0.5 : 7) + '" fill="' + (s.b[+k] ? 'none' : '#27ae60') + '" stroke="#27ae60" stroke-width="3" opacity=".85"/>'; });
       h += '</svg>';
