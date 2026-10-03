@@ -97,6 +97,8 @@
         .card:hover .ic { animation: fartwiggle .8s ease-in-out infinite; }
         .card:active { transform: translateY(4px) scale(.98); box-shadow: 0 1px 0 var(--ink); }
         .card .ic { font-size: 44px; line-height: 1.1; display: inline-block; }
+        .card .bug-card-art { width: 58px; height: 50px; display: inline-flex; align-items: center; justify-content: center; }
+        .card .bug-card-art svg { width: 58px; height: 50px; overflow: visible; }
         .card h3 { font-size: 17px; line-height: 1.2; word-break: keep-all; }
         .card p { font-size: 13px; line-height: 1.35; color: #5a3a10; word-break: keep-all; }
         .card .tag { position: absolute; top: -10px; right: -6px; background: #ff4757; color: #fff; border: 2px solid var(--ink); font-size: 12px; padding: 2px 8px; border-radius: 10px; transform: rotate(8deg); }
@@ -178,6 +180,7 @@
 
     <div class="section-title"><span>🎮</span> <b data-i18n="all">전체 게임 (골라 골라~)</b></div>
     <main class="grid">
+        <a href="./games/game14/" class="card"><span class="tag">NEW</span><span class="ic bug-card-art" aria-hidden="true"><svg viewBox="0 0 80 60" role="img"><g fill="none" stroke="#18352a" stroke-width="4" stroke-linecap="round"><path d="M40 19v30M34 27 18 17M46 27 62 17M33 37 16 39M47 37 64 39M31 48 21 55M49 48 59 55"/><path d="M35 15 28 5M45 15 52 5"/></g><ellipse cx="40" cy="34" rx="13" ry="20" fill="#5d9c45" stroke="#18352a" stroke-width="4"/><circle cx="40" cy="14" r="10" fill="#ffc857" stroke="#18352a" stroke-width="4"/><path d="M34 12 27 3M46 12 53 3" fill="none" stroke="#18352a" stroke-width="4" stroke-linecap="round"/></svg></span><h3 data-i18n="g14c">뿡뿡 곤충 씨름</h3><p data-i18n="g14d">초록에 톡! 진짜 곤충을 밀어내고 도감도 채워요</p></a>
         <a href="./games/game13/" class="card"><span class="tag">NEW</span><span class="ic">🏃</span><h3 data-i18n="g13c">뿡뿡 컬러 러너</h3><p data-i18n="g13d">내 색깔만 먹고 커져서 농부를 뿡! x10 계단까지</p></a>
         <a href="./games/game12/" class="card"><span class="tag">NEW</span><span class="ic">⌨️</span><h3 data-i18n="g12c">뿡뿡 타자기</h3><p data-i18n="g12d">타닥타닥 땡! 방귀 타자 레이스 &amp; 편지 쓰기</p></a>
         <a href="./games/game11/" class="card"><span class="tag">NEW</span><span class="ic">🔔</span><h3 data-i18n="g11c">뿡 벨</h3><p data-i18n="g11d">같은 동물 딱 5마리? 돼지·닭·유니콘보다 먼저 종을 쳐라!</p></a>
@@ -260,6 +263,7 @@
         featDesc: ['고구마 먹고 뿡! 뿡! 방귀 힘으로 하늘을 날아라. 휴지탑에 코 박으면 끝~', 'Eat sweet potatoes, go PFFT! PFFT! and fly on fart power. Bonk a toilet-paper tower = game over~'],
         go: ['뿡! 지금 바로 하기', 'Tap to toot!'],
         all: ['전체 게임 (골라 골라~)', 'All Games (pick one~)'],
+        g14c: ['뿡뿡 곤충 씨름', 'Toot Bug Sumo'], g14d: ['초록에 톡! 진짜 곤충을 밀어내고 도감도 채워요', 'Tap green! Push real bugs and fill your Bug Book'],
         g13c: ['뿡뿡 컬러 러너', 'Toot Color Runner'], g13d: ['내 색깔만 먹고 커져서 농부를 뿡! x10 계단까지', 'Eat your color, grow huge, toot the farmer away & climb to x10!'],
         g12c: ['뿡뿡 타자기', 'Toot Typewriter'], g12d: ['타닥타닥 땡! 방귀 타자 레이스 & 편지 쓰기', 'Clack clack DING! A fart-powered typing race & letter writing'],
         g11c: ['뿡 벨', 'Toot Bell'], g11d: ['같은 동물 딱 5마리? 돼지·닭·유니콘보다 먼저 종을 쳐라!', 'Exactly 5 of one animal? Smash the bell before Pig, Chicken & Unicorn!'],
