@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Fart Block Tower 뿡뿡 블록 탑 🐷🧱 | Nadoo Games 나두게임즈</title>
-<meta name="description" content="Fart Block Tower - a silly animal block puzzle! Fill a line and all the animals go PFFT! 뿡뿡 블록 탑 - 동물 블록으로 한 줄 채우면 다 같이 뿡!">
+<title>Toot Block Tower 뿡뿡 블록 탑 🐷🧱 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Block Tower - a silly animal block puzzle! Fill a line and all the animals go PFFT! 뿡뿡 블록 탑 - 동물 블록으로 한 줄 채우면 다 같이 뿡!">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nadoo Games 나두게임즈">
-<meta property="og:title" content="Fart Block Tower 🧱💨 뿡뿡 블록 탑 | Nadoo Games">
+<meta property="og:title" content="Toot Block Tower 🧱💨 뿡뿡 블록 탑 | Nadoo Games">
 <meta property="og:description" content="Drag, tap, swipe! Stack cute animal blocks, clear lines, trigger MEGA TOOT! 끌고 톡! 휙! 동물 블록을 쌓고 MEGA 뿡을 터뜨려요!">
 <meta property="og:url" content="https://robingames.vercel.app/games/game5/">
 <meta property="og:locale" content="en_US">
@@ -178,7 +178,7 @@ const store = (() => {
 const LANG_KEY = 'nadoo_lang';
 let lang = localStorage.getItem(LANG_KEY) || ((navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en');
 const T = {
-  title: ['뿡뿡 블록 탑', 'Fart Block Tower'],
+  title: ['뿡뿡 블록 탑', 'Toot Block Tower'],
   sub: ['동물 블록으로 한 줄을 꽉 채우면<br>다 같이 <b>뿡!</b> 하고 사라져요 🤭', 'Fill a whole line with animal blocks<br>and they all go <b>PFFT!</b> 🤭'],
   dDrag: ['끌기 = 이동', 'Drag = move'], dTap: ['톡 = 회전', 'Tap = spin'], dSwipe: ['휙 = 뚝!', 'Swipe = drop!'],
   start: ['뿡! 시작하기', 'TOOT! Start'], how: ['게임 방법 · 웃긴 포인트', 'How to play · Funny bits'],
@@ -205,7 +205,7 @@ const T = {
   mTitle: ['📅 오늘의 병맛 미션', '📅 Daily silly mission'], mDone: ['✅ 오늘 미션 성공! (+{r}점)', '✅ Mission done today! (+{r} pts)'],
   mClear: ['🎉 미션 성공! +{r}점', '🎉 Mission complete! +{r}'],
   go: ['GO! 뿡!', 'GO! TOOT!'],
-  shareText: ['🧱💨 뿡뿡 블록 탑에서 {b}점! 너도 뿡 해봐!', '🧱💨 I scored {b} in Fart Block Tower! Your turn to toot!'],
+  shareText: ['🧱💨 뿡뿡 블록 탑에서 {b}점! 너도 뿡 해봐!', '🧱💨 I scored {b} in Toot Block Tower! Your turn to toot!'],
   copied: ['📋 복사 완료! 친구에게 붙여넣기 해요', '📋 Copied! Paste it to a friend'], brag: ['📋 {b}점! 친구에게 자랑해요!', '📋 {b} points! Go brag to a friend!'],
 };
 const t = (k, v = {}) => { const e = T[k][lang === 'ko' ? 0 : 1]; return typeof e === 'string' ? e.replace(/\{(\w)\}/g, (_, x) => v[x]) : e; };
@@ -971,7 +971,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
-  document.title = lang === 'ko' ? '뿡뿡 블록 탑 🐷🧱 | 나두게임즈' : 'Fart Block Tower 🐷🧱 | Nadoo Games';
+  document.title = lang === 'ko' ? '뿡뿡 블록 탑 🐷🧱 | 나두게임즈' : 'Toot Block Tower 🐷🧱 | Nadoo Games';
   document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderSkins();
 }

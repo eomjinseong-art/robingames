@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Fart Rocket 뿡뿡 방귀 로켓 🍠💨 | Nadoo Games 나두게임즈</title>
-<meta name="description" content="Fart Rocket - tap to toot and fly! A silly one-tap game by Nadoo Games. 뿡뿡 방귀 로켓 - 탭해서 방귀로 날아라!">
+<title>Toot Fart Rocket 뿡뿡 방귀 로켓 🍠💨 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Fart Rocket - tap to toot and fly! A silly one-tap game by Nadoo Games. 뿡뿡 방귀 로켓 - 탭해서 방귀로 날아라!">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nadoo Games 나두게임즈">
-<meta property="og:title" content="Fart Rocket 💨 뿡뿡 방귀 로켓 | Nadoo Games">
+<meta property="og:title" content="Toot Fart Rocket 💨 뿡뿡 방귀 로켓 | Nadoo Games">
 <meta property="og:description" content="Tap to toot, dodge toilet-paper towers, unlock silly characters! 탭해서 뿡! 휴지탑을 피하고 캐릭터를 모아요!">
 <meta property="og:url" content="https://robingames.vercel.app/games/game8/">
 <meta property="og:locale" content="en_US">
@@ -159,7 +159,7 @@ const store = (() => {
 const LANG_KEY = 'nadoo_lang';
 let lang = localStorage.getItem(LANG_KEY) || ((navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en');
 const T = {
-  title: ['뿡뿡 방귀 로켓', 'Fart Rocket'],
+  title: ['뿡뿡 방귀 로켓', 'Toot Fart Rocket'],
   sub: ['고구마 먹고 <b>뿡!</b> 하늘을 날아라!<br>휴지탑에 부딪히면 방귀가 새버려요 🤭', 'Eat sweet potatoes, go <b>PFFT!</b> and fly!<br>Bonk a toilet-paper tower and… oops 🤭'],
   start: ['뿡! 시작하기', 'TOOT! Start'], pauseT: ['잠깐 쉬는 중...', 'Taking a break...'], pauseS: ['방귀 참는 중! 참을 수 있을까?', 'Holding in a fart… can you?!'],
   resume: ['계속하기', 'Resume'], quit: ['처음으로', 'Menu'], newrec: ['신기록!', 'NEW BEST!'], retry: ['다시 뿡!', 'Toot again!'],
@@ -172,7 +172,7 @@ const T = {
   locked: ['🔒 최고 {n}점을 넘으면 열려요!', '🔒 Score {n}+ to unlock!'],
   gauge: ['방귀 게이지', 'Fart meter'], tapTap: ['👆 탭! 탭! 뿡! 뿡!', '👆 Tap! Tap! Toot! Toot!'],
   superF: ['🔥슈퍼 방귀!!🔥', '🔥SUPER FART!!🔥'], crash: ['뿌지지직~!!', 'PBBBTTT~!!'],
-  shareText: ['💨 뿡뿡 방귀 로켓에서 {b}점 찍었다! 너도 도전해봐! 🍠', '💨 I scored {b} in Fart Rocket! Can you beat me? 🍠'],
+  shareText: ['💨 뿡뿡 방귀 로켓에서 {b}점 찍었다! 너도 도전해봐! 🍠', '💨 I scored {b} in Toot Fart Rocket! Can you beat me? 🍠'],
   copied: ['📋 복사 완료! 친구에게 붙여넣기 해요', '📋 Copied! Paste it to a friend'], brag: ['📋 {b}점! 친구에게 자랑해요!', '📋 {b} points! Go brag to a friend!'],
 };
 const t = (k, v = {}) => T[k][lang === 'ko' ? 0 : 1].replace(/\{(\w)\}/g, (_, x) => v[x]);
@@ -802,7 +802,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
-  document.title = lang === 'ko' ? '뿡뿡 방귀 로켓 🍠💨 | 나두게임즈' : 'Fart Rocket 🍠💨 | Nadoo Games';
+  document.title = lang === 'ko' ? '뿡뿡 방귀 로켓 🍠💨 | 나두게임즈' : 'Toot Fart Rocket 🍠💨 | Nadoo Games';
   document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderSkins();
 }

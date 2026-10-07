@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Toot Jump King 방귀 점프 킹 🐷💨 | Nadoo Games 나두게임즈</title>
-<meta name="description" content="Toot Jump King - hold to charge a fart, release to jump! A silly one-button climbing game by Nadoo Games. 방귀 점프 킹 - 꾹 참았다가 뿡! 하늘 끝까지 점프!">
+<title>Toot Jump King 뿡뿡 방귀 점프 킹 🐷💨 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Jump King - hold to charge a fart, release to jump! A silly one-button climbing game by Nadoo Games. 뿡뿡 방귀 점프 킹 - 꾹 참았다가 뿡! 하늘 끝까지 점프!">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nadoo Games 나두게임즈">
-<meta property="og:title" content="Toot Jump King 💨 방귀 점프 킹 | Nadoo Games">
+<meta property="og:title" content="Toot Jump King 💨 뿡뿡 방귀 점프 킹 | Nadoo Games">
 <meta property="og:description" content="Hold to charge, release to TOOT! Climb from the sky to outer space. 꾹 눌러 방귀 충전, 떼면 뿡! 우주까지 올라가요!">
 <meta property="og:url" content="https://robingames.vercel.app/games/game9/">
 <meta property="og:locale" content="en_US">
@@ -87,7 +87,7 @@
   <div class="overlay show" id="titleScr">
     <div class="card">
       <div style="font-size:44px">👑🐖💨</div>
-      <h1 data-i18n="title">방귀 점프 킹</h1>
+      <h1 data-i18n="title">뿡뿡 방귀 점프 킹</h1>
       <p class="sub" data-i18n-html="sub"></p>
       <p class="best" id="titleBest">🏆 0m</p>
       <div class="skins" id="skins"></div>
@@ -183,7 +183,7 @@ const autoLang = () => (navigator.language || 'en').toLowerCase().startsWith('ko
 let lang = autoLang();
 try { lang = localStorage.getItem(LANG_KEY) || autoLang(); } catch (e) {}
 const T = {
-  title: ['방귀 점프 킹', 'Toot Jump King'],
+  title: ['뿡뿡 방귀 점프 킹', 'Toot Jump King'],
   sub: ['꾹~ 참았다가 <b>뿡!</b> 방귀 힘으로 점프!<br>하늘 → 우주 → 외계 행성까지 올라가요 🚀', 'Hold it in… then <b>TOOT!</b> Jump on fart power!<br>Sky → space → alien planet 🚀'],
   start: ['뿡! 시작하기', 'TOOT! Start'], how: ['소개 · 조작법 · 웃긴 포인트', 'About · Controls · Funny bits'],
   hIntroT: ['소개', 'About'], hCtrlT: ['조작법', 'Controls'], hFunT: ['웃긴 포인트', 'Funny bits'], gotIt: ['알겠어!', 'Got it!'],
@@ -204,7 +204,7 @@ const T = {
   bonk: ['쿵!', 'BONK!'], scream: ['으아악~', 'AAAH~'], plop: ['철푸덕', 'SPLAT'], bean: ['🫘 방귀 2배!!', '🫘 DOUBLE FART!!'],
   hold: ['꾹~', 'Hold~'], timeUp: ['⏰ 끝!', "⏰ Time's up!"], leak: ['피식…', 'pfft…'],
   space: ['🚀 우주 도착!', '🚀 SPACE!'], alien: ['👽 외계 행성!', '👽 ALIEN PLANET!'],
-  shareText: ['👑 방귀 점프 킹에서 {b}m 올라갔다! 너도 뿡! 해봐 💨', '👑 I tooted {b}m high in Toot Jump King! Your turn 💨'],
+  shareText: ['👑 뿡뿡 방귀 점프 킹에서 {b}m 올라갔다! 너도 뿡! 해봐 💨', '👑 I tooted {b}m high in Toot Jump King! Your turn 💨'],
   copied: ['📋 복사 완료! 친구에게 붙여넣기 해요', '📋 Copied! Paste it to a friend'], brag: ['📋 {b}m! 친구에게 자랑해요!', '📋 {b}m! Go brag to a friend!'],
 };
 const t = (k, v = {}) => T[k][lang === 'ko' ? 0 : 1].replace(/\{(\w)\}/g, (_, x) => v[x]);
@@ -1108,7 +1108,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
-  document.title = lang === 'ko' ? '방귀 점프 킹 👑💨 | 나두게임즈' : 'Toot Jump King 👑💨 | Nadoo Games';
+  document.title = lang === 'ko' ? '뿡뿡 방귀 점프 킹 👑💨 | 나두게임즈' : 'Toot Jump King 👑💨 | Nadoo Games';
   document.getElementById('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderSkins();
 }

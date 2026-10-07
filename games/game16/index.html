@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>색깔 기억 / Color Memory | 나두게임즈</title>
-<meta name="description" content="색깔 기억 / Color Memory — watch the neon sequence, then tap it back. How far can you go?">
+<title>뿡뿡 색깔 기억 / Toot Color Memory | 나두게임즈</title>
+<meta name="description" content="뿡뿡 색깔 기억 / Toot Color Memory — watch the neon sequence, then tap it back. How far can you go?">
 <meta name="theme-color" content="#070812">
-<meta property="og:title" content="색깔 기억 / Color Memory">
+<meta property="og:title" content="뿡뿡 색깔 기억 / Toot Color Memory">
 <meta property="og:description" content="Neon Simon-style memory. Watch, tap, climb your high score.">
 <meta property="og:url" content="https://robingames.vercel.app/games/game16/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
@@ -85,8 +85,8 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
     </div>
   </div>
   <div class="hud">
-    <h1 data-i18n="title">색깔 기억</h1>
-    <div class="sub" data-i18n="titleEn">COLOR MEMORY</div>
+    <h1 data-i18n="title">뿡뿡 색깔 기억</h1>
+    <div class="sub" data-i18n="titleEn">TOOT COLOR MEMORY</div>
     <div class="stats">
       <div class="pill"><span data-i18n="round">라운드</span><b id="roundVal">0</b></div>
       <div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div>
@@ -103,7 +103,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
 
   <div class="overlay show" id="titleScr">
     <div class="panel">
-      <h2 data-i18n="title">색깔 기억</h2>
+      <h2 data-i18n="title">뿡뿡 색깔 기억</h2>
       <p data-i18n="tag">네온 불빛이 켠 순서를 기억해서 똑같이 눌러요. 한 라운드마다 +1!</p>
       <button class="btn" id="startClassic" data-i18n="classic">▶ 클래식</button>
       <button class="btn alt" id="startDaily" style="margin-top:8px" data-i18n="daily">📅 오늘의 시드</button>
@@ -133,7 +133,7 @@ const COLORS=[
  {id:'o',hex:'#ff8a3d',hz:349.23}
 ];
 const T={
- title:['색깔 기억','Color Memory'], titleEn:['COLOR MEMORY','색깔 기억'],
+ title:['뿡뿡 색깔 기억','Toot Color Memory'], titleEn:['TOOT COLOR MEMORY','뿡뿡 색깔 기억'],
  tag:['네온 불빛이 켠 순서를 기억해서 똑같이 눌러요. 한 라운드마다 +1!','Watch the neon sequence, then tap it back. Each round adds +1!'],
  classic:['▶ 클래식','▶ Classic'], daily:['📅 오늘의 시드','📅 Daily seed'],
  round:['라운드','Round'], best:['최고','Best'], pads:['패드','Pads'],

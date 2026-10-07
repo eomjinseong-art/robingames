@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Toot Bell 뿡 벨 🔔💨 | Nadoo Games 나두게임즈</title>
-<meta name="description" content="Toot Bell - a silly one-button reaction card game: when the cards show exactly 5 of the same farting animal, smash the bell before the pig, chicken and unicorn! 뿡 벨 - 같은 동물이 딱 5마리가 되면 종을 쳐라! 돼지·닭·유니콘과 반응속도 대결, 2~4인 한 폰 대결도 OK.">
+<title>Toot Bell 뿡뿡 벨 🔔💨 | Nadoo Games 나두게임즈</title>
+<meta name="description" content="Toot Bell - a silly one-button reaction card game: when the cards show exactly 5 of the same farting animal, smash the bell before the pig, chicken and unicorn! 뿡뿡 벨 - 같은 동물이 딱 5마리가 되면 종을 쳐라! 돼지·닭·유니콘과 반응속도 대결, 2~4인 한 폰 대결도 OK.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nadoo Games 나두게임즈">
-<meta property="og:title" content="Toot Bell 🔔💨 뿡 벨 | Nadoo Games">
+<meta property="og:title" content="Toot Bell 🔔💨 뿡뿡 벨 | Nadoo Games">
 <meta property="og:description" content="Exactly 5 of the same animal? SMASH THE BELL! 같은 동물 딱 5마리? 종을 쳐라! 뿡!">
 <meta property="og:url" content="https://robingames.vercel.app/games/game11/">
 <meta property="og:locale" content="en_US">
@@ -191,7 +191,7 @@
   <div class="overlay show" id="titleScr">
     <div class="ocard">
       <div style="font-size:42px">🔔💨🐷🐔🦄</div>
-      <h1><span data-i18n="title">뿡 벨</span><small data-i18n="title2">TOOT BELL</small></h1>
+      <h1><span data-i18n="title">뿡뿡 벨</span><small data-i18n="title2">TOOT BELL</small></h1>
       <div class="demo"><span class="mc">🐷🐷</span>+<span class="mc">🐷🐷🐷</span>=<b>5</b>➜<span style="font-size:30px">🔔💨</span></div>
       <div class="demo" style="font-size:17px"><span class="mc t">🐷🐷🐷🐷🐗</span>❌ <span class="mc t">🫧🐔🫧</span>❌</div>
       <p class="sub" data-i18n-html="sub"></p>
@@ -253,7 +253,7 @@ const autoLang = () => (navigator.language || 'en').toLowerCase().startsWith('ko
 let lang = autoLang();
 try { lang = localStorage.getItem(LANG_KEY) || autoLang(); } catch (e) {}
 const T = {
-  title: ['뿡 벨', 'TOOT BELL'], title2: ['TOOT BELL', '뿡 벨'],
+  title: ['뿡뿡 벨', 'TOOT BELL'], title2: ['TOOT BELL', '뿡뿡 벨'],
   sub: ['카드 위 <b>같은 동물이 딱 5마리</b>가 되면<br><b>종을 쾅!</b> 제일 빠른 사람이 카드를 다 가져가요 💨', 'When the cards show <b>exactly 5 of the same animal</b>,<br><b>SMASH the bell!</b> Fastest paw takes all the cards 💨'],
   play: ['돼지·닭·유니콘이랑 대결!', 'Battle Pig, Chicken & Unicorn!'], mpNote: ['한 폰으로 같이! 각자 구석 종을 쳐요', 'Play together on one phone! Each player gets a corner bell'],
   hintOn: ['동물 수 힌트 켜짐', 'Count hint ON'], hintOff: ['동물 수 힌트 꺼짐', 'Count hint OFF'], cardAnimals: ['카드 속 동물 수', 'Animals on cards'],
@@ -860,7 +860,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => (el.textContent = t(el.dataset.i18n)));
   document.querySelectorAll('[data-i18n-html]').forEach(el => (el.innerHTML = t(el.dataset.i18nHtml)));
-  document.title = lang === 'ko' ? '뿡 벨 🔔💨 | 나두게임즈' : 'Toot Bell 🔔💨 | Nadoo Games';
+  document.title = lang === 'ko' ? '뿡뿡 벨 🔔💨 | 나두게임즈' : 'Toot Bell 🔔💨 | Nadoo Games';
   $('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
   renderBest(); renderOwners();
   if (state !== 'title') { RIVALS.forEach((r, i) => { const n = document.querySelector('#rv' + i + ' .nm'); if (n) n.textContent = t(r.k); }); for (let p = 0; p < 4; p++) renderPile(p); renderHint(); updateLeaderStyles(); }
