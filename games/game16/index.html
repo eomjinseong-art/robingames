@@ -37,28 +37,28 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
 #status{min-height:28px;text-align:center;font-size:16px;font-weight:900;margin:6px 0 2px;color:#b9c4ff}
 #board{flex:1;min-height:0;display:grid;place-items:center;padding:4px;position:relative}
 #tint{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .08s;z-index:2;mix-blend-mode:screen}
-#cue{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);width:54px;height:54px;border-radius:50%;border:4px solid #fff;background:#ffffff22;box-shadow:0 0 28px #fff,0 0 60px currentColor;opacity:0;pointer-events:none;z-index:3;transition:opacity .08s,transform .12s;display:grid;place-items:center;font-size:28px;color:#fff;text-shadow:0 0 12px #fff}
-#cue.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#cue{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.7);width:42px;height:42px;border-radius:50%;border:3px solid #ffffffcc;background:#ffffff18;box-shadow:0 0 14px #ffffffaa,0 0 28px currentColor;opacity:0;pointer-events:none;z-index:3;transition:opacity .08s,transform .12s;display:grid;place-items:center;font-size:20px;color:#fff;text-shadow:0 0 6px #fff}
+#cue.show{opacity:.85;transform:translate(-50%,-50%) scale(1)}
 .pads{width:min(92vw,420px);aspect-ratio:1;display:grid;gap:12px;padding:12px;border-radius:28px;background:linear-gradient(180deg,#0c0f22,#060812);border:2px solid #1c2348;box-shadow:inset 0 0 40px #000a,0 10px 40px #000a;position:relative;z-index:1}
 .pads.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
 .pads.n5,.pads.n6{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr}
-.pad{border:0;border-radius:22px;cursor:pointer;position:relative;isolation:isolate;filter:brightness(.42) saturate(.7);opacity:.72;box-shadow:inset 0 -10px 0 #0008, inset 0 0 24px #0006,0 0 0 1px #ffffff10;transition:filter .1s,transform .12s,box-shadow .12s,opacity .1s;touch-action:none}
+.pad{border:0;border-radius:22px;cursor:pointer;position:relative;isolation:isolate;filter:brightness(.72) saturate(.85);opacity:.88;box-shadow:inset 0 -9px 0 #0006, inset 0 0 16px #0004,0 0 0 1px #ffffff12;transition:filter .1s,transform .12s,box-shadow .12s,opacity .1s;touch-action:none}
 .pad:disabled{cursor:default}
-.pad::after{content:'';position:absolute;inset:8px;border-radius:16px;border:3px solid transparent;pointer-events:none;transition:border-color .1s,box-shadow .1s}
-.pad.lit,.pad:active:not(:disabled){filter:brightness(1.85) saturate(1.25);opacity:1;transform:scale(1.06);z-index:2;box-shadow:0 0 0 4px #fff,0 0 28px #fff,0 0 64px currentColor,0 0 110px currentColor,inset 0 0 40px #fff8,inset 0 -4px 0 #fff3}
-.pad.lit::after,.pad:active:not(:disabled)::after{border-color:#fff;box-shadow:inset 0 0 24px #fff6}
+.pad::after{content:'';position:absolute;inset:9px;border-radius:15px;border:2px solid transparent;pointer-events:none;transition:border-color .1s,box-shadow .1s}
+.pad.lit,.pad:active:not(:disabled){filter:brightness(1.65) saturate(1.15);opacity:1;transform:scale(1.02);z-index:2;box-shadow:0 0 0 2px #ffffffcc,0 0 16px #ffffffaa,0 0 36px currentColor,0 0 56px currentColor,inset 0 0 22px #fff4,inset 0 -4px 0 #0002}
+.pad.lit::after,.pad:active:not(:disabled)::after{border-color:#ffffffcc;box-shadow:inset 0 0 14px #fff4}
 .pad.c0{background:radial-gradient(circle at 30% 25%,#ff8aa8,var(--r) 55%,#8f1235);color:var(--r)}
 .pad.c1{background:radial-gradient(circle at 30% 25%,#fff1a8,var(--y) 55%,#9a7400);color:var(--y)}
 .pad.c2{background:radial-gradient(circle at 30% 25%,#b6ffd8,var(--g) 55%,#0d7a49);color:var(--g)}
 .pad.c3{background:radial-gradient(circle at 30% 25%,#b8d9ff,var(--b) 55%,#14508f);color:var(--b)}
 .pad.c4{background:radial-gradient(circle at 30% 25%,#e8c2ff,var(--p) 55%,#5a1f8f);color:var(--p)}
 .pad.c5{background:radial-gradient(circle at 30% 25%,#ffd0b0,var(--o) 55%,#9a3f10);color:var(--o)}
-.pad.lit.c0,.pad:active:not(:disabled).c0{background:radial-gradient(circle at 35% 30%,#fff,#ffd0db 35%,var(--r) 70%)}
-.pad.lit.c1,.pad:active:not(:disabled).c1{background:radial-gradient(circle at 35% 30%,#fff,#fff6c8 35%,var(--y) 70%)}
-.pad.lit.c2,.pad:active:not(:disabled).c2{background:radial-gradient(circle at 35% 30%,#fff,#d4ffe8 35%,var(--g) 70%)}
-.pad.lit.c3,.pad:active:not(:disabled).c3{background:radial-gradient(circle at 35% 30%,#fff,#d8ebff 35%,var(--b) 70%)}
-.pad.lit.c4,.pad:active:not(:disabled).c4{background:radial-gradient(circle at 35% 30%,#fff,#f0d8ff 35%,var(--p) 70%)}
-.pad.lit.c5,.pad:active:not(:disabled).c5{background:radial-gradient(circle at 35% 30%,#fff,#ffe2cc 35%,var(--o) 70%)}
+.pad.lit.c0,.pad:active:not(:disabled).c0{background:radial-gradient(circle at 35% 30%,#ffd0db,#ff8aa8 40%,var(--r) 75%)}
+.pad.lit.c1,.pad:active:not(:disabled).c1{background:radial-gradient(circle at 35% 30%,#fff6c8,#ffe27a 40%,var(--y) 75%)}
+.pad.lit.c2,.pad:active:not(:disabled).c2{background:radial-gradient(circle at 35% 30%,#d4ffe8,#7dffc0 40%,var(--g) 75%)}
+.pad.lit.c3,.pad:active:not(:disabled).c3{background:radial-gradient(circle at 35% 30%,#d8ebff,#8fc4ff 40%,var(--b) 75%)}
+.pad.lit.c4,.pad:active:not(:disabled).c4{background:radial-gradient(circle at 35% 30%,#f0d8ff,#d39aff 40%,var(--p) 75%)}
+.pad.lit.c5,.pad:active:not(:disabled).c5{background:radial-gradient(circle at 35% 30%,#ffe2cc,#ffb07a 40%,var(--o) 75%)}
 .modes{display:flex;gap:8px;margin-top:8px}
 .btn{flex:1;min-height:52px;border:2px solid #4b5aa8;border-radius:16px;background:linear-gradient(180deg,#3a49a0,#24306f);color:#fff;font:900 16px inherit;box-shadow:0 4px 0 #12183a;cursor:pointer}
 .btn.alt{background:linear-gradient(180deg,#5a2f8f,#36185a);border-color:#8a4ec8}
@@ -226,7 +226,7 @@ function flash(i,ms=480){return new Promise(res=>{
   const el=$('pads').children[i]; if(!el){res();return}
   const tint=$('tint'), cue=$('cue');
   el.classList.add('lit');
-  if(tint){tint.style.background=`radial-gradient(circle at 50% 45%, ${COLORS[i].hex}88 0%, transparent 62%)`; tint.style.opacity='1'}
+  if(tint){tint.style.background=`radial-gradient(circle at 50% 45%, ${COLORS[i].hex}44 0%, transparent 58%)`; tint.style.opacity='1'}
   if(cue){cue.style.color=COLORS[i].hex; cue.classList.add('show')}
   snd.pad(i,Math.min(.42,ms/1000));
   setTimeout(()=>{el.classList.remove('lit'); if(tint)tint.style.opacity='0'; if(cue)cue.classList.remove('show'); res()},ms)
