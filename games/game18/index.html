@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>뿡뿡 짝 맞추기 / Toot Pair Match | 나두게임즈</title>
+<meta name="description" content="뿡뿡 짝 맞추기 / Toot Pair Match — flip cards and find matching pairs.">
+<meta name="theme-color" content="#1a1230">
+<script src="/counter.js" defer></script>
+<style>
+:root{--ink:#f3eaff;--bg:#120c22;--panel:#24183f;--line:#4a3578;--good:#7dffb2;--amber:#ffd56a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;overflow:hidden;touch-action:manipulation}
+#wrap{position:fixed;inset:0;display:flex;justify-content:center;background:radial-gradient(circle at 50% 0%,#3a2066,transparent 45%),#120c22}
+#stage{width:100%;max-width:calc(100dvh*.56);height:100%;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));position:relative}
+.top{display:flex;justify-content:space-between}.actions{display:flex;gap:6px}
+.icon{width:44px;height:44px;border:2px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);font:900 18px inherit;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 3px 0 #0006}
+.icon:active,.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #0006}
+.hud{text-align:center;margin:6px 0}.hud h1{font-size:clamp(24px,6.5vw,32px)}.hud .sub{opacity:.75;font-size:13px}
+.stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.pill{min-width:78px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#1a1230;font-size:12px;font-weight:900}.pill b{display:block;font-size:18px;color:#fff}
+#status{min-height:26px;text-align:center;font-weight:900;margin:4px 0;color:#d2b8ff}
+#board{flex:1;min-height:0;display:grid;gap:8px;padding:8px;border:2px solid var(--line);border-radius:20px;background:linear-gradient(180deg,#27184a,#160f2c)}
+.card{border:0;border-radius:14px;background:linear-gradient(180deg,#5a3d9a,#3a2568);color:#fff;font:900 28px inherit;cursor:pointer;box-shadow:0 4px 0 #0005;position:relative;touch-action:none}
+.card.back{color:transparent}.card.back::after{content:'❓';position:absolute;inset:0;display:grid;place-items:center;color:#e8d8ff;font-size:26px}
+.card.open,.card.match{background:linear-gradient(180deg,#fff6,#c9b0ff 40%,#7a55c8);color:#1a1230;text-shadow:0 1px 0 #fff8}
+.card.match{box-shadow:0 0 0 2px var(--good),0 0 18px #7dffb266}.card:disabled{cursor:default}
+.btn{min-height:50px;width:100%;margin-top:8px;border:2px solid #6a4aa8;border-radius:16px;background:linear-gradient(180deg,#7a52c8,#4a2f88);color:#fff;font:900 16px inherit;box-shadow:0 4px 0 #140c28;cursor:pointer}
+.overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:#0a0614dd}
+.overlay.show{display:flex}.panel{width:min(100%,380px);background:linear-gradient(180deg,#2c1a55,#170f30);border:2px solid #6a4aa8;border-radius:22px;padding:16px;text-align:center}
+.panel h2{font-size:28px}.panel p{opacity:.9;line-height:1.4;margin:8px 0 12px}.scoreline{font-size:22px;font-weight:900;color:var(--amber)}
+.credit{text-align:center;font-size:10px;color:#b9a6d899;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <div class="top"><a class="icon" href="../../index.html" aria-label="Home">⌂</a><div class="actions"><button class="icon" id="langBtn">🌐</button><button class="icon" id="muteBtn">🔊</button></div></div>
+  <div class="hud"><h1 data-i18n="title">뿡뿡 짝 맞추기</h1><div class="sub" data-i18n="titleEn">TOOT PAIR MATCH</div>
+    <div class="stats"><div class="pill"><span data-i18n="moves">수</span><b id="movesVal">0</b></div><div class="pill"><span data-i18n="pairs">짝</span><b id="pairsVal">0</b></div><div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div></div>
+  </div>
+  <div id="status" data-i18n="ready">카드를 뒤집어 짝을 찾아요</div>
+  <div id="board"></div>
+  <button class="btn" id="startBtn" data-i18n="start">▶ 시작</button>
+  <div class="credit">© 나두게임즈 Nadoo Games | Developed by 나두Ai</div>
+  <div class="overlay show" id="titleScr"><div class="panel"><h2 data-i18n="title">뿡뿡 짝 맞추기</h2><p data-i18n="tag">카드를 두 장씩 뒤집어 같은 그림을 맞춰요!</p><button class="btn" id="goBtn" data-i18n="start">▶ 시작</button></div></div>
+  <div class="overlay" id="overScr"><div class="panel"><h2 id="overTitle" data-i18n="win">완료!</h2><div class="scoreline" id="near"></div><p id="overSub"></p><button class="btn" id="againBtn" data-i18n="again">한 판 더</button></div></div>
+</div></div>
+<script>
+(()=>{'use strict';
+/* Standing BGM rule: always make BGM highly addictive; MUSIC quieter than SFX. */
+const $=id=>document.getElementById(id), LANG_KEY='nadoo_lang', MUTE_KEY='tootPairMatch_mute', SAVE_KEY='tootPairMatch_v1', FAST=new URLSearchParams(location.search).get('fast')==='1';
+const ICONS=['🐶','🐱','🐰','🦊','🐻','🐼','🐸','🐷','🐵','🦄','🐯','🐨'];
+const T={title:['뿡뿡 짝 맞추기','Toot Pair Match'],titleEn:['TOOT PAIR MATCH','뿡뿡 짝 맞추기'],tag:['카드를 두 장씩 뒤집어 같은 그림을 맞춰요!','Flip two cards at a time and find matching pairs!'],start:['▶ 시작','▶ Start'],moves:['수','Moves'],pairs:['짝','Pairs'],best:['최고','Best'],ready:['카드를 뒤집어 짝을 찾아요','Flip cards to find pairs'],win:['완료!','Cleared!'],over:['시간 오버','Time Up'],near:['아깝다! {p}쌍 · {m}수','So close! {p} pairs · {m} moves'],cleared:['클리어! {m}수','Cleared in {m} moves'],again:['한 판 더','Again']};
+let lang='ko';try{lang=localStorage.getItem(LANG_KEY)||((navigator.language||'en').toLowerCase().startsWith('ko')?'ko':'en')}catch(e){}
+const t=(k,v={})=>String(T[k][lang==='ko'?0:1]).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
+let save={best:0};try{Object.assign(save,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'))}catch(e){}
+const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}};
+const MUSIC_PROG=[[0,5,9],[-2,2,7],[5,9,12],[7,11,14],[0,4,7],[2,7,11]];
+const MUSIC_MEL=[12,14,null,16,null,14,12,null,19,null,16,14,12,null,9,null,7,7,null,9,null,12,14,null,16,null,12,9,7,null,5,null];
+const snd={ac:null,muted:false,master:null,musicBus:null,noiseBuf:null,unlocked:false,el:null,musicOn:false,mTimer:null,mNext:0,mStep:0,bpm:142,key:2,MASTER:.9,MUSIC:.12,
+ init(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
+  if(!this.ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;try{this.ac=new AC({latencyHint:'interactive'})}catch(e){this.ac=new AC()}
+   const ac=this.ac;this.master=ac.createGain();this.master.gain.value=this.muted?0:this.MASTER;const c=ac.createDynamicsCompressor();c.threshold.value=-22;c.ratio.value=3.5;const m=ac.createGain();m.gain.value=1.2;this.master.connect(c);c.connect(m);m.connect(ac.destination);
+   this.musicBus=ac.createGain();this.musicBus.gain.value=.0001;this.musicBus.connect(this.master);const len=ac.sampleRate;this.noiseBuf=ac.createBuffer(1,len,ac.sampleRate);const ch=this.noiseBuf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1}
+  const ac=this.ac;if(ac.state!=='running'){try{const p=ac.resume();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  if(!this.unlocked){try{const b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0);this.unlocked=true}catch(e){}}
+  if(!navigator.audioSession&&/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent)&&'ontouchend' in document){if(!this.el){const sr=8000,n=800,buf=new ArrayBuffer(44+n*2),v=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);this.el=document.createElement('audio');this.el.src=URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));this.el.loop=true;this.el.setAttribute('playsinline','');this.el.preload='auto'}if(this.el.paused&&!document.hidden){const p=this.el.play();if(p&&p.catch)p.catch(()=>{})}}
+  this.startMusic()},
+ setMute(m){this.muted=m;try{localStorage.setItem(MUTE_KEY,m?'1':'0')}catch(e){}if(this.master&&this.ac)this.master.gain.setTargetAtTime(m?0:this.MASTER,this.ac.currentTime,.02)},
+ sleep(){if(this.el&&!this.el.paused)this.el.pause();if(this.ac&&this.ac.state==='running'&&this.ac.suspend)this.ac.suspend().catch(()=>{})},
+ startMusic(){if(!this.ac||this.musicOn)return;this.musicOn=true;this.mStep=0;this.mNext=this.ac.currentTime+.08;this.musicBus.gain.setTargetAtTime(this.MUSIC,this.ac.currentTime,.18);clearInterval(this.mTimer);this.mTimer=setInterval(()=>this.tickMusic(),50);this.tickMusic()},
+ tickMusic(){const ac=this.ac;if(!ac||!this.musicOn||ac.state!=='running')return;if(this.mNext<ac.currentTime-.05)this.mNext=ac.currentTime+.05;while(this.mNext<ac.currentTime+.28){const e8=60/this.bpm/2;this.note(this.mStep,this.mNext,e8);this.mNext+=e8;this.mStep++}},
+ note(step,t,e8){const ac=this.ac,bus=this.musicBus,bar=Math.floor(step/8)%MUSIC_PROG.length,s8=step%8,ch=MUSIC_PROG[bar],hz=st=>261.63*Math.pow(2,(st+this.key)/12);
+  const blip=(f,dur,type,vol,slide)=>{const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(40,f*slide),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+.02)};
+  if(s8===0||s8===3||s8===5)blip(hz(ch[0]-24),e8*1.15,'triangle',.4);if(s8===0||s8===4)blip(108,e8*.42,'sine',.46,.28);if(s8%2===1){const n=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();n.buffer=this.noiseBuf;f.type='highpass';f.frequency.value=6800;g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0001,t+.03);n.connect(f);f.connect(g);g.connect(bus);n.start(t,Math.random()*.4);n.stop(t+.03)}
+  const m=MUSIC_MEL[step%MUSIC_MEL.length];if(m!==null)blip(hz(m+12),e8*.8,'square',.1);if(step%32===20)blip(hz(21),e8*1.7,'triangle',.12,.6)},
+ flip(){if(!this.ac||this.muted)return;const t=this.ac.currentTime,o=this.ac.createOscillator(),g=this.ac.createGain();o.type='triangle';o.frequency.setValueAtTime(520,t);o.frequency.exponentialRampToValueAtTime(780,t+.08);g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.0001,t+.1);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+.12)},
+ match(){if(!this.ac||this.muted)return;[523,659,784].forEach((f,i)=>{const t=this.ac.currentTime+i*.07,o=this.ac.createOscillator(),g=this.ac.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.16,t);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+.14)})},
+ miss(){if(!this.ac||this.muted)return;const t=this.ac.currentTime,o=this.ac.createOscillator(),g=this.ac.createGain();o.type='sine';o.frequency.setValueAtTime(240,t);o.frequency.exponentialRampToValueAtTime(140,t+.15);g.gain.setValueAtTime(.14,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+.2)}
+};
+try{snd.muted=localStorage.getItem(MUTE_KEY)==='1'}catch(e){}
+['pointerdown','touchend','click','keydown'].forEach(ev=>window.addEventListener(ev,()=>snd.init(),{capture:true,passive:true}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)snd.sleep();else if(snd.ac&&snd.ac.state!=='running')snd.ac.resume().catch(()=>{})});
+
+let state='title', deck=[], open=[], matched=0, moves=0, pairs=6, cols=4, rows=3, busy=false, left=0, timer=null;
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(e=>{if(T[e.dataset.i18n])e.textContent=t(e.dataset.i18n)});$('langBtn').textContent=lang==='ko'?'🌐 EN':'🌐 한';$('bestVal').textContent=String(save.best);$('muteBtn').textContent=snd.muted?'🔇':'🔊'}
+function show(id){document.querySelectorAll('.overlay').forEach(o=>o.classList.toggle('show',o.id===id))}
+function layout(){if(pairs<=6){cols=4;rows=3}else if(pairs<=8){cols=4;rows=4}else{cols=4;rows=5}}
+function build(){
+  layout();const icons=ICONS.slice(0,pairs);deck=[...icons,...icons].sort(()=>Math.random()-.5);
+  const b=$('board');b.style.gridTemplateColumns=`repeat(${cols},1fr)`;b.style.gridTemplateRows=`repeat(${rows},1fr)`;b.innerHTML='';
+  deck.forEach((icon,i)=>{const c=document.createElement('button');c.className='card back';c.dataset.i=String(i);c.dataset.icon=icon;c.addEventListener('pointerdown',e=>{e.preventDefault();flip(i)});b.appendChild(c)});
+  $('pairsVal').textContent='0/'+pairs;$('movesVal').textContent='0';
+}
+function flip(i){if(state!=='play'||busy)return;const el=$('board').children[i];if(!el||el.classList.contains('open')||el.classList.contains('match'))return;
+  snd.init();snd.flip();el.classList.remove('back');el.classList.add('open');el.textContent=el.dataset.icon;open.push(i);
+  if(open.length===2){moves++;$('movesVal').textContent=String(moves);busy=true;const [a,b]=open,A=$('board').children[a],B=$('board').children[b];
+    if(A.dataset.icon===B.dataset.icon){snd.match();A.classList.add('match');B.classList.add('match');matched++;$('pairsVal').textContent=matched+'/'+pairs;open=[];busy=false;if(matched>=pairs)win()}
+    else{snd.miss();setTimeout(()=>{A.classList.add('back');A.classList.remove('open');A.textContent='';B.classList.add('back');B.classList.remove('open');B.textContent='';open=[];busy=false},480)}}}
+function win(){state='over';clearInterval(timer);const score=Math.max(1,1000-moves*12+(left|0));if(score>save.best){save.best=score;persist()}
+  $('overTitle').textContent=t('win');$('near').textContent=t('cleared',{m:moves});$('overSub').textContent=t('best')+': '+save.best;$('bestVal').textContent=String(save.best);show('overScr')}
+function lose(){state='over';clearInterval(timer);$('overTitle').textContent=t('over');$('near').textContent=t('near',{p:matched,m:moves});$('overSub').textContent=t('best')+': '+save.best;show('overScr')}
+function tick(){left--;if(left<=0)lose()}
+function start(){snd.init();state='play';pairs=FAST?2:6;matched=0;moves=0;open=[];busy=false;left=FAST?20:90;build();show(null);$('status').textContent=t('ready');clearInterval(timer);timer=setInterval(tick,1000)}
+$('startBtn').onclick=start;$('goBtn').onclick=start;$('againBtn').onclick=()=>{pairs=Math.min(10,pairs+ (FAST?0:1));start()};
+$('langBtn').onclick=()=>{lang=lang==='ko'?'en':'ko';try{localStorage.setItem(LANG_KEY,lang)}catch(e){}applyLang()};
+$('muteBtn').onclick=()=>{snd.init();snd.setMute(!snd.muted);applyLang();if(!snd.muted)snd.flip()};
+applyLang();
+window.__tootPairMatch=Object.freeze({snapshot:()=>({state,pairs,matched,moves,left,best:save.best,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),forceOver:()=>lose(),flip:(i)=>flip(i)});
+})();
+</script>
+</body>
+</html>
