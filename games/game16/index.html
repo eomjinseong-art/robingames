@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>색깔 기억 / Color Memory | 나두게임즈</title>
+<meta name="description" content="색깔 기억 / Color Memory — watch the neon sequence, then tap it back. How far can you go?">
+<meta name="theme-color" content="#070812">
+<meta property="og:title" content="색깔 기억 / Color Memory">
+<meta property="og:description" content="Neon Simon-style memory. Watch, tap, climb your high score.">
+<meta property="og:url" content="https://robingames.vercel.app/games/game16/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+<script src="/counter.js" defer></script>
+<style>
+:root{
+  --ink:#e8ecff; --bg:#070812; --panel:#121527; --line:#2a3158;
+  --r:#ff3b6b; --y:#ffd84d; --g:#2dff9a; --b:#4da3ff; --p:#c56bff; --o:#ff8a3d;
+  --glow:0 0 22px; --shadow:#000a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;overflow:hidden;touch-action:manipulation}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:
+  radial-gradient(circle at 50% 0%,#1b2050 0%,transparent 45%),
+  radial-gradient(circle at 20% 90%,#2a1040 0%,transparent 40%),
+  #070812}
+#stage{width:100%;height:100%;max-width:calc(100dvh * .56);max-height:100dvh;position:relative;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+.top{display:flex;justify-content:space-between;align-items:center;z-index:5}
+.icon{width:44px;height:44px;border:2px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);font:900 18px inherit;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 3px 0 #0006}
+.icon:active{transform:translateY(2px);box-shadow:0 1px 0 #0006}
+.actions{display:flex;gap:6px}
+.hud{text-align:center;margin:8px 0 4px}
+.hud h1{font-size:clamp(26px,7vw,34px);letter-spacing:-.5px;background:linear-gradient(90deg,#fff,#9ad0ff 50%,#ff9de4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hud .sub{font-size:13px;opacity:.75;margin-top:2px}
+.stats{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.pill{min-width:86px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:#0e1228cc;font-size:13px;font-weight:900}
+.pill b{display:block;font-size:18px;color:#fff}
+#status{min-height:28px;text-align:center;font-size:16px;font-weight:900;margin:6px 0 2px;color:#b9c4ff}
+#board{flex:1;min-height:0;display:grid;place-items:center;padding:4px}
+.pads{width:min(92vw,420px);aspect-ratio:1;display:grid;gap:10px;padding:10px;border-radius:28px;background:linear-gradient(180deg,#151933,#0b0e1e);border:2px solid #2c3568;box-shadow:inset 0 0 40px #0008,0 10px 40px #0008}
+.pads.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pads.n5,.pads.n6{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr}
+.pad{border:0;border-radius:22px;cursor:pointer;position:relative;box-shadow:inset 0 -8px 0 #0005,0 0 0 1px #ffffff14;transition:filter .08s,transform .08s,box-shadow .08s;touch-action:none}
+.pad:disabled{cursor:default}
+.pad.lit,.pad:active:not(:disabled){filter:brightness(1.45);transform:scale(.97);box-shadow:var(--glow) currentColor, inset 0 -4px 0 #0003}
+.pad.c0{background:radial-gradient(circle at 30% 25%,#ff8aa8,var(--r) 55%,#8f1235);color:var(--r)}
+.pad.c1{background:radial-gradient(circle at 30% 25%,#fff1a8,var(--y) 55%,#9a7400);color:var(--y)}
+.pad.c2{background:radial-gradient(circle at 30% 25%,#b6ffd8,var(--g) 55%,#0d7a49);color:var(--g)}
+.pad.c3{background:radial-gradient(circle at 30% 25%,#b8d9ff,var(--b) 55%,#14508f);color:var(--b)}
+.pad.c4{background:radial-gradient(circle at 30% 25%,#e8c2ff,var(--p) 55%,#5a1f8f);color:var(--p)}
+.pad.c5{background:radial-gradient(circle at 30% 25%,#ffd0b0,var(--o) 55%,#9a3f10);color:var(--o)}
+.modes{display:flex;gap:8px;margin-top:8px}
+.btn{flex:1;min-height:52px;border:2px solid #4b5aa8;border-radius:16px;background:linear-gradient(180deg,#3a49a0,#24306f);color:#fff;font:900 16px inherit;box-shadow:0 4px 0 #12183a;cursor:pointer}
+.btn.alt{background:linear-gradient(180deg,#5a2f8f,#36185a);border-color:#8a4ec8}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #12183a}
+.btn:disabled{opacity:.45}
+.overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:18px;background:#05070fdd;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.panel{width:min(100%,380px);background:linear-gradient(180deg,#171c3a,#0d1126);border:2px solid #3a4588;border-radius:24px;padding:18px 16px;text-align:center;box-shadow:0 12px 40px #000a}
+.panel h2{font-size:30px;margin-bottom:6px}
+.panel p{font-size:15px;line-height:1.4;opacity:.88;margin:6px 0 12px}
+.panel .scoreline{font-size:22px;font-weight:900;color:#ffd84d;margin:8px 0}
+.credit{position:absolute;left:0;right:0;bottom:max(4px,env(safe-area-inset-bottom));text-align:center;font-size:10px;color:#8a93c099;pointer-events:none;z-index:4}
+@media(max-height:700px){.hud h1{font-size:24px}.pad{border-radius:18px}.btn{min-height:46px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <div class="top">
+    <a class="icon" href="../../index.html" aria-label="Home 홈">⌂</a>
+    <div class="actions">
+      <button class="icon" id="langBtn" aria-label="Language 언어">🌐</button>
+      <button class="icon" id="muteBtn" aria-label="Sound 소리">🔊</button>
+    </div>
+  </div>
+  <div class="hud">
+    <h1 data-i18n="title">색깔 기억</h1>
+    <div class="sub" data-i18n="titleEn">COLOR MEMORY</div>
+    <div class="stats">
+      <div class="pill"><span data-i18n="round">라운드</span><b id="roundVal">0</b></div>
+      <div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div>
+      <div class="pill"><span data-i18n="pads">패드</span><b id="padVal">4</b></div>
+    </div>
+  </div>
+  <div id="status" data-i18n="ready">보고 → 따라 해요</div>
+  <div id="board"><div class="pads n4" id="pads"></div></div>
+  <div class="modes">
+    <button class="btn" id="classicBtn" data-i18n="classic">▶ 클래식</button>
+    <button class="btn alt" id="dailyBtn" data-i18n="daily">📅 오늘의 시드</button>
+  </div>
+  <div class="credit">© 나두게임즈 Nadoo Games | Developed by 나두Ai</div>
+
+  <div class="overlay show" id="titleScr">
+    <div class="panel">
+      <h2 data-i18n="title">색깔 기억</h2>
+      <p data-i18n="tag">네온 불빛이 켠 순서를 기억해서 똑같이 눌러요. 한 라운드마다 +1!</p>
+      <button class="btn" id="startClassic" data-i18n="classic">▶ 클래식</button>
+      <button class="btn alt" id="startDaily" style="margin-top:8px" data-i18n="daily">📅 오늘의 시드</button>
+    </div>
+  </div>
+  <div class="overlay" id="overScr">
+    <div class="panel">
+      <h2 data-i18n="over">게임 오버</h2>
+      <div class="scoreline" id="nearMiss"></div>
+      <p id="overSub"></p>
+      <button class="btn" id="againBtn" data-i18n="again">한 판 더</button>
+      <button class="btn alt" id="homeBtn" style="margin-top:8px" data-i18n="menu">메뉴</button>
+    </div>
+  </div>
+</div></div>
+<script>
+(()=>{'use strict';
+/* Standing BGM rule: always make BGM highly addictive; keep MUSIC quieter than SFX. */
+const $=id=>document.getElementById(id);
+const LANG_KEY='nadoo_lang', MUTE_KEY='colorMemory_mute', SAVE_KEY='colorMemory_v1';
+const COLORS=[
+ {id:'r',hex:'#ff3b6b',hz:329.63},
+ {id:'y',hex:'#ffd84d',hz:261.63},
+ {id:'g',hex:'#2dff9a',hz:392.00},
+ {id:'b',hex:'#4da3ff',hz:493.88},
+ {id:'p',hex:'#c56bff',hz:587.33},
+ {id:'o',hex:'#ff8a3d',hz:349.23}
+];
+const T={
+ title:['색깔 기억','Color Memory'], titleEn:['COLOR MEMORY','색깔 기억'],
+ tag:['네온 불빛이 켠 순서를 기억해서 똑같이 눌러요. 한 라운드마다 +1!','Watch the neon sequence, then tap it back. Each round adds +1!'],
+ classic:['▶ 클래식','▶ Classic'], daily:['📅 오늘의 시드','📅 Daily seed'],
+ round:['라운드','Round'], best:['최고','Best'], pads:['패드','Pads'],
+ ready:['보고 → 따라 해요','Watch → then tap'],
+ watch:['보고 있어요…','Watch…'], your:['당신 차례!','Your turn!'],
+ good:['좋아요!','Nice!'], over:['게임 오버','Game Over'],
+ near:['아깝다! {n}개까지','So close! Got to {n}'],
+ dailyBest:['오늘 최고 {n}','Daily best {n}'],
+ again:['한 판 더','Again'], menu:['메뉴','Menu'],
+ unlocked:['패드 {n}개!','{n} pads!']
+};
+const MUSIC_PROG=[[0,4,7],[-3,0,4],[5,9,12],[7,11,14],[0,5,9],[-5,-1,2],[2,7,11],[5,9,12]];
+const MUSIC_MEL=[12,null,14,12,null,16,14,null,19,null,16,14,12,null,9,null,7,7,null,9,null,12,14,null,16,null,12,9,7,null,5,null,12,14,16,null,19,null,16,14,12,null,14,16,19,null,16,null,12,12,null,9,null,7,9,null,12,null,14,12,9,null,7,null];
+
+let lang='ko'; try{lang=localStorage.getItem(LANG_KEY)||((navigator.language||'en').toLowerCase().startsWith('ko')?'ko':'en')}catch(e){}
+const L=()=>lang==='ko'?0:1; const t=(k,v={})=>String(T[k][L()]).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
+let save={best:0,dailyBest:0,dailyKey:''}; try{Object.assign(save,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'))}catch(e){}
+const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}};
+
+const snd={
+ ac:null,muted:false,master:null,sfx:null,musicBus:null,noiseBuf:null,unlocked:false,el:null,
+ musicOn:false,mTimer:null,mNext:0,mStep:0,bpm:148,key:2,MASTER:.9,MUSIC:.12,
+ init(){
+  try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}
+  if(!this.ac){
+   const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+   try{this.ac=new AC({latencyHint:'interactive'})}catch(e){this.ac=new AC()}
+   const ac=this.ac;
+   this.master=ac.createGain(); this.master.gain.value=this.muted?0:this.MASTER;
+   const comp=ac.createDynamicsCompressor(); comp.threshold.value=-22; comp.knee.value=12; comp.ratio.value=3.5; comp.attack.value=.003; comp.release.value=.2;
+   const make=ac.createGain(); make.gain.value=1.2;
+   this.master.connect(comp); comp.connect(make); make.connect(ac.destination); this.sfx=this.master;
+   this.musicBus=ac.createGain(); this.musicBus.gain.value=.0001; this.musicBus.connect(this.master);
+   const len=ac.sampleRate; this.noiseBuf=ac.createBuffer(1,len,ac.sampleRate); const ch=this.noiseBuf.getChannelData(0); for(let i=0;i<len;i++) ch[i]=Math.random()*2-1;
+  }
+  const ac=this.ac; if(ac.state!=='running'){try{const p=ac.resume(); if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  if(!this.unlocked){try{const b=ac.createBuffer(1,1,22050),s=ac.createBufferSource(); s.buffer=b; s.connect(ac.destination); s.start(0); this.unlocked=true}catch(e){}}
+  if(!navigator.audioSession&&/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent)&&'ontouchend' in document){
+   if(!this.el){const sr=8000,n=800,buf=new ArrayBuffer(44+n*2),v=new DataView(buf); const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))}; w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVEfmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*2,true); this.el=document.createElement('audio'); this.el.src=URL.createObjectURL(new Blob([buf],{type:'audio/wav'})); this.el.loop=true; this.el.setAttribute('playsinline',''); this.el.preload='auto'}
+   if(this.el.paused&&!document.hidden){const p=this.el.play(); if(p&&p.catch)p.catch(()=>{})}
+  }
+  this.startMusic();
+ },
+ setMute(m){this.muted=m; try{localStorage.setItem(MUTE_KEY,m?'1':'0')}catch(e){} if(this.master&&this.ac) this.master.gain.setTargetAtTime(m?0:this.MASTER,this.ac.currentTime,.02)},
+ sleep(){if(this.el&&!this.el.paused)this.el.pause(); if(this.ac&&this.ac.state==='running'&&this.ac.suspend)this.ac.suspend().catch(()=>{})},
+ startMusic(){if(!this.ac||this.musicOn)return; this.musicOn=true; this.mStep=0; this.mNext=this.ac.currentTime+.08; this.musicBus.gain.cancelScheduledValues(this.ac.currentTime); this.musicBus.gain.setTargetAtTime(this.MUSIC,this.ac.currentTime,.18); clearInterval(this.mTimer); this.mTimer=setInterval(()=>this.tickMusic(),50); this.tickMusic()},
+ stopMusic(){if(!this.musicOn)return; this.musicOn=false; clearInterval(this.mTimer); this.mTimer=null; if(this.ac) this.musicBus.gain.setTargetAtTime(.0001,this.ac.currentTime,.06)},
+ tickMusic(){const ac=this.ac; if(!ac||!this.musicOn||ac.state!=='running')return; if(this.mNext<ac.currentTime-.05)this.mNext=ac.currentTime+.05; while(this.mNext<ac.currentTime+.28){const e8=60/this.bpm/2; this.note(this.mStep,this.mNext,e8); this.mNext+=e8; this.mStep++}},
+ note(step,t,e8){
+  const ac=this.ac,bus=this.musicBus,bar=Math.floor(step/8)%MUSIC_PROG.length,s8=step%8,ch=MUSIC_PROG[bar];
+  const hz=st=>261.63*Math.pow(2,(st+this.key)/12);
+  const blip=(f,dur,type,vol,slide)=>{const o=ac.createOscillator(),g=ac.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(40,f*slide),t+dur); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g); g.connect(bus); o.start(t); o.stop(t+dur+.02)};
+  if(s8===0||s8===3||s8===5) blip(hz(ch[0]-24),e8*(s8===0?1.6:1.05),'triangle',.45);
+  if(s8===0||s8===4) blip(110,e8*.5,'sine',.5,.3);
+  if(s8===2||s8===6) blip(hz(ch[1]-12),e8*.4,'square',.045);
+  if(s8%2===1){const n=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain(); n.buffer=this.noiseBuf; f.type='highpass'; f.frequency.value=7000; g.gain.setValueAtTime(.1,t); g.gain.exponentialRampToValueAtTime(.0001,t+.03); n.connect(f); f.connect(g); g.connect(bus); n.start(t,Math.random()*.4); n.stop(t+.035)}
+  const m=MUSIC_MEL[step%MUSIC_MEL.length]; if(m!==null) blip(hz(m+12),e8*.8,'square',.1);
+  if(step%32===24) blip(hz(19),e8*2,'triangle',.14,.55);
+  if(step%64===40){blip(hz(24),e8*1.3,'square',.07); blip(hz(28),e8*1.5,'sine',.09,.7)}
+ },
+ pad(i,dur=.18){if(!this.ac||this.muted)return; const ac=this.ac,t=ac.currentTime,f=COLORS[i].hz,o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain(); o.type='square'; o2.type='triangle'; o.frequency.setValueAtTime(f,t); o2.frequency.setValueAtTime(f*2.01,t); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.32,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g); o2.connect(g); g.connect(this.master); o.start(t); o2.start(t); o.stop(t+dur+.02); o2.stop(t+dur+.02)},
+ buzz(){if(!this.ac||this.muted)return; const ac=this.ac,t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(60,t+.28); g.gain.setValueAtTime(.25,t); g.gain.exponentialRampToValueAtTime(.0001,t+.3); o.connect(g); g.connect(this.master); o.start(t); o.stop(t+.32)},
+ success(){[523,659,784].forEach((f,i)=>{if(!this.ac||this.muted)return; const t=this.ac.currentTime+i*.08,o=this.ac.createOscillator(),g=this.ac.createGain(); o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(.18,t); g.gain.exponentialRampToValueAtTime(.0001,t+.14); o.connect(g); g.connect(this.master); o.start(t); o.stop(t+.16)})}
+};
+try{snd.muted=localStorage.getItem(MUTE_KEY)==='1'}catch(e){}
+['pointerdown','touchend','click','keydown'].forEach(ev=>window.addEventListener(ev,()=>snd.init(),{capture:true,passive:true}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)snd.sleep(); else if(snd.ac&&snd.ac.state!=='running')snd.ac.resume().catch(()=>{})});
+
+let state='title', mode='classic', seq=[], step=0, padCount=4, busy=false, rng=Math.random;
+function dayKey(){const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return((t^t>>>14)>>>0)/4294967296}}
+function hashStr(s){let h=2166136261>>>0; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i); h=Math.imul(h,16777619)} return h>>>0}
+function applyLang(){document.documentElement.lang=lang; document.querySelectorAll('[data-i18n]').forEach(e=>{if(T[e.dataset.i18n])e.textContent=t(e.dataset.i18n)}); $('langBtn').textContent=lang==='ko'?'🌐 EN':'🌐 한'; updateHud()}
+function updateMute(){$('muteBtn').textContent=snd.muted?'🔇':'🔊'; $('muteBtn').setAttribute('aria-pressed',snd.muted?'true':'false')}
+function updateHud(){$('roundVal').textContent=String(seq.length); $('bestVal').textContent=String(mode==='daily'?save.dailyBest:save.best); $('padVal').textContent=String(padCount)}
+function show(id){document.querySelectorAll('.overlay').forEach(o=>o.classList.toggle('show',o.id===id))}
+function setStatus(k,v){$('status').textContent=typeof k==='string'&&T[k]?t(k,v):k}
+function padCountFor(len){if(len>=18)return 6; if(len>=10)return 5; return 4}
+function buildPads(){
+  const el=$('pads'); el.innerHTML=''; el.className='pads n'+padCount;
+  for(let i=0;i<padCount;i++){
+    const b=document.createElement('button'); b.className='pad c'+i; b.dataset.i=String(i); b.setAttribute('aria-label','pad '+(i+1));
+    b.addEventListener('pointerdown',e=>{e.preventDefault(); onPad(i)});
+    el.appendChild(b);
+  }
+  setPadsEnabled(false);
+}
+function setPadsEnabled(on){busy=!on; [...$('pads').children].forEach(b=>b.disabled=!on)}
+function flash(i,ms=280){return new Promise(res=>{const el=$('pads').children[i]; if(!el){res();return} el.classList.add('lit'); snd.pad(i,ms/1000); setTimeout(()=>{el.classList.remove('lit'); res()},ms)})}
+async function playSeq(){
+  setPadsEnabled(false); setStatus('watch');
+  await wait(380);
+  for(let i=0;i<seq.length;i++){ await flash(seq[i], Math.max(180,320-seq.length*6)); await wait(90) }
+  step=0; setStatus('your'); setPadsEnabled(true);
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function nextColor(){return Math.floor(rng()*padCount)}
+async function nextRound(){
+  const nextPads=padCountFor(seq.length+1);
+  if(nextPads!==padCount){ padCount=nextPads; buildPads(); setStatus(t('unlocked',{n:padCount})); await wait(700) }
+  seq.push(nextColor()); updateHud(); await playSeq();
+}
+function start(m){
+  snd.init(); mode=m; state='play'; seq=[]; step=0; padCount=4;
+  if(mode==='daily'){ const key=dayKey(); if(save.dailyKey!==key){save.dailyKey=key; save.dailyBest=0; persist()} rng=mulberry32(hashStr('color-memory-'+key)) }
+  else rng=Math.random;
+  buildPads(); show(null); updateHud(); setStatus('ready'); nextRound();
+}
+function fail(){
+  state='over'; setPadsEnabled(false); snd.buzz();
+  const n=seq.length; // reached length before fail = how many they completed previous? Simon: failed on current seq length, so "got to N" = step (successfully tapped before miss) or seq.length-1
+  const reached=Math.max(0, seq.length-1); // completed rounds before this fail
+  if(mode==='classic' && reached>save.best){save.best=reached; persist()}
+  if(mode==='daily' && reached>save.dailyBest){save.dailyBest=reached; persist()}
+  updateHud();
+  $('nearMiss').textContent=t('near',{n:reached});
+  $('overSub').textContent=mode==='daily'?t('dailyBest',{n:save.dailyBest}):t('best')+': '+save.best;
+  show('overScr');
+}
+function onPad(i){
+  if(state!=='play'||busy)return; snd.init();
+  flash(i,160);
+  if(i!==seq[step]){ fail(); return }
+  step++;
+  if(step>=seq.length){ setPadsEnabled(false); setStatus('good'); snd.success(); setTimeout(()=>nextRound(),520) }
+}
+$('classicBtn').onclick=()=>start('classic');
+$('dailyBtn').onclick=()=>start('daily');
+$('startClassic').onclick=()=>start('classic');
+$('startDaily').onclick=()=>start('daily');
+$('againBtn').onclick=()=>start(mode);
+$('homeBtn').onclick=()=>{state='title'; show('titleScr'); setStatus('ready'); updateHud()};
+$('langBtn').onclick=()=>{lang=lang==='ko'?'en':'ko'; try{localStorage.setItem(LANG_KEY,lang)}catch(e){} applyLang()};
+$('muteBtn').onclick=()=>{snd.init(); snd.setMute(!snd.muted); updateMute(); if(!snd.muted)snd.pad(2,.1)};
+buildPads(); applyLang(); updateMute(); updateHud();
+window.__colorMemory=Object.freeze({
+  snapshot:()=>({state,mode,round:seq.length,step,padCount,seq:seq.slice(),best:save.best,dailyBest:save.dailyBest,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),
+  forceFail:()=>{if(state==='play')fail()},
+  tap:(i)=>onPad(i)
+});
+})();
+</script>
+</body>
+</html>
