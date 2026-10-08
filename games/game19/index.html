@@ -31,7 +31,7 @@ html,body{height:100%;background:var(--bg);color:#fff;font-family:'Jua','Malgun 
 .panel p{opacity:.95;line-height:1.35;margin:6px 0 10px;font-size:14px}
 .sub{opacity:.8;font-size:12px;margin-top:2px}
 .crew{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
-.crew .c{background:#0a3d60;border:2px solid #7ec8ff66;border-radius:12px;padding:4px;font-size:10px}
+.crew .c{background:#0a3d60;border:2px solid #7ec8ff66;border-radius:12px;padding:6px 4px;font-size:10px;min-height:110px}
 .crew canvas{width:100%;height:auto;display:block}
 .fruitgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0;text-align:center}
 .fruitgrid .f{background:#0a3d60;border:2px solid #fff3;border-radius:12px;padding:6px 4px;font-size:11px;font-weight:900}
@@ -293,8 +293,11 @@ function renderCrewPreview(){
   const box=$('crewPreview'); box.innerHTML='';
   CREW.forEach(c=>{
     const d=document.createElement('div'); d.className='c';
-    const cv=renderChibi(c.id,120); d.appendChild(cv);
-    d.innerHTML+=`<div>${lang==='ko'?c.ko:c.en}</div>`;
+    // IMPORTANT: never assign innerHTML after appendChild(canvas) — it serializes a blank canvas
+    const cv=renderChibi(c.id,140); cv.style.width='100%'; cv.style.height='auto'; cv.style.display='block';
+    d.appendChild(cv);
+    const lab=document.createElement('div'); lab.textContent=lang==='ko'?c.ko:c.en; lab.style.marginTop='2px';
+    d.appendChild(lab);
     box.appendChild(d);
   });
 }
@@ -612,7 +615,8 @@ window.__tootSeaFruit=Object.freeze({
   start:()=>start(),
   eat:(id)=>addFruit(id||'toot'),
   forceOver:()=>gameOver(),
-  crew:()=>CREW.map(c=>({id:c.id,ko:c.ko,en:c.en}))
+  crew:()=>CREW.map(c=>({id:c.id,ko:c.ko,en:c.en})),
+  renderChibi:(id,size)=>renderChibi(id,size||160)
 });
 if(TEST){ setTimeout(()=>start(), 200); }
 })();
