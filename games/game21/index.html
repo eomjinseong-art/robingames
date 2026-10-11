@@ -28,14 +28,14 @@ let lang=localStorage.g21lang||'ko';
 const T={ko:{t:'뿡뿡 탈것 길들이기',s:'탭! 연속 점프로 콤보를 이어가요',over:'풍덩!',sc:'점수',best:'최고',retry:'탭해서 한 판 더!',nb:'🎉 새 기록!',dex:'도감',new:'NEW 길들임!',perfect:'퍼펙트!'},
 en:{t:'Toot Sky Tamer',s:'Tap! Chain jumps for combos!',over:'Splash!',sc:'Score',best:'Best',retry:'Tap for one more!',nb:'🎉 New best!',dex:'Dex',new:'NEW tamed!',perfect:'Perfect!'}};
 const L=()=>T[lang];const lb=document.getElementById('lang');lb.textContent=lang=='ko'?'EN':'KO';
-lb.onclick=e=>{e.stopPropagation();lang=lang=='ko'?'en':'ko';localStorage.g21lang=lang;lb.textContent=lang=='ko'?'EN':'KO'};
+lb.onclick=e=>{e.stopPropagation();lang=lang=='ko'?'en':'ko';localStorage.g21lang=lang;lb.textContent=lang=='ko'?'EN':'KO';lb.blur()};
 // creatures: emoji-free drawn blobs with colors
 const SP=[{k:'솜털 새',e:'Fluff Bird',c:'#7fe3ff',w:1},{k:'반짝 가오리',e:'Glow Ray',c:'#b48cff',w:1},{k:'풍선 고래',e:'Balloon Whale',c:'#6fa8ff',w:.8},{k:'불꽃 도마뱀',e:'Ember Lizard',c:'#ff8a5c',w:.7},{k:'이끼 거북',e:'Moss Turtle',c:'#7bdc7b',w:.6},{k:'구름 여우',e:'Cloud Fox',c:'#f4f4ff',w:.45},{k:'번개 나방',e:'Bolt Moth',c:'#ffe45c',w:.3},{k:'황금 용',e:'Golden Dragon',c:'#ffc400',w:.12}];
 let dex=JSON.parse(localStorage.g21dex||'[]');
 function pick(){let s=SP.reduce((a,b)=>a+b.w,0),r=Math.random()*s;for(let i=0;i<SP.length;i++){r-=SP[i].w;if(r<=0)return i}return 0}
 // audio
 let ac,mg,muted=localStorage.g21mute=='1',step=0,nt=0;const mb=document.getElementById('mute');mb.textContent=muted?'🔇':'🔊';
-mb.onclick=e=>{e.stopPropagation();muted=!muted;localStorage.g21mute=muted?'1':'0';mb.textContent=muted?'🔇':'🔊';if(mg)mg.gain.value=muted?0:.5};
+mb.onclick=e=>{e.stopPropagation();muted=!muted;localStorage.g21mute=muted?'1':'0';mb.textContent=muted?'🔇':'🔊';if(mg)mg.gain.value=muted?0:.5;mb.blur()};
 function tone(f,t,d,ty,v){const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
 const MEL=[72,76,79,76,74,77,81,77,72,76,79,84,83,79,76,74],BAS=[48,48,53,53,45,45,55,55];const mf=n=>440*Math.pow(2,(n-69)/12);
 function sched(){if(!ac)return;while(nt<ac.currentTime+.15){const b=st=='play'?.11:.15;if(step%2==0)tone(mf(BAS[(step>>2)%8]),nt,.25,'triangle',.3);tone(mf(MEL[step%16]),nt,.12,'square',.07);if(step%4==0){tone(60,nt,.12,'sine',.5)}if(step%4==2)tone(2000,nt,.03,'square',.03);nt+=b;step++}}
@@ -52,10 +52,10 @@ function row(){tgs=[];const y=me.y-GAP();const d=Math.random()<.5?1:-1;tgs.push(
 function reset(){score=0;cam=0;nb=false;combo=0;maxc=0;tleft=ROUND;lastLand=now;parts=[];pops=[];me={x:W/2,y:H*.75,jy:0,jt:-1,fall:0,ride:{sp:0,y:H*.75,x:W/2,v:0,w:100,ph:0}};cam=me.y-H*.72;row()}
 reset();
 function over(){st='over';t0=now;shake=14;flash=.4;sfx(150,.4,'sawtooth');sfx(90,.5,'square');if(navigator.vibrate)navigator.vibrate(80);if(score>best){best=score;localStorage.g21best=best;nb=true}}
-function tap(){au();if(st=='title'||st=='over'){if(st=='over'&&now-t0<250)return;st='play';reset();return}
+function tap(){au();if(st=='title'||st=='over'){if(st=='over'&&now-t0<.25)return;st='play';reset();return}
 if(me.jt<0&&!me.fall){me.jt=0;sfx(440+combo*30,.08,'square')}}
-addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.bar'))return;e.preventDefault();tap()},{passive:false});
-addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'){e.preventDefault();tap()}});
+addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.bar')){const t=e.target.closest('a,button');if(t&&t.blur)setTimeout(()=>t.blur(),0);return}e.preventDefault();tap()},{passive:false});
+addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'){e.preventDefault();const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur();if(!e.repeat)tap()}});
 function burst(px,py,c,n){for(let i=0;i<n;i++){const a=Math.random()*7,s=60+Math.random()*260;parts.push({x:px,y:py,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:.5+Math.random()*.3,c})}}
 function upd(dt){now+=dt;shake=Math.max(0,shake-dt*40);flash=Math.max(0,flash-dt);
 parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=400*dt;p.l-=dt});parts=parts.filter(p=>p.l>0);pops.forEach(p=>{p.t-=dt;p.y-=40*dt});pops=pops.filter(p=>p.t>0);
