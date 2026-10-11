@@ -13,7 +13,7 @@
 html,body{height:100%;background:var(--bg);color:#fff;font-family:'Jua','Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;overflow:hidden;touch-action:manipulation}
 #wrap{position:fixed;inset:0;display:flex;justify-content:center;background:linear-gradient(180deg,#4db7e8 0%,#0b6ea8 55%,#065a8a 100%)}
 #stage{width:100%;max-width:calc(100dvh*.56);height:100%;display:flex;flex-direction:column;padding:max(8px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));position:relative}
-.top{display:flex;justify-content:space-between;gap:6px;z-index:5}
+.top{display:flex;justify-content:space-between;gap:6px;position:relative;z-index:30}
 .actions{display:flex;gap:6px}
 .icon{width:42px;height:42px;border:2px solid var(--line);border-radius:14px;background:var(--panel);color:#fff;font:900 17px inherit;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 3px 0 #0005}
 .icon:active,.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #0005}
@@ -51,7 +51,7 @@ html,body{height:100%;background:var(--bg);color:#fff;font-family:'Jua','Malgun 
 <body>
 <div id="wrap"><div id="stage">
   <div class="top">
-    <a class="icon" href="../../index.html" aria-label="Home">⌂</a>
+    <a class="icon" id="homeBtn" href="/" aria-label="Home">🏠</a>
     <div class="actions">
       <button class="icon" id="bookBtn" title="Book">📖</button>
       <button class="icon" id="shopBtn" title="Shop">⛵</button>
@@ -734,6 +734,8 @@ $('againBtn').onclick=()=>start();
 $('menuBtn').onclick=()=>{state='title'; show('titleScr'); applyLang()};
 $('langBtn').onclick=()=>{lang=lang==='ko'?'en':'ko'; try{localStorage.setItem(LANG_KEY,lang)}catch(e){} applyLang()};
 $('muteBtn').onclick=()=>{snd.init(); snd.setMute(!snd.muted); applyLang()};
+const homeBtn=$('homeBtn');
+['pointerdown','pointerup','touchstart','touchend','click'].forEach(ev=>homeBtn.addEventListener(ev,e=>{e.stopPropagation()},{capture:true}));
 $('bookBtn').onclick=$('titleBook').onclick=()=>{renderBook(); show('bookScr')};
 $('shopBtn').onclick=$('titleShop').onclick=()=>{renderShop(); show('shopScr')};
 $('bookClose').onclick=$('shopClose').onclick=()=>{ if(state==='play') show(null); else show('titleScr'); };
