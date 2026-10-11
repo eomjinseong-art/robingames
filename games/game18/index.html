@@ -29,6 +29,19 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
 .overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:#0a0614dd}
 .overlay.show{display:flex}.panel{width:min(100%,380px);background:linear-gradient(180deg,#2c1a55,#170f30);border:2px solid #6a4aa8;border-radius:22px;padding:16px;text-align:center}
 .panel h2{font-size:28px}.panel p{opacity:.9;line-height:1.4;margin:8px 0 12px}.scoreline{font-size:22px;font-weight:900;color:var(--amber)}
+.card{transition:transform .45s cubic-bezier(.5,1.6,.5,1),box-shadow .2s;font-size:var(--face,40px)}
+.card.open,.card.match,.card.peek{background:linear-gradient(180deg,#fff6,#c9b0ff 40%,#7a55c8);color:#1a1230;font-size:var(--face,40px)}
+.card.match{opacity:.55;transform:scale(.92)}.card.pop{animation:pop .35s}.card.bad{animation:shake .35s}
+.card.swap{box-shadow:0 0 0 3px var(--amber),0 0 20px #ffd56a99;z-index:3}
+@keyframes pop{50%{transform:scale(1.18)}}@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+#board.shake{animation:shake .3s}
+#timebar{height:8px;border-radius:9px;background:#1a1230;overflow:hidden;margin:2px 0 4px}#timefill{height:100%;width:100%;background:linear-gradient(90deg,#7dffb2,#ffd56a);transition:width .25s linear}
+#timefill.low{background:#ff5d7a}
+.fx{position:absolute;z-index:30;pointer-events:none;font-weight:900;font-size:22px;color:var(--amber);text-shadow:0 2px 0 #000a;animation:fx .9s forwards}
+@keyframes fx{to{transform:translateY(-50px) scale(1.3);opacity:0}}
+#banner{position:absolute;left:0;right:0;top:40%;text-align:center;font-size:40px;font-weight:900;color:#fff;text-shadow:0 4px 0 #6a4aa8,0 0 24px #c9b0ff;z-index:25;pointer-events:none;opacity:0}
+#banner.on{animation:ban 1s}@keyframes ban{0%{opacity:0;transform:scale(.4)}25%{opacity:1;transform:scale(1.1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
+.hud{margin:2px 0}.hud h1{font-size:20px}.hud .sub{display:none}.pill{min-width:58px;padding:3px 7px}.pill b{font-size:16px}#status{min-height:22px;margin:2px 0;font-size:14px}
 .credit{text-align:center;font-size:10px;color:#b9a6d899;margin-top:6px}
 </style>
 </head>
@@ -36,11 +49,11 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
 <div id="wrap"><div id="stage">
   <div class="top"><a class="icon" href="../../index.html" aria-label="Home">⌂</a><div class="actions"><button class="icon" id="langBtn">🌐</button><button class="icon" id="muteBtn">🔊</button></div></div>
   <div class="hud"><h1 data-i18n="title">뿡뿡 짝 맞추기</h1><div class="sub" data-i18n="titleEn">TOOT PAIR MATCH</div>
-    <div class="stats"><div class="pill"><span data-i18n="moves">수</span><b id="movesVal">0</b></div><div class="pill"><span data-i18n="pairs">짝</span><b id="pairsVal">0</b></div><div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div></div>
+    <div class="stats"><div class="pill"><span data-i18n="stageL">단계</span><b id="stageVal">1</b></div><div class="pill"><span data-i18n="scoreL">점수</span><b id="scoreVal">0</b></div><div class="pill"><span data-i18n="lifeL">목숨</span><b id="lifeVal">❤️❤️❤️</b></div><div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div></div>
   </div>
   <div id="status" data-i18n="ready">카드를 뒤집어 짝을 찾아요</div>
-  <div id="board"></div>
-  <button class="btn" id="startBtn" data-i18n="start">▶ 시작</button>
+  <div id="timebar"><div id="timefill"></div></div>
+  <div id="board"></div><div id="banner"></div>
   <div class="credit">© 나두게임즈 Nadoo Games | Developed by 나두Ai</div>
   <div class="overlay show" id="titleScr"><div class="panel"><h2 data-i18n="title">뿡뿡 짝 맞추기</h2><p data-i18n="tag">카드를 두 장씩 뒤집어 같은 그림을 맞춰요!</p><button class="btn" id="goBtn" data-i18n="start">▶ 시작</button></div></div>
   <div class="overlay" id="overScr"><div class="panel"><h2 id="overTitle" data-i18n="win">완료!</h2><div class="scoreline" id="near"></div><p id="overSub"></p><button class="btn" id="againBtn" data-i18n="again">한 판 더</button></div></div>
@@ -50,10 +63,10 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
 /* Standing BGM rule: always make BGM highly addictive; MUSIC quieter than SFX. */
 const $=id=>document.getElementById(id), LANG_KEY='nadoo_lang', MUTE_KEY='tootPairMatch_mute', SAVE_KEY='tootPairMatch_v1', FAST=new URLSearchParams(location.search).get('fast')==='1';
 const ICONS=['🐶','🐱','🐰','🦊','🐻','🐼','🐸','🐷','🐵','🦄','🐯','🐨'];
-const T={title:['뿡뿡 짝 맞추기','Toot Pair Match'],titleEn:['TOOT PAIR MATCH','뿡뿡 짝 맞추기'],tag:['카드를 두 장씩 뒤집어 같은 그림을 맞춰요!','Flip two cards at a time and find matching pairs!'],start:['▶ 시작','▶ Start'],moves:['수','Moves'],pairs:['짝','Pairs'],best:['최고','Best'],ready:['카드를 뒤집어 짝을 찾아요','Flip cards to find pairs'],win:['완료!','Cleared!'],over:['시간 오버','Time Up'],near:['아깝다! {p}쌍 · {m}수','So close! {p} pairs · {m} moves'],cleared:['클리어! {m}수','Cleared in {m} moves'],again:['한 판 더','Again']};
+const T={stageL:['단계','Stage'],scoreL:['점수','Score'],lifeL:['목숨','Lives'],memorize:['기억하세요! 👀','Memorize! 👀'],go:['찾아라!','Go!'],swapMsg:['앗! 카드가 바뀌었어요 🔀','Cards swapped! 🔀'],stageClear:['단계 {s} 클리어!','Stage {s} clear!'],timeout:['시간 초과! 목숨 -1','Time up! -1 life'],overSub:['단계 {s} · 점수 {p}','Stage {s} · Score {p}'],bestLine:['최고 단계 {s} · 최고 점수 {p}','Best stage {s} · Best score {p}'],newBest:['🎉 신기록!','🎉 New record!'],title:['뿡뿡 짝 맞추기','Toot Pair Match'],titleEn:['TOOT PAIR MATCH','뿡뿡 짝 맞추기'],tag:['처음에 보여주는 카드를 기억하고 짝을 맞춰요! 단계가 오를수록 카드가 늘고 어려워져요. 틀리면 목숨 -1 (3개)','Memorize the cards, then match pairs! Each stage adds cards and twists. Each miss costs a life (3).'],start:['▶ 시작','▶ Start'],moves:['수','Moves'],pairs:['짝','Pairs'],best:['최고','Best'],ready:['카드를 뒤집어 짝을 찾아요','Flip cards to find pairs'],win:['완료!','Cleared!'],over:['게임 오버','Game Over'],near:['아깝다! {p}쌍 · {m}수','So close! {p} pairs · {m} moves'],cleared:['클리어! {m}수','Cleared in {m} moves'],again:['▶ 바로 다시','▶ Retry now']};
 let lang='ko';try{lang=localStorage.getItem(LANG_KEY)||((navigator.language||'en').toLowerCase().startsWith('ko')?'ko':'en')}catch(e){}
 const t=(k,v={})=>String(T[k][lang==='ko'?0:1]).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
-let save={best:0};try{Object.assign(save,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'))}catch(e){}
+let save={best:0,bestStage:0};try{Object.assign(save,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}'))}catch(e){}
 const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}};
 const MUSIC_PROG=[[0,5,9],[-2,2,7],[5,9,12],[7,11,14],[0,4,7],[2,7,11]];
 const MUSIC_MEL=[12,14,null,16,null,14,12,null,19,null,16,14,12,null,9,null,7,7,null,9,null,12,14,null,16,null,12,9,7,null,5,null];
@@ -82,37 +95,59 @@ try{snd.muted=localStorage.getItem(MUTE_KEY)==='1'}catch(e){}
 ['pointerdown','touchend','click','keydown'].forEach(ev=>window.addEventListener(ev,()=>snd.init(),{capture:true,passive:true}));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)snd.sleep();else if(snd.ac&&snd.ac.state!=='running')snd.ac.resume().catch(()=>{})});
 
-let state='title', deck=[], open=[], matched=0, moves=0, pairs=6, cols=4, rows=3, busy=false, left=0, timer=null;
-function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(e=>{if(T[e.dataset.i18n])e.textContent=t(e.dataset.i18n)});$('langBtn').textContent=lang==='ko'?'🌐 EN':'🌐 한';$('bestVal').textContent=String(save.best);$('muteBtn').textContent=snd.muted?'🔇':'🔊'}
+
+const STAGES=[4,6,8,12,16,20,24];
+const SIM=[['🔴','🟠','🟡','🟢','🔵','🟣'],['🟥','🟧','🟨','🟩','🟦','🟪'],['❤️','🧡','💛','💚','💙','💜'],['📕','📗','📘','📙']];
+const BASE=['🐶','🐱','🐰','🦊','🐻','🐼','🐸','🐷','🐵','🦄','🐯','🐨','🐔','🐧','🐙','🦁'];
+let state='title',deck=[],open=[],matched=0,pairs=2,stage=0,score=0,lives=3,combo=0,left=0,maxT=1,busy=true,timer=null,swapT=null,lastT=0,newRec=false;
+const B=()=>$('board');
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(e=>{if(T[e.dataset.i18n])e.textContent=t(e.dataset.i18n)});$('langBtn').textContent=lang==='ko'?'🌐 EN':'🌐 한';$('bestVal').textContent=String(save.best);$('muteBtn').textContent=snd.muted?'🔇':'🔊';hud()}
 function show(id){document.querySelectorAll('.overlay').forEach(o=>o.classList.toggle('show',o.id===id))}
-function layout(){if(pairs<=6){cols=4;rows=3}else if(pairs<=8){cols=4;rows=4}else{cols=4;rows=5}}
-function build(){
-  layout();const icons=ICONS.slice(0,pairs);deck=[...icons,...icons].sort(()=>Math.random()-.5);
-  const b=$('board');b.style.gridTemplateColumns=`repeat(${cols},1fr)`;b.style.gridTemplateRows=`repeat(${rows},1fr)`;b.innerHTML='';
-  deck.forEach((icon,i)=>{const c=document.createElement('button');c.className='card back';c.dataset.i=String(i);c.dataset.icon=icon;c.addEventListener('pointerdown',e=>{e.preventDefault();flip(i)});b.appendChild(c)});
-  $('pairsVal').textContent='0/'+pairs;$('movesVal').textContent='0';
-  requestAnimationFrame(sizeFaces);
-}
-function sizeFaces(){
-  const b=$('board'), first=b&&b.children[0]; if(!first)return;
-  const r=first.getBoundingClientRect(), px=Math.max(44, Math.floor(Math.min(r.width,r.height)*.78));
-  b.style.setProperty('--face', px+'px');
-}
-function flip(i){if(state!=='play'||busy)return;const el=$('board').children[i];if(!el||el.classList.contains('open')||el.classList.contains('match'))return;
-  snd.init();snd.flip();el.classList.remove('back');el.classList.add('open');el.textContent=el.dataset.icon;sizeFaces();open.push(i);
-  if(open.length===2){moves++;$('movesVal').textContent=String(moves);busy=true;const [a,b]=open,A=$('board').children[a],B=$('board').children[b];
-    if(A.dataset.icon===B.dataset.icon){snd.match();A.classList.add('match');B.classList.add('match');matched++;$('pairsVal').textContent=matched+'/'+pairs;open=[];busy=false;if(matched>=pairs)win()}
-    else{snd.miss();setTimeout(()=>{A.classList.add('back');A.classList.remove('open');A.textContent='';B.classList.add('back');B.classList.remove('open');B.textContent='';open=[];busy=false},480)}}}
-function win(){state='over';clearInterval(timer);const score=Math.max(1,1000-moves*12+(left|0));if(score>save.best){save.best=score;persist()}
-  $('overTitle').textContent=t('win');$('near').textContent=t('cleared',{m:moves});$('overSub').textContent=t('best')+': '+save.best;$('bestVal').textContent=String(save.best);show('overScr')}
-function lose(){state='over';clearInterval(timer);$('overTitle').textContent=t('over');$('near').textContent=t('near',{p:matched,m:moves});$('overSub').textContent=t('best')+': '+save.best;show('overScr')}
-function tick(){left--;if(left<=0)lose()}
-function start(){snd.init();state='play';pairs=FAST?2:6;matched=0;moves=0;open=[];busy=false;left=FAST?20:90;build();show(null);$('status').textContent=t('ready');clearInterval(timer);timer=setInterval(tick,1000)}
-$('startBtn').onclick=start;$('goBtn').onclick=start;$('againBtn').onclick=()=>{pairs=Math.min(10,pairs+ (FAST?0:1));start()};
+function hud(){$('stageVal').textContent=String(stage+1);$('scoreVal').textContent=String(score);$('lifeVal').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(Math.max(0,3-lives));const f=$('timefill');f.style.width=Math.max(0,left/maxT*100)+'%';f.classList.toggle('low',left<5)}
+function grid(n){return ({4:[2,2],6:[2,3],8:[2,4],12:[3,4],16:[4,4],20:[4,5],24:[4,6]})[n]}
+const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function pickIcons(){const nSim=stage<3?0:Math.min(pairs,(stage-2)*2);let icons=[];
+  if(nSim){const g=shuf(SIM.slice()).slice(0,1+(stage>5?1:0)+(stage>7?1:0));const pool=shuf(g.flat());icons=pool.slice(0,nSim)}
+  icons=icons.concat(shuf(BASE.filter(x=>!icons.includes(x))).slice(0,pairs-icons.length));return icons}
+function fx(el,txt,col){const r=el.getBoundingClientRect(),sr=$('stage').getBoundingClientRect(),d=document.createElement('div');d.className='fx';d.textContent=txt;if(col)d.style.color=col;d.style.left=(r.left-sr.left+r.width/2-30)+'px';d.style.top=(r.top-sr.top)+'px';$('stage').appendChild(d);setTimeout(()=>d.remove(),900)}
+function banner(txt){const b=$('banner');b.textContent=txt;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
+function sizeFaces(){const f=B().children[0];if(!f)return;const r=f.getBoundingClientRect();B().style.setProperty('--face',Math.max(30,Math.floor(Math.min(r.width,r.height)*.74))+'px')}
+function setFace(c,up){c.classList.toggle('back',!up);c.textContent=up?c.dataset.icon:''}
+function build(){const n=FAST?4:STAGES[Math.min(stage,6)];pairs=n/2;const [c,r]=grid(n);const icons=pickIcons();deck=shuf([...icons,...icons]);
+  const b=B();b.style.gridTemplateColumns=`repeat(${c},1fr)`;b.style.gridTemplateRows=`repeat(${r},1fr)`;b.innerHTML='';
+  deck.forEach((ic,i)=>{const el=document.createElement('button');el.className='card peek';el.dataset.icon=ic;el.textContent=ic;el.addEventListener('pointerdown',e=>{e.preventDefault();flip(i)});b.appendChild(el)});
+  requestAnimationFrame(sizeFaces)}
+function startStage(){clearTimeout(swapT);state='preview';busy=true;open=[];matched=0;build();
+  maxT=left=Math.max(8,Math.round(pairs*(stage<7?5:4.2)-Math.max(0,stage-6)*2));hud();
+  const pv=FAST?300:Math.max(600,2000-stage*230);$('status').textContent=t('memorize');banner(t('stageL')+' '+(stage+1));
+  setTimeout(()=>{if(state!=='preview')return;[...B().children].forEach(c=>{c.classList.remove('peek');setFace(c,false)});snd.flip();state='play';busy=false;lastT=performance.now();$('status').textContent=t('go');schedSwap()},pv)}
+function schedSwap(){clearTimeout(swapT);if(stage<3||FAST)return;const gap=Math.max(2500,7500-(stage-3)*800)+Math.random()*2000;swapT=setTimeout(doSwap,gap)}
+function doSwap(){if(state!=='play'){return}const kids=[...B().children],cand=kids.map((c,i)=>i).filter(i=>kids[i].classList.contains('back')&&!open.includes(i));
+  if(busy||cand.length<2){swapT=setTimeout(doSwap,800);return}
+  shuf(cand);const [a,b]=cand,A=kids[a],Bc=kids[b],ra=A.getBoundingClientRect(),rb=Bc.getBoundingClientRect();
+  A.classList.add('swap');Bc.classList.add('swap');A.disabled=Bc.disabled=true;snd.flip();$('status').textContent=t('swapMsg');
+  A.style.transform=`translate(${rb.left-ra.left}px,${rb.top-ra.top}px)`;Bc.style.transform=`translate(${ra.left-rb.left}px,${ra.top-rb.top}px)`;
+  setTimeout(()=>{A.style.transition=Bc.style.transition='none';A.style.transform=Bc.style.transform='';const x=A.dataset.icon;A.dataset.icon=Bc.dataset.icon;Bc.dataset.icon=x;[deck[a],deck[b]]=[deck[b],deck[a]];
+    void A.offsetWidth;A.style.transition=Bc.style.transition='';A.classList.remove('swap');Bc.classList.remove('swap');A.disabled=Bc.disabled=false;schedSwap()},stage>6?520:700)}
+function flip(i){if(state!=='play'||busy)return;const el=B().children[i];if(!el||!el.classList.contains('back')||el.disabled)return;
+  snd.flip();setFace(el,true);el.classList.add('open','pop');setTimeout(()=>el.classList.remove('pop'),350);open.push(i);
+  if(open.length<2)return;const [a,b]=open,A=B().children[a],Bc=B().children[b];
+  if(A.dataset.icon===Bc.dataset.icon){combo++;const pts=100*combo+stage*20;score+=pts;left=Math.min(maxT,left+2);snd.match();
+    [A,Bc].forEach(c=>{c.classList.remove('open');c.classList.add('match','pop')});fx(Bc,'+'+pts+(combo>1?' x'+combo:''));if(combo>2){fx(A,'COMBO x'+combo,'#7dffb2');}
+    $('status').textContent=combo>1?('🔥 COMBO x'+combo):'👍 +2s';matched++;open=[];hud();if(matched>=pairs)clearStage()}
+  else{busy=true;combo=0;lives--;left=Math.max(0,left-3);snd.miss();[A,Bc].forEach(c=>c.classList.add('bad'));B().classList.add('shake');fx(Bc,'-3s ❤️-1','#ff5d7a');$('status').textContent='💥 -1 ❤️';hud();
+    setTimeout(()=>{B().classList.remove('shake');[A,Bc].forEach(c=>{c.classList.remove('bad','open');setFace(c,false)});open=[];busy=false;if(lives<=0)gameOver()},520)}}
+function clearStage(){state='clear';clearTimeout(swapT);const bonus=Math.ceil(left)*10;score+=bonus;hud();banner(t('stageClear',{s:stage+1}));$('status').textContent='⏱ +'+bonus;snd.match();setTimeout(()=>snd.match(),150);stage++;if(lives<3&&stage%2===0)lives++;setTimeout(startStage,FAST?100:450)}
+function tick(){if(state!=='play'){lastT=performance.now();return}const now=performance.now();left-=(now-lastT)/1000;lastT=now;if(left<=0){left=0;lives--;combo=0;snd.miss();banner(t('timeout'));hud();if(lives<=0)gameOver();else{state='wait';setTimeout(startStage,900)}}else hud()}
+function gameOver(){if(state==='over')return;state='over';clearTimeout(swapT);newRec=false;if(score>save.best){save.best=score;newRec=true}if(stage+1>save.bestStage){save.bestStage=stage+1;newRec=true}persist();
+  $('overTitle').textContent=t('over');$('near').textContent=t('overSub',{s:stage+1,p:score});$('overSub').textContent=(newRec?t('newBest')+' ':'')+t('bestLine',{s:save.bestStage,p:save.best});$('bestVal').textContent=String(save.best);show('overScr')}
+function start(){snd.init();stage=0;score=0;lives=3;combo=0;show(null);clearInterval(timer);timer=setInterval(tick,100);startStage()}
+$('goBtn').onclick=start;$('againBtn').onclick=start;
+window.addEventListener('resize',()=>requestAnimationFrame(sizeFaces));
 $('langBtn').onclick=()=>{lang=lang==='ko'?'en':'ko';try{localStorage.setItem(LANG_KEY,lang)}catch(e){}applyLang()};
 $('muteBtn').onclick=()=>{snd.init();snd.setMute(!snd.muted);applyLang();if(!snd.muted)snd.flip()};
 applyLang();
-window.__tootPairMatch=Object.freeze({snapshot:()=>({state,pairs,matched,moves,left,best:save.best,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),forceOver:()=>lose(),flip:(i)=>flip(i)});
+window.__tootPairMatch=Object.freeze({snapshot:()=>({state,stage:stage+1,cards:deck.length,score,lives,combo,left,deck:deck.slice(),best:save.best,bestStage:save.bestStage,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),forceOver:()=>gameOver(),flip:(i)=>flip(i)});
 })();
 </script>
 </body>
