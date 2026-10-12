@@ -16,7 +16,7 @@
     me: ['나', 'Me'], pc: ['PC', 'PC'], p: ['P', 'P'], pcThink: ['🤖 PC 차례…', '🤖 Computer…'],
     cover: ['차례예요!', "'s turn!"], coverSub: ['다른 사람은 화면을 보지 말아요 🙈', 'Everyone else, look away 🙈'], coverTap: ['👉 준비되면 탭하세요', '👉 Tap when ready'],
     again: ['Space · Enter · 탭 = 바로 다시 하기', 'Space · Enter · tap = play again'], win: ['🎉 이겼어요!', '🎉 You win!'], lose: ['😅 아쉬워요! 다시 해 봐요', '😅 So close! Try again'],
-    wins: ['승리! 🎉', 'wins! 🎉'], family: ['가족 게임 · 칩은 점수일 뿐이에요 (돈 X)', 'Family game · chips are just points'],
+    wins: ['승리! 🎉', 'wins! 🎉'], family: ['가족 게임 · 칩은 점수일 뿐이에요', 'Family game · chips are just points'],
     mute: ['🔇', '🔇'], unmute: ['🔊', '🔊'], cards: ['장', ' cards'], credit: ['© 나두 보드게임 라운지', '© Nadoo Board Lounge']
   };
   function L(v) { return Array.isArray(v) ? v[lang === 'ko' ? 0 : 1] : v; }
@@ -83,22 +83,22 @@
     try { var qm = new URLSearchParams(location.search).get('mode'); if (qm === '2p' || qm === 'pass') set.mode = 'pass'; if (qm === 'pc') set.mode = 'pc'; } catch (e) {}
     var minO = Math.max(1, G.minP - 1), maxO = Math.min(3, G.maxP - 1);
     set.opp = Math.min(maxO, Math.max(minO, set.opp)); set.ppl = Math.min(Math.min(4, G.maxP), Math.max(G.minP, set.ppl));
-    var app = document.getElementById('app'), s = null, cfg = null, viewer = 0, covered = false, busy = false, ended = 0, sel = [], msg = '', timer = null;
+    var rulesOpen = false, app = document.getElementById('app'), s = null, cfg = null, viewer = 0, covered = false, busy = false, ended = 0, sel = [], msg = '', timer = null;
 
     function names() {
       var n = [];
-      for (var i = 0; i < cfg.n; i++) n.push(cfg.mode === 'pc' ? (i === 0 ? t('me') : t('pc') + i) : (i + 1) + 'P');
+      for (var i = 0; i < cfg.n; i++) n.push(cfg.mode === 'pc' ? (i === 0 ? t('me') : t('pc') + i) : i < cfg.humans ? (i + 1) + 'P' : '🤖' + t('pc') + (i - cfg.humans + 1));
       return n;
     }
     var K = {
       L: L, t: t, esc: esc, deck: deck, shuffle: shuffle, rank: rank, suit: suit, card: cardHtml, SYM: SYM, lang: function () { return lang; },
-      sel: function () { return sel; }, isHuman: function (p) { return cfg.mode === 'pass' || p === 0; },
+      sel: function () { return sel; }, isHuman: function (p) { return p < cfg.humans; }, level: function () { return cfg.level; },
       name: function (p) { return names()[p]; }, pc: function () { return cfg.mode === 'pc'; }, sfx: sfx,
       say: function (m) { msg = m; }
     };
     function bar() {
       return '<div class="ck-bar"><a class="ck-b" href="/guide/">' + t('home') + '</a>' +
-        '<a class="ck-b" href="/guide/game.html?id=' + esc(G.guide || G.id) + '">' + t('rules') + '</a>' +
+        '<button class="ck-b" data-k="rules">' + t('rules') + '</button>' +
         (s ? '<button class="ck-b" data-k="setup">' + t('setup') + '</button>' : '') +
         '<button class="ck-b" data-k="lang">' + (lang === 'ko' ? 'EN' : '한') + '</button>' +
         '<button class="ck-b" data-k="mute" aria-label="sound">' + (muted ? t('mute') : t('unmute')) + '</button></div>';
@@ -111,14 +111,15 @@
       var h = bar() + '<h1 class="ck-h">' + esc(L(G.emoji || '') + ' ' + L(G.title)) + '</h1>';
       if (G.family) h += '<p class="ck-note">🍬 ' + t('family') + '</p>';
       h += '<div class="ck-panel"><h3>' + t('mode') + '</h3>' + seg('mode', [['pc', t('m_pc')], ['pass', t('m_pass')]]);
-      if (set.mode === 'pc') h += '<h3>' + t('opp') + '</h3>' + seg('opp', rng(minO, maxO)) + '<h3>' + t('level') + '</h3>' + seg('level', [['easy', t('easy')], ['normal', t('normal')], ['hard', t('hard')]]);
-      else h += '<h3>' + t('ppl') + '</h3>' + seg('ppl', rng(Math.max(2, G.minP), Math.min(4, G.maxP)));
+      if (set.mode === 'pc') h += (G.seats ? '<h3>' + t('opp') + ': ' + (G.seats - 1) + '</h3>' : '<h3>' + t('opp') + '</h3>' + seg('opp', rng(minO, maxO))) + '<h3>' + t('level') + '</h3>' + seg('level', [['easy', t('easy')], ['normal', t('normal')], ['hard', t('hard')]]);
+      else h += '<h3>' + t('ppl') + '</h3>' + seg('ppl', rng(G.seats ? 2 : Math.max(2, G.minP), Math.min(4, G.maxP))) + (G.seats ? '<p class="ck-lbl">' + L(['빈 자리는 PC가 채워요 (총 ' + G.seats + '자리)', 'Empty seats are filled by the computer (' + G.seats + ' seats)']) + '</p>' : '');
       h += '<button class="ck-go" data-k="go">' + t('go') + '</button></div><p class="ck-rules">' + esc(L(G.rules)) + '</p><p class="ck-cr">' + t('credit') + '</p>';
       s = null; app.innerHTML = h;
     }
     function newGame() {
       clearTimeout(timer);
-      cfg = { mode: set.mode, n: set.mode === 'pc' ? set.opp + 1 : set.ppl, level: set.level };
+      cfg = { mode: set.mode, n: G.seats || (set.mode === 'pc' ? set.opp + 1 : set.ppl), level: set.level };
+      cfg.humans = set.mode === 'pc' ? 1 : Math.min(set.ppl, cfg.n);
       try { localStorage.setItem(SKEY, JSON.stringify(set)); } catch (e) {}
       s = G.init(cfg.n, cfg.level, K); viewer = 0; sel = []; msg = ''; ended = 0; covered = false; busy = false;
       step0();
@@ -136,8 +137,12 @@
       draw();
     }
     function draw(o) {
-      if (!s) return drawSetup();
+      if (!s && !rulesOpen) return drawSetup();
       var h = bar();
+      if (!s) o = null;
+      if (rulesOpen) {
+        app.innerHTML = h + '<div class="ck-rp"><h2>' + t('rules') + ' · ' + esc(L(G.title)) + '</h2><p class="ck-rules">' + esc(L(G.rules)) + '</p><p><a class="ck-b" href="/guide/game.html?id=' + esc(G.guide || G.id) + '">' + L(['📚 자세한 가이드', '📚 Full guide']) + '</a></p><button class="ck-go" data-k="rules">' + L(['닫기', 'Close']) + '</button></div>'; return;
+      }
       if (covered) {
         h += '<div class="ck-cover" data-k="uncover"><div><b>' + esc(K.name(viewer)) + (lang === 'ko' ? ' ' : '') + t('cover') + '</b><p>' + t('coverSub') + '</p><p class="ck-tap">' + t('coverTap') + '</p></div></div>';
         app.innerHTML = h; return;
@@ -152,7 +157,7 @@
       app.innerHTML = h;
     }
     function act(a) {
-      if (!s || busy || covered || G.over(s, K)) return;
+      if (!s || busy || covered || rulesOpen || G.over(s, K)) return;
       var p = s.turn >= 0 ? s.turn : viewer;
       if (!K.isHuman(p)) return;
       if (a.indexOf('sel:') === 0) { var i = +a.slice(4), j = sel.indexOf(i); if (j >= 0) sel.splice(j, 1); else sel.push(i); sfx(76); return draw(); }
@@ -166,6 +171,7 @@
       if (el.dataset.set) { var kv = el.dataset.set.split(':'); set[kv[0]] = isNaN(+kv[1]) ? kv[1] : +kv[1]; return drawSetup(); }
       if (el.dataset.a != null) return act(el.dataset.a);
       var k = el.dataset.k;
+      if (k === 'rules') { rulesOpen = !rulesOpen; return s ? draw(G.over(s, K)) : (rulesOpen ? draw() : drawSetup()); }
       if (k === 'go') newGame();
       else if (k === 'setup') { clearTimeout(timer); busy = false; drawSetup(); }
       else if (k === 'lang') { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem(LANG_KEY, lang); } catch (e2) {} document.documentElement.lang = lang; s ? draw(G.over(s, K)) : drawSetup(); }
@@ -176,6 +182,7 @@
     document.addEventListener('keydown', function (e) {
       if (e.key !== ' ' && e.key !== 'Enter') return;
       audioOn();
+      if (rulesOpen) return;
       if (s && G.over(s, K)) { e.preventDefault(); again(); }
       else if (s && covered) { e.preventDefault(); covered = false; draw(); }
       else if (!s && document.activeElement === document.body) { e.preventDefault(); newGame(); }

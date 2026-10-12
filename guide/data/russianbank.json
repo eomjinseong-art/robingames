@@ -297,5 +297,9 @@
   "우선순위(A 먼저, 스톡 먼저)를 지킨다",
   "상대에게 얹어 봤다",
   "스톱을 외쳐 봤다"
- ]
+ ],
+ "play": {
+  "url": "/guide/play/russianbank.html",
+  "cards": true
+ }
 }
