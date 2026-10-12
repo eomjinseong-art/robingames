@@ -1220,5 +1220,10 @@
   "빈칸을 써서 A를 꺼내 봤다",
   "빈 줄을 만들어 봤다",
   "한 판을 끝까지 성공했다"
- ]
+ ],
+ "play": {
+  "url": "/guide/play/freecell.html",
+  "cards": true,
+  "solo": true
+ }
 }

@@ -30,7 +30,7 @@
     tips: ['초보 전략 3가지', '3 beginner tips'], mistakes: ['자주 하는 실수', 'Common mistakes'],
     item: ['항목', 'Item'], korean: ['한국식', 'Korean'], intl: ['해외·공식', 'International'],
     saved: ['체크하면 이 기기에 자동 저장돼요.', 'Saved on this device automatically.'], reset: ['진도 지우기', 'Reset'],
-    playNow: ['🤖 PC랑 게임 시작하기', '🤖 Play vs Computer'], playSub: ['가이드 읽고 바로 컴퓨터와 한 판!', 'Read the guide, then play right away!'], playGo: ['바로 하기 ▶', 'Play now ▶'], play2p: ['👥 둘이서 하기 (한 폰으로)', '👥 2 players on one device'], tryNow: ['🃏 바로 해 보기', '🃏 Try it now'], tryNowSub: ['PC 1~3명과 한 판 · 초급/중급/고급', 'Play 1–3 computers · Easy/Normal/Hard'], playPass: ['👥 한 폰으로 같이 하기 (2~4명)', '👥 Pass & play on one phone (2–4)'], pc: ['PC 대국', 'vs Computer'],
+    playNow: ['🤖 PC랑 게임 시작하기', '🤖 Play vs Computer'], playSub: ['가이드 읽고 바로 컴퓨터와 한 판!', 'Read the guide, then play right away!'], playGo: ['바로 하기 ▶', 'Play now ▶'], play2p: ['👥 둘이서 하기 (한 폰으로)', '👥 2 players on one device'], tryNow: ['🃏 바로 해 보기', '🃏 Try it now'], tryNowSub: ['PC 1~3명과 한 판 · 초급/중급/고급', 'Play 1–3 computers · Easy/Normal/Hard'], tryNowSolo: ['혼자 한 판 · 탭으로 이동 · 되돌리기 · 최고 기록', 'Solo game · tap to move · undo · best record'], playPass: ['👥 한 폰으로 같이 하기 (2~4명)', '👥 Pass & play on one phone (2–4)'], pc: ['PC 대국', 'vs Computer'],
     notFound: ['이 게임 가이드를 찾을 수 없어요.', 'Guide not found.'], loadErr: ['불러오기에 실패했어요. 새로고침해 보세요.', 'Failed to load. Please refresh.'],
     soonPage: ['이 게임 가이드는 아직 준비 중이에요.', 'This guide is coming soon.'], credit: ['© 나두 보드게임 라운지 | 나두Ai', '© Nadoo Board Lounge | 나두Ai'],
     top: ['맨 위로 ↑', 'Top ↑']
@@ -318,9 +318,9 @@
         (g ? '<p>' + badges(g) + '</p>' : '') + (d.intro ? '<p>' + esc(d.intro) + '</p>' : '') + '</header>';
       if (d.notice) h += '<div class="note warn">' + esc(d.notice) + '</div>';
       if (lang === 'en') h += '<div class="note">' + esc(t('enNote')) + '</div>';
-      var playBtn = d.play && d.play.url ? function (pos) { return '<a class="playbig" id="playBtn' + pos + '" href="' + esc(d.play.url) + '"><span class="pb-main">' + esc(t(d.play.cards ? 'tryNow' : 'playNow')) + '</span><span class="pb-sub">' + esc(t(d.play.cards ? 'tryNowSub' : 'playSub')) + '</span></a>'; } : null;
+      var playBtn = d.play && d.play.url ? function (pos) { return '<a class="playbig" id="playBtn' + pos + '" href="' + esc(d.play.url) + '"><span class="pb-main">' + esc(t(d.play.cards ? 'tryNow' : 'playNow')) + '</span><span class="pb-sub">' + esc(t(d.play.solo ? 'tryNowSolo' : d.play.cards ? 'tryNowSub' : 'playSub')) + '</span></a>'; } : null;
       if (playBtn) h += playBtn('Top');
-      if (playBtn) h += '<p style="text-align:center;margin-top:-6px"><a class="btn" id="play2pTop" href="' + esc(d.play.url) + '?mode=2p">' + esc(t(d.play.cards ? 'playPass' : 'play2p')) + '</a></p>';
+      if (playBtn && !d.play.solo) h += '<p style="text-align:center;margin-top:-6px"><a class="btn" id="play2pTop" href="' + esc(d.play.url) + '?mode=2p">' + esc(t(d.play.cards ? 'playPass' : 'play2p')) + '</a></p>';
       var keys = ['glance', 'goal', 'setup', 'play', 'rules', 'strategy', 'glossary', 'variants', 'progress'];
       h += '<nav class="toc" aria-label="목차">' + keys.map(function (k, i) { return '<a href="#' + k + '">' + (i + 1) + '. ' + esc(t('s_' + k)) + '</a>'; }).join('') + '</nav>';
       h += sec('glance', 1, '<table class="glance"><tr><th>' + esc(t('k_players')) + '</th><td>' + esc(gl.players) + '</td></tr><tr><th>' + esc(t('k_time')) + '</th><td>' + esc(gl.time) + '</td></tr><tr><th>' + esc(t('k_level')) + '</th><td>' + stars(gl.level) + ' (' + (gl.level | 0) + '/5)</td></tr><tr><th>' + esc(t('k_mat')) + '</th><td>' + esc(gl.materials) + '</td></tr><tr><th>' + esc(t('k_similar')) + '</th><td>' + sim + '</td></tr></table>');

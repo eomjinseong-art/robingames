@@ -739,5 +739,10 @@
   "빈 줄에 K만 놓는다",
   "더미·버림 더미를 쓸 수 있다",
   "한 판을 끝까지 성공했다"
- ]
+ ],
+ "play": {
+  "url": "/guide/play/klondike.html",
+  "cards": true,
+  "solo": true
+ }
 }
