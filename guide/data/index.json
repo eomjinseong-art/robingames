@@ -12,7 +12,7 @@
   {"id": "xiangqi", "ko": "샹치", "en": "Xiangqi (Chinese chess)", "cat": "board", "emoji": "🏮", "level": 4, "order": 3, "players": "2명", "solo": true, "kids": false, "status": "ready", "pc": true},
   {"id": "shogi", "ko": "쇼기", "en": "Shogi (Japanese chess)", "cat": "board", "emoji": "🏯", "level": 5, "order": 1, "players": "2명", "solo": true, "kids": false, "status": "ready"},
   {"id": "baduk", "ko": "바둑", "en": "Go (Baduk)", "cat": "board", "emoji": "⚪", "level": 5, "order": 2, "players": "2명", "solo": true, "kids": false, "status": "ready", "pc": true},
-  {"id": "dodukjapgi", "ko": "도둑잡기", "en": "Old Maid", "cat": "card", "emoji": "🃏", "level": 1, "order": 1, "players": "2~6명", "solo": false, "kids": true, "status": "ready"},
+  {"id": "dodukjapgi", "ko": "도둑잡기", "en": "Old Maid", "cat": "card", "emoji": "🃏", "level": 1, "order": 1, "players": "2~6명", "solo": false, "kids": true, "status": "ready", "pc": true},
   {"id": "indianpoker", "ko": "인디언 포커", "en": "Indian Poker", "cat": "card", "emoji": "🪶", "level": 1, "order": 3, "players": "2~6명", "solo": false, "kids": true, "status": "ready", "pc": true},
   {"id": "doubt", "ko": "다우트", "en": "Doubt (Cheat)", "cat": "card", "emoji": "🤥", "level": 1, "order": 2, "players": "3~8명", "solo": false, "kids": true, "status": "ready", "pc": true},
   {"id": "onecard", "ko": "원카드", "en": "One Card", "cat": "card", "emoji": "☝️", "level": 2, "order": 1, "players": "2~6명", "solo": false, "kids": true, "status": "ready", "pc": true},
