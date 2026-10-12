@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>도둑 잡기 한 판 | 나두 보드게임 라운지</title>
+<meta name="description" content="도둑 잡기(Old Maid): PC 1~3명과 초급·중급·고급, 또는 한 폰으로 2~4명. 조커를 마지막까지 들고 있으면 져요!">
+<meta name="theme-color" content="#ffd32a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
+<link rel="stylesheet" href="/guide/guide.css?v=20261012lounge">
+<link rel="stylesheet" href="/guide/play/play.css?v=20261012lounge">
+<script src="/counter.js" defer></script>
+<style>
+#om{max-width:640px;margin:0 auto;padding:8px 8px 90px;display:flex;flex-direction:column;gap:8px}
+.om-top{display:flex;gap:6px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.om-top .btn{min-height:40px}
+.opps{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.opp{background:#fff;border:3px solid var(--ink,#2d1b00);border-radius:12px;padding:4px 8px;font-size:14px;text-align:center;min-width:84px;transition:transform .15s}
+.opp.turn{background:#fff3b0;box-shadow:0 0 0 3px #ff4f9a}
+.opp.target{background:#ffe0ee}
+.opp.done{opacity:.55}
+.opp .mini{display:flex;justify-content:center;margin-top:2px;height:22px}
+.opp .mini i{display:block;width:14px;height:20px;margin-left:-7px;border-radius:3px;border:1.5px solid #2d1b00;background:repeating-linear-gradient(45deg,#3b5bdb 0 3px,#5c7cfa 3px 6px)}
+.opp .mini i:first-child{margin-left:0}
+.zone{background:#fff;border:3px solid var(--ink,#2d1b00);border-radius:16px;padding:8px}
+.zone h3{margin:0 0 6px;font-size:16px;text-align:center}
+.hand{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:96px}
+.card{width:60px;height:88px;border-radius:9px;border:2.5px solid #2d1b00;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:26px;line-height:1;box-shadow:0 3px 0 #2d1b00;user-select:none;-webkit-user-select:none;transition:transform .12s}
+.card small{font-size:24px}
+.card.red{color:#d6336c}.card.blk{color:#1b1b1b}
+.card.joker{background:#fff3b0;font-size:34px}
+.card.back{background:repeating-linear-gradient(45deg,#3b5bdb 0 6px,#5c7cfa 6px 12px);cursor:pointer}
+.card.back:active,.card.back:hover{transform:translateY(-6px)}
+.card.new{animation:pop .35s ease-out}
+.card.gone{animation:fly .3s ease-in forwards}
+@keyframes pop{0%{transform:scale(.3) translateY(-60px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fly{to{transform:scale(.4) translateY(-40px);opacity:0}}
+.hand.many .card{width:50px;height:74px;font-size:22px}.hand.many .card small{font-size:20px}
+.msg{text-align:center;font-size:18px;font-weight:700;min-height:26px;word-break:keep-all}
+.ctrls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.cover,.result{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;cursor:pointer}
+.cover{background:#2d1b00;color:#ffd32a;font-size:30px;font-weight:800}
+.cover small{font-size:17px;color:#fff3b0;font-weight:400}
+.result{background:rgba(255,243,176,.97)}
+.result .big{font-size:44px;font-weight:900;word-break:keep-all}
+.result ol{font-size:20px;text-align:left;margin:0}
+.result .hint{font-size:15px;color:#6b5a3a}
+.hidden{display:none!important}
+.setup .seg button{min-height:44px;font-size:16px}
+</style>
+</head>
+<body>
+<div id="om">
+  <div class="om-top">
+    <span style="display:flex;gap:6px"><a class="btn" href="/" id="homeBtn">🏠 홈</a><a class="btn" href="/guide/game.html?id=dodukjapgi" id="guideBtn">📗 규칙</a></span>
+    <span style="display:flex;gap:6px"><button class="btn" id="muteBtn" type="button" aria-label="BGM">🔊</button><button class="btn" id="langBtn" type="button">🌏 EN</button></span>
+  </div>
+  <div class="hero"><h1 id="ttl">🃏 도둑 잡기</h1></div>
+  <div class="panel setup" id="setup">
+    <div class="seg" id="segMode"><span class="lab" data-t="mode"></span><button data-v="pc" type="button"></button><button data-v="pp" type="button"></button></div>
+    <div class="seg" id="segOpp"><span class="lab" data-t="opps"></span><button data-v="1" type="button">1</button><button data-v="2" type="button">2</button><button data-v="3" type="button">3</button></div>
+    <div class="seg" id="segLv"><span class="lab" data-t="lv"></span><button data-v="0" type="button"></button><button data-v="1" type="button"></button><button data-v="2" type="button"></button></div>
+    <div class="seg" id="segPl"><span class="lab" data-t="players"></span><button data-v="2" type="button">2</button><button data-v="3" type="button">3</button><button data-v="4" type="button">4</button></div>
+    <p style="font-size:14px;margin:6px 0" data-t="rules"></p>
+    <div class="ctrls"><button class="btn" id="startBtn" type="button" style="font-size:20px;background:#ff4f9a;color:#fff"></button></div>
+  </div>
+  <div id="game" class="hidden">
+    <div class="opps" id="opps"></div>
+    <div class="msg" id="msg"></div>
+    <div class="zone" id="tzone"><h3 id="tlabel"></h3><div class="hand" id="thand"></div></div>
+    <div class="zone" id="mzone"><h3 id="mlabel"></h3><div class="hand" id="mhand"></div></div>
+    <div class="ctrls"><button class="btn" id="shufBtn" type="button"></button><button class="btn" id="newBtn" type="button"></button></div>
+  </div>
+</div>
+<div class="cover hidden" id="cover"><div id="coverTxt"></div><small id="coverSub"></small></div>
+<div class="result hidden" id="result"><div class="big" id="resBig"></div><ol id="resList"></ol><div class="hint" id="resHint"></div><button class="btn" id="againBtn" type="button"></button></div>
+<script>
+(function () {
+  'use strict';
+  var lang = 'ko';
+  try { lang = localStorage.getItem('nadoo_lang') || ((navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en'); } catch (e) {}
+  if (lang !== 'ko' && lang !== 'en') lang = 'ko';
+  var T = {
+    title: ['🃏 도둑 잡기', '🃏 Old Maid'], home: ['🏠 홈', '🏠 Home'], guide: ['📗 규칙', '📗 Rules'],
+    mode: ['모드', 'Mode'], pc: ['🤖 PC랑', '🤖 vs PC'], pp: ['👥 한 폰으로', '👥 Pass & play'],
+    opps: ['PC 수', 'PCs'], lv: ['난이도', 'Level'], l0: ['초급', 'Easy'], l1: ['중급', 'Medium'], l2: ['고급', 'Hard'], players: ['인원', 'Players'],
+    rules: ['규칙: 조커 1장 + 52장. 같은 숫자 2장은 자동으로 버려요. 차례가 되면 다음 사람의 뒷면 카드 중 하나를 골라 가져와요. 손패를 다 버리면 통과! 마지막까지 조커를 들고 있는 사람이 져요.',
+      'Rules: 52 cards + 1 joker. Pairs of the same rank are discarded automatically. On your turn, pick one face-down card from the next player. Empty hand = you are out! Whoever is left holding the joker loses.'],
+    start: ['▶ 시작', '▶ Start'], me: ['나', 'Me'], p: ['P', 'P'], cpu: ['PC', 'PC'],
+    shuffle: ['🔀 내 패 섞기', '🔀 Shuffle hand'], newg: ['⚙️ 설정', '⚙️ Setup'],
+    pick: ['{t}의 카드 한 장을 골라요!', 'Pick a card from {t}!'], from: ['{t}의 손패 (뒷면)', "{t}'s hand (face down)"], mine: ['{n}의 손패', "{n}'s hand"], myhand: ['내 손패', 'My hand'],
+    pcturn: ['{n} 차례…', "{n}'s turn…"], drew: ['{a} → {b} 한 장 가져감', '{a} took a card from {b}'], pair: [' · 짝 버림 {c}', ' · pair out {c}'],
+    out: [' · {n} 통과! 🎉', ' · {n} is out! 🎉'], next: ['다음: {n} 차례', 'Next: {n}'], tap: ['탭해서 시작', 'Tap to start'], hide: ['다른 사람은 화면을 보지 마세요 🙈', 'Others, look away 🙈'],
+    win: ['🎉 통과! 도둑이 아니에요', '🎉 Safe! Not the thief'], lose: ['😱 도둑은 바로 나!', '😱 You are the thief!'], thief: ['🃏 도둑: {n}', '🃏 Thief: {n}'],
+    again: ['🔁 다시 하기', '🔁 Rematch'], ahint: ['Space · Enter · 탭 = 바로 다시', 'Space · Enter · tap = rematch'], wait: ['기다리는 중', 'Waiting'], fin: ['{k}등', '#{k}'], last: ['도둑', 'Thief'],
+    cards: ['장', ''], start2: ['카드를 나눠 짝을 버렸어요.', 'Dealt and pairs discarded.']
+  };
+  function t(k, o) { var s = (T[k] || [k, k])[lang === 'ko' ? 0 : 1]; if (o) for (var x in o) s = s.split('{' + x + '}').join(o[x]); return s; }
+  function $(id) { return document.getElementById(id); }
+  var cfg = { mode: /[?&]mode=2p/.test(location.search) ? 'pp' : 'pc', opps: 3, lv: 1, pl: 2 };
+  try { var sv = JSON.parse(localStorage.getItem('nadoo_oldmaid_cfg') || 'null'); if (sv) { cfg.opps = sv.opps || 3; cfg.lv = sv.lv == null ? 1 : sv.lv; cfg.pl = sv.pl || 2; if (!/[?&]mode=/.test(location.search) && sv.mode) cfg.mode = sv.mode; } } catch (e) {}
+
+  /* ---------- 오디오: 직접 만든 짧은 루프 ---------- */
+  var muted = false; try { muted = localStorage.getItem('nadoo_oldmaid_mute') === '1'; } catch (e) {}
+  var ac = null, master = null, bgmTimer = null, nextT = 0, step = 0;
+  var MEL = [72, 76, 79, 76, 74, 77, 81, 77, 72, 76, 79, 84, 83, 79, 74, 0], BASS = [48, 48, 53, 53, 55, 55, 48, 43];
+  function hz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function note(m, at, dur, type, vol) {
+    if (!m) return; var o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = hz(m); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(g); g.connect(master); o.start(at); o.stop(at + dur + 0.02);
+  }
+  function sched() {
+    var SP = 0.16; // 16분음표 길이(초, AudioContext 시간)
+    while (nextT < ac.currentTime + 0.3) {
+      note(MEL[step % 16], nextT, SP * 0.9, 'square', 0.05);
+      if (step % 2 === 0) note(BASS[(step / 2 | 0) % 8], nextT, SP * 1.8, 'triangle', 0.12);
+      nextT += SP; step++;
+    }
+  }
+  function audioOn() {
+    if (muted) return;
+    try {
+      if (!ac) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; ac = new AC(); master = ac.createGain(); master.gain.value = 0.6; master.connect(ac.destination); }
+      if (ac.state === 'suspended') ac.resume();
+      if (!bgmTimer) { nextT = ac.currentTime + 0.05; bgmTimer = setInterval(sched, 100); }
+    } catch (e) {}
+  }
+  function sfx(m) { if (muted || !ac) return; try { note(m, ac.currentTime, 0.12, 'sine', 0.2); } catch (e) {} }
+  function setMute(v) {
+    muted = v; try { localStorage.setItem('nadoo_oldmaid_mute', v ? '1' : '0'); } catch (e) {}
+    $('muteBtn').textContent = v ? '🔇' : '🔊';
+    if (v) { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } if (ac) ac.suspend(); } else audioOn();
+  }
+  document.addEventListener('pointerdown', audioOn, { once: true });
+  document.addEventListener('keydown', audioOn, { once: true });
+
+  /* ---------- 카드 ---------- */
+  var SU = ['♠', '♥', '♦', '♣'], RK = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  function mkDeck() { var d = [], id = 0; for (var s = 0; s < 4; s++) for (var r = 0; r < 13; r++) d.push({ id: id++, r: r, s: s }); d.push({ id: id++, r: -1, s: -1 }); return d; }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.random() * (i + 1) | 0, x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function lbl(c) { return c.r < 0 ? '🃏' : RK[c.r] + SU[c.s]; }
+  function cardHTML(c, cls) {
+    if (c.r < 0) return '<div class="card joker ' + (cls || '') + '">🃏</div>';
+    return '<div class="card ' + (c.s === 1 || c.s === 2 ? 'red' : 'blk') + ' ' + (cls || '') + '"><span>' + RK[c.r] + '</span><small>' + SU[c.s] + '</small></div>';
+  }
+  function dropPairs(h) {
+    var out = [], g = {}, rm = {};
+    h.forEach(function (c, i) { if (c.r >= 0) (g[c.r] = g[c.r] || []).push(i); });
+    for (var r in g) { var a = g[r]; for (var k = 0; k + 1 < a.length; k += 2) { out.push(lbl(h[a[k]]) + lbl(h[a[k + 1]])); rm[a[k]] = rm[a[k + 1]] = 1; } }
+    var keep = h.filter(function (_, i) { return !rm[i]; }); h.length = 0; Array.prototype.push.apply(h, keep);
+    return out;
+  }
+
+  /* ---------- 게임 상태 ---------- */
+  var G = null, busy = false, pcTimer = null, resultAt = 0, newId = -1;
+  function name(i) { var p = G.pl[i]; return p.pc ? t('cpu') + i : (G.mode === 'pc' ? t('me') : t('p') + (i + 1)); }
+  function active(i) { return G.pl[i].hand.length > 0; }
+  function nextActive(i) { var n = G.pl.length; for (var k = 1; k <= n; k++) { var j = (i + k) % n; if (active(j)) return j; } return -1; }
+  function countActive() { var c = 0; for (var i = 0; i < G.pl.length; i++) if (active(i)) c++; return c; }
+  function newGame() {
+    clearTimeout(pcTimer); busy = false;
+    var n = cfg.mode === 'pc' ? cfg.opps + 1 : cfg.pl, pl = [];
+    for (var i = 0; i < n; i++) pl.push({ hand: [], pc: cfg.mode === 'pc' && i > 0, known: null });
+    var d = shuffle(mkDeck());
+    d.forEach(function (c, k) { pl[k % n].hand.push(c); });
+    G = { mode: cfg.mode, lv: cfg.lv, pl: pl, cur: 0, order: [], over: false, jk: {} };
+    pl.forEach(function (p) { dropPairs(p.hand); if (p.pc) shuffle(p.hand); });
+    G.cur = active(0) ? 0 : nextActive(0);
+    $('setup').classList.add('hidden'); $('game').classList.remove('hidden'); $('result').classList.add('hidden');
+    pl.forEach(function (p, k) { if (!p.hand.length) G.order.push(k); });
+    setMsg(t('start2'));
+    if (checkEnd()) return;
+    beginTurn();
+  }
+  /* 조커 추적: G.jk[관찰자] = {holder, idx} — 관찰자가 조커를 넘겨 준 상대가 섞기 전까지는 위치(맨 뒤)를 앎 */
+  function forgetHolder(h) { for (var k in G.jk) if (G.jk[k] && G.jk[k].holder === h) G.jk[k].idx = -1; }
+  function doDraw(drawer, target, idx) {
+    var th = G.pl[target].hand, c = th.splice(idx, 1)[0], dh = G.pl[drawer].hand;
+    // 위치 정보 갱신
+    for (var k in G.jk) { var j = G.jk[k]; if (j && j.holder === target && j.idx >= 0) { if (j.idx === idx) G.jk[k] = null; else if (j.idx > idx) j.idx--; } }
+    if (c.r < 0) { G.jk = {}; G.jk[target] = { holder: drawer, idx: dh.length }; }
+    dh.push(c); newId = c.id;
+    var pairs = dropPairs(dh);
+    if (c.r < 0 && G.jk[target]) G.jk[target].idx = dh.indexOf(c);
+    else for (var k2 in G.jk) { var j2 = G.jk[k2]; if (j2 && j2.holder === drawer && j2.idx >= 0) { var jc = -1; for (var q = 0; q < dh.length; q++) if (dh[q].r < 0) jc = q; j2.idx = jc; } }
+    if (G.pl[drawer].pc && G.lv >= 1) { shuffle(dh); forgetHolder(drawer); }
+    var m = t('drew', { a: name(drawer), b: name(target) });
+    if (pairs.length) { m += t('pair', { c: pairs.join(' ') }); sfx(84); } else sfx(67);
+    [target, drawer].forEach(function (p) { if (!G.pl[p].hand.length && G.order.indexOf(p) < 0) { G.order.push(p); m += t('out', { n: name(p) }); sfx(88); } });
+    setMsg(m);
+    if (checkEnd()) return;
+    G.cur = nextActive(drawer);
+    beginTurn();
+  }
+  function checkEnd() {
+    if (countActive() > 1) return false;
+    G.over = true; var loser = -1;
+    for (var i = 0; i < G.pl.length; i++) if (active(i)) loser = i;
+    G.loser = loser; render(); showResult(); return true;
+  }
+  function pcPick(drawer, target) {
+    var n = G.pl[target].hand.length, j = G.jk[drawer];
+    if (G.lv > 0 && j && j.holder === target && j.idx >= 0 && j.idx < n && n > 1) {
+      if (G.lv === 2 || Math.random() < 0.6) { var r = Math.random() * (n - 1) | 0; return r >= j.idx ? r + 1 : r; }
+    }
+    return Math.random() * n | 0;
+  }
+  function beginTurn() {
+    var c = G.cur, tg = nextActive(c);
+    G.target = tg;
+    if (!G.pl[c].pc && G.mode === 'pp') showCover(c);
+    render();
+    if (G.pl[c].pc) {
+      busy = true;
+      pcTimer = setTimeout(function () { busy = false; if (!G.over) doDraw(c, tg, pcPick(c, tg)); }, 500);
+    }
+  }
+  function showCover(c) {
+    $('coverTxt').textContent = t('next', { n: name(c) }) + ' — ' + t('tap');
+    $('coverSub').textContent = t('hide');
+    $('cover').classList.remove('hidden'); busy = true;
+  }
+  $('cover').addEventListener('click', function () { $('cover').classList.add('hidden'); busy = false; render(); });
+
+  function setMsg(s) { $('msg').textContent = s; }
+  function render() {
+    if (!G) return;
+    var viewer = G.mode === 'pc' ? 0 : G.cur, h = '';
+    G.pl.forEach(function (p, i) {
+      if (i === viewer && G.mode === 'pc') return;
+      var cls = 'opp' + (i === G.cur && !G.over ? ' turn' : '') + (i === G.target && !G.over ? ' target' : '') + (!p.hand.length ? ' done' : '');
+      var mini = ''; for (var k = 0; k < Math.min(p.hand.length, 10); k++) mini += '<i></i>';
+      var pos = G.order.indexOf(i);
+      h += '<div class="' + cls + '"><b>' + (p.pc ? '🤖 ' : '🙂 ') + name(i) + '</b><br>' + (p.hand.length ? p.hand.length + t('cards') : '✅ ' + t('fin', { k: pos + 1 })) + '<div class="mini">' + mini + '</div></div>';
+    });
+    $('opps').innerHTML = h;
+    var hide = G.mode === 'pp' && !$('cover').classList.contains('hidden');
+    var me = G.pl[viewer], myTurn = !G.over && !G.pl[G.cur].pc && G.cur === viewer;
+    $('mlabel').textContent = (G.mode === 'pc' ? t('myhand') : t('mine', { n: name(viewer) })) + ' · ' + me.hand.length + t('cards');
+    var mh = $('mhand'); mh.className = 'hand' + (me.hand.length > 8 ? ' many' : '');
+    mh.innerHTML = hide ? '' : me.hand.map(function (c) { return cardHTML(c, c.id === newId ? 'new' : ''); }).join('');
+    var tz = $('tzone'), th = $('thand');
+    if (G.over || G.target < 0) { tz.classList.add('hidden'); }
+    else {
+      tz.classList.remove('hidden');
+      var tgt = G.target, tp = G.pl[tgt];
+      if (myTurn) { $('tlabel').textContent = t('pick', { t: name(tgt) }); }
+      else { $('tlabel').textContent = t('pcturn', { n: name(G.cur) }) + ' → ' + t('from', { t: name(tgt) }); }
+      th.className = 'hand' + (tp.hand.length > 8 ? ' many' : '');
+      th.innerHTML = tgt === viewer ? '' : tp.hand.map(function (_, k) { return '<div class="card back" data-i="' + k + '" role="button" aria-label="card ' + (k + 1) + '"></div>'; }).join('');
+      if (tgt === viewer) tz.classList.add('hidden');
+    }
+    $('shufBtn').disabled = G.over;
+  }
+  $('thand').addEventListener('click', function (e) {
+    var el = e.target.closest('.card.back'); if (!el || !G || G.over || busy) return;
+    var c = G.cur; if (G.pl[c].pc) return; if (G.mode === 'pc' && c !== 0) return;
+    busy = true; el.classList.add('gone');
+    var idx = +el.getAttribute('data-i'), tg = G.target;
+    setTimeout(function () { busy = false; doDraw(c, tg, idx); }, 180);
+  });
+  $('shufBtn').addEventListener('click', function () {
+    if (!G || G.over) return; var v = G.mode === 'pc' ? 0 : G.cur; shuffle(G.pl[v].hand); forgetHolder(v); newId = -1; sfx(60); render();
+  });
+  $('newBtn').addEventListener('click', function () { clearTimeout(pcTimer); G = null; $('game').classList.add('hidden'); $('setup').classList.remove('hidden'); });
+  function showResult() {
+    var L = G.loser, h = '';
+    var big = G.mode === 'pc' ? (L === 0 ? t('lose') : t('win')) : t('thief', { n: L >= 0 ? name(L) : '-' });
+    G.order.forEach(function (p, k) { h += '<li>' + t('fin', { k: k + 1 }) + ' · ' + name(p) + '</li>'; });
+    if (L >= 0) h += '<li>🃏 ' + t('last') + ' · ' + name(L) + '</li>';
+    $('resBig').textContent = big; $('resList').innerHTML = h; $('resHint').textContent = t('ahint'); $('againBtn').textContent = t('again');
+    $('result').classList.remove('hidden'); resultAt = Date.now(); sfx(L === 0 && G.mode === 'pc' ? 55 : 91);
+    window.__omDone = (window.__omDone || 0) + 1;
+  }
+  function rematch() { if (Date.now() - resultAt < 400) return; newGame(); }  // 400ms (밀리초) 동안 오탭 방지
+  $('result').addEventListener('click', rematch);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== ' ' && e.key !== 'Enter') return;
+    if (!$('result').classList.contains('hidden')) { e.preventDefault(); rematch(); }
+    else if (!$('cover').classList.contains('hidden')) { e.preventDefault(); $('cover').click(); }
+  });
+
+  /* ---------- 설정 UI ---------- */
+  function seg(id, key, num) {
+    var el = $(id);
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cfg[key] = num ? +b.getAttribute('data-v') : b.getAttribute('data-v'); paintSetup(); });
+  }
+  seg('segMode', 'mode'); seg('segOpp', 'opps', 1); seg('segLv', 'lv', 1); seg('segPl', 'pl', 1);
+  function paintSetup() {
+    [['segMode', 'mode'], ['segOpp', 'opps'], ['segLv', 'lv'], ['segPl', 'pl']].forEach(function (a) {
+      Array.prototype.forEach.call($(a[0]).querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === String(cfg[a[1]]))); });
+    });
+    $('segOpp').classList.toggle('hidden', cfg.mode !== 'pc'); $('segLv').classList.toggle('hidden', cfg.mode !== 'pc'); $('segPl').classList.toggle('hidden', cfg.mode === 'pc');
+  }
+  function applyLang() {
+    document.documentElement.lang = lang;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) { el.textContent = t(el.getAttribute('data-t')); });
+    var mb = $('segMode').querySelectorAll('button'); mb[0].textContent = t('pc'); mb[1].textContent = t('pp');
+    var lb = $('segLv').querySelectorAll('button'); lb[0].textContent = t('l0'); lb[1].textContent = t('l1'); lb[2].textContent = t('l2');
+    $('ttl').textContent = t('title'); $('homeBtn').textContent = t('home'); $('guideBtn').textContent = t('guide');
+    $('startBtn').textContent = t('start'); $('shufBtn').textContent = t('shuffle'); $('newBtn').textContent = t('newg');
+    $('langBtn').textContent = lang === 'ko' ? '🌏 EN' : '🌏 한';
+    render(); if (G && G.over) showResult();
+  }
+  $('langBtn').addEventListener('click', function () { lang = lang === 'ko' ? 'en' : 'ko'; try { localStorage.setItem('nadoo_lang', lang); } catch (e) {} applyLang(); });
+  $('muteBtn').addEventListener('click', function () { setMute(!muted); });
+  $('startBtn').addEventListener('click', function () { try { localStorage.setItem('nadoo_oldmaid_cfg', JSON.stringify(cfg)); } catch (e) {} audioOn(); newGame(); });
+  $('againBtn').addEventListener('click', function (e) { e.stopPropagation(); rematch(); });
+  setMute(muted); paintSetup(); applyLang();
+  window.__om = { get G() { return G; }, cfg: cfg };
+})();
+</script>
+</body>
+</html>

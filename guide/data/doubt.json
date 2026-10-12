@@ -6,6 +6,10 @@
  },
  "emoji": "🤥",
  "intro": "거짓말해도 되는 카드게임! 정해진 숫자를 낸다고 말하면서 아무 카드나 낼 수 있어요. 들키면 벌로 카드를 몽땅 가져가요.",
+ "play": {
+  "url": "/guide/play/doubt.html",
+  "cards": true
+ },
  "glance": {
   "players": "3~8명",
   "time": "한 판 10~20분",
