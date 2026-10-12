@@ -22,3 +22,8 @@
 @keyframes ckp{to{opacity:.5}}
 .ck-end{top:auto;bottom:0;height:auto;min-height:40%;border-radius:20px 20px 0 0}
 .ck-info{display:flex;justify-content:center;gap:14px;font-size:16px;font-weight:700;margin:4px 0}.ck-pill{background:rgba(0,0,0,.3);border-radius:99px;padding:4px 12px}
+.ck-rp{position:fixed;inset:0;z-index:12;background:#0b3d28;overflow:auto;padding:16px;max-width:560px;margin:0 auto}.ck-rp h2{margin:4px 0 10px}
+.ck-seats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}.ck-seat.dummy{background:rgba(255,255,255,.12)}
+.ck-trick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end;min-height:118px;margin:6px 0;background:rgba(0,0,0,.18);border-radius:14px;padding:6px}.ck-trick figure{margin:0;text-align:center;font-size:13px}
+.ck-meld{display:inline-flex;gap:2px;padding:4px;margin:3px;border-radius:10px;background:rgba(0,0,0,.25)}.ck-meld.tap{outline:2px dashed #ffd32a;cursor:pointer}
+.ck-hand .ck-card{margin:0}.ck-hand.tight{gap:3px}.ck-hand.tight .ck-card{width:52px;height:76px}.ck-hand.tight .ck-card b{font-size:26px}.ck-hand.tight .ck-card i{font-size:24px}

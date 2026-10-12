@@ -16,17 +16,17 @@
   {"id": "indianpoker", "ko": "인디언 포커", "en": "Indian Poker", "cat": "card", "emoji": "🪶", "level": 1, "order": 3, "players": "2~6명", "solo": false, "kids": true, "status": "ready", "pc": true},
   {"id": "doubt", "ko": "다우트", "en": "Doubt (Cheat)", "cat": "card", "emoji": "🤥", "level": 1, "order": 2, "players": "3~8명", "solo": false, "kids": true, "status": "ready", "pc": true},
   {"id": "onecard", "ko": "원카드", "en": "One Card", "cat": "card", "emoji": "☝️", "level": 2, "order": 1, "players": "2~6명", "solo": false, "kids": true, "status": "ready", "pc": true},
-  {"id": "blackjack", "ko": "블랙잭", "en": "Blackjack", "cat": "card", "emoji": "🔢", "level": 2, "order": 2, "players": "2~7명", "solo": true, "kids": false, "status": "ready"},
+  {"id": "blackjack", "ko": "블랙잭", "en": "Blackjack", "cat": "card", "emoji": "🔢", "level": 2, "order": 2, "players": "2~7명", "solo": true, "kids": false, "status": "ready", "pc": true},
   {"id": "president", "ko": "대통령", "en": "President", "cat": "card", "emoji": "👑", "level": 2, "order": 3, "players": "4~7명", "solo": false, "kids": true, "status": "ready", "pc": true},
-  {"id": "klondike", "ko": "클론다이크 솔리테어", "en": "Klondike Solitaire", "cat": "card", "emoji": "🎴", "level": 2, "order": 4, "players": "1명", "solo": true, "kids": true, "status": "ready"},
-  {"id": "freecell", "ko": "프리셀", "en": "FreeCell", "cat": "card", "emoji": "🗂️", "level": 3, "order": 1, "players": "1명", "solo": true, "kids": false, "status": "ready"},
-  {"id": "hula", "ko": "훌라", "en": "Hula", "cat": "card", "emoji": "🌺", "level": 3, "order": 2, "players": "2~5명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "rummy", "ko": "럼미", "en": "Rummy", "cat": "card", "emoji": "🀄", "level": 3, "order": 3, "players": "2~6명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "hearts", "ko": "하트", "en": "Hearts", "cat": "card", "emoji": "♥️", "level": 3, "order": 4, "players": "4명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "poker", "ko": "포커", "en": "Poker", "cat": "card", "emoji": "♠️", "level": 3, "order": 5, "players": "2~8명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "spades", "ko": "스페이드", "en": "Spades", "cat": "card", "emoji": "♤", "level": 3, "order": 6, "players": "4명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "russianbank", "ko": "러시안 뱅크", "en": "Russian Bank", "cat": "card", "emoji": "🏦", "level": 4, "order": 3, "players": "2명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "mighty", "ko": "마이티", "en": "Mighty", "cat": "card", "emoji": "💪", "level": 4, "order": 4, "players": "5명", "solo": false, "kids": false, "status": "ready"},
-  {"id": "bridge", "ko": "브릿지", "en": "Contract Bridge", "cat": "card", "emoji": "🌉", "level": 5, "order": 3, "players": "4명", "solo": false, "kids": false, "status": "ready"}
+  {"id": "klondike", "ko": "클론다이크 솔리테어", "en": "Klondike Solitaire", "cat": "card", "emoji": "🎴", "level": 2, "order": 4, "players": "1명", "solo": true, "kids": true, "status": "ready", "pc": true},
+  {"id": "freecell", "ko": "프리셀", "en": "FreeCell", "cat": "card", "emoji": "🗂️", "level": 3, "order": 1, "players": "1명", "solo": true, "kids": false, "status": "ready", "pc": true},
+  {"id": "hula", "ko": "훌라", "en": "Hula", "cat": "card", "emoji": "🌺", "level": 3, "order": 2, "players": "2~5명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "rummy", "ko": "럼미", "en": "Rummy", "cat": "card", "emoji": "🀄", "level": 3, "order": 3, "players": "2~6명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "hearts", "ko": "하트", "en": "Hearts", "cat": "card", "emoji": "♥️", "level": 3, "order": 4, "players": "4명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "poker", "ko": "포커", "en": "Poker", "cat": "card", "emoji": "♠️", "level": 3, "order": 5, "players": "2~8명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "spades", "ko": "스페이드", "en": "Spades", "cat": "card", "emoji": "♤", "level": 3, "order": 6, "players": "4명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "russianbank", "ko": "러시안 뱅크", "en": "Russian Bank", "cat": "card", "emoji": "🏦", "level": 4, "order": 3, "players": "2명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "mighty", "ko": "마이티", "en": "Mighty", "cat": "card", "emoji": "💪", "level": 4, "order": 4, "players": "5명", "solo": false, "kids": false, "status": "ready", "pc": true},
+  {"id": "bridge", "ko": "브릿지", "en": "Contract Bridge", "cat": "card", "emoji": "🌉", "level": 5, "order": 3, "players": "4명", "solo": false, "kids": false, "status": "ready", "pc": true}
  ]
 }
