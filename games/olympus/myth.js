@@ -72,7 +72,7 @@ const css=`.myo{position:fixed;inset:0;z-index:50;background:#0b1030f7;color:#ff
 .myc a{color:#8fd8ff}.myt{max-width:760px;margin:10px auto;text-align:center}.myt div{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:4px 0}
 .myt span{padding:4px 8px;border-radius:10px;background:#2a2f7a;border:1px solid #ffd76f88;font-size:12px}.myt span.l{opacity:.35}.myt i{display:block;font-style:normal;opacity:.6}
 .myq{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:#0008}.myq .b{background:#1b1d4a;border:3px solid #ffd76f;border-radius:18px;padding:16px;width:min(92vw,360px);text-align:center}
-.myq button{display:block;width:100%;margin:7px 0;padding:11px;border-radius:12px;border:2px solid #ffd76f88;background:#2a2f7a;color:#fff;font:inherit;font-size:16px}.myq .bar{height:6px;background:#ffd76f;border-radius:3px;margin-top:8px;transition:width 3s linear}`;
+.myq button{display:block;width:100%;margin:7px 0;padding:11px;border-radius:12px;border:2px solid #ffd76f88;background:#2a2f7a;color:#fff;font:inherit;font-size:16px}.myq button:disabled{opacity:1;color:#fff}`;
 function style(){if(!document.getElementById('myocss')){const s=document.createElement('style');s.id='myocss';s.textContent=css;document.head.appendChild(s)}}
 function openDex(lang){style();const e=lang=='en',d=get(),o=document.createElement('div');o.className='myo';
 const stop=ev=>ev.stopPropagation();o.addEventListener('pointerdown',stop);
@@ -80,10 +80,20 @@ let h=`<button class="x">✕</button><h2>🏛️ ${e?'Olympus Myth Dex':'올림�
 h+=`<div class="myt"><b>${e?'Olympus Family Tree':'올림포스 가계도'}</b>`+TREE.map((r,i)=>`<div>${r.map(id=>{const c=card(id,lang);return d.includes(id)?`<span>${c.symbol.split(' ')[0]} ${c.name}</span>`:'<span class="l">❔</span>'}).join('')}</div>${i<2?'<i>↓</i>':''}`).join('')+'</div><div class="myg">';
 for(const id in C){if(d.includes(id)){const c=card(id,lang);h+=`<div class="myc"><b>${c.symbol.split(' ')[0]} ${c.name}</b><br>✨ ${c.ability}<br>🔖 ${c.symbol}<br>👪 ${c.family}<br>📜 ${c.story}${c.link?`<br><a href="${c.link}" target="_blank" rel="noopener">${e?'More at 나두신화 →':'나두신화에서 더 보기 →'}</a>`:''}</div>`}else h+='<div class="myc l">❔</div>'}
 o.innerHTML=h+'</div>';o.querySelector('.x').onclick=()=>o.remove();document.body.appendChild(o)}
-function quiz(lang,cb){style();const e=lang=='en',q=Q[Math.random()*Q.length|0],ord=[0,1,2].sort(()=>Math.random()-.5),o=document.createElement('div');o.className='myq';
-o.innerHTML=`<div class="b"><b>⚡ ${e?'Quick quiz!':'3초 퀴즈!'}</b><p style="margin:8px 0;font-size:17px">${e?q[1]:q[0]}</p>${ord.map(i=>`<button data-i="${i}">${(e?q[3]:q[2])[i]}</button>`).join('')}<div class="bar" style="width:100%"></div></div>`;
-let done=false;const fin=ok=>{if(done)return;done=true;clearTimeout(t);setTimeout(()=>{o.remove();cb(ok)},ok===null?0:450)};
-o.addEventListener('pointerdown',ev=>{ev.stopPropagation();const b=ev.target.closest('button');if(!b)return;const ok=+b.dataset.i===q[4];b.style.background=ok?'#2a9d5c':'#b23a48';if(!ok)o.querySelector(`[data-i="${q[4]}"]`).style.background='#2a9d5c';fin(ok)});
-document.body.appendChild(o);requestAnimationFrame(()=>o.querySelector('.bar').style.width='0%');const t=setTimeout(()=>fin(false),3000)}
-window.Myth={C,TREE,Q,get,unlock,card,openDex,quiz,LINK};
+function quiz(lang,cb){style();const e=lang=='en',q=Q[Math.random()*Q.length|0],ord=[0,1,2].sort(()=>Math.random()-.5),A=e?q[3]:q[2],o=document.createElement('div');o.className='myq';
+o.innerHTML=`<div class="b"><b>⚡ ${e?'Myth quiz!':'신화 퀴즈!'}</b><p style="margin:8px 0;font-size:17px">${e?q[1]:q[0]}</p>${ord.map((i,n)=>`<button data-i="${i}">${n+1}. ${A[i]}</button>`).join('')}<div class="fb" style="min-height:22px;margin-top:6px;font-weight:bold"></div></div>`;
+let done=false,closed=false,tm=0;
+const close=()=>{if(closed)return;closed=true;clearTimeout(tm);removeEventListener('keydown',kd,true);o.remove();cb(done)};
+const pick=i=>{if(o.dataset.a)return;o.dataset.a=1;const ok=i===q[4];done=ok;const bs=o.querySelectorAll('button');bs.forEach(x=>x.disabled=true);
+const ch=o.querySelector(`[data-i="${i}"]`),cr=o.querySelector(`[data-i="${q[4]}"]`),fb=o.querySelector('.fb');
+if(ok){ch.style.background='#2a9d5c';ch.style.borderColor='#7f7';fb.style.color='#7f7';fb.textContent=e?'⭕ Correct!':'⭕ 정답!'}
+else{ch.style.background='#b23a48';ch.style.borderColor='#f88';cr.style.background='#2a9d5c';cr.style.borderColor='#7f7';fb.style.color='#fbb';fb.innerHTML=(e?'❌ Wrong! Answer: ':'❌ 땡! 정답: ')+A[q[4]]}
+tm=setTimeout(close,1200)};
+const stop=ev=>{ev.stopPropagation();if(ev.cancelable&&ev.type!='click')ev.preventDefault()};
+['pointerdown','pointerup','touchstart','touchend','mousedown','mouseup','click'].forEach(t=>o.addEventListener(t,stop,{passive:false}));
+o.addEventListener('pointerup',ev=>{if(o.dataset.a){close();return}const b=ev.target.closest('button');if(b)pick(+b.dataset.i)});
+const kd=ev=>{ev.stopPropagation();ev.stopImmediatePropagation();ev.preventDefault();if(ev.repeat)return;const n=+ev.key;if(!o.dataset.a&&n>=1&&n<=ord.length)pick(ord[n-1]);else if(o.dataset.a&&(ev.key=='Enter'||ev.key==' '))close()};
+addEventListener('keydown',kd,true);document.body.appendChild(o)}
+function quizOpen(){return !!document.querySelector('.myq')}
+window.Myth={C,TREE,Q,get,unlock,card,openDex,quiz,quizOpen,LINK};
 })();
