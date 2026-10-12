@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
-<script src="/guide/play/othello.rules.js"></script>
+<script src="/guide/play/othello.rules.js?v=20261012"></script>
 <script src="/guide/play/play.js?v=20261002d"></script>
 <script>
 (function () {
@@ -23,8 +23,8 @@
     text: {
       title: ['오델로', 'Othello'], sub: ['8×8 · 리버시', '8×8 · Reversi'],
       side0: ['먼저 두기 (흑 ●)', 'Go first (Black ●)'], side1: ['나중 두기 (백 ○)', 'Go second (White ○)'],
-      rulesNote: ['규칙: 흑부터. 상대 돌을 내 돌 사이에 끼우는 자리에만 둘 수 있고, 끼인 돌은 모두 뒤집어요. 둘 곳이 없으면 자동으로 패스, 둘 다 없으면 끝나고 돌이 많은 쪽이 이겨요.',
-        'Rules: Black first. You must sandwich opponent discs; all sandwiched discs flip. No legal move = automatic pass. When neither can move, most discs wins.']
+      rulesNote: ['규칙: 흑부터. 노란 점 = 둘 수 있는 곳. 상대 돌을 내 돌 사이에 끼우는 자리에만 둘 수 있고, 끼인 돌은 모두 뒤집어요. 둘 곳이 없으면 자동으로 패스, 둘 다 없으면 끝나고 돌이 많은 쪽이 이겨요.',
+        'Rules: Black first. Yellow dots = legal moves. You must sandwich opponent discs; all sandwiched discs flip. No legal move = automatic pass. When neither can move, most discs wins.']
     },
     info: function (s, api, cur) {
       var c = R.count(s.b), me = cur.human === 0 ? c[0] : c[1], pc = cur.human === 0 ? c[1] : c[0];
@@ -52,14 +52,19 @@
         if (fl[k]) h += '<circle cx="' + x + '" cy="' + y + '" r="' + (C * 0.16) + '" fill="none" stroke="#ff9f43" stroke-width="2.5"/>';
       }
       if (s.last >= 0) h += '<rect x="' + (P + (s.last & 7) * C + 3) + '" y="' + (P + (s.last >> 3) * C + 3) + '" width="' + (C - 6) + '" height="' + (C - 6) + '" fill="none" stroke="#ff3b3b" stroke-width="3" rx="4"/>';
-      if (ctx.hints && ctx.myTurn) R.moves(s).forEach(function (m) { h += '<circle class="hint" cx="' + (P + (m & 7) * C + C / 2) + '" cy="' + (P + (m >> 3) * C + C / 2) + '" r="' + (C * 0.14) + '" fill="#ffd32a" stroke="#2d1b00" stroke-width="1"/>'; });
+      if (ctx.myTurn) R.moves(s).forEach(function (m) { h += '<circle class="hint" cx="' + (P + (m & 7) * C + C / 2) + '" cy="' + (P + (m >> 3) * C + C / 2) + '" r="' + (C * 0.14) + '" fill="#ffd32a" stroke="#2d1b00" stroke-width="1"/>'; });
       h += '</svg>';
       el.innerHTML = h;
       var svg = el.firstChild;
       svg.addEventListener('click', function (ev) {
         var p = NadooPlay.pt(svg, ev), c = Math.floor((p.x - P) / C), r = Math.floor((p.y - P) / C);
         if (r < 0 || r > 7 || c < 0 || c > 7) return;
-        api.move(r * 8 + c);
+        if (!api.move(r * 8 + c) && ctx.myTurn && !s.win) { // 둘 수 없는 칸: 잠깐 빨간 X로 알려 줌
+          var ns = 'http://www.w3.org/2000/svg', g = document.createElementNS(ns, 'path'), x0 = P + c * C + 12, y0 = P + r * C + 12, d = C - 24;
+          g.setAttribute('d', 'M' + x0 + ' ' + y0 + 'l' + d + ' ' + d + 'M' + (x0 + d) + ' ' + y0 + 'l' + (-d) + ' ' + d);
+          g.setAttribute('stroke', '#ff3b3b'); g.setAttribute('stroke-width', '4'); g.setAttribute('stroke-linecap', 'round'); g.setAttribute('class', 'badtap');
+          svg.appendChild(g); setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); }, 600);
+        }
       });
     }
   });
