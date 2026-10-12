@@ -24,8 +24,8 @@
     text: {
       title: ['체스', 'Chess'], sub: ['캐슬링·앙파상·프로모션 포함', 'Castling, en passant & promotion included'],
       side0: ['먼저 두기 (백 ♔)', 'Go first (White)'], side1: ['나중 두기 (흑 ♚)', 'Go second (Black)'],
-      rulesNote: ['규칙(가이드와 같음): 내 기물을 누른 다음 갈 칸을 눌러요. 캐슬링은 킹을 2칸 옮기면 돼요. 앙파상·프로모션(아래에서 기물 선택, 기본 퀸) 모두 돼요. 체크메이트하면 승리, 스테일메이트·3회 반복·50수·기물 부족은 무승부. 초급에서는 갈 수 있는 칸을 점으로 보여 줘요.',
-        'Rules (same as the guide): tap your piece, then its destination. Castle by moving the king two squares. En passant and promotion (choose below, default queen) work. Checkmate wins; stalemate, threefold repetition, 50-move rule and insufficient material are draws. Easy shows legal squares with dots.'],
+      rulesNote: ['규칙(가이드와 같음): 내 기물을 누른 다음 갈 칸을 눌러요. 캐슬링은 킹을 2칸 옮기면 돼요. 앙파상·프로모션(아래에서 기물 선택, 기본 퀸) 모두 돼요. 체크메이트하면 승리, 스테일메이트·3회 반복·50수·기물 부족은 무승부. 기물을 고르면 갈 수 있는 칸은 회색 점, 잡을 수 있는 기물은 회색 고리로 보여 줘요.',
+        'Rules (same as the guide): tap your piece, then its destination. Castle by moving the king two squares. En passant and promotion (choose below, default queen) work. Checkmate wins; stalemate, threefold repetition, 50-move rule and insufficient material are draws. Selecting a piece shows legal squares with gray dots (captures with a ring).'],
       promo: ['승격 기물', 'Promote to'], check: ['체크!', 'Check!'],
       why_mate: ['체크메이트', 'Checkmate'], why_stalemate: ['스테일메이트 (무승부)', 'Stalemate (draw)'], why_fifty: ['50수 규칙 (무승부)', '50-move rule (draw)'],
       why_repeat: ['같은 국면 3번 (무승부)', 'Threefold repetition (draw)'], why_material: ['기물 부족 (무승부)', 'Insufficient material (draw)']
@@ -43,24 +43,25 @@
       function XY(i) { var r = i >> 3, c = i & 7; if (flip) { r = 7 - r; c = 7 - c; } return [P + c * C, P + r * C]; }
       var h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="chess board">';
       h += '<rect x="0" y="0" width="' + S + '" height="' + S + '" rx="10" fill="#e9c27d"/>';
+      h += '<defs><radialGradient id="chkGlow"><stop offset="0" stop-color="#ff1e1e" stop-opacity=".95"/><stop offset=".6" stop-color="#e74c3c" stop-opacity=".6"/><stop offset="1" stop-color="#e74c3c" stop-opacity="0"/></radialGradient></defs>';
       for (var i = 0; i < 64; i++) {
         var xy = XY(i), dark = ((i >> 3) + (i & 7)) % 2 === 1;
         h += '<rect x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="' + (dark ? '#b58863' : '#f0d9b5') + '"/>';
-        if (s.last && (s.last.f === i || s.last.t === i)) h += '<rect x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="#f7e463" opacity=".55"/>';
-        if (i === sel) h += '<rect x="' + (xy[0] + 2) + '" y="' + (xy[1] + 2) + '" width="' + (C - 4) + '" height="' + (C - 4) + '" fill="none" stroke="#27ae60" stroke-width="4"/>';
+        if (s.last && (s.last.f === i || s.last.t === i)) h += '<rect x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="#f7e463" opacity=".35"/>';
+        if (i === sel) h += '<rect class="selsq" x="' + xy[0] + '" y="' + xy[1] + '" width="' + C + '" height="' + C + '" fill="#fff59d" opacity=".9"/>';
       }
       for (var k = 0; k < 8; k++) {
         var f = flip ? 7 - k : k;
         h += '<text x="' + (P + k * C + C / 2) + '" y="' + (S - 4) + '" font-size="11" text-anchor="middle" fill="#5a3a10">' + FILES[f] + '</text>';
         h += '<text x="8" y="' + (P + k * C + C / 2 + 4) + '" font-size="11" text-anchor="middle" fill="#5a3a10">' + (flip ? k + 1 : 8 - k) + '</text>';
       }
-      if (s.check) { var ks = R.kingSq(s.b, s.turn), kx = XY(ks); h += '<circle cx="' + (kx[0] + C / 2) + '" cy="' + (kx[1] + C / 2) + '" r="' + (C * 0.47) + '" fill="#e74c3c" opacity=".55"/>'; }
+      if (s.check) { var ks = R.kingSq(s.b, s.turn), kx = XY(ks); h += '<circle cx="' + (kx[0] + C / 2) + '" cy="' + (kx[1] + C / 2) + '" r="' + (C * 0.5) + '" fill="url(#chkGlow)"/>'; }
       for (i = 0; i < 64; i++) {
         var p = s.b[i]; if (!p) continue;
         var w = (p >> 3) === 0, xy2 = XY(i);
         h += '<text class="piece" x="' + (xy2[0] + C / 2) + '" y="' + (xy2[1] + C * 0.8) + '" font-size="' + (C * 0.82) + '" text-anchor="middle" font-family="DejaVu Sans,Segoe UI Symbol,Apple Symbols,Noto Sans Symbols2,sans-serif" fill="' + (w ? '#fff' : '#111') + '" stroke="' + (w ? '#111' : '#fff') + '" stroke-width="' + (w ? 1.3 : 0.7) + '" paint-order="stroke">' + GL[p & 7] + '\uFE0E</text>';
       }
-      if (ctx.hints) Object.keys(dests).forEach(function (t) { var d = XY(+t); h += '<circle class="hint" cx="' + (d[0] + C / 2) + '" cy="' + (d[1] + C / 2) + '" r="' + (s.b[+t] ? C * 0.44 : 7) + '" fill="' + (s.b[+t] ? 'none' : '#27ae60') + '" stroke="#27ae60" stroke-width="3" opacity=".8"/>'; });
+      Object.keys(dests).forEach(function (t) { var d = XY(+t), cap = s.b[+t] || (s.b[sel] & 7) === 1 && (+t & 7) !== (sel & 7); h += cap ? '<circle class="hint cap" cx="' + (d[0] + C / 2) + '" cy="' + (d[1] + C / 2) + '" r="' + (C * 0.44) + '" fill="none" stroke="#555" stroke-width="4" opacity=".55"/>' : '<circle class="hint dot" cx="' + (d[0] + C / 2) + '" cy="' + (d[1] + C / 2) + '" r="7" fill="#555" opacity=".45"/>'; });
       h += '</svg>';
       el.innerHTML = h;
       var svg = el.firstChild;

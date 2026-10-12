@@ -10,6 +10,8 @@
       function XY(k) { var r = (k / 9) | 0, c = k % 9; if (flip) { r = 9 - r; c = 8 - c; } return [P + c * C, P + r * C]; }
       var lc = '#5a3a10', h = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="board">';
       h += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="12" fill="#e9c27d"/>';
+      h += '<defs><radialGradient id="jxChk"><stop offset="0" stop-color="#ff1e1e" stop-opacity=".95"/><stop offset=".6" stop-color="#e74c3c" stop-opacity=".6"/><stop offset="1" stop-color="#e74c3c" stop-opacity="0"/></radialGradient></defs>';
+      if (sel >= 0 && s.b[sel]) { var sx = XY(sel); h += '<rect class="selsq" x="' + (sx[0] - C / 2) + '" y="' + (sx[1] - C / 2) + '" width="' + C + '" height="' + C + '" rx="6" fill="#fff59d" opacity=".95"/>'; }
       for (i = 0; i < 10; i++) h += '<line x1="' + P + '" y1="' + (P + i * C) + '" x2="' + (P + 8 * C) + '" y2="' + (P + i * C) + '" stroke="' + lc + '"/>';
       for (i = 0; i < 9; i++) {
         if (opt.river && i > 0 && i < 8) {
@@ -22,16 +24,15 @@
         h += '<line x1="' + (P + 5 * C) + '" y1="' + (P + r0 * C) + '" x2="' + (P + 3 * C) + '" y2="' + (P + (r0 + 2) * C) + '" stroke="' + lc + '"/>';
       });
       if (opt.river) h += '<text x="' + (W / 2) + '" y="' + (P + 4.5 * C + 7) + '" font-size="20" text-anchor="middle" fill="' + lc + '" letter-spacing="8">楚 河　　漢 界</text>';
-      if (s.last) [s.last.f, s.last.t].forEach(function (k) { var xy = XY(k); h += '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="' + (C * 0.47) + '" fill="#ffd32a" opacity=".5"/>'; });
-      if (s.check) { var kx = XY(opt.R.JX.kingSq(s.b, s.turn)); h += '<circle cx="' + kx[0] + '" cy="' + kx[1] + '" r="' + (C * 0.52) + '" fill="#e74c3c" opacity=".55"/>'; }
+      if (s.last) [s.last.f, s.last.t].forEach(function (k) { var xy = XY(k); h += '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="' + (C * 0.47) + '" fill="#ffd32a" opacity=".3"/>'; });
+      if (s.check) { var kx = XY(opt.R.JX.kingSq(s.b, s.turn)); h += '<circle cx="' + kx[0] + '" cy="' + kx[1] + '" r="' + (C * 0.56) + '" fill="url(#jxChk)"/>'; }
       for (i = 0; i < 90; i++) {
         var p = s.b[i]; if (!p) continue;
         var sd = p >> 3, t = p & 7, xy2 = XY(i), col = opt.colors[sd], rr = C * (t === 1 ? 0.47 : (t === 2 || t === 7) ? 0.37 : 0.43);
-        h += '<circle class="piece" cx="' + xy2[0] + '" cy="' + xy2[1] + '" r="' + rr + '" fill="#fdf3d8" stroke="' + col + '" stroke-width="' + (i === sel ? 4 : 2.2) + '"/>';
-        if (i === sel) h += '<circle cx="' + xy2[0] + '" cy="' + xy2[1] + '" r="' + (rr + 4) + '" fill="none" stroke="#27ae60" stroke-width="3"/>';
+        h += '<circle class="piece" cx="' + xy2[0] + '" cy="' + xy2[1] + '" r="' + rr + '" fill="#fdf3d8" stroke="' + col + '" stroke-width="' + (i === sel ? 3.2 : 2.2) + '"/>';
         h += '<text x="' + xy2[0] + '" y="' + (xy2[1] + rr * 0.38) + '" font-size="' + (rr * 1.05) + '" text-anchor="middle" fill="' + col + '" font-weight="700"' + (FF ? ' font-family="' + FF + '"' : '') + '>' + LB[sd][t] + '</text>';
       }
-      if (ctx.hints) Object.keys(dests).forEach(function (k) { var d = XY(+k); h += '<circle class="hint" cx="' + d[0] + '" cy="' + d[1] + '" r="' + (s.b[+k] ? C * 0.5 : 7) + '" fill="' + (s.b[+k] ? 'none' : '#27ae60') + '" stroke="#27ae60" stroke-width="3" opacity=".85"/>'; });
+      Object.keys(dests).forEach(function (k) { var d = XY(+k); h += s.b[+k] ? '<circle class="hint cap" cx="' + d[0] + '" cy="' + d[1] + '" r="' + (C * 0.5) + '" fill="none" stroke="#555" stroke-width="4" opacity=".6"/>' : '<circle class="hint dot" cx="' + d[0] + '" cy="' + d[1] + '" r="6" fill="#555" opacity=".5"/>'; });
       h += '</svg>';
       el.innerHTML = h;
       var svg = el.firstChild;
