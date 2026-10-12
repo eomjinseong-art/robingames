@@ -6,6 +6,10 @@
  },
  "emoji": "🃏",
  "intro": "짝 맞추기 + 표정 관리! 규칙이 가장 쉬운 카드게임이라 처음 트럼프를 배울 때 딱이에요.",
+ "play": {
+  "url": "/guide/play/oldmaid.html",
+  "cards": true
+ },
  "glance": {
   "players": "3~6명 (2명도 가능)",
   "time": "한 판 5~15분",
