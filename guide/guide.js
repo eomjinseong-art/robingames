@@ -1,4 +1,4 @@
-/* 나두게임즈 게임 가이드 렌더러 (빌드 없음)
+/* 나두 보드게임 라운지 렌더러 (빌드 없음)
  * - /guide/index.html  : 목록 (data/index.json)
  * - /guide/game.html?id=xxx : 게임 한 개 (data/xxx.json)
  * 도식은 모두 데이터로부터 SVG로 그림 (외부 이미지 없음). */
@@ -10,8 +10,8 @@
   if (lang !== 'ko' && lang !== 'en') lang = 'ko';
 
   var T = {
-    home: ['🏠 홈', '🏠 Home'], list: ['📚 가이드 목록', '📚 All guides'],
-    gTitle: ['나두 게임 가이드', 'Nadoo Game Guide'], gSub: ['처음 하는 사람을 위한 규칙 교과서', 'Rulebooks for total beginners'],
+    home: ['🏠 홈', '🏠 Home'], list: ['📚 보드게임 라운지', '📚 Board Lounge'],
+    gTitle: ['나두 보드게임 라운지', 'Nadoo Board Lounge'], gSub: ['처음 하는 사람을 위한 규칙 교과서', 'Rulebooks for total beginners'],
     gIntro: ['보드게임·카드게임 규칙을 그림으로 한 판씩 따라 하며 배워요. 돈은 걸지 않아요!', 'Learn board & card games step by step with pictures. No money involved!'],
     enNote: ['', 'Guide texts are in Korean for now (menus are bilingual).'],
     board: ['보드게임', 'Board games'], card: ['카드게임', 'Card games'],
@@ -32,7 +32,7 @@
     saved: ['체크하면 이 기기에 자동 저장돼요.', 'Saved on this device automatically.'], reset: ['진도 지우기', 'Reset'],
     playNow: ['🤖 PC랑 게임 시작하기', '🤖 Play vs Computer'], playSub: ['가이드 읽고 바로 컴퓨터와 한 판!', 'Read the guide, then play right away!'], playGo: ['바로 하기 ▶', 'Play now ▶'], play2p: ['👥 둘이서 하기 (한 폰으로)', '👥 2 players on one device'], pc: ['PC 대국', 'vs Computer'],
     notFound: ['이 게임 가이드를 찾을 수 없어요.', 'Guide not found.'], loadErr: ['불러오기에 실패했어요. 새로고침해 보세요.', 'Failed to load. Please refresh.'],
-    soonPage: ['이 게임 가이드는 아직 준비 중이에요.', 'This guide is coming soon.'], credit: ['© 나두게임즈 | 나두Ai', '© Nadoo Games | 나두Ai'],
+    soonPage: ['이 게임 가이드는 아직 준비 중이에요.', 'This guide is coming soon.'], credit: ['© 나두 보드게임 라운지 | 나두Ai', '© Nadoo Board Lounge | 나두Ai'],
     top: ['맨 위로 ↑', 'Top ↑']
   };
   function t(k) { var v = T[k]; return v ? v[lang === 'ko' ? 0 : 1] : k; }
@@ -308,7 +308,7 @@
       if (!data) return;
       var d = data, gl = d.glance || {}, byId = {};
       (idx ? idx.games : []).forEach(function (x) { byId[x.id] = x; });
-      document.title = (d.title.ko) + ' 초보 가이드 | 나두게임즈';
+      document.title = (d.title.ko) + ' 초보 가이드 | 나두 보드게임 라운지';
       var sim = (gl.similar || []).map(function (s) {
         var x = byId[s];
         if (!x) return esc(s);

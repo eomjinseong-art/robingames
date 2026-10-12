@@ -6,14 +6,14 @@
   try { lang = localStorage.getItem(LANG_KEY) || ((navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en'); } catch (e) {}
   if (lang !== 'ko' && lang !== 'en') lang = 'ko';
   var T = {
-    home: ['🏠 홈', '🏠 Home'], guide: ['📖 규칙 가이드', '📖 Rules guide'], list: ['📚 가이드 목록', '📚 All guides'],
+    home: ['🏠 홈', '🏠 Home'], guide: ['📖 규칙 보기', '📖 Rules'], list: ['📚 보드게임 라운지', '📚 Board Lounge'],
     level: ['난이도', 'Level'], easy: ['초급', 'Easy'], normal: ['중급', 'Normal'], hard: ['고급', 'Hard'],
     side: ['순서', 'Order'], newGame: ['🔄 새 게임', '🔄 New game'], undo: ['↩️ 무르기', '↩️ Undo'],
     myTurn: ['내 차례예요', 'Your turn'], thinking: ['🤖 컴퓨터가 생각 중…', '🤖 Computer is thinking…'],
     win: ['🎉 이겼어요!', '🎉 You win!'], lose: ['😢 컴퓨터가 이겼어요. 다시 해 봐요!', '😢 The computer wins. Try again!'], draw: ['🤝 비겼어요!', '🤝 Draw!'],
     rec: ['내 기록', 'My record'], w: ['승', 'W'], l: ['패', 'L'], d: ['무', 'D'],
     applyNext: ['바뀐 설정은 새 게임부터 적용돼요.', 'New settings apply from the next game.'],
-    credit: ['© 나두게임즈 | 나두Ai', '© Nadoo Games | 나두Ai'], vs: ['PC 대국', 'vs Computer'],
+    credit: ['© 나두 보드게임 라운지 | 나두Ai', '© Nadoo Board Lounge | 나두Ai'], vs: ['PC 대국', 'vs Computer'],
     hintNote: ['초급에서는 둘 수 있는 곳을 표시해 줘요.', 'Easy shows where you can move.'],
     me: ['나', 'Me'], pc: ['컴퓨터', 'Computer'], pcShort: ['PC', 'PC'], nth: ['수', ' moves'],
     pcPass: ['컴퓨터가 둘 곳이 없어 패스! 한 번 더 두세요.', 'The computer has no move and passes. Your turn again!'],
@@ -127,7 +127,7 @@
     function shell() {
       document.documentElement.lang = lang;
       var tw = two(), title = tw ? t('twoP') : t('vs');
-      document.title = tt('title') + ' ' + title + ' | 나두게임즈';
+      document.title = tt('title') + ' ' + title + ' | 나두 보드게임 라운지';
       var h = '<div class="topbar"><a class="btn" href="/guide/game.html?id=' + cfg.id + '">' + esc(t('guide')) + '</a>' +
         '<span style="display:flex;gap:8px"><a class="btn" href="/">' + esc(t('home')) + '</a><button class="btn" id="langBtn" type="button" aria-label="Language 언어">' + (lang === 'ko' ? '🌏 EN' : '🌏 한') + '</button></span></div>' +
         '<header class="hero"><h1>' + (tw ? '👥 ' : '🤖 ') + esc(tt('title')) + ' ' + esc(title) + '<small>' + esc(tt('sub')) + '</small></h1></header>' +
