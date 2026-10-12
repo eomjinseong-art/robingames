@@ -1,4 +1,4 @@
-/* 나두게임즈 게임 가이드 공용 스타일 */
+/* 나두 보드게임 라운지 공용 스타일 */
 :root { --ink:#2d1b00; --paper:#fff8dc; --yellow:#ffd32a; --pink:#ff7eb6; --mint:#7bed9f; --sky:#70d6ff; --orange:#ff9f43; --purple:#a29bfe; --soft:#5a3a10; }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }

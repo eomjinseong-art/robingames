@@ -1,4 +1,4 @@
-# 나두 게임 가이드 (/guide)
+# 나두 보드게임 라운지 / Nadoo Board Lounge (/guide)
 
 빌드 없이 동작하는 데이터 기반 가이드입니다.
 
