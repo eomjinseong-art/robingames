@@ -9,15 +9,15 @@ rhea:['레아','Rhea','신들의 어머니','Mother of the gods','🦁 사자','
 zeus:['제우스','Zeus','번개를 다루는 신들의 왕','King of the gods, wields thunder','⚡ 번개','크로노스와 레아의 막내아들, 헤라의 남편','Youngest son of Kronos & Rhea, husband of Hera','크레타 동굴에서 몰래 자라 형제들을 구하고 티탄을 물리쳤어요.','Raised in secret in a Cretan cave, he freed his siblings and defeated the Titans.','zeus'],
 hera:['헤라','Hera','결혼과 가정의 여신','Goddess of marriage','🦚 공작','크로노스와 레아의 딸, 제우스의 아내','Daughter of Kronos & Rhea, wife of Zeus','올림포스의 여왕으로 공작새가 그녀의 상징이에요.','Queen of Olympus; the peacock is her sacred bird.','hera'],
 poseidon:['포세이돈','Poseidon','바다와 지진의 신','God of the sea & earthquakes','🔱 삼지창','크로노스와 레아의 아들, 제우스의 형','Son of Kronos & Rhea, brother of Zeus','삼지창으로 땅을 치면 바다가 요동치고 땅이 흔들려요.','When he strikes with his trident, seas rage and the earth shakes.','poseidon'],
-hades:['하데스','Hades','저승의 왕','King of the Underworld','🐕 케르베로스','크로노스와 레아의 아들, 페르세포네의 남편','Son of Kronos & Rhea, husband of Persephone','제비뽑기로 저승을 맡아 죽은 이들의 세계를 다스려요.','He drew the Underworld by lot and rules the realm of the dead.','hades'],
+hades:['하데스','Hades','저승의 왕','King of the Underworld','🐕 케르베로스','크로노스와 레아의 아들, 페르세포네의 남편','Son of Kronos & Rhea, husband of Persephone','님프들을 통해 투명 투구를 빌려 주어 페르세우스를 도왔어요.','Via the nymphs he lent the helm of invisibility to help Perseus.','hades'],
 demeter:['데메테르','Demeter','곡식과 농사의 여신','Goddess of grain & harvest','🌾 이삭','크로노스와 레아의 딸, 페르세포네의 어머니','Daughter of Kronos & Rhea, mother of Persephone','딸을 잃고 슬퍼하자 세상에 겨울이 찾아왔어요.','When she grieved for her lost daughter, winter came to the world.','demeter'],
 hestia:['헤스티아','Hestia','화로와 가정의 불의 여신','Goddess of the hearth','🔥 화로','크로노스와 레아의 맏딸','Eldest daughter of Kronos & Rhea','모든 제사에서 가장 먼저 제물을 받는 화롯불의 여신이에요.','Hearth goddess who received the first offering at every sacrifice.','hestia'],
-athena:['아테나','Athena','지혜와 전략의 여신','Goddess of wisdom & strategy','🦉 올빼미','제우스와 메티스의 딸','Daughter of Zeus & Metis','완전무장한 채로 제우스의 머리에서 태어났어요.','She sprang fully armed from the head of Zeus.','athena'],
+athena:['아테나','Athena','지혜와 전략의 여신','Goddess of wisdom & strategy','🦉 올빼미','제우스와 메티스의 딸','Daughter of Zeus & Metis','페르세우스에게 광내 청동 방패를 주어 메두사를 비춰 보게 했어요.','She gave Perseus a polished bronze shield to view Medusa safely.','athena'],
 apollo:['아폴론','Apollo','음악·예언·궁술의 신','God of music, prophecy & archery','🎵 리라','제우스와 레토의 아들, 아르테미스의 쌍둥이','Son of Zeus & Leto, twin of Artemis','델포이 신탁의 주인으로 리라를 연주해요.','Master of the Delphic oracle who plays the lyre.','apollo'],
 artemis:['아르테미스','Artemis','사냥과 달의 여신','Goddess of the hunt','🏹 활','제우스와 레토의 딸, 아폴론의 쌍둥이','Daughter of Zeus & Leto, twin of Apollo','은빛 활을 들고 숲과 야생동물을 지켜요.','With her silver bow she guards forests and wild animals.','artemis'],
 ares:['아레스','Ares','전쟁의 신','God of war','🛡️ 창과 방패','제우스와 헤라의 아들','Son of Zeus & Hera','거칠고 맹렬한 싸움 그 자체를 상징해요.','He embodies the fury and violence of battle.','ares'],
 hephaistos:['헤파이스토스','Hephaistos','대장장이와 불의 신','God of the forge & fire','🔨 망치','헤라의 아들(제우스와 헤라의 아들이라고도 함)','Son of Hera (or of Zeus & Hera)','신들의 무기와 아킬레우스의 방패를 만들었어요.','He forged the gods\' weapons and the shield of Achilles.','hephaistos'],
-hermes:['헤르메스','Hermes','전령과 여행자의 신','Messenger god of travelers','🪽 날개 신발','제우스와 마이아의 아들','Son of Zeus & Maia','태어난 날 아폴론의 소를 훔치고 리라를 발명했어요.','On the day he was born he stole Apollo\'s cattle and invented the lyre.','hermes'],
+hermes:['헤르메스','Hermes','전령과 여행자의 신','Messenger god of travelers','🪽 날개 신발','제우스와 마이아의 아들','Son of Zeus & Maia','페르세우스에게 날개 신발과 굽은 칼(하르페)을 도와주었어요.','He helped Perseus with winged sandals and the curved harpe sword.','hermes'],
 dionysos:['디오니소스','Dionysos','포도주와 축제의 신','God of wine & festivity','🍇 포도','제우스와 세멜레의 아들, 아리아드네의 남편','Son of Zeus & Semele, husband of Ariadne','제우스의 허벅지에서 다시 태어난 "두 번 태어난 신"이에요.','The "twice-born" god, born again from Zeus\'s thigh.','dionysos'],
 persephone:['페르세포네','Persephone','저승의 여왕, 봄의 여신','Queen of the Underworld','🍎 석류','제우스와 데메테르의 딸, 하데스의 아내','Daughter of Zeus & Demeter, wife of Hades','석류 씨를 먹어 해마다 일부를 저승에서 보내야 해요.','Having eaten pomegranate seeds, she must spend part of each year below.','persephone'],
 labyrinth:['라비린토스','Labyrinth','한번 들어가면 못 나오는 미궁','A maze no one could escape','🌀 미궁','다이달로스가 미노스 왕을 위해 지음','Built by Daedalus for King Minos','괴물 미노타우로스를 가두려고 크레타 크노소스에 지었어요.','Built at Knossos on Crete to imprison the Minotaur.','minotauros'],
@@ -32,9 +32,19 @@ ariadne:['아리아드네','Ariadne','미궁을 빠져나갈 실을 준 공주',
 minotauros:['미노타우로스','Minotaur','황소 머리를 한 미궁의 괴물','Bull-headed monster of the Labyrinth','🐂 황소 머리','파시파에와 크레타 황소의 자식, 본명 아스테리온','Child of Pasiphaë & the Cretan Bull, named Asterion','라비린토스 깊은 곳에 갇혀 아테네의 공물을 기다렸어요.','Locked deep in the Labyrinth, it awaited the Athenian tribute.','minotauros'],
 pasiphae:['파시파에','Pasiphaë','크레타의 왕비','Queen of Crete','🐄 황소','헬리오스의 딸, 미노스의 아내','Daughter of Helios, wife of Minos','포세이돈이 보낸 흰 황소 때문에 미노타우로스의 어머니가 되었어요.','Because of the white bull sent by Poseidon, she became the Minotaur\'s mother.',''],
 aegeus:['아이게우스','Aegeus','아테네의 왕','King of Athens','⛵ 검은 돛','테세우스의 아버지','Father of Theseus','아들이 흰 돛 대신 검은 돛을 달고 돌아오자 바다에 몸을 던졌고, 그 바다가 에게해가 되었어요.','Seeing a black sail instead of white, he threw himself into the sea, now the Aegean.',''],
-tribute:['아테네의 공물','Athenian Tribute','미노타우로스에게 바친 젊은이들','Youths sent to the Minotaur','⚓ 7+7','미노스의 아들 안드로게오스의 죽음 때문','Because Minos\'s son Androgeos died in Athens','아테네는 정기적으로(흔히 9년마다) 소년 7명과 소녀 7명을 크레타에 보내야 했어요.','Athens had to send seven youths and seven maidens to Crete, often every nine years.','']
+tribute:['아테네의 공물','Athenian Tribute','미노타우로스에게 바친 젊은이들','Youths sent to the Minotaur','⚓ 7+7','미노스의 아들 안드로게오스의 죽음 때문','Because Minos\'s son Androgeos died in Athens','아테네는 정기적으로(흔히 9년마다) 소년 7명과 소녀 7명을 크레타에 보내야 했어요.','Athens had to send seven youths and seven maidens to Crete, often every nine years.',''],
+perseus:['페르세우스','Perseus','메두사를 물리친 영웅','Hero who defeated Medusa','🛡️ 청동 방패','제우스와 다나에의 아들, 안드로메다의 남편','Son of Zeus & Danaë, husband of Andromeda','방패에 비친 메두사를 보고 물리친 뒤, 페가수스가 태어났어요.','He defeated Medusa using her reflection in a shield; Pegasus was born afterward.','perseus'],
+medusa:['메두사','Medusa','보면 돌이 되는 고르곤','Gorgon whose gaze turns to stone','🐍 뱀 머리','세 고르곤 자매 중 유일하게 필멸인','The only mortal of the three Gorgon sisters','얼굴을 똑바로 보면 돌이 되지만, 방패에 비친 모습은 안전해요.','Looking at her face turns you to stone, but a reflection is safe.','medusa'],
+danae:['다나에','Danaë','페르세우스의 어머니','Mother of Perseus','✨ 황금비','아르고스 왕 아크리시우스의 딸','Daughter of King Acrisius of Argos','제우스가 황금비로 찾아왔고, 예언 때문에 아들과 함께 상자에 실려 바다로 떠내려갔어요.','Zeus came as a shower of gold; because of a prophecy she and her baby were cast adrift in a chest.','danae'],
+acrisius:['아크리시우스','Acrisius','아르고스의 왕','King of Argos','👑 왕관','다나에의 아버지, 페르세우스의 외할아버지','Father of Danaë, grandfather of Perseus','손자가 자기를 죽일 것이라는 예언이 두려워 다나에를 탑에 가뒀어요.','Fearing a prophecy that his grandson would kill him, he locked Danaë in a tower.',''],
+graeae:['그라이아이','Graeae','눈·이빨을 하나만 나눠 쓰는 세 자매','Three sisters who share one eye and one tooth','👁️ 하나의 눈','포르키스와 케토의 딸들, 고르곤의 친척','Daughters of Phorcys & Ceto, kin to the Gorgons','페르세우스가 그 눈을 빼앗아 메두사로 가는 길을 알아냈어요.','Perseus seized their shared eye to learn the way to Medusa.',''],
+polydectes:['폴리덱테스','Polydectes','세리포스의 왕','King of Seriphos','🏛️ 왕좌','세리포스 섬의 왕','King of Seriphos who desired Danaë','페르세우스를 없애려고 메두사의 머리를 가져오라고 시켰어요.','He sent Perseus to fetch Medusa\'s head, hoping the quest would kill him.',''],
+pegasus:['페가수스','Pegasus','날개 달린 천마','Winged divine horse','🐴 날개','메두사가 물리쳐질 때 태어남','Sprang from Medusa when she was defeated','메두사가 물리쳐질 때 크리사오르와 함께 태어났어요.','Born with Chrysaor when Medusa was defeated.','pegasos'],
+chrysaor:['크리사오르','Chrysaor','황금 칼을 든 거인','Giant with a golden sword','⚔️ 황금 칼','메두사가 물리쳐질 때 페가수스와 함께 태어남','Born with Pegasus when Medusa fell','이름 뜻은 "황금 칼"이에요.','His name means "golden sword".',''],
+andromeda:['안드로메다','Andromeda','바다 괴물에게서 구출된 공주','Princess rescued from a sea monster','💎 사슬','케페우스와 카시오페이아의 딸, 페르세우스의 아내','Daughter of Cepheus & Cassiopeia, wife of Perseus','케토스에게 바쳐질 뻔했지만 페르세우스가 구해 아내가 되었어요.','Chained as a sacrifice to Cetus, she was rescued by Perseus and became his wife.','andromeda'],
+seriphos:['세리포스','Seriphos','페르세우스가 자란 섬','Island where Perseus grew up','🏝️ 섬','에게해의 섬, 폴리덱테스의 왕국','Aegean island, kingdom of Polydectes','상자에 실려 온 다나에와 아기 페르세우스가 이곳에 도착했어요.','Danaë and baby Perseus washed ashore here in a chest.','']
 };
-const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','hephaistos','hermes','dionysos','persephone']];
+const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','hephaistos','hermes','dionysos','persephone','danae'],['perseus','andromeda']];
 const Q=[
 ['이카로스의 아버지는?','Icarus\'s father?',['다이달로스','미노스','헬리오스'],['Daedalus','Minos','Helios'],0],
 ['이카로스의 날개를 녹인 것은?','What melted Icarus\'s wings?',['태양','번개','파도'],['The sun','Lightning','Waves'],0],
@@ -59,7 +69,20 @@ const Q=[
 ['테세우스가 돌아올 때 바꾸지 않은 돛의 색은?','Theseus forgot to change his sail from…?',['검은색','빨간색','초록색'],['Black','Red','Green'],0],
 ['아리아드네가 홀로 남겨진 섬은?','Island where Ariadne was left?',['낙소스','크레타','로도스'],['Naxos','Crete','Rhodes'],0],
 ['라비린토스를 지은 사람은?','Who built the Labyrinth?',['다이달로스','테세우스','미노스'],['Daedalus','Theseus','Minos'],0],
-['파시파에의 아버지인 태양신은?','Pasiphaë\'s father, the sun god?',['헬리오스','아레스','포세이돈'],['Helios','Ares','Poseidon'],0]
+['파시파에의 아버지인 태양신은?','Pasiphaë\'s father, the sun god?',['헬리오스','아레스','포세이돈'],['Helios','Ares','Poseidon'],0],
+['페르세우스의 어머니는?','Perseus\'s mother?',['다나에','메두사','아테나'],['Danaë','Medusa','Athena'],0],
+['제우스는 다나에에게 어떤 모습으로 왔나?','How did Zeus come to Danaë?',['황금비','황소','백조'],['A shower of gold','A bull','A swan'],0],
+['메두사의 시선을 피하려고 쓴 것은?','What did Perseus use to avoid Medusa\'s gaze?',['청동 방패','거울 호수','구름'],['A bronze shield','A mirror lake','A cloud'],0],
+['날개 신발을 준 신은?','Who gave the winged sandals?',['헤르메스','아레스','아폴론'],['Hermes','Ares','Apollo'],0],
+['투명 투구를 빌려 준 신은?','Who lent the helm of invisibility?',['하데스','포세이돈','헤파이스토스'],['Hades','Poseidon','Hephaistos'],0],
+['세 고르곤 중 필멸인(죽을 수 있는)은?','Which Gorgon was mortal?',['메두사','스텐노','에우리알레'],['Medusa','Stheno','Euryale'],0],
+['메두사를 물리친 뒤 태어난 천마는?','Winged horse born after Medusa fell?',['페가수스','케르베로스','키마이라'],['Pegasus','Kerberos','Chimera'],0],
+['페르세우스가 구한 공주는?','Princess Perseus rescued?',['안드로메다','아리아드네','페르세포네'],['Andromeda','Ariadne','Persephone'],0],
+['메두사 머리를 가져오라 한 왕은?','King who sent Perseus for Medusa\'s head?',['폴리덱테스','미노스','아크리시우스'],['Polydectes','Minos','Acrisius'],0],
+['그라이아이는 무엇을 나눠 썼나?','What did the Graeae share?',['눈과 이빨 하나','왕관','방패'],['One eye and one tooth','A crown','A shield'],0],
+['방패를 준 여신은?','Goddess who gave the polished shield?',['아테나','헤라','아르테미스'],['Athena','Hera','Artemis'],0],
+['다나에와 아기가 도착한 섬은?','Island where Danaë and the baby landed?',['세리포스','크레타','낙소스'],['Seriphos','Crete','Naxos'],0],
+['아크리시우스가 다나에를 가둔 이유는?','Why did Acrisius lock Danaë away?',['손자 예언 때문에','전쟁이 나서','보물을 숨기려고'],['Because of a grandson prophecy','Because of war','To hide treasure'],0]
 ];
 const K='olympusDex';
 const get=()=>{try{return JSON.parse(localStorage[K]||'[]')}catch(e){return[]}};
@@ -77,7 +100,7 @@ function style(){if(!document.getElementById('myocss')){const s=document.createE
 function openDex(lang){style();const e=lang=='en',d=get(),o=document.createElement('div');o.className='myo';
 const stop=ev=>ev.stopPropagation();o.addEventListener('pointerdown',stop);
 let h=`<button class="x">✕</button><h2>🏛️ ${e?'Olympus Myth Dex':'올림포스 신화 도감'} ${d.length}/${Object.keys(C).length}</h2>`;
-h+=`<div class="myt"><b>${e?'Olympus Family Tree':'올림포스 가계도'}</b>`+TREE.map((r,i)=>`<div>${r.map(id=>{const c=card(id,lang);return d.includes(id)?`<span>${c.symbol.split(' ')[0]} ${c.name}</span>`:'<span class="l">❔</span>'}).join('')}</div>${i<2?'<i>↓</i>':''}`).join('')+'</div><div class="myg">';
+h+=`<div class="myt"><b>${e?'Olympus Family Tree':'올림포스 가계도'}</b>`+TREE.map((r,i)=>`<div>${r.map(id=>{const c=card(id,lang);return d.includes(id)?`<span>${c.symbol.split(' ')[0]} ${c.name}</span>`:'<span class="l">❔</span>'}).join('')}</div>${i<TREE.length-1?'<i>↓</i>':''}`).join('')+'</div><div class="myg">';
 for(const id in C){if(d.includes(id)){const c=card(id,lang);h+=`<div class="myc"><b>${c.symbol.split(' ')[0]} ${c.name}</b><br>✨ ${c.ability}<br>🔖 ${c.symbol}<br>👪 ${c.family}<br>📜 ${c.story}${c.link?`<br><a href="${c.link}" target="_blank" rel="noopener">${e?'More at 나두신화 →':'나두신화에서 더 보기 →'}</a>`:''}</div>`}else h+='<div class="myc l">❔</div>'}
 o.innerHTML=h+'</div>';o.querySelector('.x').onclick=()=>o.remove();document.body.appendChild(o)}
 function quiz(lang,cb){style();const e=lang=='en',q=Q[Math.random()*Q.length|0],ord=[0,1,2].sort(()=>Math.random()-.5),A=e?q[3]:q[2],o=document.createElement('div');o.className='myq';
