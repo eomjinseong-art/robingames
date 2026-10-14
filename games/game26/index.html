@@ -75,7 +75,7 @@ function resetMeds(){for(const m of meds){m.ph='away';m.t=Math.max(1.2,m.aw*.7)}
 function burst(px,py,c,nn){for(let i=0;i<nn;i++){const a=Math.random()*6.3,v=60+Math.random()*220;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-50,l:.45+Math.random()*.35,c})}}
 function popAt(t,c,px,py){pops.push({t,c,x:px,y:py,l:1.1})}
 function vib(n){try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}}
-function blocked(ax,ay,bx,by){const r=PR()*.92;for(const p of pil){const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;let u=((p.x-ax)*dx+(p.y-ay)*dy)/l2;u=Math.max(0,Math.min(1,u));if(Math.hypot(ax+dx*u-p.x,ay+dy*u-p.y)<r)return true}return false}
+function blocked(ax,ay,bx,by){const r=PR()*.92;for(const p of pil){if(Math.hypot(bx-p.x,by-p.y)>PR()+RR()+Math.max(18,PR()*.5))continue;const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;let u=((p.x-ax)*dx+(p.y-ay)*dy)/l2;u=Math.max(0,Math.min(1,u));if(Math.hypot(ax+dx*u-p.x,ay+dy*u-p.y)<r)return true}return false}
 function sisPos(s){return{x:s.ax+(s.bx-s.ax)*s.u,y:s.ay+(s.by-s.ay)*s.u,a:Math.atan2((s.by-s.ay)*s.d,(s.bx-s.ax)*s.d)}}
 const SR=()=>Math.min(W,H)*.42,SA=.6;
 function seen(){for(const m of meds)if(m.ph=='look'&&!blocked(m.x,m.y,pl.x,pl.y))return m;
@@ -170,7 +170,7 @@ function draw(){x.save();if(shake)x.translate((Math.random()-.5)*shake,(Math.ran
   x.restore();if(flash>0){x.fillStyle=`rgba(255,255,255,${Math.min(.5,flash)})`;x.fillRect(0,0,W,H)}}
 function loop(t){const dt=Math.min(.033,(t-lt)/1000);lt=t;upd(dt);draw();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
-window.__g26={get st(){return st},get lv(){return lv},get hearts(){return hearts},get pl(){return pl},get meds(){return meds},get started(){return started},get now(){return now},get pil(){return pil}};
+window.__g26={jump(n){lv=n;setup();st='play';started=true;guard=performance.now()},place(px,py){pl.x=px;pl.y=py;tgt=null;keys={}},get sis(){return sis.map(sisPos)},get PR(){return PR()},get RR(){return RR()},get st(){return st},get lv(){return lv},get hearts(){return hearts},get pl(){return pl},get meds(){return meds},get started(){return started},get now(){return now},get pil(){return pil}};
 })();
 </script>
 </body>
