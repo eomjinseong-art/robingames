@@ -7,7 +7,7 @@ const C={
 kronos:['크로노스','Kronos','시간을 삼키는 티탄의 왕','King of the Titans','🌾 낫','우라노스와 가이아의 아들, 레아의 남편','Son of Ouranos & Gaia, husband of Rhea','자식들이 왕위를 빼앗을까 두려워 태어나는 족족 삼켰어요.','Fearing a child would overthrow him, he swallowed his children at birth.','kronos'],
 rhea:['레아','Rhea','신들의 어머니','Mother of the gods','🦁 사자','우라노스와 가이아의 딸, 크로노스의 아내','Daughter of Ouranos & Gaia, wife of Kronos','막내 제우스 대신 돌을 포대기에 싸서 크로노스에게 삼키게 했어요.','She gave Kronos a swaddled stone to swallow instead of baby Zeus.','rhea'],
 zeus:['제우스','Zeus','번개를 다루는 신들의 왕','King of the gods, wields thunder','⚡ 번개','크로노스와 레아의 막내아들, 헤라의 남편','Youngest son of Kronos & Rhea, husband of Hera','크레타 동굴에서 몰래 자라 형제들을 구하고 티탄을 물리쳤어요.','Raised in secret in a Cretan cave, he freed his siblings and defeated the Titans.','zeus'],
-hera:['헤라','Hera','결혼과 가정의 여신','Goddess of marriage','🦚 공작','크로노스와 레아의 딸, 제우스의 아내','Daughter of Kronos & Rhea, wife of Zeus','올림포스의 여왕으로 공작새가 그녀의 상징이에요.','Queen of Olympus; the peacock is her sacred bird.','hera'],
+hera:['헤라','Hera','결혼과 가정의 여신','Goddess of marriage','🦚 공작','크로노스와 레아의 딸, 제우스의 아내','Daughter of Kronos & Rhea, wife of Zeus','올림포스의 여왕으로 공작새가 상징이에요. 제우스와 알크메네의 아들 헤라클레스를 미워해 뱀과 광기, 그리고 12과업을 보냈어요.','Queen of Olympus; the peacock is her sacred bird. She hated Heracles, son of Zeus and Alcmene, and sent snakes, madness, and the twelve labors.','hera'],
 poseidon:['포세이돈','Poseidon','바다와 지진의 신','God of the sea & earthquakes','🔱 삼지창','크로노스와 레아의 아들, 제우스의 형','Son of Kronos & Rhea, brother of Zeus','삼지창으로 땅을 치면 바다가 요동치고 땅이 흔들려요.','When he strikes with his trident, seas rage and the earth shakes.','poseidon'],
 hades:['하데스','Hades','저승의 왕','King of the Underworld','🐕 케르베로스','크로노스와 레아의 아들, 페르세포네의 남편','Son of Kronos & Rhea, husband of Persephone','님프들을 통해 투명 투구를 빌려 주어 페르세우스를 도왔어요.','Via the nymphs he lent the helm of invisibility to help Perseus.','hades'],
 demeter:['데메테르','Demeter','곡식과 농사의 여신','Goddess of grain & harvest','🌾 이삭','크로노스와 레아의 딸, 페르세포네의 어머니','Daughter of Kronos & Rhea, mother of Persephone','딸을 잃고 슬퍼하자 세상에 겨울이 찾아왔어요.','When she grieved for her lost daughter, winter came to the world.','demeter'],
@@ -42,9 +42,28 @@ polydectes:['폴리덱테스','Polydectes','세리포스의 왕','King of Seriph
 pegasus:['페가수스','Pegasus','날개 달린 천마','Winged divine horse','🐴 날개','메두사가 물리쳐질 때 태어남','Sprang from Medusa when she was defeated','메두사가 물리쳐질 때 크리사오르와 함께 태어났어요.','Born with Chrysaor when Medusa was defeated.','pegasos'],
 chrysaor:['크리사오르','Chrysaor','황금 칼을 든 거인','Giant with a golden sword','⚔️ 황금 칼','메두사가 물리쳐질 때 페가수스와 함께 태어남','Born with Pegasus when Medusa fell','이름 뜻은 "황금 칼"이에요.','His name means "golden sword".',''],
 andromeda:['안드로메다','Andromeda','바다 괴물에게서 구출된 공주','Princess rescued from a sea monster','💎 사슬','케페우스와 카시오페이아의 딸, 페르세우스의 아내','Daughter of Cepheus & Cassiopeia, wife of Perseus','케토스에게 바쳐질 뻔했지만 페르세우스가 구해 아내가 되었어요.','Chained as a sacrifice to Cetus, she was rescued by Perseus and became his wife.','andromeda'],
-seriphos:['세리포스','Seriphos','페르세우스가 자란 섬','Island where Perseus grew up','🏝️ 섬','에게해의 섬, 폴리덱테스의 왕국','Aegean island, kingdom of Polydectes','상자에 실려 온 다나에와 아기 페르세우스가 이곳에 도착했어요.','Danaë and baby Perseus washed ashore here in a chest.','']
+seriphos:['세리포스','Seriphos','페르세우스가 자란 섬','Island where Perseus grew up','🏝️ 섬','에게해의 섬, 폴리덱테스의 왕국','Aegean island, kingdom of Polydectes','상자에 실려 온 다나에와 아기 페르세우스가 이곳에 도착했어요.','Danaë and baby Perseus washed ashore here in a chest.',''],
+heracles:['헤라클레스','Heracles','곤봉과 사자 가죽의 영웅','Hero of the club and the lion skin','🦁 사자 가죽','제우스와 알크메네의 아들, 암피트리온의 집안에서 자람','Son of Zeus and Alcmene, raised in Amphitryon\'s house','헤라의 미움으로 광기에 빠졌다가, 에우리스테우스의 12과업을 마치고 신이 되었어요.','Hera\'s hatred drove him mad; he finished twelve labors for Eurystheus and became a god.','herakles'],
+eurystheus:['에우리스테우스','Eurystheus','12과업을 명령한 왕','King who ordered the twelve labors','🏺 청동 항아리','페르세우스의 후손, 헤라클레스의 사촌','Descendant of Perseus and cousin of Heracles','헤라가 헤라클레스의 탄생을 늦춰 대신 왕이 되었고, 겁이 많아 청동 항아리에 숨기도 했어요.','Hera delayed Heracles\' birth so this cousin became king; he was so afraid he hid in a bronze jar.',''],
+alcmena:['알크메네','Alcmene','헤라클레스의 어머니','Mother of Heracles','🌙 인간 어머니','엘렉트리온의 딸, 암피트리온의 아내','Daughter of Electryon, wife of Amphitryon','제우스가 암피트리온의 모습으로 찾아와 헤라클레스를 낳았어요.','Zeus visited her in Amphitryon\'s likeness, and she bore Heracles.',''],
+amphitryon:['암피트리온','Amphitryon','헤라클레스의 인간 아버지','Mortal father of Heracles','🛡️ 창','알카이오스의 아들, 알크메네의 남편','Son of Alcaeus, husband of Alcmene','전쟁터에 나가 있는 사이 제우스가 그의 모습으로 알크메네를 찾았어요. 이피클레스의 아버지예요.','While he was away at war, Zeus visited Alcmene in his form. He is the father of Iphicles.',''],
+nemean:['네메아의 사자','Nemean Lion','무기가 뚫지 못하는 가죽','A hide no weapon could pierce','🦁 황금 갈기','네메아 골짜기의 괴물 사자','Monster lion of the Nemean valley','칼도 창도 가죽을 못 뚫어, 헤라클레스가 맨손으로 목을 졸라 잡고 그 가죽을 둘렀어요.','No sword or spear could pierce it, so Heracles strangled it and wore the pelt.',''],
+hydra:['레르나 히드라','Lernaean Hydra','목을 잘라도 두 개가 돋는 물뱀','Water serpent that grows two heads','🐍 여러 머리','티폰과 에키드나의 자식','Child of Typhon and Echidna','이올라오스가 잘린 목을 불로 지지고, 죽지 않는 머리는 바위 아래 묻었어요.','Iolaus seared each cut neck, and the deathless head was buried under a rock.','hydra'],
+iolaus:['이올라오스','Iolaus','히드라의 목을 지진 조카','Nephew who cauterized the Hydra','🔥 횃불','이피클레스의 아들, 헤라클레스의 조카','Son of Iphicles, nephew of Heracles','헤라클레스가 목을 치는 동안 횃불로 지져 새 머리가 나지 않게 했어요.','While Heracles cut the heads, he burned the necks so they could not grow back.',''],
+ceryneian:['케리네이아의 암사슴','Ceryneian Hind','황금 뿔의 신성한 사슴','Sacred deer with golden horns','🦌 황금 뿔','아르테미스에게 바쳐진 암사슴','Hind sacred to Artemis','청동 발굽과 황금 뿔을 가졌고, 헤라클레스는 일 년을 쫓아 죽이지 않고 산 채로 잡았어요.','It had bronze hooves and golden horns. Heracles chased it for a year and brought it back alive.',''],
+erymanthian:['에리만토스의 멧돼지','Erymanthian Boar','눈밭의 거대한 멧돼지','Giant boar of the snow','🐗 멧돼지','에리만토스 산의 괴물 멧돼지','Monster boar of Mount Erymanthus','헤라클레스가 깊은 눈 속으로 몰아 산 채로 묶어 왔고, 에우리스테우스는 항아리에 숨었어요.','Heracles drove it into deep snow and carried it back alive. Eurystheus hid in a jar.',''],
+augeas:['아우게이아스','Augeas','외양간의 왕','King of the filthy stables','🐂 소떼','헬리오스의 아들, 엘리스의 왕','Son of Helios, king of Elis','소 삼천 마리의 외양간을 삼십 년 치우지 않았고, 헤라클레스는 강물을 돌려 하루에 씻어 냈어요.','Three thousand cattle left the stables uncleaned for thirty years. Heracles washed them in one day by turning rivers.',''],
+stymphalian:['스팀팔로스의 새','Stymphalian Birds','청동 부리의 식인 새','Man-eating birds with bronze beaks','🐦 청동 깃','스팀팔로스 호수에 살던 아레스의 새','Birds of Ares from Lake Stymphalia','아테나의 청동 딸랑이로 하늘을 날려 세운 뒤 화살로 쏘았어요.','Bronze clappers from Athena flushed them into the air, and Heracles shot them.',''],
+cretan_bull:['크레타의 황소','Cretan Bull','포세이돈이 보낸 미친 황소','The mad bull sent by Poseidon','🐂 흰 황소','포세이돈의 황소, 미노타우로스의 아버지','Poseidon\'s bull and father of the Minotaur','헤라클레스가 산 채로 데려왔어요. 나중에 풀려나 마라톤의 황소가 되어 테세우스에게 쓰러졌어요.','Heracles brought it back alive. Later freed, it became the Marathonian Bull slain by Theseus.',''],
+diomedes:['디오메데스','Diomedes','사람을 먹는 암말의 왕','King of the man-eating mares','🐴 식인 말','아레스의 아들, 트라키아 비스토네스의 왕','Son of Ares, king of the Bistones in Thrace','암말 네 마리가 사람 고기를 먹었어요. 헤라클레스가 디오메데스를 그 말에게 먹이자 잠잠해졌다고 해요.','His four mares ate human flesh. Heracles fed Diomedes to them, and they grew tame.',''],
+hippolyta:['히폴리테','Hippolyta','아마존의 여왕','Queen of the Amazons','🎗️ 허리띠','아레스의 딸, 아마존 여왕','Daughter of Ares, queen of the Amazons','아레스가 준 허리띠를 가지러 갔고, 헤라가 아마존을 부추겨 싸움이 벌어졌어요.','Heracles came for the belt Ares had given her. Hera stirred the Amazons and a battle broke out.',''],
+geryon:['게리온','Geryon','몸이 셋인 거인','Three-bodied giant','🐄 붉은 소','크리사오르와 칼릴로에의 아들','Son of Chrysaor and Callirrhoe','에리테이아 섬에서 쓰러지고, 그의 붉은 소 떼는 그리스까지 몰려 왔어요.','He fell on the island of Erytheia, and his red cattle were driven all the way to Greece.',''],
+hesperides:['헤스페리데스','Hesperides','황금사과를 지키는 님프','Nymphs who guard the golden apples','🍎 황금사과','서쪽 저녁의 님프, 헤라의 사과 정원','Nymphs of the evening, keepers of Hera\'s garden','헤라의 결혼 선물인 황금사과를 용 라돈과 함께 지켰어요.','They guarded the golden apples, a wedding gift for Hera, together with the dragon Ladon.',''],
+atlas:['아틀라스','Atlas','하늘을 떠받치는 티탄','Titan who holds up the sky','🌌 하늘','이아페토스의 아들, 헤스페리데스의 아버지로도 전함','Son of Iapetus, sometimes called father of the Hesperides','헤라클레스가 하늘을 대신 지고 사과를 가져오게 한 뒤, 꾀로 다시 하늘을 떠넘겼어요.','Heracles held the sky so Atlas would fetch the apples, then tricked him into taking the sky back.','atlas'],
+cerberus:['케르베로스','Cerberus','저승을 지키는 세 머리 개','Three-headed hound of the Underworld','🐕 세 머리','티폰과 에키드나의 자식','Child of Typhon and Echidna','하데스의 허락을 받아 무기 없이 끌어올려 보인 뒤, 다시 저승으로 돌려보냈어요.','With Hades\' permission Heracles dragged him up without weapons, then brought him back.','kerberos'],
+labors:['12과업','Twelve Labors','죄를 씻는 열두 가지 임무','Twelve tasks of penance','📜 열두 과업','에우리스테우스가 헤라의 뜻으로 명령','Ordered by Eurystheus at Hera\'s will','델포이 신탁대로 티린스의 왕을 섬기며 해냈어요. 도움이나 보수가 있던 일은 인정되지 않기도 했어요.','An oracle at Delphi sent him to serve the king of Tiryns. Tasks done with help or for pay were sometimes disallowed.','']
 };
-const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','hephaistos','hermes','dionysos','persephone','danae'],['perseus','andromeda']];
+const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','hephaistos','hermes','dionysos','persephone','danae'],['perseus','andromeda','heracles']];
 const Q=[
 ['이카로스의 아버지는?','Icarus\'s father?',['다이달로스','미노스','헬리오스'],['Daedalus','Minos','Helios'],0],
 ['이카로스의 날개를 녹인 것은?','What melted Icarus\'s wings?',['태양','번개','파도'],['The sun','Lightning','Waves'],0],
@@ -82,7 +101,31 @@ const Q=[
 ['그라이아이는 무엇을 나눠 썼나?','What did the Graeae share?',['눈과 이빨 하나','왕관','방패'],['One eye and one tooth','A crown','A shield'],0],
 ['방패를 준 여신은?','Goddess who gave the polished shield?',['아테나','헤라','아르테미스'],['Athena','Hera','Artemis'],0],
 ['다나에와 아기가 도착한 섬은?','Island where Danaë and the baby landed?',['세리포스','크레타','낙소스'],['Seriphos','Crete','Naxos'],0],
-['아크리시우스가 다나에를 가둔 이유는?','Why did Acrisius lock Danaë away?',['손자 예언 때문에','전쟁이 나서','보물을 숨기려고'],['Because of a grandson prophecy','Because of war','To hide treasure'],0]
+['아크리시우스가 다나에를 가둔 이유는?','Why did Acrisius lock Danaë away?',['손자 예언 때문에','전쟁이 나서','보물을 숨기려고'],['Because of a grandson prophecy','Because of war','To hide treasure'],0],
+['헤라클레스의 어머니는?','Mother of Heracles?',['알크메네','헤라','메두사'],['Alcmene','Hera','Medusa'],0],
+['헤라클레스의 신인 아버지는?','Divine father of Heracles?',['제우스','암피트리온','포세이돈'],['Zeus','Amphitryon','Poseidon'],0],
+['알크메네의 남편, 인간 쪽 아버지는?','Mortal father in Heracles\' house?',['암피트리온','에우리스테우스','미노스'],['Amphitryon','Eurystheus','Minos'],0],
+['12과업을 명령한 왕은?','King who ordered the twelve labors?',['에우리스테우스','미노스','폴리덱테스'],['Eurystheus','Minos','Polydectes'],0],
+['헤라가 헤라클레스를 미워한 까닭은?','Why did Hera hate Heracles?',['제우스의 아들이라서','바다를 훔쳐서','사과를 먹어서'],['He was a son of Zeus','He stole the sea','He ate her apples'],0],
+['에우리스테우스가 왕이 된 이유는?','Why did Eurystheus become king?',['헤라가 출산을 늦춰서','선거에서 이겨서','바다를 다스려서'],['Hera delayed a birth','He won a vote','He ruled the sea'],0],
+['네메아의 사자를 어떻게 이겼나?','How was the Nemean Lion defeated?',['목을 졸라 잡음','불에 태움','노래로 재움'],['Strangled','Burned','Sung to sleep'],0],
+['첫 과업 뒤에 헤라클레스가 두른 것은?','What did Heracles wear after the first labor?',['사자 가죽','공작 망토','물고기 비늘'],['The lion skin','A peacock cloak','Fish scales'],0],
+['히드라의 목이 다시 안 자라게 한 방법은?','What stopped Hydra heads from regrowing?',['불로 지짐','소금을 뿌림','자장가를 부름'],['Fire on the neck','Salt','A lullaby'],0],
+['히드라의 목을 지진 조카는?','Who cauterized the Hydra necks?',['이올라오스','테세우스','페르세우스'],['Iolaus','Theseus','Perseus'],0],
+['케리네이아의 암사슴은 누구의 신성한 동물?','The Ceryneian Hind is sacred to whom?',['아르테미스','아레스','디오니소스'],['Artemis','Ares','Dionysos'],0],
+['에리만토스 멧돼지는 어떻게 잡았나?','How was the Erymanthian Boar taken?',['살아서 묶어 옴','불에 태움','바다에 버림'],['Brought back alive','Burned','Thrown into the sea'],0],
+['아우게이아스 외양간을 깨끗이 한 방법은?','How were the Augean stables cleaned?',['강물을 돌림','거대한 빗자루','불을 지름'],['Rivers were diverted','A giant broom','They were burned'],0],
+['스팀팔로스 새를 날려 세운 도구는?','What flushed the Stymphalian birds?',['청동 딸랑이','하프','번개'],['Bronze clappers','A harp','Thunder'],0],
+['크레타 황소는 누구의 아버지로도 알려졌나?','The Cretan Bull is also the father of?',['미노타우로스','페가수스','케르베로스'],['The Minotaur','Pegasus','Cerberus'],0],
+['디오메데스의 암말은 무엇을 먹었나?','What did the mares of Diomedes eat?',['사람 고기','황금사과','꿀'],['Human flesh','Golden apples','Honey'],0],
+['히폴리테에게서 가져온 것은?','What did Heracles take from Hippolyta?',['허리띠','왕관','방패'],['A belt','A crown','A shield'],0],
+['게리온의 몸은 몇 개인가?','How many bodies does Geryon have?',['셋','하나','열둘'],['Three','One','Twelve'],0],
+['황금사과를 따 오는 동안 하늘을 진 티탄은?','Which Titan held the sky for the golden apples?',['아틀라스','크로노스','프로메테우스'],['Atlas','Kronos','Prometheus'],0],
+['헤스페리데스의 황금사과는 누구의 것?','Whose were the golden apples of the Hesperides?',['헤라','아테나','데메테르'],['Hera','Athena','Demeter'],0],
+['케르베로스를 데려올 때 쓰지 않은 것은?','What did Heracles not use on Cerberus?',['무기','힘','하데스의 허락'],['Weapons','Strength','Hades\' permission'],0],
+['케르베로스의 머리는 흔히 몇 개?','How many heads does Cerberus usually have?',['셋','하나','아홉'],['Three','One','Nine'],0],
+['12과업의 첫 번째는?','First of the twelve labors?',['네메아의 사자','케르베로스','히드라'],['Nemean Lion','Cerberus','Hydra'],0],
+['12과업의 마지막은?','Last of the twelve labors?',['케르베로스','네메아의 사자','아우게이아스 외양간'],['Cerberus','Nemean Lion','Augean stables'],0]
 ];
 const K='olympusDex';
 const get=()=>{try{return JSON.parse(localStorage[K]||'[]')}catch(e){return[]}};
