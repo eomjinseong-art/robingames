@@ -1,0 +1,710 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>뿡뿡 삼국지 / Toot Three Kingdoms - 나두Ai</title>
+<link rel="icon" href="data:,">
+<script src="/counter.js" defer></script>
+<style>
+html,body{margin:0;height:100%;background:#1f1d1a;overflow:hidden;font-family:system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;touch-action:none;user-select:none;-webkit-user-select:none;color:#262320}
+#top{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;gap:5px;padding:0 8px;box-sizing:border-box;background:linear-gradient(#f3eddc,#ddd3bb);border-bottom:3px solid #2b2b2b;z-index:5}
+#ttl{font-family:"Noto Serif KR","Batang",serif;font-size:15px;color:#1f1f1f;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{background:linear-gradient(#fbf7ea,#e8dfc6);color:#262320;border:1.5px solid #3a3a3a;border-radius:10px;padding:7px 10px;font-size:14px;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45;cursor:default}
+canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
+#tray{position:fixed;left:0;right:0;bottom:0;height:150px;padding-bottom:env(safe-area-inset-bottom);background:linear-gradient(#efe9d8,#d8cfb6);border-top:3px solid #2b2b2b;z-index:4;display:flex;flex-direction:column;box-sizing:content-box}
+#tray.hide{visibility:hidden}
+#tr1{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px;color:#5b3a1a;gap:6px}
+#legend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hintB{padding:2px 8px;font-size:12px}
+#cards{flex:1;display:flex;gap:5px;justify-content:center;align-items:center;padding:0 6px;min-height:0}
+.ucard{flex:0 1 78px;height:72px;border-radius:9px;background:linear-gradient(#fffdf5,#ece3c9);border:2px solid #333;box-shadow:0 2px 0 #555;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;position:relative;touch-action:none;min-width:0}
+.ucard .ui{font-size:24px;line-height:28px}
+.ucard .un{font-size:11.5px;line-height:13px;text-align:center;padding:0 2px;max-height:24px;overflow:hidden;color:#4a2a10}
+.ucard .up{position:absolute;top:-7px;right:-5px;background:#b22218;color:#fff;border-radius:9px;font-size:11px;padding:1px 5px;font-weight:700}
+.ucard.sel{border-color:#e0a800;box-shadow:0 0 0 3px #ffd54a,0 2px 0 #7a4f22;transform:translateY(-4px)}
+.ucard.placed{opacity:.38}
+.ucard.key{background:linear-gradient(#fffaf0,#f7e2a0)}
+#tr3{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 4px;gap:8px}
+#msg{font-size:13.5px;color:#5b3a1a;line-height:16px;flex:1}
+#fight{font-size:17px;padding:9px 18px;background:linear-gradient(#d9483b,#9b1d12);color:#fff;border-color:#5e0f08;font-weight:700}
+#ov{position:fixed;left:0;right:0;top:50px;bottom:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;padding:10px;box-sizing:border-box}
+#ov.hide{display:none}
+#ov.mid{align-items:center;background:rgba(30,18,8,.35)}
+.panel{width:100%;max-width:470px;max-height:100%;overflow:auto;background:linear-gradient(#fbf7ea,#ece2c6);border:3px solid #2b2b2b;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);padding:14px 16px;box-sizing:border-box;animation:pin .35s ease-out}
+@keyframes pin{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.panel h1,.panel h2{font-family:"Noto Serif KR","Batang",serif;color:#1f1f1f;margin:2px 0 6px;text-align:center}
+.panel h1{font-size:28px;letter-spacing:1px}
+.panel h2{font-size:21px}
+.panel p{margin:6px 0;line-height:1.5;font-size:16px}
+.pic{font-size:44px;text-align:center;line-height:1.25;margin:2px 0 6px}
+.stx{font-size:18px;line-height:1.55;text-align:center;font-weight:600;color:#262320}
+.dots{text-align:center;color:#d6c39a;letter-spacing:5px;margin-top:6px;font-size:14px}.dots b{color:#b22218}
+.red{background:linear-gradient(#d9483b,#9b1d12)!important;color:#fff!important;border-color:#5e0f08!important;font-weight:700}
+.chars{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.chr{flex:1 1 150px;display:flex;gap:8px;align-items:center;background:#fffaf0;border:2.5px solid;border-radius:12px;padding:6px 8px;text-align:left}
+.chr.P{border-color:#b22218}.chr.E{border-color:#333}
+.chr .fc{font-size:28px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f3e7c6;flex:0 0 44px}
+.chr .cn{font-weight:800;font-size:15px}.chr .co{font-size:13px;line-height:1.3}.chr .cs{font-size:11.5px;font-weight:700}
+.chr.P .cs{color:#b22218}.chr.E .cs{color:#333}
+.gl{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;border-bottom:1px dashed #d8c49a;font-size:15px;line-height:1.4}.gl .ge{font-size:26px;width:34px;text-align:center}
+.mrow{display:flex;align-items:center;gap:10px;font-size:15px;padding:8px;background:#fffaf0;border:1.5px solid #d4a640;border-radius:12px;margin:6px 0;line-height:1.35}.mrow .mi{font-size:28px;white-space:nowrap}
+.why{background:#fff;border-left:5px solid #b3261e;border-radius:8px;padding:7px 10px;margin:6px 0;font-size:15.5px;line-height:1.45}
+#pop{position:fixed;left:0;right:0;top:50px;bottom:0;z-index:8;display:none;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;background:rgba(30,18,8,.4)}
+#pop.on{display:flex}
+#tutA{position:fixed;z-index:7;font-size:42px;pointer-events:none;display:none;transform:translate(-50%,-100%);animation:bob .6s infinite alternate;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+@keyframes bob{to{margin-top:-12px}}
+#tutB{position:fixed;z-index:7;display:none;box-sizing:border-box;background:#fff8dc;border:3px solid #e0a800;border-radius:14px;padding:9px 11px;font-size:16.5px;line-height:1.4;font-weight:700;color:#4a1a08;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#tutB{pointer-events:none}#tutB .btn{pointer-events:auto;display:block;margin:6px 0 0 auto;font-size:13px;padding:4px 10px}
+#legend{cursor:pointer;text-decoration:underline dotted}
+.sub{text-align:center;font-size:13px;color:#7a5a3a}
+.cont{text-align:center;margin-top:10px;font-size:13px;color:#8b1e14;font-weight:700;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.45}}
+.sit{font-size:18px;font-weight:800;text-align:center;color:#4a1a08;background:#fff6dc;border:1.5px dashed #b07a3a;border-radius:10px;padding:8px;margin:8px 0}
+.vs{text-align:center;font-weight:700;font-size:15px;margin:2px 0}
+.blist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.bbtn{display:flex;align-items:center;gap:8px;text-align:left;font-size:14.5px;padding:9px 10px}
+.bbtn .n{font-family:Georgia,serif;font-weight:700;color:#8b1e14;width:22px}
+.bbtn small{white-space:normal}.bbtn .s{margin-left:auto;white-space:nowrap;color:#d39b00;letter-spacing:1px}
+.stars{text-align:center;font-size:40px;letter-spacing:4px;color:#d39b00;text-shadow:0 2px 0 #7a4f22}
+.stars span{display:inline-block;animation:st .5s both}
+.stars .off{color:#c8b48a;text-shadow:none}
+@keyframes st{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+.hist{background:#fff3cf;border:2px solid #d4a640;border-radius:10px;padding:8px 10px;margin:8px 0}
+.hist b{color:#8b1e14}
+.gcard{display:flex;gap:10px;align-items:center;background:#fffaf0;border:1.5px solid #b07a3a;border-radius:10px;padding:8px;margin:8px 0}
+.gcard svg{flex:0 0 70px;width:70px;height:70px}
+.gcard .gt{font-weight:800;color:#7a1810}
+.gcard .gb{font-size:13px;line-height:1.4}
+.new{background:#8b1e14;color:#fff;font-size:10px;border-radius:6px;padding:1px 5px;margin-left:4px}
+.qopts{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.qopts .btn{font-size:15px;padding:11px;text-align:left;white-space:normal}
+.qopts .ok{background:#bfe6b0;border-color:#3f8a2f}
+.qopts .no{background:#f2b8ad;border-color:#a33}
+.fb{text-align:center;font-size:20px;font-weight:800;margin-top:8px;min-height:26px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.dexg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dexg .gcard{margin:0;flex-direction:column;text-align:center;gap:4px}
+.dexg .gcard.lk{opacity:.55}
+#banner{position:fixed;left:0;right:0;z-index:5;text-align:center;pointer-events:none;font-family:Georgia,serif;font-weight:800;font-size:22px;color:#fff3c4;text-shadow:0 2px 0 #5a1208,0 0 10px #000;padding:0 14px;opacity:0}
+#banner.on{animation:bn 2.2s ease-out both}
+#banner.key{font-size:24px;color:#ffe066}
+@keyframes bn{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.08)}20%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+#ov.low{align-items:flex-end}
+.gsel{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.gpk{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;white-space:normal;text-align:center}
+.gpk.on{border:3px solid #b22218;background:#fff3e8;box-shadow:0 0 0 2px #f2c94c}
+.gpk .gf{font-size:34px;line-height:40px}.gpk .gn{font-weight:800;font-size:15px}.gpk .gs{font-size:12.5px;line-height:1.35}
+.bar{display:inline-block;letter-spacing:-1px}
+.scard{display:flex;gap:10px;align-items:center;text-align:left;white-space:normal;padding:9px 10px;font-size:14px;line-height:1.35;width:100%;margin:5px 0;box-sizing:border-box}
+.scard .se{font-size:32px;flex:0 0 40px;text-align:center}
+.scard.on{border:3px solid #b22218;background:#fff3e8;box-shadow:0 0 0 2px #f2c94c}
+.tutbox{background:#fff8dc;border:3px solid #e0a800;border-radius:12px;padding:8px 10px;margin:6px 0;font-size:15.5px;font-weight:700;line-height:1.45;color:#4a1a08}
+.dmv{display:flex;gap:6px;margin-top:8px}.dmv .btn{flex:1;font-size:16px;padding:12px 4px;font-weight:800}
+.hearts{display:flex;justify-content:space-between;gap:8px;font-size:14.5px;font-weight:800;line-height:1.3}
+.tele{font-size:18px;font-weight:800;text-align:center;background:#fff;border:2px solid #333;border-radius:12px;padding:8px;margin:6px 0;min-height:26px}
+.dres{text-align:center;font-size:17px;font-weight:800;min-height:24px;color:#b22218}
+.novel{background:#f1ece0;border:2px dashed #555;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:15px;line-height:1.5}
+.gface{flex:0 0 64px;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:radial-gradient(#fffdf5,#e3d8bb);border:3px solid #2b2b2b;position:relative}
+.gface .kd{position:absolute;bottom:-4px;right:-6px;background:#b22218;color:#fff;font-size:11px;font-weight:800;border-radius:5px;padding:1px 4px}
+.dexg .gface{margin:0 auto}
+#ghost{position:fixed;z-index:9;pointer-events:none;font-size:30px;display:none;transform:translate(-50%,-60%);filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+</style></head><body>
+<div id="top"><a class="btn" href="/" id="home">🏠 홈</a><b id="ttl">🐉 뿡뿡 삼국지</b><span style="display:flex;gap:4px"><button class="btn" id="glosB" aria-label="glossary">❓</button><button class="btn" id="lang">EN</button><button class="btn" id="mute">🔊</button></span></div>
+<canvas id="c"></canvas>
+<div id="tray" class="hide"><div id="tr1"><span id="legend"></span><button class="btn" id="hintB">💡</button></div><div id="cards"></div><div id="tr3"><span id="msg"></span><button class="btn" id="fight">⚔️</button></div></div>
+<div id="ov" class="hide"></div>
+<div id="banner"></div>
+<div id="ghost"></div>
+<div id="pop"></div><div id="tutA">👇</div><div id="tutB"></div>
+<script>
+// ================= DATA =================
+const K=(ko,en)=>({ko,en});
+const TI={inf:'⚔️',cav:'🐎',arc:'🏹',res:'🛡️',lib:'⛵',heavy:'🚢',fire:'🔥'};
+const NAV={lib:1,heavy:1,fire:1};
+const T={ko:{t:'🐉 뿡뿡 삼국지',home:'🏠 홈',start:'탭 / Space / Enter 로 시작',sub:'진짜 삼국지 전투를 진형·계책·일기토로 이겨라!',sub2:'누가, 누구와, 왜 싸웠을까? 역사와 소설(연의)의 차이도 알아봐요',choose:'⚔️ 전투를 골라요',dex:'📜 장수 도감',locked:'🔒',fight:'⚔️ 전투!',needAll:'부대 카드를 모두 칸에 놓아요',needFront:'앞줄 세 칸을 모두 채워요',ready:'준비 완료! ⚔️ 전투를 눌러요',howto:'카드를 칸으로 끌거나, 카드 → 칸 순서로 탭!',lanes:['왼쪽 날개','중앙','오른쪽 날개'],res:'예비대 · 뒤',good:'👍 유리',bad:'👎 불리',win:'🏆 승리!',lose:'💥 패배…',retry:'탭 / Space → 다시 배치 ▶',toQuiz:'퀴즈 ▶',keyT:'📜 역사의 열쇠!',keyMiss:'역사의 열쇠를 찾으면 ★★★!',hintT:'💡 힌트',newGen:'장수 카드',nw:'NEW',quiz:'역사 퀴즈',right:'정답!',wrong:'오답! 정답:',qDone:'퀴즈 끝!',score:'맞힌 문제',next:'다음 전투 ▶',again:'↻ 다시 하기',map:'🗺️ 지도',close:'닫기',allDone:'🎉 삼국지 완주!',flankE:'적이 측면을 돌파!',flankP:'측면 공격!',resIn:'예비대 투입!',routE:'적이 도망친다! 뿡!',routP:'우리 부대가 무너진다…',march:'진군!',fighting:'전투 중…',beats:'상성',contN:'탭 / Space → 계속 ▶',skip:'⏭ 건너뛰기',nextP:'다음 ▶',goPick:'장수 고르기 ▶',ourSide:'🔴 우리 편',theirSide:'⚫ 상대 편',realT:'📖 진짜 역사에서는?',novelT:'📜 역사 vs 소설(연의)',whyT:'왜 졌을까? 🤔',whyFlank:'↪️ 적이 한쪽 줄을 이기고 옆구리(측면)로 돌아 들어왔어요. 옆에서 맞으면 아주 위험해요!',whyStrong:'💪 이번엔 적이 더 강했어요. 아래 힌트를 써 봐요!',whyDuel:'🤺 일기토에서 져서 우리 군의 사기(용기)가 떨어졌어요.',whyStrat:'🧠 고른 계책이 이번 전투와 잘 맞지 않았어요.',matchT:'🎯 누가 누구에게 강할까?',matchFoot:'카드를 고르면 적 위에 👍유리 / 👎불리 표시가 나와요!',glosT:'❓ 어려운 말 사전',tutBtn:'🎓 하는 법 배우기',tutSkip:'건너뛰기 ✕',seeMatch:'🎯 상성 보기',mapPin:'📍 위 지도의 빨간 핀을 봐요!',tapAny:'아무 데나 탭하면 닫혀요',
+ pickT:'🤺 일기토에 나갈 장수를 골라요',pickSub:'💪무력이 높으면 일기토 하트가 많아요 · 🧠지력이 높으면 계책이 더 세져요',mu:'💪무력',ji:'🧠지력',stratT:'🧠 계책 카드를 골라요',stratSub:'계책은 똑똑한 작전이에요. {n}장을 골라요',stratGo:'🤺 일기토 시작!',stratNeed:'계책을 {n}장 골라요',duelT:'🤺 일기토!',duelHow:'적 장수의 자세를 보고, 이기는 동작을 눌러요!',duelRule:'🐉강공 › 🛡️막기 › ⚡빠른공격 › 🐉강공',mv:['🐉 강공','🛡️ 막기','⚡ 빠른 공격'],tele:['🐉 크게 휘두르려고 해요!','🛡️ 방패를 들고 웅크렸어요','⚡ 발을 빠르게 구르고 있어요'],dHit:'명중!',dOuch:'아얏!',dTie:'팽팽!',dWin:'일기토 승리! 적의 사기가 떨어졌다!',dLose:'일기토 패배… 우리 사기가 떨어졌다',dDraw:'무승부! 이제 군대가 싸운다',dWhy:['🐉강공이 🛡️막기를 부쉈어요!','🛡️막기가 ⚡빠른 공격을 막았어요!','⚡빠른 공격이 🐉강공보다 먼저 맞혔어요!'],stratOn:'계책 발동!'},
+en:{t:'🐉 Toot Three Kingdoms',home:'🏠 Home',start:'Tap / Space / Enter to start',sub:'Win real Three Kingdoms battles with formations, stratagems and duels!',sub2:'Who fought whom, and why? And what is history vs the famous novel?',choose:'⚔️ Pick a battle',dex:'📜 Generals Dex',locked:'🔒',fight:'⚔️ FIGHT!',needAll:'Place every unit card in a slot',needFront:'Fill all three front slots',ready:'Ready! Press ⚔️ FIGHT',howto:'Drag cards to slots, or tap a card then a slot!',lanes:['Left wing','Centre','Right wing'],res:'Reserve · rear',good:'👍 strong',bad:'👎 weak',win:'🏆 Victory!',lose:'💥 Defeat…',retry:'Tap / Space → Redeploy ▶',toQuiz:'Quiz ▶',keyT:'📜 Key of history!',keyMiss:'Find the key of history for ★★★!',hintT:'💡 Hint',newGen:'General cards',nw:'NEW',quiz:'History quiz',right:'Correct!',wrong:'Wrong! Answer:',qDone:'Quiz done!',score:'Correct answers',next:'Next battle ▶',again:'↻ Retry',map:'🗺️ Map',close:'Close',allDone:'🎉 Three Kingdoms complete!',flankE:'The enemy turns your flank!',flankP:'Flank attack!',resIn:'Reserve committed!',routE:'The enemy flees! Toot!',routP:'Our unit breaks…',march:'Advance!',fighting:'Battle on…',beats:'beats',contN:'Tap / Space → Continue ▶',skip:'⏭ Skip',nextP:'Next ▶',goPick:'Pick a general ▶',ourSide:'🔴 Our side',theirSide:'⚫ Other side',realT:'📖 What really happened?',novelT:'📜 History vs the novel',whyT:'Why did we lose? 🤔',whyFlank:'↪️ The enemy won one part of the line and came around your side (flank). Being hit from the side is very dangerous!',whyStrong:'💪 The enemy was stronger this time. Try the hint below!',whyDuel:'🤺 We lost the duel, so our army\'s morale (courage) dropped.',whyStrat:'🧠 The stratagem you picked didn\'t fit this battle well.',matchT:'🎯 Who beats whom?',matchFoot:'Pick a card and 👍 strong / 👎 weak signs appear over the enemy!',glosT:'❓ Hard words',tutBtn:'🎓 How to play',tutSkip:'Skip ✕',seeMatch:'🎯 Matchups',mapPin:'📍 Look for the red pin on the map above!',tapAny:'Tap anywhere to close',
+ pickT:'🤺 Pick a general for the duel',pickSub:'💪Might = more duel hearts · 🧠Wits = stronger stratagems',mu:'💪Might',ji:'🧠Wits',stratT:'🧠 Pick stratagem cards',stratSub:'A stratagem is a clever plan. Pick {n}',stratGo:'🤺 Start the duel!',stratNeed:'Pick {n} stratagem(s)',duelT:'🤺 Duel!',duelHow:'Watch the enemy\'s stance and press the move that beats it!',duelRule:'🐉Power › 🛡️Guard › ⚡Quick › 🐉Power',mv:['🐉 Power','🛡️ Guard','⚡ Quick'],tele:['🐉 is winding up a big swing!','🛡️ is crouching behind a shield','⚡ is hopping on quick feet'],dHit:'Hit!',dOuch:'Ouch!',dTie:'Clash!',dWin:'Duel won! Enemy morale drops!',dLose:'Duel lost… our morale drops',dDraw:'A draw! Now the armies fight',dWhy:['🐉 Power smashed through 🛡️ Guard!','🛡️ Guard blocked ⚡ Quick!','⚡ Quick struck before 🐉 Power!'],stratOn:'Stratagem!'}};
+// generals: f face, k kingdom, mu might, ji wits, o one-liner, b bio (with history vs novel note)
+const G=(f,k,mu,ji,ko,en,o1,o2,b1,b2)=>({f,k,mu,ji,n:K(ko,en),o:K(o1,o2),b:K(b1,b2)});
+const GEN={
+liubei:G('👨','shu',3,3,'유비','Liu Bei','착하고 사람을 아낀 촉의 주인','Kind leader of Shu who cared for people','짚신을 팔던 가난한 청년이 촉나라 황제가 되었어요. 사람을 믿고 아꼈어요.','A poor young man who sold straw sandals and became emperor of Shu.'),
+guanyu:G('🧔','shu',5,3,'관우','Guan Yu','긴 수염의 의리 넘치는 장수','The loyal general with the long beard','안량을 벤 건 진짜 역사예요. \'청룡언월도\'라는 무기 이름은 소설에서 나왔어요.','He really did strike down Yan Liang. The name of his "Green Dragon Blade" comes from the novel.'),
+zhangfei:G('😠','shu',5,2,'장비','Zhang Fei','목소리 크고 용감한 장수','A loud, brave warrior','장판에서 기병 20명과 함께 다리를 끊고 조조군을 막았어요.','At Changban, with just 20 riders, he cut the bridge and held off Cao\'s army.'),
+zhangjue:G('💛','yt',2,4,'장각','Zhang Jue','황건적의 지도자','Leader of the Yellow Turbans','\'노란 하늘\'을 외치며 백성을 모았어요. 184년에 병으로 세상을 떠났어요.','He gathered followers with the cry of a "yellow sky". He died of illness in 184.'),
+caocao:G('🧐','wei',3,5,'조조','Cao Cao','꾀 많고 시도 잘 쓴 영웅','A clever hero who also wrote poems','소설에서는 나쁜 사람처럼 나오지만, 역사에서는 뛰어난 지도자이자 시인이었어요.','The novel paints him as a villain, but in history he was a brilliant leader and poet.'),
+zhangliao:G('🛡️','wei',4,3,'장료','Zhang Liao','조조의 용맹한 장수','Cao Cao\'s fearless general','훗날 합비에서 적은 군사로 손권의 대군을 크게 놀라게 했어요.','Later, at Hefei, he shocked Sun Quan\'s big army with only a small force.'),
+yuanshao:G('👑','yuan',2,3,'원소','Yuan Shao','북쪽에서 가장 힘센 귀족','The most powerful lord in the north','명문 집안 출신으로 군대가 아주 컸지만, 관도에서 조조에게 졌어요.','From a famous family with a huge army, but he lost to Cao Cao at Guandu.'),
+zhaoyun:G('🐉','shu',5,3,'조운','Zhao Yun','충성스럽고 침착한 장수','A loyal, calm warrior','장판에서 유비의 어린 아들(아두)을 지켰어요. 적장 수십 명을 벴다는 건 소설 이야기예요.','He protected Liu Bei\'s baby son at Changban. Slaying dozens of generals there is the novel\'s story.'),
+zhugeliang:G('🪶','shu',1,5,'제갈량','Zhuge Liang','깃털 부채를 든 천재 책사','The genius strategist with a feather fan','소설에서는 바람을 부르는 마법사 같지만, 역사에서는 나라를 잘 다스린 승상이었어요.','The novel makes him almost a wizard; in history he was a wise chancellor who ran the state well.'),
+zhouyu:G('🎵','wu',3,5,'주유','Zhou Yu','음악을 사랑한 젊은 대도독','A young commander who loved music','적벽대전을 진짜로 이끈 사람이에요. 소설에서는 제갈량을 질투하는 사람으로 나와요.','He really led the fight at Red Cliffs. The novel shows him as jealous of Zhuge Liang.'),
+huanggai:G('🔥','wu',4,3,'황개','Huang Gai','거짓 항복 작전의 노장','The veteran of the fake surrender','적벽에서 항복하는 척하며 불배를 몰고 가 조조 함대를 불태웠어요.','At Red Cliffs he pretended to surrender, then sent fire ships into Cao\'s fleet.'),
+ganning:G('🔔','wu',5,2,'감녕','Gan Ning','방울을 달고 다닌 용사','The bold warrior who wore bells','밤에 겨우 100명으로 조조 진영을 기습한 오나라의 용사예요.','A daring Wu warrior who raided Cao\'s camp at night with just 100 men.'),
+lusu:G('🤝','wu',2,4,'노숙','Lu Su','손권과 유비를 이어 준 외교가','The diplomat who joined Sun and Liu','손권과 유비가 손잡도록 힘썼어요. 소설보다 역사에서 훨씬 똑똑한 사람이에요.','He made the Sun–Liu alliance happen. History shows him far sharper than the novel does.'),
+luxun:G('📚','wu',3,5,'육손','Lu Xun','침착한 젊은 선비 장수','A calm young scholar-general','이릉에서 몇 달을 기다린 뒤 화공으로 유비를 이겼어요.','At Yiling he waited for months, then beat Liu Bei with fire.'),
+zhuran:G('🏹','wu',4,3,'주연','Zhu Ran','육손과 함께 싸운 오나라 장수','Wu general who fought beside Lu Xun','이릉 전투에서 촉군의 길을 끊는 데 힘을 보탰어요.','At Yiling he helped cut off the Shu army.'),
+handang:G('🪓','wu',4,2,'한당','Han Dang','오나라를 오래 지킨 노장','A veteran who long served Wu','손권의 아버지 손견 때부터 싸운 장수로, 이릉에도 나갔어요.','He had fought since the days of Sun Quan\'s father, and served at Yiling too.'),
+sunquan:G('🐯','wu',3,4,'손권','Sun Quan','오나라의 젊은 임금','The young ruler of Wu','적벽에서 유비와 손잡았고, 훗날 오나라 황제가 되었어요.','He allied with Liu Bei at Red Cliffs and later became emperor of Wu.')};
+const GORDER=['liubei','guanyu','zhangfei','zhangjue','caocao','zhangliao','yuanshao','zhaoyun','zhugeliang','zhouyu','huanggai','ganning','lusu','luxun','zhuran','handang','sunquan'];
+const XCH={huangfusong:{f:'🎖️',n:K('황보숭','Huangfu Song'),o:K('한나라 관군의 대장','Commander of the Han army')}};
+const KDN={shu:K('촉','Shu'),wei:K('위','Wei'),wu:K('오','Wu'),yt:K('황건','Yellow Turbans'),yuan:K('원소군','Yuan'),han:K('한','Han')};
+const STRAT={fire:{e:'🔥',n:K('화공','Fire attack'),d:K('불을 질러 적을 태워요. 마른 풀·바람·붙어 있는 배·숲속 진영에서 아주 강해요!','Set the enemy on fire. Super strong with dry grass, wind, packed ships or camps in woods!')},
+raid:{e:'🌾',n:K('군량 습격','Supply raid'),d:K('적의 식량 창고를 불태워요. 배고픈 군대는 힘이 쭉 빠져요.','Burn the enemy\'s food stores. A hungry army loses its strength.')},
+ambush:{e:'🌲',n:K('매복','Ambush'),d:K('뒤쪽 예비대가 숨어 있다가 일찍 옆에서 튀어나와요.','Your reserves hide, then jump out early from the side.')},
+bluff:{e:'🌫️',n:K('허장성세','Bluff'),d:K('큰소리와 흙먼지로 군사가 많은 척! 적이 겁먹고 멈칫해요.','Shout and kick up dust to look huge! The enemy hesitates.')},
+wall:{e:'🧱',n:K('지구전','Wait it out'),d:K('처음엔 꽉 지키며 버텨요. 시간이 지나면 적이 지쳐요.','Defend hard at first. As time passes, the enemy gets tired.')},
+drums:{e:'🥁',n:K('북소리','War drums'),d:K('북을 둥둥! 우리 군의 사기가 올라 조금 더 세게 싸워요.','Boom boom! Our morale rises and we fight a bit harder.')}};
+const C=(id,t,p,n,ko,en)=>({id,t,p,n,name:K(ko,en)});
+const Q=(qk,qe,a,w1,w2)=>({q:K(qk,qe),a:[a,w1,w2]});
+const NOV=K('소설(연의) 이야기','A story from the novel'),HIS=K('진짜 역사 기록','A real history record');
+const BATTLES=[
+{id:'yt',num:'壹',name:K('황건적의 난 · 장사 전투','Yellow Turbans · Battle of Changshe'),year:K('서기 184년','AD 184'),place:K('영천 장사 (지금의 허난성)','Changshe, Yingchuan (today\'s Henan)'),lon:113.8,lat:34.1,terrain:'grass',
+ col:{P:'han',E:'yt'},pc:'漢',ec:'黃',vs:K('한나라 관군 🆚 황건적','Han army 🆚 Yellow Turbans'),
+ chars:[['huangfusong','P'],['liubei','P'],['zhangjue','E']],
+ story:[{p:'👨‍🌾😢 ➡️ 💛🧣',t:K('백성들이 너무 가난하고 힘들었어요. 장각이 \'노란 하늘이 온다!\'며 노란 두건을 두른 사람들을 모았어요. 이들을 \'황건적\'이라 해요.','People were poor and suffering. Zhang Jue gathered followers in yellow scarves, crying "a yellow sky will rise!" They\'re called the Yellow Turbans.'),ch:1},
+  {p:'🗺️ 📍',t:K('서기 184년, 중국 한가운데 \'장사\'라는 곳이에요. 지금부터 약 1840년 전이에요!','AD 184, at a place called Changshe in central China. About 1,840 years ago!'),map:1},
+  {p:'🌾🌾⛺ 💨',t:K('황건적은 풀이 우거진 들판에 진을 쳤어요. 그리고 오늘 밤은 바람이 세게 불어요…','The Yellow Turbans camped in a field of thick grass. And tonight, the wind is blowing hard…')}],
+ sit:K('적은 풀밭에 진을 쳤다! 바람도 분다','The enemy camps in tall grass, and the wind is up!'),
+ hint:K('💡 계책에서 \'🔥 화공\'을 골라 봐요! 마른 풀과 바람이 불을 키워 줘요.','💡 Pick the "🔥 Fire attack" stratagem! Dry grass and wind make the fire huge.'),
+ keyMsg:K('불이 바람을 타고 황건적 진영을 덮쳤다!','The fire rides the wind into the Yellow Turban camp!'),
+ real:{p:'🌾💨🔥 ➡️ 🏃💛',t:K('진짜 역사에서 황보숭은 장사에서 포위당했어요. 그런데 바람이 센 밤에 풀에 불을 붙이고 공격해서 황건적을 크게 물리쳤어요!','In real history Huangfu Song was surrounded at Changshe. But one windy night he set the grass on fire and attacked, beating the Yellow Turbans badly!')},
+ novel:K('소설에서는 유비·관우·장비가 복숭아밭에서 형제를 맺고(도원결의) 황건적과 싸워요. 도원결의와 관우가 정원지를 벤 일기토는 소설 이야기예요. 하지만 유비가 의용군으로 황건적과 싸운 건 진짜 역사예요.','In the novel, Liu Bei, Guan Yu and Zhang Fei swear brotherhood in a peach garden and fight the Yellow Turbans. That oath, and Guan Yu\'s duel with Cheng Yuanzhi, are novel stories. But Liu Bei really did fight the Yellow Turbans as a volunteer.'),
+ roster:['guanyu','zhangfei','liubei'],duelE:{f:'😤',n:K('정원지 (소설 속 인물)','Cheng Yuanzhi (novel character)'),mu:2},acc:1,
+ strat:['fire','drums','ambush'],ns:1,fireOK:.5,unlock:['liubei','guanyu','zhangfei'],bonus:'zhangjue',
+ P:[C('han','inf',5,14,'한나라 관군','Han army'),C('vol','inf',4,12,'유비 의용군','Liu Bei\'s volunteers'),C('hcav','cav',3,6,'한나라 기병','Han cavalry'),C('harc','arc',3,9,'궁병','Archers')],
+ E:[C('yt1','inf',5,18,'황건적 무리','Yellow Turban horde'),C('yt2','inf',4,16,'황건적 무리','Yellow Turban horde'),C('yt3','inf',4,16,'황건 창병','Turban spearmen'),null],
+ key:(d,s)=>s.includes('fire'),km:S=>S.key&&S.flags.fire,
+ quiz:[Q('황건적은 머리에 무엇을 둘렀나요?','What did the Yellow Turbans wear on their heads?',K('노란 두건','Yellow scarves'),K('빨간 모자','Red hats'),K('파란 리본','Blue ribbons')),
+  Q('장사 전투에서 관군이 쓴 계책은?','What stratagem did the Han army use at Changshe?',K('불로 공격하기(화공)','A fire attack'),K('물로 공격하기','A flood attack'),K('다리 끊기','Cutting a bridge')),
+  Q('황건적의 지도자는?','Who led the Yellow Turbans?',K('장각','Zhang Jue'),K('조조','Cao Cao'),K('손권','Sun Quan')),
+  Q('\'도원결의\'(복숭아밭 맹세)는?','The "Peach Garden Oath" is…',NOV,HIS,K('외국 동화','A foreign fairy tale')),
+  Q('언제 일어난 일일까요?','When did this happen?',K('서기 184년','AD 184'),K('서기 1000년','AD 1000'),K('기원전 500년','500 BC'))]},
+{id:'gd',num:'貳',name:K('관도대전','Battle of Guandu'),year:K('서기 200년','AD 200'),place:K('관도 (지금의 허난성)','Guandu (today\'s Henan)'),lon:114.05,lat:34.8,terrain:'fort',
+ col:{P:'wei',E:'yuan'},pc:'曹',ec:'袁',vs:K('조조 🆚 원소','Cao Cao 🆚 Yuan Shao'),
+ chars:[['caocao','P'],['guanyu','P'],['yuanshao','E']],
+ story:[{p:'🧐 🆚 👑',t:K('조조와 원소는 중국 북쪽에서 가장 힘센 두 사람이에요. 누가 북쪽의 주인이 될까요? (관우는 이때 잠시 조조 편이었어요!)','Cao Cao and Yuan Shao are the two strongest lords in the north. Who will rule it? (Guan Yu was briefly on Cao\'s side at this time!)'),ch:1},
+  {p:'🗺️ 📍',t:K('서기 200년, 황하 강 남쪽의 \'관도\'예요.','AD 200, at Guandu, south of the Yellow River.'),map:1},
+  {p:'🌾🌾🌾 🏯',t:K('원소 군대는 조조보다 훨씬 많아요. 그리고 \'오소\'라는 곳에 먹을 식량을 잔뜩 쌓아 두었어요.','Yuan Shao\'s army is much bigger. And he piled up lots of food at a place called Wuchao.')}],
+ sit:K('원소 대군이 몰려온다! 조조는 식량이 바닥나고 있다','Yuan\'s huge army is coming, and Cao\'s food is running out!'),
+ hint:K('💡 계책에서 \'🌾 군량 습격\'을 골라 봐요! 밥이 없으면 군대는 싸울 수 없어요.','💡 Pick the "🌾 Supply raid" stratagem! An army can\'t fight without food.'),
+ keyMsg:K('오소의 식량 창고가 불탔다! 원소군이 흔들린다!','The Wuchao food depot is burning! Yuan\'s army wavers!'),
+ evMsg:K('장합과 고람이 조조 편으로 넘어왔다!','Zhang He and Gao Lan switch to Cao\'s side!'),
+ real:{p:'🕵️ ➡️ 🌾🔥 ➡️ 🏆',t:K('원소의 부하 허유가 조조에게 와서 \'오소에 식량이 있다\'고 알려 줬어요. 조조가 직접 가서 식량을 불태우자 원소 군은 무너졌어요. 조조는 북쪽의 주인이 되었어요.','Yuan\'s adviser Xu You came over and told Cao Cao about the food at Wuchao. Cao went himself and burned it, and Yuan\'s army fell apart. Cao became master of the north.')},
+ novel:K('관우가 원소의 장수 안량을 벤 건 진짜 역사예요! 하지만 소설에서 관우가 문추까지 벤 건 지어낸 이야기예요.','Guan Yu striking down Yan Liang is real history! But the novel\'s story that he also slew Wen Chou is made up.'),
+ roster:['caocao','guanyu','zhangliao'],duelE:{f:'👹',n:K('안량','Yan Liang'),mu:4},acc:.9,
+ strat:['raid','fire','ambush'],ns:1,raidOK:.4,unlock:['caocao','zhangliao'],bonus:'yuanshao',
+ P:[C('cao','inf',7,12,'조조 정예병','Cao\'s elite'),C('qz','inf',5,12,'청주병','Qingzhou troops'),C('hbq','cav',5,7,'조조 기병','Cao\'s cavalry'),C('carc','arc',4,9,'궁병','Archers')],
+ E:[C('ycav','cav',8,12,'하북 기병','Hebei cavalry'),C('yinf','inf',9,24,'원소 대군','Yuan\'s main army'),C('yarc','arc',6,12,'망루 궁병','Arrow-tower archers'),C('zh','inf',6,14,'장합·고람 부대','Zhang He & Gao Lan')],
+ key:(d,s)=>s.includes('raid'),km:S=>S.key&&S.flags.raid,
+ event:S=>{if(S.flags.raid&&!S.flags.zh){S.flags.zh=1;const z=S.units.find(u=>u.id=='zh');if(act(z)){z.st='gone';emit(S,'evt',{})}}},
+ quiz:[Q('관도대전에서 싸운 두 사람은?','Who fought at Guandu?',K('조조와 원소','Cao Cao and Yuan Shao'),K('유비와 손권','Liu Bei and Sun Quan'),K('주유와 육손','Zhou Yu and Lu Xun')),
+  Q('조조가 이긴 계책은?','What stratagem won it for Cao?',K('오소의 식량을 불태움','Burning the food at Wuchao'),K('강물을 막음','Damming a river'),K('다리 끊기','Cutting a bridge')),
+  Q('진짜 역사에서 관우가 벤 원소의 장수는?','In real history, which of Yuan\'s generals did Guan Yu strike down?',K('안량','Yan Liang'),K('여포','Lü Bu'),K('장각','Zhang Jue')),
+  Q('오소 이야기를 조조에게 알려 준 사람은?','Who told Cao Cao about Wuchao?',K('원소의 부하 허유','Yuan\'s adviser Xu You'),K('제갈량','Zhuge Liang'),K('감녕','Gan Ning')),
+  Q('언제 일어난 전투일까요?','When was it?',K('서기 200년','AD 200'),K('서기 184년','AD 184'),K('서기 222년','AD 222'))]},
+{id:'cb',num:'參',name:K('장판 전투','Battle of Changban'),year:K('서기 208년','AD 208'),place:K('당양 장판 (지금의 후베이성)','Changban, Dangyang (today\'s Hubei)'),lon:111.75,lat:30.85,mdx:9,terrain:'bridge',survive:1,
+ col:{P:'shu',E:'wei'},pc:'劉',ec:'曹',vs:K('유비 🆚 조조의 기병','Liu Bei 🆚 Cao Cao\'s cavalry'),
+ chars:[['liubei','P'],['zhangfei','P'],['zhaoyun','P'],['caocao','E']],
+ story:[{p:'🏃👨‍👩‍👧 ⬅️ 🐎🐎',t:K('조조가 큰 군대로 남쪽에 쳐들어왔어요. 유비는 수많은 백성과 함께 남쪽으로 피난을 가고 있어요.','Cao Cao invaded the south with a huge army. Liu Bei is fleeing south together with crowds of ordinary people.'),ch:1},
+  {p:'🐌👨‍👩‍👧‍👦 💨🐎',t:K('백성이 너무 많아 하루에 조금밖에 못 가요. 조조의 날쌘 기병이 하루 밤낮 만에 쫓아왔어요!','With so many people they move very slowly. Cao\'s swift cavalry caught up in just one day and night!')},
+  {p:'🗺️ 📍 🌉',t:K('서기 208년, 지금의 후베이성 \'장판\'. 근처에 강과 다리가 있어요.','AD 208, at Changban in today\'s Hubei. There\'s a river and a bridge nearby.'),map:1}],
+ sit:K('도망칠 시간을 벌어라! 끝까지 버티면 승리','Buy time to escape! Hold out to the end to win'),
+ hint:K('💡 \'장비 기병\'을 가운데(다리 앞)에 놓고, 계책 \'🌫️ 허장성세\'(큰소리로 겁주기)를 골라 봐요!','💡 Put "Zhang Fei\'s riders" in the CENTRE (by the bridge) and pick the "🌫️ Bluff" stratagem!'),
+ keyMsg:K('장비가 다리 앞에서 고함쳤다! 조조군이 겁먹고 다가오지 못한다!','Zhang Fei roars at the bridge! Cao\'s riders don\'t dare come closer!'),
+ real:{p:'🌉😠📢 ➡️ 🐎❓ ➡️ 👶🛡️',t:K('장비는 기병 20명만으로 다리를 끊고 \'덤빌 테면 덤벼라!\' 하고 외쳤어요. 조조군은 아무도 다가오지 못했어요. 조운은 유비의 어린 아들(아두)을 지켜 냈어요.','With only 20 riders, Zhang Fei cut the bridge and shouted "Come and fight me if you dare!" Nobody came near. Zhao Yun kept Liu Bei\'s baby son safe.')},
+ novel:K('소설에서는 장비가 말꼬리에 나뭇가지를 묶고 흙먼지를 일으켜 군사가 많은 척해요. 조운이 조조 군사 사이를 몇 번이나 뚫으며 장수 50여 명을 벴다는 이야기도 소설에서 크게 부풀린 거예요.','In the novel, Zhang Fei ties branches to horses\' tails to raise dust and look like a big army, and Zhao Yun charges through Cao\'s army again and again, slaying 50 generals. Those parts are big novel exaggerations.'),
+ roster:['zhaoyun','zhangfei','liubei'],duelE:{f:'😈',n:K('하후은 (소설 속 인물)','Xiahou En (novel character)'),mu:3},acc:.85,
+ strat:['bluff','ambush','drums'],ns:1,unlock:['zhaoyun'],bonus:'zhugeliang',
+ P:[C('zf','cav',4,4,'장비 기병','Zhang Fei\'s riders'),C('zy','cav',5,6,'조운 기병','Zhao Yun\'s riders'),C('lbi','inf',4,12,'유비 군','Liu Bei\'s soldiers'),C('larc','arc',3,9,'궁병','Archers')],
+ E:[C('hb1','cav',6,10,'조조 기병','Cao\'s cavalry'),C('hb2','cav',7,12,'조순의 호표기','Cao Chun\'s elite riders'),C('hb3','cav',6,10,'조조 기병','Cao\'s cavalry'),null],
+ key:(d,s)=>s.includes('bluff')&&d[1]=='zf',kmod:(S,a,t)=>a.id=='zf'&&S.key?2:1,km:S=>S.flags.cb,
+ event:S=>{S.B.bluffOK=S.key?1:0;if(S.key&&S.t>=4.5&&!S.flags.cb){S.flags.cb=1;for(const u of S.units)if(u.side=='E'&&act(u))u.st='gone'}},
+ quiz:[Q('장판에서 유비는 무엇을 하고 있었나요?','What was Liu Bei doing at Changban?',K('백성들과 남쪽으로 피난','Fleeing south with the people'),K('성을 공격','Attacking a city'),K('배를 만들기','Building ships')),
+  Q('다리 앞에서 조조군을 막은 장수는?','Who held off Cao\'s army at the bridge?',K('장비','Zhang Fei'),K('조조','Cao Cao'),K('원소','Yuan Shao')),
+  Q('조운이 지켜 낸 사람은?','Whom did Zhao Yun protect?',K('유비의 어린 아들 아두','Liu Bei\'s baby son'),K('조조의 딸','Cao Cao\'s daughter'),K('장각','Zhang Jue')),
+  Q('장비가 말꼬리에 나뭇가지를 묶은 이야기는?','Zhang Fei tying branches to horses\' tails is…',NOV,HIS,K('외국 동화','A foreign fairy tale')),
+  Q('언제 일어난 일일까요?','When did it happen?',K('서기 208년','AD 208'),K('서기 184년','AD 184'),K('서기 200년','AD 200'))]},
+{id:'rc',num:'肆',name:K('적벽대전','Battle of Red Cliffs'),year:K('서기 208년 겨울','Winter, AD 208'),place:K('장강(양쯔강)의 적벽','Red Cliffs on the Yangtze'),lon:113.6,lat:29.85,terrain:'river',naval:1,
+ col:{P:'wu',E:'wei'},pc:'周',ec:'曹',vs:K('손권·유비 연합 (주유) 🆚 조조','Sun Quan & Liu Bei alliance (Zhou Yu) 🆚 Cao Cao'),
+ chars:[['zhouyu','P'],['huanggai','P'],['zhugeliang','P'],['caocao','E']],
+ story:[{p:'🧐⛵⛵⛵ ➡️ 🤝',t:K('조조가 아주 큰 배 군대를 이끌고 장강을 따라 내려왔어요. 손권과 유비는 힘을 합치기로 했어요.','Cao Cao sailed down the Yangtze with a giant fleet. Sun Quan and Liu Bei decided to team up.'),ch:1},
+  {p:'🗺️ 📍 🌊',t:K('서기 208년 겨울, 중국에서 가장 긴 강 \'장강\'의 적벽이에요.','Winter AD 208, at the Red Cliffs on the Yangtze, China\'s longest river.'),map:1},
+  {p:'⛓️🚢🚢🚢 🤢',t:K('조조 군사들은 배 싸움에 서툴고 병에 걸린 사람도 많았어요. 배들은 서로 바짝 붙어 있었어요.','Cao\'s soldiers weren\'t used to fighting on boats, and many were sick. Their ships were packed close together.')}],
+ sit:K('조조의 배들이 바짝 붙어 있다! 바람은 조조 쪽으로 분다','Cao\'s ships are packed together, and the wind blows toward them!'),
+ hint:K('💡 \'🔥 화공\' 계책을 고르고, \'황개 화선\'을 앞줄에 놓아 봐요!','💡 Pick the "🔥 Fire attack" stratagem and put "Huang Gai\'s fire ships" in the front row!'),
+ keyMsg:K('황개의 불배가 돌진! 붙어 있는 조조 배들이 활활 탄다!','Huang Gai\'s fire ships charge! Cao\'s packed ships go up in flames!'),
+ real:{p:'🏳️⛵🔥 ➡️ 🚢🔥🔥 ➡️ 🏃',t:K('황개가 \'항복하겠다\'고 속이고, 마른 풀과 기름을 실은 배로 다가갔어요. 가까이에서 불을 붙이자 바람을 타고 조조의 배들이 불탔어요. 조조는 북쪽으로 물러났어요.','Huang Gai pretended he would surrender, then sailed up with boats full of dry grass and oil. He set them alight up close, and the wind spread the fire through Cao\'s fleet. Cao pulled back north.')},
+ novel:K('소설에서는 제갈량이 제단에서 동남풍을 \'빌려\' 오고, 짚단 배로 화살 10만 개를 얻어 와요. 방통이 배를 사슬로 묶게 했다는 \'연환계\'도 나와요. 모두 소설 속 이야기예요. 진짜로 이 싸움을 이끈 사람은 주유와 황개예요.','In the novel, Zhuge Liang "borrows" the southeast wind at an altar and collects 100,000 arrows with straw boats, and Pang Tong tricks Cao into chaining his ships. These are all novel stories. The real leaders of this battle were Zhou Yu and Huang Gai.'),
+ roster:['zhouyu','huanggai','ganning'],duelE:{f:'😏',n:K('채모','Cai Mao'),mu:3},acc:.8,
+ strat:['fire','drums','ambush'],ns:1,fireOK:.3,unlock:['zhouyu','huanggai','ganning'],bonus:'lusu',
+ P:[C('hg','fire',5,3,'황개 화선','Huang Gai\'s fire ships'),C('zyu','heavy',6,2,'주유 누선','Zhou Yu\'s tower ships'),C('gn','lib',5,4,'감녕 돌격선','Gan Ning\'s attack boats'),C('lib2','lib',4,3,'쾌속선','Fast boats'),C('arcs','fire',3,3,'궁수선','Archer boats')],
+ E:[C('cs1','heavy',9,3,'조조 누선','Cao\'s tower ships'),C('cs2','heavy',9,3,'조조 누선','Cao\'s tower ships'),C('jz','lib',8,4,'형주 수군','Jingzhou navy'),C('cs3','heavy',8,3,'조조 후방 함대','Cao\'s rear fleet')],
+ key:(d,s)=>s.includes('fire')&&[d[0],d[1],d[2]].includes('hg'),kmod:(S,a,t)=>a.id=='hg'&&S.key&&t.t=='heavy'?3.5:1,km:S=>S.flags.chain,
+ event:S=>{if(S.key&&S.flags.fire&&!S.flags.chain){S.flags.chain=1;for(const u of S.units)if(u.side=='E'&&act(u))u.hp*=.7}},
+ quiz:[Q('적벽에서 조조와 싸운 편은?','Who fought Cao Cao at Red Cliffs?',K('손권과 유비의 연합','The Sun Quan–Liu Bei alliance'),K('원소','Yuan Shao'),K('황건적','The Yellow Turbans')),
+  Q('승리의 계책은?','What stratagem won?',K('불로 공격하기(화공)','A fire attack'),K('군량 습격','A supply raid'),K('다리 지키기','Guarding a bridge')),
+  Q('거짓 항복을 하고 불배를 몰고 간 장수는?','Who faked a surrender and sent in the fire ships?',K('황개','Huang Gai'),K('장비','Zhang Fei'),K('안량','Yan Liang')),
+  Q('제갈량이 동남풍을 빌린 이야기는?','Zhuge Liang "borrowing" the wind is…',NOV,HIS,K('조조의 일기','Cao Cao\'s diary')),
+  Q('싸움이 벌어진 강은?','Which river was it on?',K('장강(양쯔강)','The Yangtze'),K('황하','The Yellow River'),K('나일 강','The Nile'))]},
+{id:'yl',num:'伍',name:K('이릉대전','Battle of Yiling'),year:K('서기 222년','AD 222'),place:K('이릉 (지금의 후베이성 이창)','Yiling (today\'s Yichang, Hubei)'),lon:111.3,lat:30.7,mdx:-9,terrain:'forest',
+ col:{P:'wu',E:'shu'},pc:'陸',ec:'劉',vs:K('오나라 (육손) 🆚 촉나라 (유비)','Wu (Lu Xun) 🆚 Shu (Liu Bei)'),
+ chars:[['luxun','P'],['zhuran','P'],['liubei','E']],
+ story:[{p:'😢 ➡️ 😡⚔️',t:K('오나라가 형주를 빼앗고 관우를 잃게 했어요. 화가 난 유비가 큰 군대를 이끌고 오나라로 쳐들어왔어요.','Wu captured Jingzhou, and Guan Yu was lost. Furious, Liu Bei marched on Wu with a big army.'),ch:1},
+  {p:'🧑‍🎓 ⏳ ☀️',t:K('오나라의 젊은 장수 육손은 바로 싸우지 않고 기다렸어요. 여름 더위에 촉나라 군사들은 점점 지쳐 갔어요.','Wu\'s young general Lu Xun didn\'t fight right away. He waited, and in the summer heat the Shu soldiers grew tired.')},
+  {p:'🗺️ 📍 🌲⛺⛺⛺',t:K('서기 222년, 지금의 후베이성 이릉. 촉나라 진영이 숲을 따라 길게 늘어서 있어요.','AD 222, at Yiling in today\'s Hubei. The Shu camps stretch in a long line through the woods.'),map:1}],
+ sit:K('마지막 결전! 적이 숲속에 진영을 길게 늘어놓았다. 서두르지 말자','Final battle! The enemy camps stretch through the woods. Don\'t rush.'),
+ hint:K('💡 계책을 두 장 고를 수 있어요. \'🧱 지구전(기다리기)\'과 \'🔥 화공\'을 함께 골라 봐요!','💡 You can pick TWO stratagems. Pick "🧱 Wait it out" and "🔥 Fire attack" together!'),
+ keyMsg:K('기다림 끝에 화공! 숲속 진영이 줄줄이 불탄다!','After the long wait, fire! The forest camps burn one after another!'),
+ real:{p:'⏳☀️ ➡️ 🔥⛺⛺⛺ ➡️ 🏯',t:K('육손은 몇 달 동안 지키기만 하며 촉군이 지치기를 기다렸어요. 그러다 진영마다 불을 붙여 촉군을 크게 무찔렀어요. 유비는 백제성으로 물러났고, 이듬해 세상을 떠났어요.','Lu Xun only defended for months, waiting for Shu to tire. Then he set fire to camp after camp and crushed the Shu army. Liu Bei retreated to Baidicheng and died the next year.')},
+ novel:K('소설에서는 쫓아가던 육손이 제갈량이 만든 신비한 돌 미로(석병팔진)에 갇혀요. 이건 소설 이야기예요. \'진영이 700리나 이어졌다\'는 말은 위나라 황제 조비가 한 말로 역사책에 나와요.','In the novel, Lu Xun gets trapped in a magic stone maze built by Zhuge Liang. That\'s a novel story. The line about camps "stretching 700 li" was said by Cao Pi, emperor of Wei, and is in the history books.'),
+ roster:['luxun','zhuran','handang'],duelE:{f:'👺',n:K('사마가','Shamoke'),mu:5},acc:.75,
+ strat:['fire','wall','raid','drums','ambush'],ns:2,fireOK:.15,wallOK:.1,unlock:['luxun','zhuran','handang'],bonus:'sunquan',
+ P:[C('lx','inf',7,14,'육손 본대','Lu Xun\'s main army'),C('zr','inf',6,12,'주연 군','Zhu Ran\'s troops'),C('hd','inf',5,12,'한당 군','Han Dang\'s troops'),C('warc','arc',5,9,'궁병','Archers'),C('wcav','cav',4,6,'오 기병','Wu cavalry'),C('wres','res',4,10,'예비대','Reserve')],
+ E:[C('s1','inf',11,18,'촉 선봉','Shu vanguard'),C('s2','inf',13,22,'유비 본대','Liu Bei\'s main army'),C('smk','inf',9,16,'사마가 부대','Shamoke\'s warriors'),C('scav','cav',9,10,'촉 기병','Shu cavalry')],eResT:3,
+ key:(d,s)=>s.includes('fire')&&s.includes('wall'),km:S=>S.flags.yl,
+ event:S=>{if(S.key&&S.flags.fire&&!S.flags.yl){S.flags.yl=1;for(const u of S.units)if(u.side=='E'&&act(u))u.hp*=.5}},
+ quiz:[Q('유비가 오나라를 공격한 이유는?','Why did Liu Bei attack Wu?',K('형주를 빼앗기고 관우를 잃어서','Wu took Jingzhou and Guan Yu was lost'),K('황건적 때문에','Because of the Yellow Turbans'),K('원소의 부탁으로','Yuan Shao asked him to')),
+  Q('오나라의 젊은 지휘관은?','Who was Wu\'s young commander?',K('육손','Lu Xun'),K('조조','Cao Cao'),K('장비','Zhang Fei')),
+  Q('육손의 작전은?','What was Lu Xun\'s plan?',K('오래 기다렸다가 불로 공격','Wait a long time, then attack with fire'),K('바로 돌격','Charge right away'),K('다리 끊기','Cut a bridge')),
+  Q('제갈량의 돌 미로(석병팔진)는?','Zhuge Liang\'s stone maze is…',NOV,HIS,K('조조의 발명품','Cao Cao\'s invention')),
+  Q('패한 뒤 유비가 물러난 곳은?','Where did Liu Bei retreat to?',K('백제성','Baidicheng'),K('관도','Guandu'),K('장판','Changban'))]}];
+const GLOS=[['⚔️',K('군단 · 보병','Legion · infantry'),K('걸어서 싸우는 병사들의 큰 무리. 창과 방패를 들어요.','A big group of soldiers who fight on foot with spears and shields.')],
+['🐎',K('기병','Cavalry'),K('말을 탄 군인. 빠르지만 창과 방패 벽에는 약해요.','Soldiers on horses. Fast, but weak against a wall of spears and shields.')],
+['🛡️',K('예비대','Reserve'),K('처음엔 뒤에서 기다리다가, 힘든 곳을 도와주러 가는 부대.','A unit that waits at the back, then rushes to help where it\'s tough.')],
+['🧠',K('계책','Stratagem'),K('적을 이기기 위한 꾀, 똑똑한 작전. 불 지르기, 숨어 있기 같은 것!','A clever trick or plan to beat the enemy, like setting fires or hiding in ambush!')],
+['💪',K('사기','Morale'),K('병사들의 용기와 기운. 사기가 떨어지면 도망쳐요.','Soldiers\' courage and spirit. When morale drops, they run away.')],
+['🤺',K('일기토','Duel'),K('장수 둘이 1:1로 겨루는 것. 소설에는 많이 나오지만 진짜 역사에는 아주 드물었어요!','Two generals fighting one-on-one. Common in the novel, but very rare in real history!')],
+['💛',K('황건적','Yellow Turbans'),K('노란 두건을 두르고 한나라에 맞서 일어난 사람들.','Rebels who wore yellow scarves and rose up against the Han dynasty.')],
+['📜',K('연의 (삼국지연의)','The novel (Romance of the Three Kingdoms)'),K('약 1000년 뒤에 쓰인 재미있는 소설. 진짜 역사에 지어낸 이야기를 섞었어요.','A fun novel written over 1,000 years later. It mixes real history with made-up stories.')],
+['📖',K('정사 (역사책)','Official history'),K('그 시대를 기록한 진짜 역사책 \'삼국지\'. 소설과 이름이 같아요!','The real history book of the time, also called "Records of the Three Kingdoms".')],
+['🏯',K('촉 · 위 · 오','Shu · Wei · Wu'),K('유비의 촉, 조조 집안의 위, 손권의 오. 세 나라라서 \'삼국\'이에요.','Liu Bei\'s Shu, the Cao family\'s Wei, and Sun Quan\'s Wu. Three kingdoms!')],
+['🪽',K('날개 · 측면','Wing · flank'),K('날개는 군대 줄의 양 끝, 측면은 옆구리예요. 옆에서 맞으면 위험해요!','Wings are the ends of the line; the flank is the side. Getting hit from the side is dangerous!')],
+['⛵',K('함대','Fleet'),K('함께 싸우는 배들의 무리.','A group of warships fighting together.')],
+['🌾',K('군량','Army food'),K('군대가 먹을 식량. 군량이 없으면 싸울 수 없어요.','Food for the army. Without it, soldiers can\'t fight.')]];
+const CHARS={};for(const id in GEN)CHARS[id]=GEN[id];Object.assign(CHARS,XCH);
+const MATCH={land:[['🐎 ➜ 🏹',K('기병이 궁병을 이겨요','Cavalry beats archers'),K('말이 빨라서 궁병에게 금방 달려가요','Horses are fast and reach the archers quickly')],['🏹 ➜ ⚔️',K('궁병이 보병을 이겨요','Archers beat foot soldiers'),K('멀리서 화살을 쏘아 보병을 괴롭혀요','They shoot arrows from far away')],['⚔️ ➜ 🐎',K('보병이 기병을 이겨요','Foot soldiers beat cavalry'),K('긴 창과 방패 벽에 말이 멈춰요','Horses stop at a wall of long spears')],['🛡️ = ⚔️',K('예비대는 보병처럼 싸워요','Reserves fight like foot soldiers'),K('뒤에서 기다렸다가 도와줘요','They wait at the back, then help')]],
+sea:[['⛵ ➜ 🚢',K('쾌속선이 큰 배를 이겨요','Fast boats beat big ships'),K('작고 빨라서 큰 배를 빙 둘러싸요','Small and quick, they surround big ships')],['🚢 ➜ 🔥',K('큰 배가 불화살 배를 이겨요','Big ships beat fire-arrow boats'),K('튼튼한 배로 부딪쳐 밀어내요','Their strong hulls ram them')],['🔥 ➜ ⛵',K('불화살 배가 쾌속선을 이겨요','Fire-arrow boats beat fast boats'),K('작은 배는 불화살에 잘 타요','Small boats burn easily')],['🔥🚢',K('황개의 불배는 큰 배에 아주 강해요!','Huang Gai\'s fire boats are super strong vs big ships!'),K('붙어 있는 큰 배에 불이 옮겨 붙어요','Fire jumps between ships chained together')]],
+duel:[['🐉 ➜ 🛡️',K('강공이 막기를 이겨요','Power beats Guard'),K('크게 휘두르면 방패도 부서져요','A big swing breaks the shield')],['🛡️ ➜ ⚡',K('막기가 빠른 공격을 이겨요','Guard beats Quick'),K('빠른 찌르기를 방패로 탁!','The shield blocks the quick jab')],['⚡ ➜ 🐉',K('빠른 공격이 강공을 이겨요','Quick beats Power'),K('크게 휘두르는 동안 먼저 콕!','Strike first while they wind up')]]};
+const WEAK={inf:K('⚔️보병이 🏹궁병의 화살을 많이 맞았어요.','⚔️ Foot soldiers got hit by lots of 🏹 arrows.'),cav:K('🐎기병이 ⚔️보병의 창 벽에 막혔어요.','🐎 Cavalry got stuck on a ⚔️ wall of spears.'),arc:K('🏹궁병이 빠른 🐎기병에게 잡혔어요.','🏹 Archers got caught by fast 🐎 cavalry.'),lib:K('⛵쾌속선이 🔥불화살에 약했어요.','⛵ Fast boats burned under 🔥 fire arrows.'),heavy:K('🚢큰 배가 빠른 ⛵쾌속선에게 둘러싸였어요.','🚢 Big ships got surrounded by fast ⛵ boats.'),fire:K('🔥불화살 배가 튼튼한 🚢큰 배에 부딪혔어요.','🔥 Fire-arrow boats got rammed by strong 🚢 ships.')};
+const TUTS=[{card:'harc',t:K('① 👆 🏹 \'궁병\' 카드를 눌러요 (끌어도 돼요). 궁병은 ⚔️보병에게 강해요!','① 👆 Tap the 🏹 "Archers" card (or drag it). Archers beat ⚔️ foot soldiers!'),ok:()=>sel=='harc'||dep[1]=='harc'},
+{slot:1,t:K('② 여기 \'중앙\'에 놓아요! 적은 모두 ⚔️보병이에요','② Put it here in the CENTRE! The enemy are all ⚔️ foot soldiers'),ok:()=>dep[1]=='harc'},
+{slot:0,t:K('③ \'한나라 관군\' 카드를 왼쪽 날개로 끌어 와요','③ Drag the "Han army" card to the LEFT wing'),ok:()=>dep[0]=='han'},
+{slot:2,t:K('④ \'유비 의용군\'은 오른쪽 날개로!','④ "Liu Bei\'s volunteers" go on the RIGHT wing!'),ok:()=>dep[2]=='vol'},
+{slot:4,t:K('⑤ 🐎 기병은 ⚔️보병에게 약해요. 뒤쪽 예비대 칸에 숨겨 두면 나중에 도와주러 가요','⑤ 🐎 Cavalry is weak vs ⚔️ foot soldiers. Hide it in a back reserve slot; it rushes in to help later'),ok:()=>dep.slice(3).includes('hcav')},
+{btn:'fight',t:K('⑥ ⚔️ 전투! 를 눌러요. 그다음 🧠계책과 🤺일기토를 배워요','⑥ Press ⚔️ FIGHT! Next you\'ll learn 🧠 stratagems and 🤺 duels'),ok:()=>scr!='deploy'}];
+const TUTX={pick:K('🎓 장수 한 명을 탭해서 골라요. 💪무력이 높으면 일기토에서 하트(목숨)가 많아요. 🧠지력이 높으면 계책이 더 세져요.','🎓 Tap one general. 💪 Might = more hearts (lives) in the duel. 🧠 Wits = stronger stratagems.'),
+strat:K('🎓 계책 = 똑똑한 작전이에요! 카드를 읽고 하나를 탭해요. 오늘 밤은 바람이 불고 적은 마른 풀밭에 있어요… 🔥 화공이 딱이겠죠?','🎓 A stratagem is a clever plan! Read the cards and tap one. Tonight it\'s windy and the enemy sits in dry grass… 🔥 Fire attack fits perfectly!'),
+duel:K('🎓 일기토 = 장수 1:1 대결! ① 말풍선에서 적의 자세를 봐요 ② 이기는 버튼을 눌러요. 🐉강공 › 🛡️막기 › ⚡빠른 공격 › 🐉강공. 이기면 적의 사기(용기)가 떨어져요!','🎓 A duel = two generals, 1-on-1! ① Read the enemy\'s stance in the bubble ② press the move that beats it. 🐉 Power › 🛡️ Guard › ⚡ Quick › 🐉 Power. Win and the enemy\'s morale (courage) drops!')};
+/*SIM*/
+const ADV={inf:'cav',cav:'arc',arc:'inf',lib:'heavy',heavy:'fire',fire:'lib'};
+function cls(t){return t=='res'?'inf':t}
+function mult(a,b){const ca=cls(a.t),cb=cls(b.t);if(ADV[ca]==cb)return 1.5;if(ADV[cb]==ca)return .7;return 1}
+const RATE=1.0,TMAX=12;
+function mkU(side,c,lane,res){return {side,c,id:c.id,t:c.t,p:c.p,hp:c.p*10,max:c.p*10,lane,res,st:res?'wait':'fight',flank:false,free:0,fx:1,mv:0}}
+function newSim(B,dep,strat,duel,ji){const S={t:0,B,dep,strat:strat||[],ji:ji||3,duel:duel||0,units:[],flags:{},ev:[],over:false,win:null};S.key=B.key(dep,S.strat);
+ for(let s=0;s<6;s++){const id=dep[s];if(!id)continue;const c=B.P.find(c=>c.id==id);S.units.push(mkU('P',c,s%3,s>=3))}
+ B.E.forEach((e,i)=>{if(e)S.units.push(mkU('E',e,i<3?i:(e.lane??1),i==3))});
+ S.P0=S.units.filter(u=>u.side=='P').reduce((a,u)=>a+u.max,0);S.E0=S.units.filter(u=>u.side=='E').reduce((a,u)=>a+u.max,0);
+ if(S.duel>0)for(const u of S.units)if(u.side=='E')u.hp*=.85;if(S.duel<0)for(const u of S.units)if(u.side=='P')u.hp*=.9;return S}
+function act(u){return u.st=='fight'||u.st=='wait'||u.st=='free'}
+function frac(S,side){return S.units.filter(u=>u.side==side&&act(u)).reduce((a,u)=>a+u.hp,0)/(side=='P'?S.P0:S.E0)}
+function fighters(S,side,l){return S.units.filter(u=>u.side==side&&u.st=='fight'&&u.lane==l)}
+function emit(S,k,d){S.ev.push(Object.assign({k,t:S.t},d||{}))}
+function enter(S,u,l){u.lane=l;const opp=fighters(S,u.side=='P'?'E':'P',l);u.st=opp.length?'fight':'free';u.free=0;u.mv=1;emit(S,'enter',{u})}
+const has=(S,k)=>S.strat.includes(k);
+function hitE(S,k){for(const u of S.units)if(u.side=='E'&&act(u))u.hp*=1-k}
+function stratFx(S){const B=S.B,f=S.flags,bo=1+(S.ji-3)*.1;
+ if(has(S,'bluff')){const d=B.bluffOK?4.5:1.5;for(const u of S.units)if(u.side=='E')u.fx=S.t<d?.15:1;if(!f.bl){f.bl=1;emit(S,'strat',{s:'bluff'})}}
+ if(has(S,'ambush')&&!f.amb&&S.t>=1){f.amb=1;for(const u of S.units)if(u.side=='P'&&u.st=='wait'){enter(S,u,u.lane);u.flank=true}emit(S,'strat',{s:'ambush'})}
+ if(has(S,'fire')&&!f.fire&&S.t>=2.5){f.fire=1;hitE(S,(B.fireOK||.08)*bo);emit(S,'strat',{s:'fire'})}
+ if(has(S,'raid')&&!f.raid&&S.t>=3){f.raid=1;hitE(S,(B.raidOK||.08)*bo);emit(S,'strat',{s:'raid'})}
+ if(has(S,'wall')&&!f.wall&&S.t>=6){f.wall=1;hitE(S,(B.wallOK||.05)*bo);emit(S,'strat',{s:'wall'})}}
+function smod(S,a){let m=1;if(has(S,'drums')&&a.side=='P')m*=1.15;if(has(S,'wall')&&a.side=='E'&&S.t<5)m*=.55;return m}
+function step(S,dt){if(S.over)return;S.t+=dt;const B=S.B;
+ stratFx(S);if(B.event)B.event(S);
+ for(const u of S.units){if(u.st!='wait')continue;
+  if(u.side=='P'){const f=fighters(S,'P',u.lane);const fr=f.length?f.reduce((a,v)=>a+v.hp/v.max,0)/f.length:0;
+   if(S.t>=3.5||(S.t>1.2&&(fr<.6||!fighters(S,'E',u.lane).length)))enter(S,u,u.lane)}
+  else if(S.t>=(B.eResT||3.5)){let l=B.eResLane;if(l==null){let best=1e9;for(let i=0;i<3;i++){const e=fighters(S,'E',i).reduce((a,v)=>a+v.hp,0),p=fighters(S,'P',i).reduce((a,v)=>a+v.hp,0);if(!p)continue;const r=e/p;if(r<best){best=r;l=i}}if(l==null)l=1}enter(S,u,l)}}
+ for(const u of S.units){if(u.st!='free')continue;u.free+=dt;if(u.free<.7)continue;const os=u.side=='P'?'E':'P';let tl=null,bd=9;for(let i=0;i<3;i++){if(!fighters(S,os,i).length)continue;const d=Math.abs(i-u.lane)+(i==1?-.1:0);if(d<bd){bd=d;tl=i}}
+  if(tl!=null){u.lane=tl;u.flank=true;u.st='fight';u.mv=1;emit(S,'flank',{u,l:tl})}}
+ const dmg=new Map();
+ for(let l=0;l<3;l++){const Ps=fighters(S,'P',l),Es=fighters(S,'E',l);
+  if(Ps.length&&Es.length){for(const [A,D] of [[Ps,Es],[Es,Ps]]){const tot=D.reduce((a,v)=>a+v.hp,0);for(const a of A){const tg=D.reduce((m,v)=>v.hp>m.hp?v:m);let k=a.p*mult(a,tg)*(a.flank?1.5:1)*(B.kmod?B.kmod(S,a,tg):1)*smod(S,a)*(.45+.55*a.hp/a.max)*a.fx*RATE*dt;for(const d of D)dmg.set(d,(dmg.get(d)||0)+k*d.hp/tot)}}}
+  else for(const u of Ps.concat(Es)){u.st='free';u.free=0}}
+ for(const [u,d] of dmg){u.hp=Math.max(0,u.hp-d);if(u.hp<.15*u.max){u.st='rout';emit(S,'rout',{u})}}
+ for(const u of S.units)if(act(u)&&u.hp<.15*u.max&&u.st!='rout'){u.st='rout';emit(S,'rout',{u})}
+ const pf=frac(S,'P'),ef=frac(S,'E');
+ const pa=S.units.some(u=>u.side=='P'&&act(u)),ea=S.units.some(u=>u.side=='E'&&act(u));
+ let w=null;if(!ea)w=true;else if(!pa)w=false;else if(B.survive){if(pf<.2)w=false;else if(S.t>=TMAX)w=true}else if(ef<.28&&pf>ef)w=true;else if(pf<.28&&ef>pf)w=false;else if(S.t>=TMAX)w=pf>ef;
+ if(w!=null){S.over=true;S.win=w;S.pf=pf;S.ef=ef;for(const u of S.units)if(act(u)&&(u.side=='P')!=w){u.st='rout';emit(S,'rout',{u,mass:1})}emit(S,'end',{w})}}
+function stars(S){if(!S.win)return 0;if(S.key)return 3;return (S.pf-S.ef>.25||S.duel>0)?2:1}
+function simulate(B,dep,st,duel,ji){const S=newSim(B,dep,st,duel,ji);while(!S.over)step(S,1/30);return S}
+/*ENDSIM*/
+// ================= ENGINE =================
+const $=id=>document.getElementById(id),TAU=Math.PI*2,rnd=(a,b)=>a+Math.random()*(b-a),now=()=>performance.now();
+const cv=$('c'),x=cv.getContext('2d');
+let W,CH,FH,D,GX,GW,SC=1,MID;
+let lang=localStorage.getItem('g31lang')||((navigator.language||'ko').startsWith('ko')?'ko':'en');
+const L=k=>T[lang][k],tx=o=>o?o[lang]:'';
+let prog=[0,0,0,0,0];try{const p=JSON.parse(localStorage.getItem('g31stars'));if(Array.isArray(p))prog=p.concat([0,0,0,0,0]).slice(0,5)}catch(e){}
+let dex=[];try{dex=JSON.parse(localStorage.getItem('g31dex'))||[]}catch(e){}
+function save(){localStorage.setItem('g31stars',JSON.stringify(prog));localStorage.setItem('g31dex',JSON.stringify(dex))}
+let scr='boot',bi=0,B=null,dep=[],sel=null,drag=null,S=null,VU=[],parts=[],ph='',ft=0,endT=0,simAcc=0,evI=0,tScale=1,slowT=0,shake=0,TM=0,keyShown=0,introT=0,bridgeT=-1,resShown=0,curRender=null,loopOn=false,lastF=0,clangT=0,tootT=0,lastLog='';
+const KC={han:{c:'#a8231a',m:'#c4473a',l:'#d98a7a',d:'#5e1009'},yt:{c:'#c9961a',m:'#ddb440',l:'#ecd27a',d:'#7d5d0a'},wei:{c:'#26476e',m:'#3d6491',l:'#7f9cc0',d:'#132640'},yuan:{c:'#6f5a2a',m:'#8c7440',l:'#b9a578',d:'#3b2f12'},shu:{c:'#2e6b34',m:'#46894c',l:'#88b98a',d:'#163a1a'},wu:{c:'#b0261c',m:'#cf4434',l:'#e2826a',d:'#6e140e'}};
+let TEAM={P:KC.han,E:KC.yt};function setTeam(){TEAM={P:KC[B.col.P],E:KC[B.col.E]}}
+// ---------- audio ----------
+let ac=null,mg=null,muted=localStorage.getItem('g31mute')=='1',nb=0,bn=0,intense=0;
+function au(){try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.gain.value=muted?0:.5;mg.connect(ac.destination);nb=ac.currentTime+.15;setInterval(sched,45)}if(ac.state=='suspended')ac.resume()}catch(e){}}
+function tone(f,t,d,type,v,f2,lp){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+Math.min(.03,d/4));g.gain.exponentialRampToValueAtTime(.001,t+d);let n=o;if(lp){const fl=ac.createBiquadFilter();fl.type='lowpass';fl.frequency.value=lp;o.connect(fl);n=fl}n.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.05)}
+let NB=null;function noise(t,d,v,fr,type){if(!NB){NB=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=fr||2000;s.buffer=NB;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(mg);s.start(t,Math.random()*.5);s.stop(t+d+.02)}
+const mtf=m=>440*Math.pow(2,(m-69)/12),STEP=60/104/2;
+const MEL=[69,-1,72,74,-1,72,69,67,64,-1,67,69,-1,-1,0,0,69,72,74,76,-1,74,72,-1,69,-1,67,64,62,-1,-1,0];
+const BAS=[45,45,43,40];
+function horn(f,t,d,v){for(const dt of[-4,4]){const o=ac.createOscillator(),g=ac.createGain(),fl=ac.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;o.detune.value=dt;fl.type='lowpass';fl.frequency.setValueAtTime(700,t);fl.frequency.linearRampToValueAtTime(1500,t+.08);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.05);g.gain.setValueAtTime(v,t+Math.max(.06,d-.08));g.gain.linearRampToValueAtTime(0,t+d);o.connect(fl);fl.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.05)}}
+function drum(t,v){tone(130,t,.28,'sine',.5*v,42);noise(t,.06,.12*v,300,'lowpass')}
+function sched(){if(!ac)return;while(nb<ac.currentTime+.25){const t=nb,n=bn%32,b=n%8,bar=n>>3;
+ if(b==0||b==3||b==4||b==6)drum(t,b==0?1:.65);
+ if(b==2||b==6)noise(t,.12,.14,1900);if(b==7){noise(t,.05,.07,2200);noise(t+STEP/2,.05,.09,2200)}
+ if(intense){noise(t,.03,.05,7000,'highpass');if(b%2)drum(t+STEP/2,.35)}
+ if(b==0)tone(mtf(BAS[bar]),t,STEP*7.5,'triangle',.16,0,600);
+ if(b%2==0)tone(mtf(MEL[(n+8)%32]>0?MEL[(n+8)%32]+12:81),t,.25,'triangle',.035);const m=MEL[n];if(m>0){let len=1;while(MEL[(n+len)%32]==-1&&len<4)len++;horn(mtf(m),t,len*STEP*.95,.045)}
+ nb+=STEP;bn++}}
+function sfx(k){if(!ac)return;const t=ac.currentTime;try{
+ if(k=='click')tone(660,t,.05,'triangle',.12);
+ else if(k=='place'){tone(420,t,.06,'triangle',.18,300);noise(t,.04,.1,900)}
+ else if(k=='clang'){noise(t,.06,.1,3200,'highpass');tone(rnd(900,1500),t,.05,'square',.025)}
+ else if(k=='horn'){horn(mtf(57),t,.35,.09);horn(mtf(62),t+.32,.7,.1);drum(t,1);drum(t+.32,1)}
+ else if(k=='toot'){const f=rnd(120,170);tone(f,t,.32,'sawtooth',.16,f*.45,520);tone(f*.5,t,.3,'square',.06,f*.3,300)}
+ else if(k=='win'){[62,66,69,74].forEach((m,i)=>horn(mtf(m),t+i*.14,.3,.08));horn(mtf(74),t+.56,.8,.09);drum(t,1);drum(t+.56,1)}
+ else if(k=='lose'){[62,60,57,53].forEach((m,i)=>horn(mtf(m),t+i*.2,.28,.07))}
+ else if(k=='star')tone(1046,t,.3,'sine',.15,1568);
+ else if(k=='key'){[69,74,78,81].forEach((m,i)=>tone(mtf(m),t+i*.07,.4,'triangle',.12))}
+ else if(k=='right'){tone(784,t,.12,'triangle',.15);tone(1046,t+.1,.25,'triangle',.15)}
+ else if(k=='wrong')tone(196,t,.3,'square',.08,150);
+ else if(k=='fire'){noise(t,1.2,.18,600,'lowpass');noise(t+.2,.8,.08,2500,'highpass')}
+ else if(k=='gong'){[110,166,221].forEach((f,i)=>tone(f,t,1.6,'sine',.12/(i+1),f*.97))}
+ else if(k=='hit'){drum(t,1);noise(t,.08,.15,2500,'highpass')}
+ else if(k=='splash')noise(t,.3,.12,800,'lowpass');
+}catch(e){}}
+function setMute(){$('mute').textContent=muted?'🔇':'🔊';if(mg)mg.gain.value=muted?0:.5}
+$('mute').onclick=e=>{e.stopPropagation();au();muted=!muted;localStorage.setItem('g31mute',muted?'1':'0');setMute()};
+// ---------- layout ----------
+function rs(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;CH=innerHeight-50;cv.width=W*D|0;cv.height=CH*D|0;cv.style.width=W+'px';cv.style.height=CH+'px';x.setTransform(D,0,0,D,0,0);
+ const th=$('tray').offsetHeight||150;FH=Math.max(260,CH-th);GW=Math.min(W,620);GX=(W-GW)/2;SC=Math.max(1,Math.min(1.7,Math.min(GW/300,FH/360)));MID=FH*.5;bgC=null;for(const v of VU)form(v);if(!loopOn)draw()}
+addEventListener('resize',rs);
+const laneX=i=>GX+GW*(i+.5)/3,slotW=()=>Math.min(GW/3-10,170),slotH=()=>Math.max(50,Math.min(FH*.17,92));
+function slotPos(s,side){const i=s%3;if(side=='E')return {x:laneX(i),y:s<3?FH*.34:(B&&B.terrain=='tiber'?FH*.155:FH*.13)};return {x:laneX(i),y:s<3?FH*.655:FH*.865}}
+function slotAt(px,py){const w=slotW(),h=slotH();for(let s=0;s<6;s++){const p=slotPos(s,'P');if(Math.abs(px-p.x)<w/2+4&&Math.abs(py-p.y)<h/2+4)return s}return null}
+// ---------- map ----------
+const SEA=[117.7,38.9,118.5,39.2,119.5,39.9,121,40.8,122.2,40.5,121.2,39.5,121.6,38.9,124,39.8,125,40,140,40,140,10,100,10,105,21,108,21.5,109.5,21.5,110.4,21,114,22.3,117.5,23.6,119.6,26,121,28,122,29.9,121.5,30.6,121.9,31,120.8,32.6,119.2,35,120.3,36,122.5,37.4,120.7,37.8,119.3,37.1,118.9,37.5,118,38.2];
+const RIV=[[100,35.8,103.8,36,105.5,37.5,106.5,39.5,108,40.6,111,40.4,111.3,39,110.5,37,110.3,34.6,112.5,34.8,114.5,34.9,116,35.6,118.5,37.6],[100,27,104,28.8,106.5,29.6,108.4,30.8,110.3,31,111.3,30.7,112.2,30.3,113,29.6,113.6,29.85,114.3,30.6,115.9,29.7,117,30.5,118.4,31.3,119.4,32.2,121,31.6,121.9,31.4],[106.5,33,109,32.7,111.5,32.4,112.2,31.7,113,30.8,114.3,30.6]];
+const MLAB=[['中原',113.2,35.6],['河北',115.5,38.3],['荊州',111.6,29.4],['江東',119.2,30.4],['益州',104.5,30.2],['黃河',108.9,38.6],['長江',116.6,29.6]];
+const MTN=[[103,33],[104.5,31.8],[102.5,29.5],[106,32.6],[107.5,33.6],[109.5,33.8],[110.4,31.6],[105,27],[109,27.5],[112.5,27.2],[115,26.5],[113,37.5],[112,36.4],[117.3,36.3]];
+let NP=null;function noisePat(){if(NP)return NP;const c=document.createElement('canvas');c.width=c.height=128;const o=c.getContext('2d');for(let i=0;i<1100;i++){o.fillStyle=Math.random()<.5?'rgba(60,50,30,.06)':'rgba(255,252,240,.09)';o.fillRect(Math.random()*128,Math.random()*128,1+Math.random()*3,1)}NP=x.createPattern(c,'repeat');return NP}
+function mview(lon,lat,deg,oy){const s=W/deg;return {lon,lat,s,oy}}
+function pj(v,lon,lat){return [W/2+(lon-v.lon)*v.s,v.oy-(lat-v.lat)*v.s*1.18]}
+function poly(v,a){x.beginPath();for(let i=0;i<a.length;i+=2){const p=pj(v,a[i],a[i+1]);i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1])}x.closePath()}
+function inkMtn(px,py,s){for(let k=0;k<3;k++){x.fillStyle=`rgba(40,40,40,${.18-k*.04})`;x.beginPath();x.moveTo(px-s*(1.2-k*.2),py);x.quadraticCurveTo(px-s*.2,py-s*(1.1-k*.25),px+(k-1)*s*.2,py-s*(1.2-k*.3));x.quadraticCurveTo(px+s*.3,py-s*.6,px+s*(1.3-k*.2),py);x.fill()}}
+function seal(px,py,txt,sz){x.save();x.translate(px,py);x.rotate(-.05);x.fillStyle='rgba(178,34,24,.85)';rr(-sz/2,-sz/2,sz,sz,3);x.fill();x.fillStyle='#fbefe0';x.font=`bold ${sz*.36}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(txt.slice(0,1),-sz*.2,-sz*.2);x.fillText(txt.slice(1,2),sz*.2,-sz*.2);x.fillText(txt.slice(2,3),-sz*.2,sz*.2);x.fillText(txt.slice(3,4),sz*.2,sz*.2);x.textBaseline='alphabetic';x.restore()}
+function drawMap(v){const H=CH;x.fillStyle='#ece3cc';x.fillRect(0,0,W,H);
+ poly(v,SEA);x.fillStyle='#d3dcd6';x.fill();x.strokeStyle='rgba(40,40,40,.7)';x.lineWidth=2.4;x.lineJoin='round';x.stroke();
+ x.strokeStyle='rgba(60,70,75,.35)';x.lineWidth=1;for(let i=0;i<14;i++){const p=pj(v,123+i%3,22+i*1.2);x.beginPath();x.arc(p[0],p[1],8,Math.PI*1.1,Math.PI*1.9);x.stroke()}
+ for(const m of MTN){const p=pj(v,m[0],m[1]);inkMtn(p[0],p[1],Math.max(10,v.s*.9))}
+ x.lineCap='round';for(const r of RIV){x.strokeStyle='rgba(70,95,105,.75)';x.lineWidth=Math.max(2,v.s*.08);x.beginPath();for(let i=0;i<r.length;i+=2){const p=pj(v,r[i],r[i+1]);i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1])}x.stroke()}
+ x.fillStyle=noisePat();x.fillRect(0,0,W,H);
+ x.textAlign='center';x.font=`${Math.min(20,Math.max(13,v.s*.55))|0}px serif`;x.fillStyle='rgba(30,30,30,.55)';for(const [t,lo,la] of MLAB){const p=pj(v,lo,la);x.fillText(t,p[0],p[1])}
+ const l=pj(v,112.45,34.62);x.fillStyle='#222';x.beginPath();x.arc(l[0],l[1],3,0,TAU);x.fill();x.font='bold 12px serif';x.fillText('洛陽',l[0],l[1]-7);
+ seal(W-28,30,'三國地圖',36);
+ const g=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(60,45,20,.35)');x.fillStyle=g;x.fillRect(0,0,W,H)}
+function marker(px,py,lbl,on,pulse,starsN){x.save();if(pulse){x.strokeStyle='rgba(179,38,30,'+(1-pulse%1)+')';x.lineWidth=3;x.beginPath();x.arc(px,py,8+(pulse%1)*22,0,TAU);x.stroke()}
+ x.fillStyle=on?'#b22218':'#8d8370';x.strokeStyle=on?'#222':'#ddd';x.lineWidth=2.5;x.beginPath();x.arc(px,py,11,0,TAU);x.fill();x.stroke();x.fillStyle='#fff';x.font='bold 11px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px,py+.5);x.textBaseline='alphabetic';
+ if(starsN){x.fillStyle='#d39b00';x.font='10px sans-serif';x.fillText('★'.repeat(starsN),px,py+22)}x.restore()}
+function menuView(){const deg=Math.max(9,Math.min(20,W/30));return mview(112.6,32.3,deg,CH*.16)}
+function drawMenuMap(){const v=menuView();drawMap(v);BATTLES.forEach((b,i)=>{const p=pj(v,b.lon,b.lat);const on=i==0||prog[i-1]>0;marker(p[0]+(b.mdx||0),p[1],b.num,on,on&&!prog[i]&&scr=='menu'?TM*.8:0,prog[i])})}
+// ---------- field ----------
+let bgC=null;
+function fieldBG(){if(bgC&&bgC.k==bi+'_'+W+'_'+FH)return bgC.c;const c=document.createElement('canvas');c.width=W*D|0;c.height=FH*D|0;const o=c.getContext('2d');o.scale(D,D);const tr=B.terrain,water=tr=='river';
+ o.fillStyle=water?'#d2dcd6':'#efe7d2';o.fillRect(0,0,W,FH);
+ for(let i=0;i<W*FH/50;i++){o.fillStyle=Math.random()<.5?'rgba(60,50,30,.05)':'rgba(255,252,240,.1)';o.fillRect(Math.random()*W,Math.random()*FH,1+Math.random()*4,1)}
+ if(!water){for(let k=0;k<3;k++){o.fillStyle=`rgba(35,35,35,${.07+k*.05})`;o.beginPath();o.moveTo(0,FH*(.02+k*.035));let y0=FH*(.02+k*.035);for(let xx=0;xx<=W;xx+=W/7){const h=rnd(10,34)*(1-k*.2);o.quadraticCurveTo(xx+W/14,y0-h,xx+W/7,y0+rnd(-4,4))}o.lineTo(W,0);o.lineTo(0,0);o.fill()}
+  o.lineCap='round';for(let i=0;i<W*FH/700;i++){const px=Math.random()*W,py=rnd(FH*.12,FH);o.strokeStyle=`rgba(30,30,30,${rnd(.08,.22)})`;o.lineWidth=rnd(.8,1.8);o.beginPath();o.moveTo(px,py);o.quadraticCurveTo(px+rnd(-3,3),py-4,px+rnd(-5,5),py-rnd(5,10));o.stroke()}
+  for(let i=0;i<10;i++){o.fillStyle='rgba(40,40,40,.05)';o.beginPath();o.ellipse(Math.random()*W,rnd(FH*.15,FH),rnd(30,90),rnd(8,20),0,0,TAU);o.fill()}}
+ else{o.strokeStyle='rgba(40,60,70,.22)';o.lineWidth=1.2;for(let i=0;i<W*FH/900;i++){const px=Math.random()*W,py=Math.random()*FH;o.beginPath();o.arc(px,py,rnd(5,10),Math.PI*1.1,Math.PI*1.9);o.stroke()}}
+ o.textAlign='center';
+ const tent=(px,py,s)=>{o.fillStyle='#d9ccb0';o.strokeStyle='#2b2b2b';o.lineWidth=1.2;o.beginPath();o.moveTo(px-s,py);o.lineTo(px,py-s*1.1);o.lineTo(px+s,py);o.closePath();o.fill();o.stroke();o.beginPath();o.moveTo(px,py-s*1.1);o.lineTo(px,py);o.stroke()};
+ const tree=(px,py,s)=>{o.strokeStyle='#2b2b2b';o.lineWidth=1.5;o.beginPath();o.moveTo(px,py);o.lineTo(px,py-s);o.stroke();for(let k=0;k<3;k++){o.fillStyle=`rgba(30,45,30,${.35-k*.08})`;o.beginPath();o.ellipse(px+rnd(-3,3),py-s-k*s*.35,s*(.7-k*.15),s*.35,0,0,TAU);o.fill()}};
+ if(tr=='grass'){for(let i=0;i<260;i++){const px=Math.random()*W,py=rnd(FH*.06,FH*.48);o.strokeStyle=`rgba(${120+rnd(0,40)|0},${100+rnd(0,30)|0},40,.45)`;o.lineWidth=1.3;o.beginPath();o.moveTo(px,py);o.quadraticCurveTo(px+3,py-6,px+rnd(-4,6),py-rnd(9,15));o.stroke()}for(let i=0;i<6;i++)tent(W*(i+.5)/6,FH*.1,9);o.fillStyle='rgba(30,30,30,.55)';o.font='12px serif';o.fillText('長社',W*.9,FH*.2)}
+ if(tr=='fort'){o.fillStyle='#4a3a28';for(let xx=4;xx<W;xx+=7){o.fillRect(xx,FH-16,3.5,16);o.beginPath();o.moveTo(xx,FH-16);o.lineTo(xx+1.75,FH-21);o.lineTo(xx+3.5,FH-16);o.fill()}o.fillStyle='rgba(30,30,30,.6)';o.font='bold 10px serif';o.fillText('官渡 · 曹營',W*.5,FH-20);
+  const gx=W-34,gy=FH*.07;for(let i=0;i<4;i++){o.fillStyle='#d8b65a';o.strokeStyle='#2b2b2b';o.beginPath();o.ellipse(gx-12+i*9,gy+8-(i%2)*5,9,7,0,0,TAU);o.fill();o.stroke()}o.fillStyle='#2b2b2b';o.font='bold 11px serif';o.fillText('烏巢',gx,gy+26)}
+ if(tr=='bridge'){o.fillStyle='rgba(90,120,130,.55)';o.fillRect(0,FH-14,W,14);o.fillStyle='#6b4b2a';o.fillRect(W/2-16,FH-17,32,20);o.strokeStyle='#2b2b2b';o.strokeRect(W/2-16,FH-17,32,20);o.fillStyle='rgba(30,30,30,.65)';o.font='bold 10px serif';o.fillText('長坂橋',W/2+44,FH-4)}
+ if(tr=='river'){o.fillStyle='#8a3b22';o.strokeStyle='#2b2b2b';o.lineWidth=1.5;o.beginPath();o.moveTo(0,FH*.08);for(let y=FH*.08;y<=FH*.62;y+=FH*.06)o.lineTo(rnd(14,26),y);o.lineTo(0,FH*.62);o.fill();o.stroke();o.fillStyle='#fbefe0';o.font='bold 13px serif';o.fillText('赤',9,FH*.3);o.fillText('壁',9,FH*.3+16)}
+ if(tr=='forest'){for(let i=0;i<22;i++)tree(rnd(0,W),rnd(FH*.06,FH*.24),rnd(9,15));for(let i=0;i<5;i++)tent(W*(i+.5)/5+rnd(-10,10),FH*.21,8);for(let i=0;i<8;i++)tree(i%2?rnd(0,14):W-rnd(0,14),rnd(FH*.3,FH*.6),rnd(8,12))}
+ const v=o.createRadialGradient(W/2,FH/2,Math.min(W,FH)*.4,W/2,FH/2,Math.max(W,FH)*.8);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(50,40,20,.28)');o.fillStyle=v;o.fillRect(0,0,W,FH);
+ bgC={k:bi+'_'+W+'_'+FH,c};return c}
+function drawChains(){if(B.terrain!='river')return;const es=VU.filter(v=>v.side=='E'&&!v.routed&&!v.gone2&&v.slot<3).sort((a,b)=>a.x-b.x);x.strokeStyle='rgba(60,60,60,.7)';x.setLineDash([3,3]);x.lineWidth=1.5;for(let i=1;i<es.length;i++){x.beginPath();x.moveTo(es[i-1].x+20,es[i-1].y);x.lineTo(es[i].x-20,es[i].y);x.stroke()}x.setLineDash([])}
+// ---------- unit visuals ----------
+function mkV(card,side,slot){const p=slotPos(slot,side);const v={card,side,slot,lane:slot%3,x:p.x,y:p.y,hx:p.x,hy:p.y,n:card.n,shown:card.n,u:null,routed:0,at:rnd(0,.4),lastLane:slot%3};form(v);return v}
+function form(v){const t=v.card.t,n=v.n,s=SC;let sx,sy,cols;if(t=='cav'){sx=12*s;sy=13*s;cols=Math.ceil(Math.sqrt(n*2))}else if(NAV[t]){sx=(t=='heavy'?26:21)*s;sy=34*s;cols=n}else{sx=8.6*s;sy=8.2*s;cols=Math.ceil(Math.sqrt(n*2.6))}
+ cols=Math.max(1,Math.min(cols,Math.floor((slotW()-12)/sx)+1));const rows=Math.ceil(n/cols);v.f=[];
+ for(let i=0;i<n;i++){const r=i/cols|0,c=i%cols,inRow=Math.min(cols,n-r*cols);v.f.push({ox:(c-(inRow-1)/2)*sx+rnd(-1,1),oy:(r-(rows-1)/2)*sy*(v.side=='P'?1:-1)+rnd(-1,1),ph:rnd(0,TAU)})}v.fh=rows*sy}
+function buildVU(){VU=[];for(let s=0;s<6;s++)if(dep[s])VU.push(mkV(B.P.find(c=>c.id==dep[s]),'P',s));B.E.forEach((e,i)=>{if(e)VU.push(mkV(e,'E',i))})}
+function drawSoldier(px,py,t,side,ph,run){const s=SC,fd=side=='P'?-1:1,Cc=TEAM[side];
+ x.fillStyle='rgba(30,30,30,.16)';x.beginPath();x.ellipse(px,py+2.5*s,4*s,2*s,0,0,TAU);x.fill();
+ if(t=='cav'){x.fillStyle='#2f2b27';x.beginPath();x.ellipse(px,py,2.6*s,6*s,0,0,TAU);x.fill();x.beginPath();x.ellipse(px,py+fd*6*s,1.5*s,2.5*s,0,0,TAU);x.fill();x.fillStyle=Cc.c;x.fillRect(px-2.6*s,py-fd*3.5*s-1.5*s,5.2*s,3*s);x.fillStyle=Cc.m;x.beginPath();x.arc(px,py-fd*.3*s,2.5*s,0,TAU);x.fill();x.fillStyle='#222';x.beginPath();x.arc(px,py-fd*.3*s,1.3*s,0,TAU);x.fill();return}
+ if(t=='arc'){x.fillStyle=Cc.l;x.beginPath();x.arc(px,py,2.7*s,0,TAU);x.fill();x.fillStyle='#e8d2b0';x.beginPath();x.arc(px,py,1.5*s,0,TAU);x.fill();x.strokeStyle='#222';x.lineWidth=1.1*s;x.beginPath();const a0=fd<0?Math.PI*1.2:Math.PI*.2;x.arc(px,py+fd*.5*s,4.2*s,a0,a0+Math.PI*.6);x.stroke();return}
+ x.strokeStyle='#2b2b2b';x.lineWidth=1*s;x.beginPath();x.moveTo(px+3*s,py-fd*2*s);x.lineTo(px+3*s,py+fd*(run?3:9)*s);x.stroke();if(!run){x.fillStyle='#555';x.beginPath();x.moveTo(px+3*s,py+fd*10.5*s);x.lineTo(px+2*s,py+fd*8.5*s);x.lineTo(px+4*s,py+fd*8.5*s);x.fill()}
+ x.fillStyle='#2b2b2b';x.beginPath();x.arc(px,py,3*s,0,TAU);x.fill();
+ x.fillStyle=t=='res'?Cc.d:Cc.c;x.beginPath();x.ellipse(px-.5*s,py+fd*2.4*s,3.6*s,1.8*s,0,0,TAU);x.fill();x.strokeStyle='#1a1a1a';x.lineWidth=.6;x.stroke();
+ x.fillStyle='#e8d2b0';x.beginPath();x.arc(px,py-fd*.4*s,1.7*s,0,TAU);x.fill();x.fillStyle='#222';x.beginPath();x.arc(px,py-fd*.4*s,1.7*s,fd<0?Math.PI:0,fd<0?TAU:Math.PI);x.fill()}
+function drawShip(px,py,t,side,ph,rot){const s=SC,Cc=TEAM[side];const Ln=(t=='heavy'?30:t=='fire'?22:18)*s,w=Ln*(t=='heavy'?.36:.3);x.save();x.translate(px,py);x.rotate((side=='E'?Math.PI:0)+(rot||0));
+ x.strokeStyle='rgba(255,255,255,.35)';x.lineWidth=1.5;x.beginPath();x.moveTo(-w*.4,Ln/2);x.lineTo(-w*.9,Ln/2+10*s);x.moveTo(w*.4,Ln/2);x.lineTo(w*.9,Ln/2+10*s);x.stroke();
+ x.strokeStyle='#4a2e14';x.lineWidth=.9;const no=Math.floor(Ln/4.5);for(let i=0;i<no;i++){const oy=-Ln*.28+i*4.5*s,a=Math.sin(TM*7+ph+i*.4)*3*s;x.beginPath();x.moveTo(w/2,oy);x.lineTo(w/2+5*s,oy+a);x.moveTo(-w/2,oy);x.lineTo(-w/2-5*s,oy+a);x.stroke()}
+ x.fillStyle='#5e4630';x.strokeStyle='#1f1a14';x.lineWidth=1.2;x.beginPath();x.moveTo(0,-Ln/2);x.quadraticCurveTo(w/2,-Ln*.2,w/2,Ln*.3);x.lineTo(w*.35,Ln/2);x.lineTo(-w*.35,Ln/2);x.lineTo(-w/2,Ln*.3);x.quadraticCurveTo(-w/2,-Ln*.2,0,-Ln/2);x.fill();x.stroke();
+ x.fillStyle='#c49a5c';x.fillRect(-w*.3,-Ln*.25,w*.6,Ln*.65);x.fillStyle='#777';x.beginPath();x.moveTo(0,-Ln/2-4*s);x.lineTo(2*s,-Ln/2+1);x.lineTo(-2*s,-Ln/2+1);x.fill();
+ x.fillStyle=Cc.c;x.fillRect(-w*.75,-Ln*.05,w*1.5,3.2*s);x.fillStyle='#4a2c12';x.beginPath();x.arc(0,-Ln*.04+1.5*s,1.6*s,0,TAU);x.fill();
+ if(t=='heavy'){x.fillStyle='#a49a8a';x.fillRect(-3*s,-Ln*.32,6*s,5*s);x.fillRect(-3*s,Ln*.2,6*s,5*s);x.fillStyle=Cc.m;x.fillRect(-1,Ln*.28,7*s,3*s)}
+ if(t=='fire'){x.fillStyle=Math.sin(TM*20+ph)>0?'#ffb02e':'#ff6a1a';x.beginPath();x.arc(0,-Ln*.35,2.4*s+Math.sin(TM*15+ph),0,TAU);x.fill()}
+ x.restore()}
+function drawStd(px,py,side,lbl){const s=SC,w=Math.sin(TM*4+px*.1)*1.6;x.strokeStyle='#2b2b2b';x.lineWidth=1.5*s;x.beginPath();x.moveTo(px,py);x.lineTo(px,py-24*s);x.stroke();
+ x.fillStyle=TEAM[side].c;x.beginPath();x.moveTo(px,py-24*s);x.lineTo(px+12*s+w,py-23*s);for(let i=0;i<4;i++){x.lineTo(px+12*s+w-(i%2)*2.5*s,py-23*s+i*3.5*s)}x.lineTo(px+12*s+w,py-10*s);x.lineTo(px,py-11*s);x.closePath();x.fill();x.strokeStyle='rgba(0,0,0,.5)';x.lineWidth=.7;x.stroke();
+ if(lbl){x.fillStyle='#fbf5e6';x.beginPath();x.arc(px+6*s+w*.5,py-17*s,4.6*s,0,TAU);x.fill();x.fillStyle='#111';x.font=`bold ${6.4*s}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px+6*s+w*.5,py-16.6*s);x.textBaseline='alphabetic'}}
+function pill(px,py,txt,bg,fg,fs){x.font=`bold ${fs||10}px system-ui,sans-serif`;let w=x.measureText(txt).width+10;const mw=slotW()+8;if(w>mw){x.font=`bold ${(fs||10)*mw/w}px system-ui,sans-serif`;w=mw}x.fillStyle=bg;rr(px-w/2,py-8,w,16,7);x.fill();x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
+function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function drawV(v){if(v.routed||v.gone2)return;const fight=scr=='fight'&&v.u&&(v.u.st=='fight');const s=v.side=='P'?1:-1,nav=NAV[v.card.t];
+ for(let i=0;i<v.shown;i++){const f=v.f[i];let px=v.x+f.ox,py=v.y+f.oy;if(fight){px+=Math.sin(TM*9+f.ph)*1.2;py+=Math.sin(TM*11+f.ph*2)*1.6-s*1.2}else if(v.u&&v.u.st=='free'){py-=Math.abs(Math.sin(TM*8+f.ph))*2}
+  if(nav)drawShip(px,py,v.card.t,v.side,f.ph);else drawSoldier(px,py,v.card.t,v.side,f.ph)}
+ if(!nav&&v.shown>0)drawStd(v.x,v.y+s*(v.fh/2+3),v.side,v.side=='P'?B.pc:B.ec)}
+// ---------- particles ----------
+function P(o){if(parts.length<700)parts.push(o)}
+function dust(px,py,n,col){for(let i=0;i<n;i++)P({k:'dust',x:px+rnd(-8,8),y:py+rnd(-5,5),vx:rnd(-15,15),vy:rnd(-12,4),r:rnd(3,7),l:0,L:rnd(.6,1.1),c:col||'rgba(170,140,90,'})}
+function puff(px,py,big){P({k:'puff',x:px,y:py,vy:-22,l:0,L:big?1.3:.9,t:big?(lang=='ko'?'뿡!':'TOOT!'):'뿡',s:big?16:10})}
+function fallen(v){const f=v.f[v.shown]||{ox:0,oy:0,ph:0};const s=v.side=='P'?1:-1;P({k:'flee',x:v.x+f.ox,y:v.y+f.oy,vx:rnd(-25,25),vy:s*rnd(50,90),l:0,L:1,t:v.card.t,side:v.side,ph:f.ph});if(Math.random()<.35)puff(v.x+f.ox,v.y+f.oy);dust(v.x+f.ox,v.y+f.oy,2)}
+function routV(v,silent){v.routed=1;const s=v.side=='P'?1:-1;for(let i=0;i<v.shown;i++){const f=v.f[i];P({k:'flee',x:v.x+f.ox,y:v.y+f.oy,vx:rnd(-35,35),vy:s*rnd(45,95),l:0,L:rnd(1.4,2.2),t:v.card.t,side:v.side,ph:f.ph})}
+ if(!NAV[v.card.t])P({k:'std',x:v.x,y:v.y+s*(v.fh/2+3),r:0,vr:rnd(1.5,2.5)*(Math.random()<.5?-1:1),l:0,L:1.6,side:v.side});
+ v.shown=0;dust(v.x,v.y,14);puff(v.x,v.y-10,1);shake=Math.max(shake,6);if(!silent&&TM-tootT>.25){tootT=TM;sfx('toot')}}
+function updParts(dt){for(const p of parts){p.l+=dt;if(p.vx!=null){p.x+=p.vx*dt;p.y+=p.vy*dt}
+ if(p.k=='dust'){p.r+=dt*10;p.vx*=.96}if(p.k=='conf')p.vx+=Math.sin(p.l*5)*2;if(p.k=='fall'){p.r+=p.vr*dt;p.vx*=.92;p.vy*=.92}if(p.k=='std')p.r+=p.vr*dt*(p.r*p.r<2.2?1:0);
+ if(p.k=='arrow'){const q=Math.min(1,p.l/p.L);p.x=p.x0+(p.x1-p.x0)*q;p.y=p.y0+(p.y1-p.y0)*q-Math.sin(q*Math.PI)*p.h;if(q>=1){p.l=p.L;if(Math.random()<.3)dust(p.x,p.y,1)}}
+ if(p.k=='flee'&&B&&B.terrain=='nope'&&p.side=='E'&&p.y<FH*.07&&!p.sp){p.sp=1;p.l=p.L;P({k:'splash',x:p.x,y:p.y,l:0,L:.7});if(Math.random()<.2)sfx('splash')}}
+ parts=parts.filter(p=>p.l<p.L)}
+function drawParts(){for(const p of parts){const a=1-p.l/p.L;
+ if(p.k=='dust'){x.fillStyle=p.c+(a*.45)+')';x.beginPath();x.arc(p.x,p.y,p.r,0,TAU);x.fill()}
+ else if(p.k=='spark'){x.strokeStyle=`rgba(255,230,140,${a})`;x.lineWidth=1.5;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x+p.vx*.04,p.y+p.vy*.04);x.stroke()}
+ else if(p.k=='puff'){x.globalAlpha=a;x.fillStyle='rgba(235,225,190,.85)';x.beginPath();x.arc(p.x,p.y,p.s*.8+p.l*8,0,TAU);x.fill();x.fillStyle='#6b3a12';x.font=`bold ${p.s}px system-ui`;x.textAlign='center';x.fillText(p.t,p.x,p.y+p.s*.35);x.globalAlpha=1}
+ else if(p.k=='fall'){x.save();x.globalAlpha=a;x.translate(p.x,p.y);x.rotate(p.r);if(NAV[p.t]){x.fillStyle='#e8c49a';x.beginPath();x.arc(0,0,2.5*SC,0,TAU);x.fill()}else drawSoldier(0,0,p.t,p.side,0,1);x.restore();x.globalAlpha=1}
+ else if(p.k=='flee'){x.globalAlpha=Math.min(1,a*1.6);if(NAV[p.t]){drawShip(p.x,p.y,p.t,p.side,p.ph,p.l*.5);}else drawSoldier(p.x+Math.sin(p.l*30+p.ph)*1.5,p.y-Math.abs(Math.sin(p.l*18+p.ph))*3,p.t,p.side=='P'?'P':'E',p.ph,1);x.globalAlpha=1}
+ else if(p.k=='std'){x.save();x.globalAlpha=a;x.translate(p.x,p.y);x.rotate(p.r);drawStd(0,0,p.side,'');x.restore();x.globalAlpha=1}
+ else if(p.k=='arrow'){x.strokeStyle=p.fire?'#ff8a1a':'#3a2a14';x.lineWidth=1.3;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-(p.x1-p.x0)*.04,p.y-(p.y1-p.y0)*.04+3);x.stroke()}
+ else if(p.k=='splash'){x.strokeStyle=`rgba(255,255,255,${a})`;x.lineWidth=2;x.beginPath();x.ellipse(p.x,p.y,4+p.l*20,2+p.l*8,0,0,TAU);x.stroke()}
+ else if(p.k=='flame'){const r=(4+p.l*6)*SC;const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,r);g.addColorStop(0,`rgba(255,230,120,${a})`);g.addColorStop(.5,`rgba(255,120,30,${a*.8})`);g.addColorStop(1,'rgba(200,40,10,0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,r,0,TAU);x.fill()}
+ else if(p.k=='smoke'){x.fillStyle=`rgba(60,60,60,${a*.25})`;x.beginPath();x.arc(p.x,p.y,6+p.l*14,0,TAU);x.fill()}
+ else if(p.k=='txt'){x.globalAlpha=a;x.font=`bold ${p.s}px system-ui`;x.textAlign='center';x.fillStyle=p.c||'#222';x.fillText(p.t,p.x,p.y);x.globalAlpha=1}
+ else if(p.k=='conf'){x.fillStyle=p.c;x.globalAlpha=a;x.fillRect(p.x,p.y,4,6);x.globalAlpha=1}}}
+// ================= FLOW / UI =================
+let contFn=null,contAt=0,QZ=[],qi=0,qok=0,qAns=-1,RES=null;
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function ov(html,fn,guard,mid){const o=$('ov');o.innerHTML=html;o.className=mid?'mid':'';contFn=fn;contAt=now()+(guard==null?450:guard)}
+function ovHide(){const o=$('ov');o.className='hide';o.innerHTML='';contFn=null}
+function cont(){if(contFn&&now()>=contAt){const f=contFn;contFn=null;sfx('click');f()}}
+$('ov').addEventListener('click',e=>{if(e.target.closest('button,a,.nocont'))return;cont()});
+addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'||e.key==' '||e.key=='Enter'){e.preventDefault();if(e.repeat)return;if($('pop').className=='on'){popClose();return}cont()}});
+function trayShow(on){$('tray').classList.toggle('hide',!on)}
+function banner(t,k){const b=$('banner');b.textContent=t;b.className='';void b.offsetWidth;b.className='on '+(k||'');b.style.top=(50+FH*.4-16)+'px'}
+function log(t){lastLog=t;$('msg').textContent=t}
+const bar=(n,c)=>`<span class="bar">${c.repeat(n)}<span style="opacity:.25">${c.repeat(5-n)}</span></span>`;
+function gface(id){const g=CHARS[id];return `<div class="gface">${g.f}${g.k?`<span class="kd">${tx(KDN[g.k]).slice(0,lang=='ko'?2:4)}</span>`:''}</div>`}
+function gcard(id,isNew){const g=GEN[id];return `<div class="gcard">${gface(id)}<div><div class="gt">${tx(g.n)}${isNew?`<span class="new">${L('nw')}</span>`:''}</div><div class="gb">${L('mu')} ${bar(g.mu,'■')} ${L('ji')} ${bar(g.ji,'■')}</div><div class="gb">${tx(g.b)}</div></div></div>`}
+function setLang(){$('lang').textContent=lang=='ko'?'EN':'한';$('home').textContent=L('home');$('ttl').textContent=L('t');$('hintB').textContent=lang=='ko'?'💡 힌트':'💡 Hint';$('glosB').title=L('glosT');document.documentElement.lang=lang;
+ if(scr=='deploy'){renderTray()}if($('pop').className=='on'){$('pop').className=''}else if(scr=='duel'){rDuel()}else if(scr=='fight'){renderTray();$('msg').textContent=lastLog}else if(curRender&&!(scr=='quiz'&&qAns>=0))curRender();if(!loopOn)draw()}
+$('lang').onclick=e=>{e.stopPropagation();lang=lang=='ko'?'en':'ko';localStorage.setItem('g31lang',lang);setLang()};
+// --- screens
+function rBoot(){ov(`<div class="panel"><div style="text-align:center;font-size:44px">🐉</div><h1>${L('t').slice(3)}</h1><p class="sub">${L('sub')}</p><p class="sub">${L('sub2')}</p><div class="cont">${L('start')}</div></div>`,()=>{au();startLoop();showMenu()},0)}
+function showMenu(){scr='menu';trayShow(0);intense=0;curRender=rMenu;rMenu()}
+function rMenu(){const nd=dex.length;let h=`<div class="panel"><h2>${L('choose')}</h2><div class="blist">`;
+ BATTLES.forEach((b,i)=>{const on=i==0||prog[i-1]>0;h+=`<button class="btn bbtn" data-b="${i}" ${on?'':'disabled'}><span class="n">${b.num}</span><span><b>${on?'':L('locked')+' '}${tx(b.name)}</b><br><small>${tx(b.year)} · ${tx(b.vs)}</small></span><span class="s">${'★'.repeat(prog[i])}<span style="color:#c8b48a">${'★'.repeat(3-prog[i])}</span></span></button>`});
+ h+=`</div><div class="row"><button class="btn" id="dexB">${L('dex')} ${nd}/${GORDER.length}</button><button class="btn" id="tutB2">${L('tutBtn')}</button><button class="btn" id="glB2">${L('glosT')}</button></div></div>`;
+ let nx=0;for(let i=0;i<5;i++)if(i==0||prog[i-1]>0)nx=i;for(let i=0;i<5;i++)if((i==0||prog[i-1]>0)&&!prog[i]){nx=i;break}
+ ov(h,()=>startBattle(nx),400);$('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{sfx('click');startBattle(+b.dataset.b)});$('dexB').onclick=()=>{sfx('click');showDex()};$('tutB2').onclick=()=>{sfx('click');localStorage.removeItem('g31tut');startBattle(0)};$('glB2').onclick=()=>{sfx('click');showGlos()}}
+function showDex(){scr='dex';curRender=rDex;rDex()}
+function rDex(){let h=`<div class="panel nocont"><h2>${L('dex')} ${dex.length}/${GORDER.length}</h2><div class="dexg">`;for(const id of GORDER){const on=dex.includes(id),g=GEN[id];h+=on?`<div class="gcard">${gface(id)}<div class="gt">${tx(g.n)}</div><div class="gb">${L('mu')} ${bar(g.mu,'■')}<br>${L('ji')} ${bar(g.ji,'■')}</div><div class="gb">${tx(g.b)}</div></div>`:`<div class="gcard lk"><div class="gface">❔</div><div class="gt">???</div></div>`}
+ h+=`</div><div class="row"><button class="btn" id="dxc">${L('close')}</button></div></div>`;ov(h,showMenu,300,1);$('dxc').onclick=()=>{sfx('click');showMenu()}}
+let gsel=null,stratSel=[],duelRes=0,tutRun=false,DU=null;
+function startBattle(i){bi=i;B=BATTLES[i];setTeam();dep=Array(6).fill(null);sel=null;bgC=null;VU=[];parts=[];gsel=null;stratSel=[];duelRes=0;tutRun=bi==0&&!localStorage.getItem('g31tut');showIntro()}
+let pi=0;function panels(){return B.story.concat([{p:'⚔️ 🗺️',t:B.sit,last:1}])}
+function showIntro(){scr='intro';introT=0;pi=0;trayShow(0);curRender=rIntro;rIntro();sfx('horn')}
+function charsHTML(){return `<div class="chars">${B.chars.map(([id,sd])=>{const c=CHARS[id];return `<div class="chr ${sd}"><div class="fc">${c.f}</div><div><div class="cn">${tx(c.n)}</div><div class="co">${tx(c.o)}</div><div class="cs">${sd=='P'?L('ourSide'):L('theirSide')}</div></div></div>`}).join('')}</div>`}
+function rIntro(){const ps=panels(),pn=ps[pi],last=pi==ps.length-1;
+ ov(`<div class="panel"><div class="sub">${B.num} · ${tx(B.name)} · ${tx(B.year)}</div><div class="pic">${pn.p}</div><div class="stx">${tx(pn.t)}</div>${pn.ch?charsHTML():''}${pn.map?`<div class="sub" style="margin-top:6px">${L('mapPin')}<br>${tx(B.place)}</div>`:''}<div class="dots">${ps.map((_,i)=>i==pi?'<b>●</b>':'●').join('')}</div><div class="row"><button class="btn" id="skB">${L('skip')}</button><button class="btn red" id="nxB">${last?L('goPick'):L('nextP')}</button></div></div>`,introNext,300);
+ $('skB').onclick=()=>{sfx('click');showPick()};$('nxB').onclick=()=>{sfx('click');introNext()}}
+function introNext(){if(pi<panels().length-1){pi++;rIntro()}else showPick()}
+function showPick(){scr='pick';trayShow(0);rs();bgC=null;dep=Array(6).fill(null);buildVU();curRender=rPick;rPick()}
+function rPick(){const r=B.roster;let h=`<div class="panel nocont"><h2>${L('pickT')}</h2><p class="sub" style="font-size:14px">${L('pickSub')}</p>${tutRun?`<div class="tutbox">${tx(TUTX.pick)}</div>`:''}<div class="gsel">`+
+ r.map(id=>{const g=GEN[id];return `<button class="btn gpk" data-g="${id}"><span class="gf">${g.f}</span><span class="gn">${tx(g.n)}</span><span class="gs">${L('mu')} ${bar(g.mu,'■')}<br>${L('ji')} ${bar(g.ji,'■')}</span><span class="gs">${tx(g.o)}</span></button>`}).join('')+`</div></div>`;
+ ov(h,()=>pickG(r[0]),400,1);$('ov').querySelectorAll('[data-g]').forEach(b=>b.onclick=e=>{e.stopPropagation();pickG(b.dataset.g)})}
+function pickG(id){gsel=id;sfx('place');toDeploy()}
+function toDeploy(){scr='deploy';ovHide();trayShow(1);rs();buildVU();parts=[];intense=0;sel=null;renderTray();curRender=null;
+ tutStep=tutRun&&!localStorage.getItem('g31tut')?0:-1;tutCheck();if(B.naval&&!localStorage.getItem('g31nav')){localStorage.setItem('g31nav','1');showMatch()}}
+function valid(){return B.P.every(c=>dep.includes(c.id))&&dep[0]&&dep[1]&&dep[2]}
+function renderTray(){const nav=B.naval;$('legend').textContent='❓ '+L('beats')+': '+(nav?(lang=='ko'?'⛵쾌속 › 🚢대형 › 🔥불화살 › ⛵':'⛵fast › 🚢heavy › 🔥fire › ⛵'):(lang=='ko'?'⚔️보병 › 🐎기병 › 🏹궁병 › ⚔️ (🛡️=⚔️)':'⚔️foot › 🐎cavalry › 🏹archers › ⚔️ (🛡️=⚔️)'));
+ const busy=scr!='deploy';$('cards').innerHTML=B.P.map(c=>`<div class="ucard${dep.includes(c.id)?' placed':''}${sel==c.id?' sel':''}" data-id="${c.id}" style="${busy?'pointer-events:none':''}"><span class="up">⚔${c.p}</span><div class="ui">${TI[c.t]}</div><div class="un">${tx(c.name)}</div></div>`).join('');
+ $('cards').querySelectorAll('.ucard').forEach(el=>el.addEventListener('pointerdown',e=>{e.preventDefault();au();drag={id:el.dataset.id,from:'tray',sx:e.clientX,sy:e.clientY,moved:false}}));
+ const f=$('fight');f.textContent=busy?L('fighting'):L('fight');f.disabled=busy||!valid();$('hintB').disabled=busy;
+ tutCheck();if(!busy)log(valid()?L('ready'):!B.P.every(c=>dep.includes(c.id))?(dep.some(Boolean)?L('needAll'):L('howto')):L('needFront'))}
+function place(id,s){const prev=dep.indexOf(id);if(prev==s)return;const occ=dep[s];if(prev>=0)dep[prev]=occ;dep[s]=id;sfx('place');buildVU();const p=slotPos(s,'P');dust(p.x,p.y,8);if(!loopOn)draw()}
+function cpos(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+cv.addEventListener('pointerdown',e=>{if(scr!='deploy')return;e.preventDefault();au();const [px,py]=cpos(e),s=slotAt(px,py);
+ if(s==null){if(sel){sel=null;renderTray()}return}
+ if(sel&&sel!==dep[s]){place(sel,s);sel=null;renderTray();return}
+ if(dep[s])drag={id:dep[s],from:s,sx:e.clientX,sy:e.clientY,moved:false}});
+addEventListener('pointermove',e=>{if(!drag)return;if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>8){drag.moved=true;sel=null;const c=B.P.find(c=>c.id==drag.id);$('ghost').textContent=TI[c.t];$('ghost').style.display='block'}
+ if(drag.moved){const g=$('ghost');g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'}});
+addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;$('ghost').style.display='none';if(scr!='deploy')return;
+ if(d.moved){const [px,py]=cpos(e),s=slotAt(px,py);if(s!=null)place(d.id,s);else if(d.from!=='tray'){dep[d.from]=null;buildVU();sfx('click')}}
+ else if(d.from==='tray'){sel=sel==d.id?null:d.id;sfx('click')}
+ else{if(sel==d.id){dep[d.from]=null;sel=null;buildVU();sfx('click')}else{sel=d.id;sfx('click')}}
+ renderTray();if(!loopOn)draw()});
+addEventListener('pointercancel',()=>{drag=null;$('ghost').style.display='none'});
+$('fight').onclick=e=>{e.stopPropagation();fight()};
+$('hintB').onclick=e=>{e.stopPropagation();if(!B)return;sfx('click');popup(`<h2>${L('hintT')}</h2><p style="font-size:17px">${tx(B.hint)}</p>`)};
+let popAt=0;function popup(h){const p=$('pop');p.innerHTML=`<div class="panel">${h}<div class="cont">${L('tapAny')}</div></div>`;p.className='on';popAt=now()+200}
+function popClose(){if(now()<popAt)return;$('pop').className='';$('pop').innerHTML='';sfx('click')}
+$('pop').addEventListener('click',popClose);
+function showMatch(k){const rows=MATCH[k||(B&&B.naval?'sea':'land')];popup(`<h2>${L('matchT')}</h2>${rows.map(r=>`<div class="mrow"><span class="mi">${r[0]}</span><span><b>${tx(r[1])}</b><br>${tx(r[2])}</span></div>`).join('')}<p class="sub" style="font-size:14px">${L('matchFoot')}</p>`)}
+function showGlos(){popup(`<h2>${L('glosT')}</h2>${GLOS.map(g=>`<div class="gl"><span class="ge">${g[0]}</span><span><b>${tx(g[1])}</b><br>${tx(g[2])}</span></div>`).join('')}`)}
+$('legend').onclick=e=>{e.stopPropagation();sfx('click');showMatch()};
+$('glosB').onclick=e=>{e.stopPropagation();au();sfx('click');showGlos()};
+// --- tutorial
+let tutStep=-1;
+function tutEnd(skip){if(skip)tutRun=false;tutStep=-1;localStorage.setItem('g31tut','1');$('tutA').style.display=$('tutB').style.display='none'}
+function tutCheck(){if(tutStep<0)return;while(tutStep<TUTS.length&&TUTS[tutStep].ok())tutStep++;if(tutStep>=TUTS.length){tutEnd();return}const b=$('tutB');b.innerHTML=`${tx(TUTS[tutStep].t)}<button class="btn" id="tutS">${L('tutSkip')}</button>`;$('tutS').onclick=e=>{e.stopPropagation();sfx('click');tutEnd(1)}}
+function tutPos(){const a=$('tutA'),b=$('tutB');if(tutStep<0||scr!='deploy'||$('ov').className!='hide'||$('pop').className=='on'){a.style.display=b.style.display='none';return}
+ const st=TUTS[tutStep];let tx2,ty2;if(st.card){const el=document.querySelector(`.ucard[data-id="${st.card}"]`);if(!el)return;const r=el.getBoundingClientRect();tx2=r.left+r.width/2;ty2=r.top+4}else if(st.btn){const r=$(st.btn).getBoundingClientRect();tx2=r.left+r.width/2;ty2=r.top+2}else{const p=slotPos(st.slot,'P');tx2=p.x;ty2=50+p.y-slotH()/2+18}
+ a.style.display=b.style.display='block';a.style.left=tx2+'px';a.style.top=ty2+'px';const bw=Math.min(300,W-20);b.style.width=bw+'px';b.style.left=Math.max(10,Math.min(W-bw-10,tx2-bw/2))+'px';b.style.top=Math.max(56,ty2-48-b.offsetHeight)+'px'}
+// --- battle
+function fight(){if(scr!='deploy'||!valid())return;au();scr='strat';sel=null;renderTray();tutCheck();showStrat()}
+function showStrat(){scr='strat';stratSel=stratSel.filter(k=>B.strat.includes(k)).slice(0,B.ns);curRender=rStrat;rStrat()}
+function rStrat(){const n=B.ns,ok=stratSel.length==n;let h=`<div class="panel nocont"><h2>${L('stratT')}</h2><p class="sub" style="font-size:14px">${L('stratSub').replace('{n}',n)} · ${L('ji')} ${tx(GEN[gsel].n)} ${bar(GEN[gsel].ji,'■')}</p>${tutRun?`<div class="tutbox">${tx(TUTX.strat)}</div>`:''}`+
+ B.strat.map(k=>{const st=STRAT[k];return `<button class="btn scard${stratSel.includes(k)?' on':''}" data-s="${k}"><span class="se">${st.e}</span><span><b>${tx(st.n)}</b><br>${tx(st.d)}</span></button>`}).join('')+
+ `<div class="row"><button class="btn" id="stH">💡</button><button class="btn red" id="stGo" ${ok?'':'disabled'}>${ok?L('stratGo'):L('stratNeed').replace('{n}',n)}</button></div></div>`;
+ ov(h,()=>{if(stratSel.length==B.ns)showDuel()},400,1);
+ $('ov').querySelectorAll('[data-s]').forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.s;sfx('click');if(stratSel.includes(k))stratSel=stratSel.filter(q=>q!=k);else{stratSel.push(k);if(stratSel.length>B.ns)stratSel.shift()}rStrat();contAt=now()+250});
+ $('stGo').onclick=e=>{e.stopPropagation();if(stratSel.length==B.ns){sfx('click');showDuel()}};$('stH').onclick=e=>{e.stopPropagation();sfx('click');popup(`<h2>${L('hintT')}</h2><p style="font-size:17px">${tx(B.hint)}</p>`)}}
+// --- duel
+function showDuel(){scr='duel';const g=GEN[gsel];DU={ph:Math.max(2,g.mu),eh:Math.max(2,B.duelE.mu),r:0,lock:0,tele:0,em:0,res:'',anim:0,hitW:0,over:0};DU.p0=DU.ph;DU.e0=DU.eh;sfx('gong');newRound();curRender=rDuel}
+function newRound(){DU.r++;DU.em=Math.random()*3|0;DU.tele=Math.random()<B.acc?DU.em:(DU.em+1+(Math.random()*2|0))%3;DU.lock=0;rDuel()}
+function rDuel(){const g=GEN[gsel],e=B.duelE,hp=(n,m)=>'❤️'.repeat(n)+'🤍'.repeat(Math.max(0,m-n));
+ let h=`<div class="panel nocont" style="max-height:66%;padding:10px 12px"><div class="hearts"><span>${g.f} ${tx(g.n)}<br>${hp(DU.ph,DU.p0)}</span><span style="text-align:right">${tx(e.n)} ${e.f}<br>${hp(DU.eh,DU.e0)}</span></div>`;
+ if(DU.over){h+=`<h2>${DU.over>0?L('dWin'):DU.over<0?L('dLose'):L('dDraw')}</h2><div class="row"><button class="btn red" id="duGo">${L('fight')}</button></div><div class="cont">${L('contN')}</div></div>`;ov(h,startFight,600,0);$('ov').className='low';$('duGo').onclick=e=>{e.stopPropagation();sfx('click');startFight()};return}
+ h+=`<div class="tele">${e.f} ${L('tele')[DU.tele]}</div><div class="dmv">${[0,1,2].map(i=>`<button class="btn" data-m="${i}" ${DU.lock?'disabled':''}>${L('mv')[i]}</button>`).join('')}</div><div class="dres">${DU.res}</div>${tutRun?`<div class="tutbox">${tx(TUTX.duel)}</div>`:`<p class="sub" style="font-size:14px;margin:4px 0">${L('duelHow')}</p>`}<div class="row" style="margin-top:4px"><button class="btn" id="duM">🎯 ${L('duelRule')}</button><button class="btn" id="duS">${L('skip')}</button></div></div>`;
+ ov(h,null,0,0);$('ov').className='low';
+ $('ov').querySelectorAll('[data-m]').forEach(b=>b.onclick=e=>{e.stopPropagation();duelMove(+b.dataset.m)});$('duM').onclick=e=>{e.stopPropagation();sfx('click');showMatch('duel')};$('duS').onclick=e=>{e.stopPropagation();sfx('click');duelRes=0;startFight()}}
+addEventListener('keydown',e=>{if(scr=='duel'&&DU&&!DU.over&&$('pop').className!='on'){const k={'1':0,'2':1,'3':2}[e.key];if(k!=null)duelMove(k)}});
+function duelMove(m){if(!DU||DU.lock||DU.over)return;DU.lock=1;const em=DU.em;let w=0;if((m+1)%3==em)w=1;else if((em+1)%3==m)w=-1;
+ if(w>0){DU.eh--;DU.res=`${L('dHit')} ${L('dWhy')[m]}`;sfx('hit')}else if(w<0){DU.ph--;DU.res=`${L('dOuch')} ${L('dWhy')[em]}`;sfx('hit')}else{DU.res=`${L('dTie')} ${L('mv')[m]} = ${L('mv')[em]}`;sfx('clang')}
+ DU.anim=1;DU.hitW=w;DU.pm=m;DU.emv=em;DU.at=0;shake=w?6:3;rDuel();
+ setTimeout(()=>{if(scr!='duel')return;DU.anim=0;if(DU.eh<=0||DU.ph<=0||DU.r>=7){DU.over=DU.eh<=0?1:DU.ph<=0?-1:Math.sign(DU.ph/DU.p0-DU.eh/DU.e0);if(!DU.over&&DU.eh!=DU.ph)DU.over=0;duelRes=DU.over;sfx(DU.over>0?'win':DU.over<0?'lose':'gong');if(tutRun){tutRun=false}rDuel()}else newRound()},1150)}
+function drawDuel(){const cy=Math.min(FH*.42,(CH-330)*.5),s=Math.min(1.5,SC*1.1);x.fillStyle='rgba(245,238,220,.72)';x.fillRect(0,cy-90*s,W,180*s);
+ x.strokeStyle='rgba(30,30,30,.5)';x.lineWidth=3;x.beginPath();x.moveTo(0,cy-90*s);x.lineTo(W,cy-90*s);x.moveTo(0,cy+90*s);x.lineTo(W,cy+90*s);x.stroke();
+ const at=DU&&DU.anim?Math.min(1,(DU.at||0)/.35):0,lunge=Math.sin(at*Math.PI)*40*s;
+ const fig=(px,py,f,side,dir,lbl,hurt)=>{const C=TEAM[side];x.save();x.translate(px+(hurt?rnd(-3,3):0),py);
+  x.fillStyle='rgba(30,30,30,.18)';x.beginPath();x.ellipse(0,46*s,46*s,9*s,0,0,TAU);x.fill();
+  x.fillStyle='#2b2723';x.beginPath();x.ellipse(0,22*s,34*s,15*s,0,0,TAU);x.fill();x.beginPath();x.ellipse(dir*34*s,8*s,10*s,8*s,dir*.5,0,TAU);x.fill();
+  x.strokeStyle='#2b2723';x.lineWidth=5*s;x.lineCap='round';for(const lx of[-22,-10,12,24]){x.beginPath();x.moveTo(lx*s,30*s);x.lineTo((lx+Math.sin(TM*6+lx)*3)*s,48*s);x.stroke()}
+  x.fillStyle=C.c;x.beginPath();x.moveTo(-8*s*dir,-34*s);x.lineTo(-8*s*dir,-70*s);x.lineTo(-30*s*dir,-64*s);x.lineTo(-8*s*dir,-56*s);x.fill();x.fillStyle='#fbf5e6';x.font=`bold ${11*s}px serif`;x.textAlign='center';x.fillText(lbl,-17*s*dir,-59*s);
+  x.fillStyle=C.m;x.beginPath();x.ellipse(0,-6*s,15*s,20*s,0,0,TAU);x.fill();x.strokeStyle='#1a1a1a';x.lineWidth=2;x.stroke();
+  x.strokeStyle='#1a1a1a';x.lineWidth=3*s;x.beginPath();x.moveTo(-6*s*dir,10*s);x.lineTo(dir*44*s,-34*s);x.stroke();x.fillStyle='#aaa';x.beginPath();x.moveTo(dir*44*s,-34*s);x.lineTo(dir*54*s,-46*s);x.lineTo(dir*40*s,-40*s);x.fill();
+  x.font=`${34*s}px system-ui`;x.textAlign='center';x.textBaseline='middle';x.fillText(f,0,-34*s);x.textBaseline='alphabetic';x.restore()};
+ const pl=GEN[gsel],e=B.duelE;fig(W/2-75*s+lunge,cy+10*s,pl.f,'P',1,B.pc,DU&&DU.anim&&DU.hitW<0);fig(W/2+75*s-lunge,cy-6*s,e.f,'E',-1,B.ec,DU&&DU.anim&&DU.hitW>0);
+ if(DU&&DU.anim&&at>.4){x.font=`bold ${26*s}px system-ui`;x.textAlign='center';x.fillStyle=DU.hitW>0?'#b22218':DU.hitW<0?'#333':'#7a5a00';x.fillText(DU.hitW?(lang=='ko'?'뿡!':'TOOT!'):'⚔️ 쨍!',W/2,cy-50*s);
+  x.font=`${24*s}px system-ui`;x.fillText(L('mv')[DU.pm].split(' ')[0],W/2-40*s,cy+60*s);x.fillText(L('mv')[DU.emv].split(' ')[0],W/2+40*s,cy+60*s)}
+ x.font=`bold ${15*s}px serif`;x.textAlign='center';x.fillStyle='#1f1f1f';x.fillText(L('duelT')+(DU&&!DU.over?` · ${DU.r}/7`:''),W/2,cy-72*s)}
+function startFight(){if(scr!='duel')return;ovHide();au();scr='fight';tutRun=false;S=newSim(B,dep,stratSel,duelRes,GEN[gsel].ji);for(const v of VU){v.u=S.units.find(u=>u.side==v.side&&u.id==v.card.id);v.burn=0}ph='march';ft=0;simAcc=0;evI=0;keyShown=0;resShown=0;tScale=1;slowT=0;intense=1;sel=null;parts=[];
+ sfx('horn');renderTray();log(L('march'));banner(duelRes>0?L('dWin'):L('march'),duelRes>0?'key':'')}
+function stratVis(k){const es=VU.filter(v=>v.side=='E'&&!v.routed&&!v.gone2),ps=VU.filter(v=>v.side=='P'&&!v.routed);
+ if(k=='fire'){sfx('fire');for(const v of es)v.burn=TM+2.6;for(let i=0;i<40;i++)P({k:'flame',x:rnd(0,W),y:rnd(FH*.05,MID),vx:rnd(-8,8),vy:rnd(-30,-12),l:0,L:rnd(.8,1.8)});shake=7}
+ else if(k=='raid'){sfx('fire');for(let i=0;i<30;i++)P({k:'flame',x:W-34+rnd(-24,24),y:FH*.08+rnd(-8,16),vx:rnd(-6,6),vy:rnd(-30,-10),l:0,L:rnd(1,2.2)});for(let i=0;i<12;i++)P({k:'smoke',x:W-34+rnd(-20,20),y:FH*.06,vx:rnd(-10,0),vy:rnd(-20,-8),l:0,L:rnd(1.5,2.5)});for(const v of es)P({k:'txt',x:v.x,y:v.y-20,vx:0,vy:-14,t:'😩🍚',s:18,l:0,L:1.6})}
+ else if(k=='bluff'){for(let i=0;i<40;i++)dust(rnd(0,W),rnd(FH*.72,FH),1);for(const v of es)P({k:'txt',x:v.x,y:v.y-24,vx:0,vy:-10,t:'😱‼',s:20,l:0,L:2})}
+ else if(k=='ambush'){for(const v of ps)if(v.slot>=3)P({k:'txt',x:v.x,y:v.y-20,vx:0,vy:-18,t:'🌲💥',s:20,l:0,L:1.4})}
+ else if(k=='wall'){for(const v of ps)P({k:'txt',x:v.x,y:v.y-26,vx:0,vy:-8,t:'🧱🛡️',s:18,l:0,L:2.2})}
+ else if(k=='drums'){sfx('gong');for(let i=0;i<4;i++)P({k:'txt',x:rnd(30,W-30),y:FH*.85,vx:0,vy:-25,t:'🥁 '+(lang=='ko'?'둥둥!':'BOOM!'),s:18,l:0,L:2})}}
+function vOf(u){return VU.find(v=>v.u===u)}
+function handleEv(){for(;evI<S.ev.length;evI++){const e=S.ev[evI];
+ if(e.k=='rout'){const v=vOf(e.u);if(v&&!v.routed)routV(v);if(!e.mass)log(e.u.side=='E'?L('routE'):L('routP'))}
+ else if(e.k=='flank'){const t=e.u.side=='P'?L('flankP'):L('flankE');log(t);banner(t)}
+ else if(e.k=='enter'&&e.u.side=='P')log(L('resIn'));
+ else if(e.k=='evt'){banner(tx(B.evMsg));log(tx(B.evMsg))}
+ else if(e.k=='strat'){const st=STRAT[e.s],t=`${st.e} ${L('stratOn')} ${tx(st.n)}`;banner(t,'key');log(t);stratVis(e.s)}
+ else if(e.k=='end'){banner(e.w?L('win'):L('lose'),e.w?'key':'');sfx(e.w?'win':'lose');intense=0;if(e.w)for(let i=0;i<70;i++)P({k:'conf',x:rnd(0,W),y:rnd(-60,0),vx:rnd(-25,25),vy:rnd(60,140),l:0,L:rnd(2,3.4),c:['#b22218','#f2c94c','#fff','#222'][i%4]})}}}
+function updFight(dt){ft+=dt;if(slowT>0){slowT-=dt;if(slowT<=0)tScale=1}
+ if(ph=='march'&&ft>1.15)ph='sim';
+ if(ph=='sim'){simAcc+=dt*.72*tScale;while(simAcc>=1/30&&!S.over){step(S,1/30);simAcc-=1/30}handleEv();
+  if(!keyShown&&B.km(S)){keyShown=1;banner(L('keyT')+' '+tx(B.keyMsg),'key');log(tx(B.keyMsg));sfx('key');tScale=.4;slowT=1.1;shake=8}
+  if(S.over){ph='end';endT=0}}
+ if(ph=='end'){endT+=dt;if(endT>2&&!resShown){resShown=1;showResult()}}
+ for(const v of VU)if(v.burn>TM&&!v.routed&&!v.gone2&&Math.random()<dt*14)P({k:'flame',x:v.x+rnd(-slotW()/2.4,slotW()/2.4),y:v.y+rnd(-v.fh/2,v.fh/2),vx:rnd(-5,5),vy:rnd(-30,-15),l:0,L:rnd(.6,1.2)});
+ for(const v of VU){if(v.routed||!v.u)continue;const u=v.u,s=v.side=='P'?1:-1;if(u.st=='rout'){routV(v);continue}
+  let tx2=v.hx,ty2=v.hy;
+  if(u.st=='gone'){tx2=v.x;ty2=-160}
+  else if(u.st=='fight'){if(u.flank){const dir=Math.sign(v.lastLane-u.lane)||1;tx2=laneX(u.lane)+dir*slotW()*.42;ty2=MID+s*6}
+   else{v.lastLane=u.lane;const same=VU.filter(o=>o.side==v.side&&!o.routed&&o.u&&o.u.st=='fight'&&!o.u.flank&&o.u.lane==u.lane);const k=Math.max(0,same.indexOf(v));let off=5*SC;for(let j=0;j<k;j++)off+=same[j].fh+8;tx2=laneX(u.lane);ty2=MID+s*(off+v.fh/2+((v.card.t=='arc'||v.card.t=='fire')&&k==0?10:0))}}
+  else if(u.st=='free'){tx2=v.x;ty2=v.y}
+  const sp=(v.card.t=='cav'||v.card.t=='lib')?3.2:2.2,r=1-Math.exp(-dt*sp);v.x+=(tx2-v.x)*r;v.y+=(ty2-v.y)*r;
+  if(u.st=='gone'&&v.y<-70)v.gone2=1;
+  if(ph!='march'){const want=u.hp<=0?0:Math.max(1,Math.ceil(v.n*u.hp/u.max));while(v.shown>want){v.shown--;fallen(v)}}
+  if(u.st=='fight'&&ph=='sim'){const opp=VU.filter(o=>o.side!=v.side&&!o.routed&&o.u&&o.u.st=='fight'&&o.u.lane==u.lane);if(opp.length){const fx=v.x+rnd(-slotW()/3,slotW()/3),fy=v.y-s*v.fh/2;
+   if(Math.random()<dt*6)P({k:'spark',x:fx,y:fy,vx:rnd(-90,90),vy:rnd(-90,90),l:0,L:.25});if(Math.random()<dt*3)dust(fx,fy,1,B.naval?'rgba(255,255,255,':null);
+   if(TM-clangT>.14){clangT=TM;sfx('clang')}
+   if(v.card.t=='arc'||v.card.t=='fire'||v.card.t=='heavy'&&B.naval){v.at-=dt;if(v.at<0){v.at=v.card.t=='heavy'?.6:.28;const o=opp[Math.random()*opp.length|0];P({k:'arrow',x0:v.x+rnd(-15,15),y0:v.y,x1:o.x+rnd(-20,20),y1:o.y+rnd(-8,8),x:v.x,y:v.y,h:rnd(18,34),l:0,L:.55,fire:v.card.t=='fire'})}}}}}}
+function tugBars(){for(let l=0;l<3;l++){let p=0,e=0;for(const u of S.units){if(u.st!='fight'||u.lane!=l)continue;if(u.side=='P')p+=u.hp;else e+=u.hp}if(!p||!e)continue;const w=Math.min(64,slotW()*.6),bx=laneX(l)-w/2,by=MID-3;x.fillStyle='rgba(0,0,0,.45)';rr(bx-2,by-2,w+4,9,4);x.fill();x.fillStyle=TEAM.E.m;x.fillRect(bx,by,w,5);x.fillStyle=TEAM.P.m;x.fillRect(bx,by,w*p/(p+e),5)}}
+// --- result & quiz
+function showResult(){scr='result';intense=0;const w=S.win,st=w?stars(S):0;RES={w,st,show:[],nw:[]};
+ if(w){if(st>prog[bi])prog[bi]=st;const gs=B.unlock.slice();if(st==3)gs.push(B.bonus);for(const g of gs){RES.show.push(g);if(!dex.includes(g)){dex.push(g);RES.nw.push(g)}}save();for(let i=0;i<st;i++)setTimeout(()=>sfx('star'),350+i*300)}
+ RES.why=w?[]:whyLost();curRender=rResult;rResult()}
+function whyLost(){const r=[];for(let i=0;i<3;i++){const c=B.P.find(c=>c.id==dep[i]),e=B.E[i];if(c&&e&&mult(c,e)<1)r.push(`<b>${L('lanes')[i]}</b>: ${tx(WEAK[cls(c.t)])}`)}
+ if(S.ev.some(e=>e.k=='flank'&&e.u.side=='E'))r.push(L('whyFlank'));if(S.duel<0)r.push(L('whyDuel'));if(!S.key)r.push(L('whyStrat'));if(!r.length)r.push(L('whyStrong'));return r.slice(0,4)}
+function rResult(){const r=RES;let h;
+ if(r.w){h=`<div class="panel"><h2>${L('win')}</h2><div class="stars">${[0,1,2].map(i=>`<span class="${i<r.st?'':'off'}" style="animation-delay:${.3+i*.3}s">★</span>`).join('')}</div>`+
+  (r.st==3?`<div class="hist"><b>${L('keyT')}</b><p>${tx(B.keyMsg)}</p></div>`:`<div class="hist"><b>${L('keyMiss')}</b><p>${tx(B.hint)}</p></div>`)+
+  `<div class="sub" style="margin-top:6px">${L('newGen')}</div>`+r.show.map(g=>gcard(g,r.nw.includes(g))).join('')+`<div class="cont">${L('contN')}</div></div>`;ov(h,showReal,500,1)}
+ else{h=`<div class="panel"><h2>${L('lose')}</h2><h2 style="font-size:17px">${L('whyT')}</h2>${r.why.map(t=>`<div class="why">${t}</div>`).join('')}<div class="hist"><b>${L('hintT')}</b><p>${tx(B.hint)}</p></div><div class="row"><button class="btn" id="smB">${L('seeMatch')}</button><button class="btn red" id="rdB">${L('retry').split('→').pop().trim()}</button></div></div>`;ov(h,()=>toDeploy(),450,1);$('smB').onclick=e=>{e.stopPropagation();sfx('click');showMatch()};$('rdB').onclick=e=>{e.stopPropagation();sfx('click');toDeploy()}}}
+function showReal(){scr='real';curRender=rReal;rReal()}
+function rReal(){ov(`<div class="panel"><h2>${L('realT')}</h2><div class="pic" style="font-size:36px">${B.real.p}</div><div class="stx">${tx(B.real.t)}</div><div class="novel"><b>${L('novelT')}</b><br>${tx(B.novel)}</div><div class="row"><button class="btn red" id="qzB">${L('toQuiz').split('→').pop().trim()}</button></div></div>`,startQuiz,400,1);$('qzB').onclick=e=>{e.stopPropagation();sfx('click');startQuiz()}}
+function startQuiz(){scr='quiz';const n=bi==0?2:3;QZ=shuffle(B.quiz.slice()).slice(0,n).map(q=>({q:q.q,opts:shuffle(q.a.map((o,i)=>({o,ok:i==0})))}));qi=0;qok=0;renderQ()}
+function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><h2 style="font-size:18px">${tx(q.q)}</h2><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
+ $('ov').querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();answer(+b.dataset.q)})}
+function answer(i){if(qAns>=0)return;qAns=i;const q=QZ[qi],ok=q.opts[i].ok,bs=$('ov').querySelectorAll('[data-q]');q.opts.forEach((o,j)=>{if(o.ok)bs[j].classList.add('ok');else if(j==i)bs[j].classList.add('no');bs[j].disabled=true;bs[j].style.opacity=1});
+ const cor=q.opts.find(o=>o.ok);$('fb').innerHTML=ok?`<span style="color:#2e7d22">${L('right')}</span>`:`<span style="color:#a32">${L('wrong')}</span> <span style="font-size:16px">${tx(cor.o)}</span>`;
+ sfx(ok?'right':'wrong');if(ok)qok++;setTimeout(()=>{qi++;if(qi<QZ.length)renderQ();else quizDone()},ok?1100:2200)}
+function quizDone(){scr='done';curRender=rDone;sfx('win');rDone()}
+function rDone(){const last=bi>=4;let h=`<div class="panel"><h2>${last?L('allDone'):L('qDone')}</h2><p style="text-align:center;font-size:17px">${L('score')}: <b>${qok} / ${QZ.length}</b></p>`+(last?`<p class="sub">${L('dex')} ${dex.length}/${GORDER.length}</p>`:'')+
+ `<div class="row">${last?'':`<button class="btn red" id="dnN">${L('next')}</button>`}<button class="btn" id="dnA">${L('again')}</button><button class="btn" id="dnM">${L('map')}</button></div><div class="cont">${L('contN')}</div></div>`;
+ ov(h,()=>last?showMenu():startBattle(bi+1),500,1);if(!last)$('dnN').onclick=()=>{sfx('click');startBattle(bi+1)};$('dnA').onclick=()=>{sfx('click');startBattle(bi)};$('dnM').onclick=()=>{sfx('click');showMenu()}}
+// --- draw
+function drawSlots(){const w=slotW(),h=slotH(),hl=sel||(drag&&drag.moved);
+ x.fillStyle='rgba(178,34,24,.05)';x.fillRect(0,MID,W,FH-MID);x.fillStyle='rgba(30,30,30,.05)';x.fillRect(0,0,W,MID);
+ x.setLineDash([6,5]);x.strokeStyle='rgba(90,50,20,.45)';x.lineWidth=1.5;x.beginPath();x.moveTo(GX+6,MID);x.lineTo(GX+GW-6,MID);x.stroke();
+ for(let s=0;s<6;s++){const p=slotPos(s,'P');x.fillStyle=dep[s]?'rgba(255,248,225,.25)':'rgba(255,248,225,.45)';rr(p.x-w/2,p.y-h/2,w,h,9);x.fill();x.strokeStyle=hl?'#e0a800':'rgba(30,30,30,.6)';x.lineWidth=hl?2.5:1.5;x.stroke();
+  x.fillStyle='rgba(30,30,30,.8)';x.font='bold 10px system-ui';x.textAlign='left';x.fillText(s<3?L('lanes')[s]:L('res'),p.x-w/2+6,p.y-h/2+12);
+  if(!dep[s]){x.fillStyle='rgba(30,30,30,.35)';x.font='bold 22px system-ui';x.textAlign='center';x.fillText('+',p.x,p.y+8)}}
+ x.setLineDash([])}
+function drawLabels(){const c=sel?B.P.find(c=>c.id==sel):drag&&drag.moved?B.P.find(c=>c.id==drag.id):null;
+ for(const v of VU){const nm=`${TI[v.card.t]} ${tx(v.card.name)} ⚔${v.card.p}`;if(v.side=='E'){pill(v.x,v.y-v.fh/2-12*SC-(NAV[v.card.t]?0:6),(v.slot==3?(lang=='ko'?'예비 · ':'Rsv · '):'')+nm,'rgba(30,30,30,.85)','#fff')}else pill(v.x,v.y+slotH()/2-9,nm,'rgba(160,30,20,.9)','#fff',9.5)}
+ if(c)for(let i=0;i<3;i++){const e=B.E[i];if(!e)continue;const m=mult(c,e);if(m==1)continue;const p=slotPos(i,'E'),v=VU.find(v=>v.side=='E'&&v.slot==i);pill(p.x,p.y+(v?v.fh/2:20)+14,m>1?L('good'):L('bad'),m>1?'rgba(40,130,40,.92)':'rgba(170,40,30,.92)','#fff',11)}}
+function waves(){x.strokeStyle='rgba(40,60,70,.25)';x.lineWidth=1.2;for(let i=0;i<40;i++){const px=((i*97)%W+TM*12)%W,py=(i*53)%FH;x.beginPath();x.arc(px,py,6,Math.PI*1.1,Math.PI*1.9);x.stroke()}}
+function drawIntro(){const k=Math.min(1,introT/1.6),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,m=menuView(),d0=W/m.s,lerp=(a,b)=>a+(b-a)*e;const v=mview(lerp(m.lon,B.lon),lerp(m.lat,B.lat),lerp(d0,7),CH*.3);drawMap(v);
+ const p=pj(v,B.lon,B.lat);if(introT>1.5){const t=introT-1.5,c=Math.min(1,t/.6),s=SC;
+  for(const [side,dir] of [['P',-1],['E',1]]){const px=p[0]+dir*(70-50*c),py=p[1]+dir*-(30-20*c);for(let i=0;i<6;i++)drawSoldier(px+(i%3-1)*9*s,py+((i/3|0)-.5)*9*s,'inf',side,i,0);drawStd(px,py+12*s,side,side=='P'?B.pc:B.ec)}
+  x.font='26px system-ui';x.textAlign='center';x.globalAlpha=c;x.fillText('⚔️',p[0],p[1]-14);x.globalAlpha=1;marker(p[0],p[1]+16,B.num,1,introT,0)}
+ else marker(p[0],p[1]-(1-k)*30,B.num,1,0,0);
+ x.fillStyle='rgba(251,247,234,.94)';rr(W/2-140,10,280,30,10);x.fill();x.strokeStyle='#2b2b2b';x.lineWidth=1.5;x.stroke();x.fillStyle='#1f1f1f';x.font='bold 15px serif';x.textAlign='center';x.fillText(`${tx(B.name)} · ${tx(B.year)}`,W/2,30)}
+function draw(){x.setTransform(D,0,0,D,0,0);
+ if(scr=='boot'||scr=='menu'||scr=='dex'||!B){drawMenuMap();return}
+ if(scr=='intro'){drawIntro();return}
+ x.save();if(shake>0)x.translate(rnd(-shake,shake),rnd(-shake,shake));x.drawImage(fieldBG(),0,0,W,FH);
+ if(B.naval)waves();if(scr=='deploy')drawSlots();
+ drawChains();for(const v of VU.slice().sort((a,b)=>a.y-b.y))drawV(v);drawParts();if(scr=='duel')drawDuel();if(scr=='fight'&&ph=='sim')tugBars();if(scr=='deploy')drawLabels();x.restore()}
+function upd(dt){shake=Math.max(0,shake-dt*22);updParts(dt);if(scr=='intro')introT+=dt;if(scr=='duel'&&DU&&DU.anim)DU.at=(DU.at||0)+dt;if(scr=='fight')updFight(dt)}
+function startLoop(){if(loopOn)return;loopOn=true;lastF=now();requestAnimationFrame(loop)}
+function loop(t){const dt=Math.min(.05,Math.max(0,(t-lastF)/1000));lastF=t;TM+=dt;try{upd(dt);draw();tutPos()}catch(e){console.error(e)}requestAnimationFrame(loop)}
+rs();setMute();setLang();curRender=rBoot;rBoot();draw();
+</script></body></html>
