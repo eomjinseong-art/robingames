@@ -160,12 +160,12 @@ function unlock(id){const d=get();if(!C[id]||d.includes(id))return false;d.push(
 function card(id,lang){const c=C[id],e=lang=='en';return c&&{id,name:e?c[1]:c[0],ability:e?c[3]:c[2],symbol:c[4],family:e?c[6]:c[5],story:e?c[8]:c[7],link:c[9]?LINK+c[9]:''}}
 const css=`.myo{position:fixed;inset:0;z-index:50;background:#0b1030f7;color:#fff;overflow:auto;font-family:inherit;padding:60px 14px 40px;-webkit-user-select:none}
 .myo h2{text-align:center;color:#ffd76f;margin:8px 0}.myo .x{position:fixed;top:12px;right:12px;width:42px;height:42px;border-radius:14px;border:2px solid #ffd76f;background:#1b1d4a;color:#fff;font-size:20px}
-.myg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-width:760px;margin:auto}
-.myc{background:linear-gradient(160deg,#2a2f7a,#171a45);border:2px solid #ffd76f88;border-radius:14px;padding:10px;font-size:12px;line-height:1.4}.myc b{font-size:15px;color:#ffe9a8}.myc.l{opacity:.35;text-align:center;font-size:28px}
+.myg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;max-width:760px;margin:auto}
+.myc{background:linear-gradient(160deg,#2a2f7a,#171a45);border:2px solid #ffd76f88;border-radius:14px;padding:10px;font-size:15px;line-height:1.5;color:#f4f2ff}.myc b{font-size:16px;color:#ffe9a8}.myc.l{opacity:.35;text-align:center;font-size:28px}
 .myc a{color:#8fd8ff}.myt{max-width:760px;margin:10px auto;text-align:center}.myt div{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:4px 0}
-.myt span{padding:4px 8px;border-radius:10px;background:#2a2f7a;border:1px solid #ffd76f88;font-size:12px}.myt span.l{opacity:.35}.myt i{display:block;font-style:normal;opacity:.6}
+.myt span{padding:4px 8px;border-radius:10px;background:#2a2f7a;border:1px solid #ffd76f88;font-size:14.5px}.myt span.l{opacity:.35}.myt i{display:block;font-style:normal;opacity:.8}
 .myq{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:#0008}.myq .b{background:#1b1d4a;border:3px solid #ffd76f;border-radius:18px;padding:16px;width:min(92vw,360px);text-align:center}
-.myq button{display:block;width:100%;margin:7px 0;padding:11px;border-radius:12px;border:2px solid #ffd76f88;background:#2a2f7a;color:#fff;font:inherit;font-size:16px}.myq button:disabled{opacity:1;color:#fff}`;
+.myq button{display:block;width:100%;margin:7px 0;padding:11px;border-radius:12px;border:2px solid #ffd76f88;background:#2a2f7a;color:#fff;font:inherit;font-size:17px;line-height:1.35}.myq button:disabled{opacity:1;color:#fff}`;
 function style(){if(!document.getElementById('myocss')){const s=document.createElement('style');s.id='myocss';s.textContent=css;document.head.appendChild(s)}}
 function openDex(lang){style();const e=lang=='en',d=get(),o=document.createElement('div');o.className='myo';
 const stop=ev=>ev.stopPropagation();o.addEventListener('pointerdown',stop);
@@ -174,7 +174,7 @@ h+=`<div class="myt"><b>${e?'Olympus Family Tree':'올림포스 가계도'}</b>`
 for(const id in C){if(d.includes(id)){const c=card(id,lang);h+=`<div class="myc"><b>${c.symbol.split(' ')[0]} ${c.name}</b><br>✨ ${c.ability}<br>🔖 ${c.symbol}<br>👪 ${c.family}<br>📜 ${c.story}${c.link?`<br><a href="${c.link}" target="_blank" rel="noopener">${e?'More at 나두신화 →':'나두신화에서 더 보기 →'}</a>`:''}</div>`}else h+='<div class="myc l">❔</div>'}
 o.innerHTML=h+'</div>';o.querySelector('.x').onclick=()=>o.remove();document.body.appendChild(o)}
 function quiz(lang,cb){style();const e=lang=='en',q=Q[Math.random()*Q.length|0],ord=[0,1,2].sort(()=>Math.random()-.5),A=e?q[3]:q[2],o=document.createElement('div');o.className='myq';
-o.innerHTML=`<div class="b"><b>⚡ ${e?'Myth quiz!':'신화 퀴즈!'}</b><p style="margin:8px 0;font-size:17px">${e?q[1]:q[0]}</p>${ord.map((i,n)=>`<button data-i="${i}">${n+1}. ${A[i]}</button>`).join('')}<div class="fb" style="min-height:22px;margin-top:6px;font-weight:bold"></div></div>`;
+o.innerHTML=`<div class="b"><b>⚡ ${e?'Myth quiz!':'신화 퀴즈!'}</b><p style="margin:8px 0;font-size:18px;line-height:1.5;font-weight:normal">${e?q[1]:q[0]}</p>${ord.map((i,n)=>`<button data-i="${i}">${n+1}. ${A[i]}</button>`).join('')}<div class="fb" style="min-height:22px;margin-top:6px;font-weight:bold"></div></div>`;
 let done=false,closed=false,tm=0;
 const close=()=>{if(closed)return;closed=true;clearTimeout(tm);removeEventListener('keydown',kd,true);o.remove();cb(done)};
 const pick=i=>{if(o.dataset.a)return;o.dataset.a=1;const ok=i===q[4];done=ok;const bs=o.querySelectorAll('button');bs.forEach(x=>x.disabled=true);

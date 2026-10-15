@@ -102,6 +102,7 @@ function drawTree(cx,base,h,t,i){const alive=hp>i;x.save();x.translate(cx,base);
  else{x.fillStyle='#5a3a24';x.beginPath();x.ellipse(0,-h*.55,h*.08,h*.03,0,0,7);x.fill()}
  x.restore()}
 let stars=[];for(let i=0;i<60;i++)stars.push({x:Math.random(),y:Math.random()*.5,p:Math.random()*6});
+function btxt(s,X,Y,sz,c,mw){x.font=`500 ${sz}px system-ui,sans-serif`;x.textAlign='center';const ws=String(s).split(' '),ls=[];let l='';for(const w of ws){const t=l?l+' '+w:w;if(x.measureText(t).width>mw&&l){ls.push(l);l=w}else l=t}ls.push(l);x.fillStyle=c||'#fff';x.shadowColor='#000';x.shadowBlur=5;ls.forEach((t,i)=>x.fillText(t,X,Y+i*sz*1.4));x.shadowBlur=0;return ls.length}
 function txt(s,X,Y,sz,c,gl){x.fillStyle=c||'#fff';x.font=`bold ${sz}px system-ui,sans-serif`;x.textAlign='center';x.shadowColor=gl||'#3f8';x.shadowBlur=10;x.fillText(s,X,Y);x.shadowBlur=0}
 function loop(){const t=now(),dt=Math.min(.05,(t-(last||t))/1000);last=t;sched();
  if(state=='clear'&&t>=clrT){stage++;setupStage()}
@@ -132,7 +133,7 @@ function loop(){const t=now(),dt=Math.min(.05,(t-(last||t))/1000);last=t;sched()
  if(aim.on&&state=='play'){x.strokeStyle='#ff6';x.lineWidth=2;x.beginPath();x.arc(aim.x,aim.y,16,0,7);x.moveTo(aim.x-24,aim.y);x.lineTo(aim.x+24,aim.y);x.moveTo(aim.x,aim.y-24);x.lineTo(aim.x,aim.y+24);x.stroke()}
  x.globalAlpha=1;x.restore();
  txt(L('t'),W/2,82,Math.min(28,W/13));
- if(state=='title'){txt(L('h'),W/2,H*.32,18,'#bfd');txt(L('s'),W/2,H*.4,26,'#9ff');txt(L('best')+' '+best,W/2,H*.4+32,16,'#cfc');txt(L('pc'),W/2,H*.4+60,Math.min(14,W/30),'#9cb')}
+ if(state=='title'){btxt(L('h'),W/2,H*.32,18,'#e4fff0',W-40);txt(L('s'),W/2,H*.4,26,'#9ff');txt(L('best')+' '+best,W/2,H*.4+32,16,'#cfc');btxt(L('pc'),W/2,H*.4+60,15,'#cfe8da',W-40)}
  else{txt(L('wv')+' '+stage+'  ·  '+score,W/2,110,18,'#dfe');
   if(combo>=3)txt(L('combo')+' x'+combo,W/2,136,18,'#ffd84a','#f80');
   const gw=Math.min(220,W*.55),gx=W/2-gw/2,hot=t<heatT;for(let k=0;k<MAXEN;k++){x.fillStyle=hot?'#f66':k<en?'#7fd':'rgba(255,255,255,.15)';x.fillRect(gx+k*gw/MAXEN+2,148,gw/MAXEN-4,9)}
