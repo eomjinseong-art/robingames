@@ -107,6 +107,32 @@ canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
 .gface .kd{position:absolute;bottom:-4px;right:-6px;background:#b22218;color:#fff;font-size:11px;font-weight:800;border-radius:5px;padding:1px 4px}
 .dexg .gface{margin:0 auto}
 #ghost{position:fixed;z-index:9;pointer-events:none;font-size:30px;display:none;transform:translate(-50%,-60%);filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.panel p{font-size:17px;line-height:1.55}
+.stx{font-size:18px;font-weight:500;line-height:1.6;color:#22160a}
+.chr .cn{font-size:16px}.chr .co{font-size:15px;line-height:1.4;color:#2a1a0c}.chr .cs{font-size:13px}
+.gl{font-size:16.5px;line-height:1.5;color:#22160a}
+.mrow{font-size:16.5px;line-height:1.45;color:#22160a}
+.why{font-size:16.5px;line-height:1.5;color:#22160a}
+#tutB{font-size:17px;font-weight:500;line-height:1.45;color:#2a1206}
+.sub{font-size:15px;line-height:1.45;color:#4a3420}
+.panel .sub[style]{font-size:15px!important}
+.cont{font-size:14.5px}
+.sit{font-weight:600}
+.hist p{font-size:17px;color:#22160a}
+.gcard .gb{font-size:15px;line-height:1.45;color:#2a1a0c}
+.qopts .btn{font-size:17px;line-height:1.4;font-weight:500;color:#22160a}
+.panel p.qq{font-size:19.5px;font-weight:500;line-height:1.5;text-align:center;margin:6px 0 4px;color:#1e1408}
+#msg{font-size:15px;line-height:17px;color:#3a2410}
+#legend{font-size:14px}
+.ucard .un{font-size:12.5px;line-height:13.5px;max-height:27px}
+.bbtn small{font-size:13.5px}
+.tutbox{font-size:16.5px;font-weight:500;line-height:1.5}
+.gpk .gs{font-size:14px;line-height:1.4}
+.scard{font-size:15.5px;line-height:1.45}
+.novel{font-size:16.5px;line-height:1.55;color:#22160a}
+.dres{font-size:16.5px;font-weight:600}
+
+.panel>.row:last-child{position:sticky;bottom:-14px;margin:10px -16px -14px;padding:10px 16px 12px;background:linear-gradient(rgba(0,0,0,0),#ece2c6 28%)}
 </style></head><body>
 <div id="top"><a class="btn" href="/" id="home">🏠 홈</a><b id="ttl">🐉 뿡뿡 삼국지</b><span style="display:flex;gap:4px"><button class="btn" id="glosB" aria-label="glossary">❓</button><button class="btn" id="lang">EN</button><button class="btn" id="mute">🔊</button></span></div>
 <canvas id="c"></canvas>
@@ -417,8 +443,8 @@ function drawMap(v){const H=CH;x.fillStyle='#ece3cc';x.fillRect(0,0,W,H);
  seal(W-28,30,'三國地圖',36);
  const g=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(60,45,20,.35)');x.fillStyle=g;x.fillRect(0,0,W,H)}
 function marker(px,py,lbl,on,pulse,starsN){x.save();if(pulse){x.strokeStyle='rgba(179,38,30,'+(1-pulse%1)+')';x.lineWidth=3;x.beginPath();x.arc(px,py,8+(pulse%1)*22,0,TAU);x.stroke()}
- x.fillStyle=on?'#b22218':'#8d8370';x.strokeStyle=on?'#222':'#ddd';x.lineWidth=2.5;x.beginPath();x.arc(px,py,11,0,TAU);x.fill();x.stroke();x.fillStyle='#fff';x.font='bold 11px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px,py+.5);x.textBaseline='alphabetic';
- if(starsN){x.fillStyle='#d39b00';x.font='10px sans-serif';x.fillText('★'.repeat(starsN),px,py+22)}x.restore()}
+ x.fillStyle=on?'#b22218':'#8d8370';x.strokeStyle=on?'#222':'#ddd';x.lineWidth=2.5;x.beginPath();x.arc(px,py,11,0,TAU);x.fill();x.stroke();x.fillStyle='#fff';x.font='600 13px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px,py+.5);x.textBaseline='alphabetic';
+ if(starsN){x.fillStyle='#d39b00';x.font='13px sans-serif';x.fillText('★'.repeat(starsN),px,py+22)}x.restore()}
 function menuView(){const deg=Math.max(9,Math.min(20,W/30));return mview(112.6,32.3,deg,CH*.16)}
 function drawMenuMap(){const v=menuView();drawMap(v);BATTLES.forEach((b,i)=>{const p=pj(v,b.lon,b.lat);const on=i==0||prog[i-1]>0;marker(p[0]+(b.mdx||0),p[1],b.num,on,on&&!prog[i]&&scr=='menu'?TM*.8:0,prog[i])})}
 // ---------- field ----------
@@ -434,9 +460,9 @@ function fieldBG(){if(bgC&&bgC.k==bi+'_'+W+'_'+FH)return bgC.c;const c=document.
  const tent=(px,py,s)=>{o.fillStyle='#d9ccb0';o.strokeStyle='#2b2b2b';o.lineWidth=1.2;o.beginPath();o.moveTo(px-s,py);o.lineTo(px,py-s*1.1);o.lineTo(px+s,py);o.closePath();o.fill();o.stroke();o.beginPath();o.moveTo(px,py-s*1.1);o.lineTo(px,py);o.stroke()};
  const tree=(px,py,s)=>{o.strokeStyle='#2b2b2b';o.lineWidth=1.5;o.beginPath();o.moveTo(px,py);o.lineTo(px,py-s);o.stroke();for(let k=0;k<3;k++){o.fillStyle=`rgba(30,45,30,${.35-k*.08})`;o.beginPath();o.ellipse(px+rnd(-3,3),py-s-k*s*.35,s*(.7-k*.15),s*.35,0,0,TAU);o.fill()}};
  if(tr=='grass'){for(let i=0;i<260;i++){const px=Math.random()*W,py=rnd(FH*.06,FH*.48);o.strokeStyle=`rgba(${120+rnd(0,40)|0},${100+rnd(0,30)|0},40,.45)`;o.lineWidth=1.3;o.beginPath();o.moveTo(px,py);o.quadraticCurveTo(px+3,py-6,px+rnd(-4,6),py-rnd(9,15));o.stroke()}for(let i=0;i<6;i++)tent(W*(i+.5)/6,FH*.1,9);o.fillStyle='rgba(30,30,30,.55)';o.font='12px serif';o.fillText('長社',W*.9,FH*.2)}
- if(tr=='fort'){o.fillStyle='#4a3a28';for(let xx=4;xx<W;xx+=7){o.fillRect(xx,FH-16,3.5,16);o.beginPath();o.moveTo(xx,FH-16);o.lineTo(xx+1.75,FH-21);o.lineTo(xx+3.5,FH-16);o.fill()}o.fillStyle='rgba(30,30,30,.6)';o.font='bold 10px serif';o.fillText('官渡 · 曹營',W*.5,FH-20);
-  const gx=W-34,gy=FH*.07;for(let i=0;i<4;i++){o.fillStyle='#d8b65a';o.strokeStyle='#2b2b2b';o.beginPath();o.ellipse(gx-12+i*9,gy+8-(i%2)*5,9,7,0,0,TAU);o.fill();o.stroke()}o.fillStyle='#2b2b2b';o.font='bold 11px serif';o.fillText('烏巢',gx,gy+26)}
- if(tr=='bridge'){o.fillStyle='rgba(90,120,130,.55)';o.fillRect(0,FH-14,W,14);o.fillStyle='#6b4b2a';o.fillRect(W/2-16,FH-17,32,20);o.strokeStyle='#2b2b2b';o.strokeRect(W/2-16,FH-17,32,20);o.fillStyle='rgba(30,30,30,.65)';o.font='bold 10px serif';o.fillText('長坂橋',W/2+44,FH-4)}
+ if(tr=='fort'){o.fillStyle='#4a3a28';for(let xx=4;xx<W;xx+=7){o.fillRect(xx,FH-16,3.5,16);o.beginPath();o.moveTo(xx,FH-16);o.lineTo(xx+1.75,FH-21);o.lineTo(xx+3.5,FH-16);o.fill()}o.fillStyle='rgba(30,30,30,.6)';o.font='600 13px serif';o.fillText('官渡 · 曹營',W*.5,FH-20);
+  const gx=W-34,gy=FH*.07;for(let i=0;i<4;i++){o.fillStyle='#d8b65a';o.strokeStyle='#2b2b2b';o.beginPath();o.ellipse(gx-12+i*9,gy+8-(i%2)*5,9,7,0,0,TAU);o.fill();o.stroke()}o.fillStyle='#2b2b2b';o.font='600 13px serif';o.fillText('烏巢',gx,gy+26)}
+ if(tr=='bridge'){o.fillStyle='rgba(90,120,130,.55)';o.fillRect(0,FH-14,W,14);o.fillStyle='#6b4b2a';o.fillRect(W/2-16,FH-17,32,20);o.strokeStyle='#2b2b2b';o.strokeRect(W/2-16,FH-17,32,20);o.fillStyle='rgba(30,30,30,.65)';o.font='600 13px serif';o.fillText('長坂橋',W/2+44,FH-4)}
  if(tr=='river'){o.fillStyle='#8a3b22';o.strokeStyle='#2b2b2b';o.lineWidth=1.5;o.beginPath();o.moveTo(0,FH*.08);for(let y=FH*.08;y<=FH*.62;y+=FH*.06)o.lineTo(rnd(14,26),y);o.lineTo(0,FH*.62);o.fill();o.stroke();o.fillStyle='#fbefe0';o.font='bold 13px serif';o.fillText('赤',9,FH*.3);o.fillText('壁',9,FH*.3+16)}
  if(tr=='forest'){for(let i=0;i<22;i++)tree(rnd(0,W),rnd(FH*.06,FH*.24),rnd(9,15));for(let i=0;i<5;i++)tent(W*(i+.5)/5+rnd(-10,10),FH*.21,8);for(let i=0;i<8;i++)tree(i%2?rnd(0,14):W-rnd(0,14),rnd(FH*.3,FH*.6),rnd(8,12))}
  const v=o.createRadialGradient(W/2,FH/2,Math.min(W,FH)*.4,W/2,FH/2,Math.max(W,FH)*.8);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(50,40,20,.28)');o.fillStyle=v;o.fillRect(0,0,W,FH);
@@ -468,7 +494,7 @@ function drawShip(px,py,t,side,ph,rot){const s=SC,Cc=TEAM[side];const Ln=(t=='he
 function drawStd(px,py,side,lbl){const s=SC,w=Math.sin(TM*4+px*.1)*1.6;x.strokeStyle='#2b2b2b';x.lineWidth=1.5*s;x.beginPath();x.moveTo(px,py);x.lineTo(px,py-24*s);x.stroke();
  x.fillStyle=TEAM[side].c;x.beginPath();x.moveTo(px,py-24*s);x.lineTo(px+12*s+w,py-23*s);for(let i=0;i<4;i++){x.lineTo(px+12*s+w-(i%2)*2.5*s,py-23*s+i*3.5*s)}x.lineTo(px+12*s+w,py-10*s);x.lineTo(px,py-11*s);x.closePath();x.fill();x.strokeStyle='rgba(0,0,0,.5)';x.lineWidth=.7;x.stroke();
  if(lbl){x.fillStyle='#fbf5e6';x.beginPath();x.arc(px+6*s+w*.5,py-17*s,4.6*s,0,TAU);x.fill();x.fillStyle='#111';x.font=`bold ${6.4*s}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px+6*s+w*.5,py-16.6*s);x.textBaseline='alphabetic'}}
-function pill(px,py,txt,bg,fg,fs){x.font=`bold ${fs||10}px system-ui,sans-serif`;let w=x.measureText(txt).width+10;const mw=slotW()+8;if(w>mw){x.font=`bold ${(fs||10)*mw/w}px system-ui,sans-serif`;w=mw}x.fillStyle=bg;rr(px-w/2,py-8,w,16,7);x.fill();x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
+function pill(px,py,txt,bg,fg,fs){x.font=`600 ${fs||12}px system-ui,sans-serif`;let w=x.measureText(txt).width+10;const mw=slotW()+8;if(w>mw){x.font=`600 ${(fs||12)*mw/w}px system-ui,sans-serif`;w=mw}x.fillStyle=bg;rr(px-w/2,py-8,w,16,7);x.fill();x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
 function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
 function drawV(v){if(v.routed||v.gone2)return;const fight=scr=='fight'&&v.u&&(v.u.st=='fight');const s=v.side=='P'?1:-1,nav=NAV[v.card.t];
  for(let i=0;i<v.shown;i++){const f=v.f[i];let px=v.x+f.ox,py=v.y+f.oy;if(fight){px+=Math.sin(TM*9+f.ph)*1.2;py+=Math.sin(TM*11+f.ph*2)*1.6-s*1.2}else if(v.u&&v.u.st=='free'){py-=Math.abs(Math.sin(TM*8+f.ph))*2}
@@ -670,7 +696,7 @@ function rResult(){const r=RES;let h;
 function showReal(){scr='real';curRender=rReal;rReal()}
 function rReal(){ov(`<div class="panel"><h2>${L('realT')}</h2><div class="pic" style="font-size:36px">${B.real.p}</div><div class="stx">${tx(B.real.t)}</div><div class="novel"><b>${L('novelT')}</b><br>${tx(B.novel)}</div><div class="row"><button class="btn red" id="qzB">${L('toQuiz').split('→').pop().trim()}</button></div></div>`,startQuiz,400,1);$('qzB').onclick=e=>{e.stopPropagation();sfx('click');startQuiz()}}
 function startQuiz(){scr='quiz';const n=bi==0?2:3;QZ=shuffle(B.quiz.slice()).slice(0,n).map(q=>({q:q.q,opts:shuffle(q.a.map((o,i)=>({o,ok:i==0})))}));qi=0;qok=0;renderQ()}
-function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><h2 style="font-size:18px">${tx(q.q)}</h2><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
+function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><p class="qq">${tx(q.q)}</p><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
  $('ov').querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();answer(+b.dataset.q)})}
 function answer(i){if(qAns>=0)return;qAns=i;const q=QZ[qi],ok=q.opts[i].ok,bs=$('ov').querySelectorAll('[data-q]');q.opts.forEach((o,j)=>{if(o.ok)bs[j].classList.add('ok');else if(j==i)bs[j].classList.add('no');bs[j].disabled=true;bs[j].style.opacity=1});
  const cor=q.opts.find(o=>o.ok);$('fb').innerHTML=ok?`<span style="color:#2e7d22">${L('right')}</span>`:`<span style="color:#a32">${L('wrong')}</span> <span style="font-size:16px">${tx(cor.o)}</span>`;
@@ -684,12 +710,12 @@ function drawSlots(){const w=slotW(),h=slotH(),hl=sel||(drag&&drag.moved);
  x.fillStyle='rgba(178,34,24,.05)';x.fillRect(0,MID,W,FH-MID);x.fillStyle='rgba(30,30,30,.05)';x.fillRect(0,0,W,MID);
  x.setLineDash([6,5]);x.strokeStyle='rgba(90,50,20,.45)';x.lineWidth=1.5;x.beginPath();x.moveTo(GX+6,MID);x.lineTo(GX+GW-6,MID);x.stroke();
  for(let s=0;s<6;s++){const p=slotPos(s,'P');x.fillStyle=dep[s]?'rgba(255,248,225,.25)':'rgba(255,248,225,.45)';rr(p.x-w/2,p.y-h/2,w,h,9);x.fill();x.strokeStyle=hl?'#e0a800':'rgba(30,30,30,.6)';x.lineWidth=hl?2.5:1.5;x.stroke();
-  x.fillStyle='rgba(30,30,30,.8)';x.font='bold 10px system-ui';x.textAlign='left';x.fillText(s<3?L('lanes')[s]:L('res'),p.x-w/2+6,p.y-h/2+12);
+  x.fillStyle='rgba(30,30,30,.8)';x.font='600 12.5px system-ui';x.textAlign='left';x.fillText(s<3?L('lanes')[s]:L('res'),p.x-w/2+6,p.y-h/2+12);
   if(!dep[s]){x.fillStyle='rgba(30,30,30,.35)';x.font='bold 22px system-ui';x.textAlign='center';x.fillText('+',p.x,p.y+8)}}
  x.setLineDash([])}
 function drawLabels(){const c=sel?B.P.find(c=>c.id==sel):drag&&drag.moved?B.P.find(c=>c.id==drag.id):null;
- for(const v of VU){const nm=`${TI[v.card.t]} ${tx(v.card.name)} ⚔${v.card.p}`;if(v.side=='E'){pill(v.x,v.y-v.fh/2-12*SC-(NAV[v.card.t]?0:6),(v.slot==3?(lang=='ko'?'예비 · ':'Rsv · '):'')+nm,'rgba(30,30,30,.85)','#fff')}else pill(v.x,v.y+slotH()/2-9,nm,'rgba(160,30,20,.9)','#fff',9.5)}
- if(c)for(let i=0;i<3;i++){const e=B.E[i];if(!e)continue;const m=mult(c,e);if(m==1)continue;const p=slotPos(i,'E'),v=VU.find(v=>v.side=='E'&&v.slot==i);pill(p.x,p.y+(v?v.fh/2:20)+14,m>1?L('good'):L('bad'),m>1?'rgba(40,130,40,.92)':'rgba(170,40,30,.92)','#fff',11)}}
+ for(const v of VU){const nm=`${TI[v.card.t]} ${tx(v.card.name)} ⚔${v.card.p}`;if(v.side=='E'){pill(v.x,v.y-v.fh/2-12*SC-(NAV[v.card.t]?0:6),(v.slot==3?(lang=='ko'?'예비 · ':'Rsv · '):'')+nm,'rgba(30,30,30,.85)','#fff')}else pill(v.x,v.y+slotH()/2-9,nm,'rgba(160,30,20,.92)','#fff',11.5)}
+ if(c)for(let i=0;i<3;i++){const e=B.E[i];if(!e)continue;const m=mult(c,e);if(m==1)continue;const p=slotPos(i,'E'),v=VU.find(v=>v.side=='E'&&v.slot==i);pill(p.x,p.y+(v?v.fh/2:20)+14,m>1?L('good'):L('bad'),m>1?'rgba(40,130,40,.94)':'rgba(170,40,30,.94)','#fff',13)}}
 function waves(){x.strokeStyle='rgba(40,60,70,.25)';x.lineWidth=1.2;for(let i=0;i<40;i++){const px=((i*97)%W+TM*12)%W,py=(i*53)%FH;x.beginPath();x.arc(px,py,6,Math.PI*1.1,Math.PI*1.9);x.stroke()}}
 function drawIntro(){const k=Math.min(1,introT/1.6),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,m=menuView(),d0=W/m.s,lerp=(a,b)=>a+(b-a)*e;const v=mview(lerp(m.lon,B.lon),lerp(m.lat,B.lat),lerp(d0,7),CH*.3);drawMap(v);
  const p=pj(v,B.lon,B.lat);if(introT>1.5){const t=introT-1.5,c=Math.min(1,t/.6),s=SC;

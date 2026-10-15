@@ -158,10 +158,10 @@ function draw(){x.save();if(shake)x.translate((Math.random()-.5)*shake,(Math.ran
     if(!started)txt(lang=='ko'?'👆 이동하면 시작!':'👆 Move to start!',W/2,H*.5,24,'#fff');
     else if(any||lk)txt('🫣 '+L().hide,W/2,FB()+18,22,lk?R:Y);else txt('🏃 '+L().go2,W/2,FB()+18,20,G)}
   else if(st=='goal'){const c=ST[lv];card(H*.24,H*.4);txt(L().st+(lv+1)+'/'+NS,W/2,H*.3,20,Y);emo('🛡️🐍',W/2,H*.39,56);x.font='bold 18px sans-serif';x.fillStyle='#fff';wrap(lang=='ko'?c.gk:c.ge,W/2,H*.49,W*.8,22);txt(L().tapgo,W/2,H*.59,15,Math.sin(now*6)>0?G:'#fff')}
-  else if(st=='clear'){card(H*.22,H*.44);txt('✨ '+L().clear,W/2,H*.29,24,G);emo('🐍✂️',W/2,H*.38,52);x.font='15px sans-serif';x.fillStyle='#9ff';let yy=H*.46;for(const id of ST[lv].cards){const c=Myth.card(id,lang);if(c){x.fillText('🃏 '+c.name,W/2,yy);yy+=20}}
+  else if(st=='clear'){card(H*.22,H*.44);txt('✨ '+L().clear,W/2,H*.29,24,G);emo('🐍✂️',W/2,H*.38,52);x.font='16px sans-serif';x.fillStyle='#9ff';let yy=H*.46;for(const id of ST[lv].cards){const c=Myth.card(id,lang);if(c){x.fillText('🃏 '+c.name,W/2,yy);yy+=20}}
     txt(lv<NS-1?L().next+' ▶':'🏆',W/2,H*.6,20,Math.sin(now*6)>0?G:'#fff')}
   else if(st=='title'){card(H*.12,H*.62);txt(L().sub,W/2,H*.17,15,Y);txt(L().t,W/2,H*.17+36,Math.min(30,W*.075),'#fff');emo('🫣🏛️🐍',W/2,H*.34,52);
-    x.font='bold 16px sans-serif';x.fillStyle='#fff';let yy=wrap(L().h,W/2,H*.43,W*.8,20);x.font='14px sans-serif';x.fillStyle='#ffe9c0';wrap(L().w,W/2,yy+8,W*.78,19);
+    x.font='500 17px sans-serif';x.fillStyle='#fff';let yy=wrap(L().h,W/2,H*.43,W*.82,24);x.font='16px sans-serif';x.fillStyle='#fff3da';wrap(L().w,W/2,yy+6,W*.82,22);
     txt(L().go,W/2,H*.78,Math.min(24,W*.06),G);x.font='14px sans-serif';x.fillStyle='#fff';x.textAlign='center';x.fillText(L().best+' '+best+'/'+NS+' · 🏛️ '+Myth.get().length+'/'+Object.keys(Myth.C).length,W/2,H*.78+30)}
   else if(st=='win'){card(H*.16,H*.5);emo('🏆',W/2,H*.27,72);txt(L().win,W/2,H*.38,26,Y);txt(L().win2,W/2,H*.44,16,'#fff');if(nb)txt(L().nb,W/2,H*.5,16,Y);
     x.font='14px sans-serif';x.fillStyle='#9ff';wrap('🃏 '+cards.length+' · 🏛️ '+Myth.get().length+'/'+Object.keys(Myth.C).length,W/2,H*.55,W*.8,16);txt(L().retry,W/2,H*.61,18,Math.sin(now*6)>0?G:'#fff')}

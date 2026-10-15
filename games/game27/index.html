@@ -157,11 +157,11 @@ function draw(){x.save();if(shake)x.translate((Math.random()-.5)*shake,(Math.ran
   if(st=='play'||st=='quiz'){stage();hero();hud()}
   else if(st=='goal'){hud();const L0=LABOR[labor];card(H*.2,H*.5);emo(L0.em,W/2,H*.32,Math.min(110,W*.28));txt(lang=='ko'?L0.ko:L0.en,W/2,H*.44,20,Y);txt(lang=='ko'?L0.gk:L0.ge,W/2,H*.52,Math.min(24,W*.058),'#fff');txt(L().tapgo,W/2,H*.62,20,Math.sin(now*6)>0?G:'#fff')}
   else if(st=='clear'){hud();const L0=LABOR[labor];card(H*.18,H*.56);txt('✨ '+L().clear,W/2,H*.23,22,G);emo(L0.em,W/2,H*.32,64);txt(lang=='ko'?L0.ko:L0.en,W/2,H*.4,19,Y);
-    x.font='16px sans-serif';x.fillStyle='#ffe9c0';const yy=wrap('📜 '+(lang=='ko'?L0.fk:L0.fe),W/2,H*.47,W*.78,21);
+    x.font='17px sans-serif';x.fillStyle='#fff3da';const yy=wrap('📜 '+(lang=='ko'?L0.fk:L0.fe),W/2,H*.47,W*.82,24);
     const c=Myth.card(L0.cards[0],lang);if(c){x.font='14px sans-serif';x.fillStyle='#9ff';x.fillText('🃏 '+c.name,W/2,yy+12)}
     txt(labor<11?L().next+' ▶ '+LABOR[labor+1].em+' '+(lang=='ko'?LABOR[labor+1].ko:LABOR[labor+1].en):'🏆',W/2,H*.68,18,Math.sin(now*6)>0?G:'#fff')}
   else if(st=='title'){card(H*.12,H*.56);txt(L().sub,W/2,H*.17,15,Y);txt(L().t,W/2,H*.17+36,Math.min(30,W*.075),'#fff');emo('💪',W/2,H*.34,72);
-    x.font='16px sans-serif';x.fillStyle='#fff';let yy=wrap(L().h,W/2,H*.44,W*.8,20);x.font='14px sans-serif';x.fillStyle='#ffe9c0';yy=wrap(L().w,W/2,yy+6,W*.78,18);
+    x.font='17px sans-serif';x.fillStyle='#fff';let yy=wrap(L().h,W/2,H*.44,W*.82,24);x.font='16px sans-serif';x.fillStyle='#fff3da';yy=wrap(L().w,W/2,yy+6,W*.82,22);
     x.font='20px serif';x.fillStyle='#fff';x.fillText(LABOR.map(l=>l.em).join(''),W/2,yy+18);
     txt(L().go,W/2,H*.75,Math.min(24,W*.06),G);x.font='14px sans-serif';x.fillStyle='#fff';x.textAlign='center';x.fillText(L().best+' '+best+'/12 · 🏛️ '+Myth.get().length+'/'+Object.keys(Myth.C).length,W/2,H*.75+30)}
   else if(st=='win'){card(H*.16,H*.5);emo('🏆',W/2,H*.27,72);txt(L().win,W/2,H*.38,26,Y);txt(L().win2,W/2,H*.44,16,'#fff');if(nb)txt(L().nb,W/2,H*.5,16,Y);

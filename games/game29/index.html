@@ -89,6 +89,32 @@ canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
 #banner.key{font-size:24px;color:#ffe066}
 @keyframes bn{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.08)}20%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
 #ghost{position:fixed;z-index:9;pointer-events:none;font-size:30px;display:none;transform:translate(-50%,-60%);filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.panel p{font-size:17px;line-height:1.55}
+.stx{font-size:18px;font-weight:500;line-height:1.6;color:#22160a}
+.chr .cn{font-size:16px}.chr .co{font-size:15px;line-height:1.4;color:#2a1a0c}.chr .cs{font-size:13px}
+.gl{font-size:16.5px;line-height:1.5;color:#22160a}
+.mrow{font-size:16.5px;line-height:1.45;color:#22160a}
+.why{font-size:16.5px;line-height:1.5;color:#22160a}
+#tutB{font-size:17px;font-weight:500;line-height:1.45;color:#2a1206}
+.sub{font-size:15px;line-height:1.45;color:#4a3420}
+.panel .sub[style]{font-size:15px!important}
+.cont{font-size:14.5px}
+.sit{font-weight:600}
+.hist p{font-size:17px;color:#22160a}
+.gcard .gb{font-size:15px;line-height:1.45;color:#2a1a0c}
+.qopts .btn{font-size:17px;line-height:1.4;font-weight:500;color:#22160a}
+.panel p.qq{font-size:19.5px;font-weight:500;line-height:1.5;text-align:center;margin:6px 0 4px;color:#1e1408}
+#msg{font-size:15px;line-height:17px;color:#3a2410}
+#legend{font-size:14px}
+.ucard .un{font-size:12.5px;line-height:13.5px;max-height:27px}
+.bbtn small{font-size:13.5px}
+.tutbox{font-size:16.5px;font-weight:500;line-height:1.5}
+.gpk .gs{font-size:14px;line-height:1.4}
+.scard{font-size:15.5px;line-height:1.45}
+.novel{font-size:16.5px;line-height:1.55;color:#22160a}
+.dres{font-size:16.5px;font-weight:600}
+
+.panel>.row:last-child{position:sticky;bottom:-14px;margin:10px -16px -14px;padding:10px 16px 12px;background:linear-gradient(rgba(0,0,0,0),#efdcae 28%)}
 </style></head><body>
 <div id="top"><a class="btn" href="/" id="home">🏠 홈</a><b id="ttl">🦅 뿡뿡 로마 내전</b><span style="display:flex;gap:4px"><button class="btn" id="glosB" aria-label="glossary">❓</button><button class="btn" id="lang">EN</button><button class="btn" id="mute">🔊</button></span></div>
 <canvas id="c"></canvas>
@@ -386,13 +412,13 @@ function drawMap(v){const H=CH;x.fillStyle='#a9c7bf';x.fillRect(0,0,W,H);
  x.fillStyle=noisePat();x.fillRect(0,0,W,H);
  x.strokeStyle='rgba(120,80,40,.13)';x.lineWidth=1;for(let lo=-10;lo<=45;lo+=5){const p=pj(v,lo,0);x.beginPath();x.moveTo(p[0],0);x.lineTo(p[0],H);x.stroke()}for(let la=30;la<=50;la+=5){const p=pj(v,0,la);x.beginPath();x.moveTo(0,p[1]);x.lineTo(W,p[1]);x.stroke()}
  x.textAlign='center';x.font=`italic ${Math.min(15,v.s*.7)|0}px Georgia,serif`;x.fillStyle='rgba(90,50,20,.6)';for(const [t,lo,la] of MLAB){const p=pj(v,lo,la);x.fillText(t,p[0],p[1])}
- const r=pj(v,12.5,41.9);x.fillStyle='#7a1810';x.beginPath();x.arc(r[0],r[1],3.5,0,TAU);x.fill();x.font='bold 12px Georgia,serif';x.fillText('ROMA',r[0]+(v.s>40?0:-22),r[1]+(v.s>40?-16:4));
+ const r=pj(v,12.5,41.9);x.fillStyle='#7a1810';x.beginPath();x.arc(r[0],r[1],3.5,0,TAU);x.fill();x.font='600 13px Georgia,serif';x.fillText('ROMA',r[0]+(v.s>40?0:-22),r[1]+(v.s>40?-16:4));
  // compass + vignette
  const cx=W-30,cy=28;x.save();x.translate(cx,cy);x.fillStyle='rgba(122,24,16,.75)';for(let i=0;i<4;i++){x.rotate(Math.PI/2);x.beginPath();x.moveTo(0,-16);x.lineTo(4,0);x.lineTo(-4,0);x.fill()}x.fillStyle='#4a2a10';x.font='bold 10px Georgia';x.fillText('N',0,-19);x.restore();
  const g=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(70,40,10,.4)');x.fillStyle=g;x.fillRect(0,0,W,H)}
 function marker(px,py,lbl,on,pulse,starsN){x.save();if(pulse){x.strokeStyle='rgba(179,38,30,'+(1-pulse%1)+')';x.lineWidth=3;x.beginPath();x.arc(px,py,8+(pulse%1)*22,0,TAU);x.stroke()}
- x.fillStyle=on?'#b3261e':'#8d8370';x.strokeStyle=on?'#f2c94c':'#ddd';x.lineWidth=2.5;x.beginPath();x.arc(px,py,11,0,TAU);x.fill();x.stroke();x.fillStyle='#fff';x.font='bold 11px Georgia';x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px,py+.5);x.textBaseline='alphabetic';
- if(starsN){x.fillStyle='#d39b00';x.font='10px sans-serif';x.fillText('★'.repeat(starsN),px,py+22)}x.restore()}
+ x.fillStyle=on?'#b3261e':'#8d8370';x.strokeStyle=on?'#f2c94c':'#ddd';x.lineWidth=2.5;x.beginPath();x.arc(px,py,11,0,TAU);x.fill();x.stroke();x.fillStyle='#fff';x.font='600 13px Georgia';x.textAlign='center';x.textBaseline='middle';x.fillText(lbl,px,py+.5);x.textBaseline='alphabetic';
+ if(starsN){x.fillStyle='#d39b00';x.font='13px sans-serif';x.fillText('★'.repeat(starsN),px,py+22)}x.restore()}
 function menuView(){const deg=Math.max(20,Math.min(34,W/16));return mview(18,40.2,deg,CH*.3)}
 function drawMenuMap(){const v=menuView();drawMap(v);BATTLES.forEach((b,i)=>{const p=pj(v,b.lon,b.lat);const on=i==0||prog[i-1]>0;marker(p[0]+(b.mdx||0),p[1],b.num,on,on&&!prog[i]&&scr=='menu'?TM*.8:0,prog[i])})}
 // ---------- field ----------
@@ -401,8 +427,8 @@ function fieldBG(){if(bgC&&bgC.k==bi+'_'+W+'_'+FH)return bgC.c;const c=document.
  let g=o.createLinearGradient(0,0,0,FH);if(tr=='sea'){g.addColorStop(0,'#5f9fb0');g.addColorStop(1,'#3f7f97')}else{g.addColorStop(0,'#c8bd85');g.addColorStop(.5,'#bdb57a');g.addColorStop(1,'#cbbf88')}o.fillStyle=g;o.fillRect(0,0,W,FH);
  for(let i=0;i<W*FH/90;i++){const px=Math.random()*W,py=Math.random()*FH;if(tr=='sea'){o.fillStyle='rgba(255,255,255,.06)';o.fillRect(px,py,6,1)}else{o.strokeStyle=Math.random()<.5?'rgba(80,95,35,.28)':'rgba(140,110,50,.22)';o.lineWidth=1;o.beginPath();o.moveTo(px,py);o.lineTo(px+rnd(-2,2),py-rnd(2,5));o.stroke()}}
  if(tr!='sea')for(let i=0;i<14;i++){o.fillStyle='rgba(150,120,70,.12)';o.beginPath();o.ellipse(Math.random()*W,Math.random()*FH,rnd(20,70),rnd(8,22),0,0,TAU);o.fill()}
- o.font='italic 11px Georgia,serif';o.fillStyle='rgba(60,40,15,.55)';o.textAlign='center';
- if(tr=='walls'){const y=FH-18;o.fillStyle='#d8ccb0';o.fillRect(0,y,W,18);o.fillStyle='#bfb092';for(let xx=0;xx<W;xx+=14)o.fillRect(xx,y-5,8,5);o.strokeStyle='#8a7a5a';for(let xx=0;xx<W;xx+=22){o.strokeRect(xx,y+3,22,7)}const gx=W*.5;o.fillStyle='#5a4630';o.beginPath();o.moveTo(gx-14,FH);o.lineTo(gx-14,y+6);o.arc(gx,y+6,14,Math.PI,0);o.lineTo(gx+14,FH);o.fill();o.fillStyle='#7a1810';o.font='bold 9px Georgia';o.fillText('PORTA COLLINA',gx,y-8)}
+ o.font='italic 13px Georgia,serif';o.fillStyle='rgba(50,32,12,.75)';o.textAlign='center';
+ if(tr=='walls'){const y=FH-18;o.fillStyle='#d8ccb0';o.fillRect(0,y,W,18);o.fillStyle='#bfb092';for(let xx=0;xx<W;xx+=14)o.fillRect(xx,y-5,8,5);o.strokeStyle='#8a7a5a';for(let xx=0;xx<W;xx+=22){o.strokeRect(xx,y+3,22,7)}const gx=W*.5;o.fillStyle='#5a4630';o.beginPath();o.moveTo(gx-14,FH);o.lineTo(gx-14,y+6);o.arc(gx,y+6,14,Math.PI,0);o.lineTo(gx+14,FH);o.fill();o.fillStyle='#7a1810';o.font='600 12px Georgia';o.fillText('PORTA COLLINA',gx,y-8)}
  if(tr=='river'){o.fillStyle='#6fa3b0';o.beginPath();o.moveTo(0,0);for(let y=0;y<=FH;y+=10)o.lineTo(10+Math.sin(y*.04)*5,y);o.lineTo(0,FH);o.fill();o.save();o.translate(9,FH*.5);o.rotate(-Math.PI/2);o.fillStyle='rgba(30,60,80,.7)';o.fillText('ENIPEUS',0,-2);o.restore();
   for(let i=0;i<5;i++){o.fillStyle='rgba(110,120,60,.25)';o.beginPath();o.ellipse(W-30-i*20,10+i*6,60-i*8,26-i*3,0,0,TAU);o.fill()}}
  if(tr=='marsh'){for(let i=0;i<9;i++){const px=W-rnd(4,40),py=rnd(FH*.2,FH*.8);o.fillStyle='rgba(80,130,120,.45)';o.beginPath();o.ellipse(px,py,rnd(14,30),rnd(6,12),0,0,TAU);o.fill();o.strokeStyle='rgba(60,90,30,.6)';for(let j=0;j<5;j++){o.beginPath();o.moveTo(px+rnd(-12,12),py);o.lineTo(px+rnd(-14,14),py-rnd(6,12));o.stroke()}}
@@ -442,7 +468,7 @@ function drawStd(px,py,side,lbl){const s=SC,w=Math.sin(TM*4+px*.1)*1.4;x.strokeS
  x.fillStyle=TEAM[side].c;x.beginPath();x.moveTo(px-6*s,py-17*s);x.lineTo(px+6*s,py-17*s);x.lineTo(px+6*s+w,py-9*s);x.lineTo(px-6*s+w,py-9*s);x.closePath();x.fill();x.fillStyle='#f2c94c';x.fillRect(px-6*s+w,py-9*s,12*s,1.4*s);
  x.fillStyle='#fff';x.font=`bold ${4.4*s}px Georgia`;x.textAlign='center';x.fillText(lbl,px+w*.5,py-11.3*s);
  x.fillStyle='#e8b923';x.strokeStyle='#8a6a10';x.lineWidth=.6;x.beginPath();x.moveTo(px-6*s,py-21*s);x.quadraticCurveTo(px-3*s,py-27*s,px,py-23*s);x.quadraticCurveTo(px+3*s,py-27*s,px+6*s,py-21*s);x.quadraticCurveTo(px,py-22*s,px-6*s,py-21*s);x.fill();x.stroke();x.beginPath();x.arc(px,py-23.5*s,1.7*s,0,TAU);x.fill()}
-function pill(px,py,txt,bg,fg,fs){x.font=`bold ${fs||10}px system-ui,sans-serif`;let w=x.measureText(txt).width+10;const mw=slotW()+8;if(w>mw){x.font=`bold ${(fs||10)*mw/w}px system-ui,sans-serif`;w=mw}x.fillStyle=bg;rr(px-w/2,py-8,w,16,7);x.fill();x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
+function pill(px,py,txt,bg,fg,fs){x.font=`600 ${fs||12}px system-ui,sans-serif`;let w=x.measureText(txt).width+10;const mw=slotW()+8;if(w>mw){x.font=`600 ${(fs||12)*mw/w}px system-ui,sans-serif`;w=mw}x.fillStyle=bg;rr(px-w/2,py-8,w,16,7);x.fill();x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
 function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
 function drawV(v){if(v.routed||v.gone2)return;const fight=scr=='fight'&&v.u&&(v.u.st=='fight');const s=v.side=='P'?1:-1,nav=NAV[v.card.t];
  for(let i=0;i<v.shown;i++){const f=v.f[i];let px=v.x+f.ox,py=v.y+f.oy;if(fight){px+=Math.sin(TM*9+f.ph)*1.2;py+=Math.sin(TM*11+f.ph*2)*1.6-s*1.2}else if(v.u&&v.u.st=='free'){py-=Math.abs(Math.sin(TM*8+f.ph))*2}
@@ -593,7 +619,7 @@ function rResult(){const r=RES;let h;
 function showReal(){scr='real';curRender=rReal;rReal()}
 function rReal(){ov(`<div class="panel"><h2>${L('realT')}</h2><div class="pic" style="font-size:36px">${B.real.p}</div><div class="stx">${tx(B.real.t)}</div><div class="row"><button class="btn red" id="qzB">${L('toQuiz').split('→').pop().trim()}</button></div></div>`,startQuiz,400,1);$('qzB').onclick=e=>{e.stopPropagation();sfx('click');startQuiz()}}
 function startQuiz(){scr='quiz';const n=bi==0?2:3;QZ=shuffle(B.quiz.slice()).slice(0,n).map(q=>({q:q.q,opts:shuffle(q.a.map((o,i)=>({o,ok:i==0})))}));qi=0;qok=0;renderQ()}
-function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><h2 style="font-size:18px">${tx(q.q)}</h2><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
+function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><p class="qq">${tx(q.q)}</p><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
  $('ov').querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();answer(+b.dataset.q)})}
 function answer(i){if(qAns>=0)return;qAns=i;const q=QZ[qi],ok=q.opts[i].ok,bs=$('ov').querySelectorAll('[data-q]');q.opts.forEach((o,j)=>{if(o.ok)bs[j].classList.add('ok');else if(j==i)bs[j].classList.add('no');bs[j].disabled=true;bs[j].style.opacity=1});
  const cor=q.opts.find(o=>o.ok);$('fb').innerHTML=ok?`<span style="color:#2e7d22">${L('right')}</span>`:`<span style="color:#a32">${L('wrong')}</span> <span style="font-size:16px">${tx(cor.o)}</span>`;
@@ -607,12 +633,12 @@ function drawSlots(){const w=slotW(),h=slotH(),hl=sel||(drag&&drag.moved);
  x.fillStyle='rgba(179,38,30,.06)';x.fillRect(0,MID,W,FH-MID);x.fillStyle='rgba(61,58,160,.06)';x.fillRect(0,0,W,MID);
  x.setLineDash([6,5]);x.strokeStyle='rgba(90,50,20,.45)';x.lineWidth=1.5;x.beginPath();x.moveTo(GX+6,MID);x.lineTo(GX+GW-6,MID);x.stroke();
  for(let s=0;s<6;s++){const p=slotPos(s,'P');x.fillStyle=dep[s]?'rgba(255,248,225,.25)':'rgba(255,248,225,.45)';rr(p.x-w/2,p.y-h/2,w,h,9);x.fill();x.strokeStyle=hl?'#e0a800':'rgba(110,60,20,.65)';x.lineWidth=hl?2.5:1.5;x.stroke();
-  x.fillStyle='rgba(80,40,15,.75)';x.font='bold 10px system-ui';x.textAlign='left';x.fillText(s<3?L('lanes')[s]:L('res'),p.x-w/2+6,p.y-h/2+12);
+  x.fillStyle='rgba(80,40,15,.75)';x.font='600 12.5px system-ui';x.textAlign='left';x.fillText(s<3?L('lanes')[s]:L('res'),p.x-w/2+6,p.y-h/2+12);
   if(!dep[s]){x.fillStyle='rgba(110,60,20,.4)';x.font='bold 22px system-ui';x.textAlign='center';x.fillText('+',p.x,p.y+8)}}
  x.setLineDash([])}
 function drawLabels(){const c=sel?B.P.find(c=>c.id==sel):drag&&drag.moved?B.P.find(c=>c.id==drag.id):null;
- for(const v of VU){const nm=`${TI[v.card.t]} ${tx(v.card.name)} ⚔${v.card.p}`;if(v.side=='E'){pill(v.x,v.y-v.fh/2-12*SC-(NAV[v.card.t]?0:6),(v.slot==3?(lang=='ko'?'예비 · ':'Rsv · '):'')+nm,'rgba(45,40,120,.88)','#fff')}else pill(v.x,v.y+slotH()/2-9,nm,'rgba(140,25,15,.9)','#fff',9.5)}
- if(c)for(let i=0;i<3;i++){const e=B.E[i];if(!e)continue;const m=mult(c,e);if(m==1)continue;const p=slotPos(i,'E'),v=VU.find(v=>v.side=='E'&&v.slot==i);pill(p.x,p.y+(v?v.fh/2:20)+14,m>1?L('good'):L('bad'),m>1?'rgba(40,130,40,.92)':'rgba(170,40,30,.92)','#fff',11)}}
+ for(const v of VU){const nm=`${TI[v.card.t]} ${tx(v.card.name)} ⚔${v.card.p}`;if(v.side=='E'){pill(v.x,v.y-v.fh/2-12*SC-(NAV[v.card.t]?0:6),(v.slot==3?(lang=='ko'?'예비 · ':'Rsv · '):'')+nm,'rgba(45,40,120,.88)','#fff')}else pill(v.x,v.y+slotH()/2-9,nm,'rgba(140,25,15,.92)','#fff',11.5)}
+ if(c)for(let i=0;i<3;i++){const e=B.E[i];if(!e)continue;const m=mult(c,e);if(m==1)continue;const p=slotPos(i,'E'),v=VU.find(v=>v.side=='E'&&v.slot==i);pill(p.x,p.y+(v?v.fh/2:20)+14,m>1?L('good'):L('bad'),m>1?'rgba(40,130,40,.94)':'rgba(170,40,30,.94)','#fff',13)}}
 function waves(){x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=1.2;for(let i=0;i<40;i++){const px=((i*97)%W+TM*12)%W,py=(i*53)%FH;x.beginPath();x.arc(px,py,6,Math.PI*1.1,Math.PI*1.9);x.stroke()}}
 function drawIntro(){const k=Math.min(1,introT/1.6),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,m=menuView(),d0=W/m.s,lerp=(a,b)=>a+(b-a)*e;const v=mview(lerp(m.lon,B.lon),lerp(m.lat,B.lat),lerp(d0,7),CH*.3);drawMap(v);
  const p=pj(v,B.lon,B.lat);if(introT>1.5){const t=introT-1.5,c=Math.min(1,t/.6),s=SC;
