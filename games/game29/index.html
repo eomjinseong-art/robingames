@@ -4,27 +4,27 @@
 <script src="/counter.js" defer></script>
 <style>
 html,body{margin:0;height:100%;background:#2b2118;overflow:hidden;font-family:system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;touch-action:none;user-select:none;-webkit-user-select:none;color:#3b2412}
-#top{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px;box-sizing:border-box;background:linear-gradient(#f4efe4,#d9cfbd);border-bottom:3px double #8b1e14;z-index:5}
+#top{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;gap:5px;padding:0 8px;box-sizing:border-box;background:linear-gradient(#f4efe4,#d9cfbd);border-bottom:3px double #8b1e14;z-index:5}
 #ttl{font-family:Georgia,"Times New Roman",serif;font-size:15px;color:#7a1810;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btn{background:linear-gradient(#fbf3dc,#e8d6a8);color:#4a2a10;border:1.5px solid #8b5a2b;border-radius:10px;padding:7px 11px;font-size:14px;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn{background:linear-gradient(#fbf3dc,#e8d6a8);color:#4a2a10;border:1.5px solid #8b5a2b;border-radius:10px;padding:7px 10px;font-size:14px;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap}
 .btn:active{transform:translateY(1px)}
 .btn[disabled]{opacity:.45;cursor:default}
 canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
 #tray{position:fixed;left:0;right:0;bottom:0;height:150px;padding-bottom:env(safe-area-inset-bottom);background:linear-gradient(#efe7d6,#d6cab0);border-top:3px double #8b1e14;z-index:4;display:flex;flex-direction:column;box-sizing:content-box}
 #tray.hide{visibility:hidden}
-#tr1{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:12px;color:#5b3a1a;gap:6px}
+#tr1{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px;color:#5b3a1a;gap:6px}
 #legend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #hintB{padding:2px 8px;font-size:12px}
 #cards{flex:1;display:flex;gap:5px;justify-content:center;align-items:center;padding:0 6px;min-height:0}
 .ucard{flex:0 1 78px;height:72px;border-radius:9px;background:linear-gradient(#fffaf0,#f0deb4);border:2px solid #9a6a35;box-shadow:0 2px 0 #7a4f22;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;position:relative;touch-action:none;min-width:0}
 .ucard .ui{font-size:24px;line-height:28px}
-.ucard .un{font-size:10.5px;line-height:12px;text-align:center;padding:0 2px;max-height:24px;overflow:hidden;color:#4a2a10}
+.ucard .un{font-size:11.5px;line-height:13px;text-align:center;padding:0 2px;max-height:24px;overflow:hidden;color:#4a2a10}
 .ucard .up{position:absolute;top:-7px;right:-5px;background:#8b1e14;color:#fff;border-radius:9px;font-size:11px;padding:1px 5px;font-weight:700}
 .ucard.sel{border-color:#e0a800;box-shadow:0 0 0 3px #ffd54a,0 2px 0 #7a4f22;transform:translateY(-4px)}
 .ucard.placed{opacity:.38}
 .ucard.key{background:linear-gradient(#fffaf0,#f7e2a0)}
 #tr3{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 4px;gap:8px}
-#msg{font-size:12.5px;color:#5b3a1a;line-height:15px;flex:1}
+#msg{font-size:13.5px;color:#5b3a1a;line-height:16px;flex:1}
 #fight{font-size:17px;padding:9px 18px;background:linear-gradient(#d9483b,#9b1d12);color:#fff;border-color:#5e0f08;font-weight:700}
 #ov{position:fixed;left:0;right:0;top:50px;bottom:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;padding:10px;box-sizing:border-box}
 #ov.hide{display:none}
@@ -34,11 +34,31 @@ canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
 .panel h1,.panel h2{font-family:Georgia,"Times New Roman",serif;color:#7a1810;margin:2px 0 6px;text-align:center}
 .panel h1{font-size:28px;letter-spacing:1px}
 .panel h2{font-size:21px}
-.panel p{margin:6px 0;line-height:1.45;font-size:14.5px}
+.panel p{margin:6px 0;line-height:1.5;font-size:16px}
+.pic{font-size:44px;text-align:center;line-height:1.25;margin:2px 0 6px}
+.stx{font-size:18px;line-height:1.55;text-align:center;font-weight:600;color:#3b2412}
+.dots{text-align:center;color:#d6c39a;letter-spacing:5px;margin-top:6px;font-size:14px}.dots b{color:#8b1e14}
+.red{background:linear-gradient(#d9483b,#9b1d12)!important;color:#fff!important;border-color:#5e0f08!important;font-weight:700}
+.chars{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.chr{flex:1 1 150px;display:flex;gap:8px;align-items:center;background:#fffaf0;border:2.5px solid;border-radius:12px;padding:6px 8px;text-align:left}
+.chr.P{border-color:#b3261e}.chr.E{border-color:#3d3aa0}
+.chr .fc{font-size:28px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f3e7c6;flex:0 0 44px}
+.chr .cn{font-weight:800;font-size:15px}.chr .co{font-size:13px;line-height:1.3}.chr .cs{font-size:11.5px;font-weight:700}
+.chr.P .cs{color:#b3261e}.chr.E .cs{color:#3d3aa0}
+.gl{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;border-bottom:1px dashed #d8c49a;font-size:15px;line-height:1.4}.gl .ge{font-size:26px;width:34px;text-align:center}
+.mrow{display:flex;align-items:center;gap:10px;font-size:15px;padding:8px;background:#fffaf0;border:1.5px solid #d4a640;border-radius:12px;margin:6px 0;line-height:1.35}.mrow .mi{font-size:28px;white-space:nowrap}
+.why{background:#fff;border-left:5px solid #b3261e;border-radius:8px;padding:7px 10px;margin:6px 0;font-size:15.5px;line-height:1.45}
+#pop{position:fixed;left:0;right:0;top:50px;bottom:0;z-index:8;display:none;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;background:rgba(30,18,8,.4)}
+#pop.on{display:flex}
+#tutA{position:fixed;z-index:7;font-size:42px;pointer-events:none;display:none;transform:translate(-50%,-100%);animation:bob .6s infinite alternate;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+@keyframes bob{to{margin-top:-12px}}
+#tutB{position:fixed;z-index:7;display:none;box-sizing:border-box;background:#fff8dc;border:3px solid #e0a800;border-radius:14px;padding:9px 11px;font-size:16.5px;line-height:1.4;font-weight:700;color:#4a1a08;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#tutB{pointer-events:none}#tutB .btn{pointer-events:auto;display:block;margin:6px 0 0 auto;font-size:13px;padding:4px 10px}
+#legend{cursor:pointer;text-decoration:underline dotted}
 .sub{text-align:center;font-size:13px;color:#7a5a3a}
 .cont{text-align:center;margin-top:10px;font-size:13px;color:#8b1e14;font-weight:700;animation:blink 1.4s infinite}
 @keyframes blink{50%{opacity:.45}}
-.sit{font-size:17px;font-weight:800;text-align:center;color:#4a1a08;background:#fff6dc;border:1.5px dashed #b07a3a;border-radius:10px;padding:8px;margin:8px 0}
+.sit{font-size:18px;font-weight:800;text-align:center;color:#4a1a08;background:#fff6dc;border:1.5px dashed #b07a3a;border-radius:10px;padding:8px;margin:8px 0}
 .vs{text-align:center;font-weight:700;font-size:15px;margin:2px 0}
 .blist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .bbtn{display:flex;align-items:center;gap:8px;text-align:left;font-size:14.5px;padding:9px 10px}
@@ -70,12 +90,13 @@ canvas{position:fixed;top:50px;left:0;display:block;touch-action:none}
 @keyframes bn{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1.08)}20%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
 #ghost{position:fixed;z-index:9;pointer-events:none;font-size:30px;display:none;transform:translate(-50%,-60%);filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
 </style></head><body>
-<div id="top"><a class="btn" href="/" id="home">🏠 홈</a><b id="ttl">🦅 뿡뿡 로마 내전</b><span style="display:flex;gap:4px"><button class="btn" id="lang">EN</button><button class="btn" id="mute">🔊</button></span></div>
+<div id="top"><a class="btn" href="/" id="home">🏠 홈</a><b id="ttl">🦅 뿡뿡 로마 내전</b><span style="display:flex;gap:4px"><button class="btn" id="glosB" aria-label="glossary">❓</button><button class="btn" id="lang">EN</button><button class="btn" id="mute">🔊</button></span></div>
 <canvas id="c"></canvas>
 <div id="tray" class="hide"><div id="tr1"><span id="legend"></span><button class="btn" id="hintB">💡</button></div><div id="cards"></div><div id="tr3"><span id="msg"></span><button class="btn" id="fight">⚔️</button></div></div>
 <div id="ov" class="hide"></div>
 <div id="banner"></div>
 <div id="ghost"></div>
+<div id="pop"></div><div id="tutA">👇</div><div id="tutB"></div>
 <script>
 // ================= DATA =================
 const K=(ko,en)=>({ko,en});
@@ -190,6 +211,77 @@ const BATTLES=[
   Q('막센티우스는 어떻게 되었나요?','What happened to Maxentius?',K('테베레 강에 빠졌다','He drowned in the Tiber'),K('이집트로 도망쳤다','He fled to Egypt'),K('황제 자리를 지켰다','He stayed emperor')),
   Q('전투가 벌어진 강은?','Which river was the battle on?',K('테베레 강','The Tiber'),K('나일 강','The Nile'),K('루비콘 강','The Rubicon'))]}
 ];
+// ===== KID-FRIENDLY DATA =====
+const CHARS={
+sulla:{f:'👴',n:K('술라','Sulla'),o:K('엄하고 고집 센 로마 장군','A tough, stubborn Roman general')},
+crassus:{f:'💰',n:K('크라수스','Crassus'),o:K('로마 최고 부자, 술라 편 장군','Rome\'s richest man, on Sulla\'s side')},
+telesinus:{f:'🧔',n:K('텔레시누스','Telesinus'),o:K('로마에 맞선 삼니움족 대장','Leader of the Samnites, Rome\'s old rivals')},
+caesar:{f:'🦅',n:K('카이사르','Caesar'),o:K('용감하고 머리 좋은 장군','A brave and clever general')},
+pompey:{f:'🤴',n:K('폼페이우스','Pompey'),o:K('\'위대한 자\'라 불린 유명한 장군','A famous general called "the Great"')},
+labienus:{f:'🏇',n:K('라비에누스','Labienus'),o:K('폼페이우스의 기병 대장 (원래 카이사르 부하!)','Pompey\'s cavalry chief (he used to serve Caesar!)')},
+antony:{f:'💪',n:K('안토니우스','Antony'),o:K('힘세고 용감한 카이사르의 친구','Caesar\'s strong, brave friend')},
+octavian:{f:'👦',n:K('옥타비아누스','Octavian'),o:K('카이사르의 양아들, 젊은 청년','Caesar\'s adopted son, still a young man')},
+brutus:{f:'🗡️',n:K('브루투스 & 카시우스','Brutus & Cassius'),o:K('카이사르를 몰래 해친(암살한) 사람들','The men who secretly killed Caesar')},
+agrippa:{f:'⚓',n:K('아그리파','Agrippa'),o:K('옥타비아누스의 단짝, 바다 싸움 천재','Octavian\'s best friend, a genius at sea')},
+cleopatra:{f:'👸',n:K('클레오파트라','Cleopatra'),o:K('이집트의 여왕, 안토니우스 편','Queen of Egypt, on Antony\'s side')},
+constantine:{f:'👑',n:K('콘스탄티누스','Constantine'),o:K('북쪽에서 군대를 끌고 온 황제','An emperor who marched in from the north')},
+maxentius:{f:'🏰',n:K('막센티우스','Maxentius'),o:K('로마 성 안에 있던 황제','The emperor inside the city of Rome')}};
+const KID=[
+{chars:[['sulla','P'],['crassus','P'],['telesinus','E']],
+ story:[{p:'🏛️ 👴 🆚 🧔',t:K('술라 장군과 마리우스 편 사람들이 서로 로마를 차지하려고 싸워요. 같은 나라 사람끼리 싸우는 걸 \'내전\'이라고 해요.','General Sulla and Marius\' side both want to rule Rome. When people of the same country fight each other, it\'s called a "civil war".'),ch:1},
+  {p:'🗺️ 📍',t:K('기원전 82년, 로마의 \'콜리나 문\' 바로 앞이에요. 지금부터 약 2100년 전이에요!','82 BC, right outside Rome\'s "Colline Gate". That\'s about 2,100 years ago!'),map:1}],
+ hint:K('💡 크라수스 군단을 오른쪽 날개에 놓아 봐요! 진짜 역사에서 크라수스는 오른쪽을 맡았어요.','💡 Put Crassus\' legion on the RIGHT wing! In real history Crassus led the right.'),
+ real:{p:'😰 ➡️ 💪 ➡️ 📜',t:K('진짜 역사에서도 술라의 왼쪽은 밀렸어요. 하지만 오른쪽의 크라수스가 적을 물리쳤어요! 이긴 술라는 로마의 \'독재관\'(모든 걸 혼자 정하는 사람)이 되었어요.','In real history Sulla\'s left was pushed back too. But Crassus on the right beat the enemy! Sulla won and became Rome\'s "dictator" (one person who decides everything).')}},
+{chars:[['caesar','P'],['pompey','E'],['labienus','E']],
+ story:[{p:'🦅 🤝 🤴 ➡️ ⚔️',t:K('카이사르와 폼페이우스는 원래 친구였어요. 하지만 둘 다 로마의 1등이 되고 싶어서 싸우게 됐어요.','Caesar and Pompey used to be friends. But both wanted to be number one in Rome, so they ended up fighting.'),ch:1},
+  {p:'🗺️ 📍',t:K('기원전 48년, 그리스의 파르살루스 들판이에요.','48 BC, on the plain of Pharsalus in Greece.'),map:1},
+  {p:'🐎🐎🐎🐎 😱',t:K('폼페이우스 군대는 카이사르보다 두 배나 많아요! 특히 기병(말 탄 군인)이 아주 많아요.','Pompey\'s army is twice as big as Caesar\'s! Especially lots of cavalry (soldiers on horses).')}],
+ hint:K('💡 적 기병(🐎)이 오른쪽으로 빙 돌아 들어와요. \'제4열 대대\'(🛡️)를 오른쪽 뒤 예비대 칸에 숨겨 봐요!','💡 The enemy cavalry (🐎) will sweep around your right. Hide the "Fourth-line cohorts" (🛡️) in the reserve slot behind the RIGHT!'),
+ real:{p:'🤫 🛡️ ➡️ 🐎💨 ➡️ 🏆',t:K('카이사르는 \'제4열\' 병사들을 오른쪽 뒤에 몰래 숨겨 두었어요. 폼페이우스의 기병이 돌아 들어오자 숨은 병사들이 튀어나와 창처럼 찔러 쫓아냈어요! 진 폼페이우스는 이집트로 도망쳤어요.','Caesar secretly hid a "fourth line" behind his right. When Pompey\'s cavalry came around, the hidden soldiers jumped out and drove them off, jabbing like spears! Pompey lost and ran away to Egypt.')}},
+{chars:[['antony','P'],['octavian','P'],['brutus','E']],
+ story:[{p:'🗡️ 😢 🦅',t:K('브루투스와 카시우스가 카이사르를 몰래 해쳤어요. 이걸 \'암살\'이라고 해요.','Brutus and Cassius secretly killed Caesar. That\'s called an "assassination".'),ch:1},
+  {p:'💪 👦 ➡️ ⚔️',t:K('카이사르의 친구 안토니우스와 양아들 옥타비아누스가 복수하러 왔어요.','Caesar\'s friend Antony and his adopted son Octavian came to get revenge.')},
+  {p:'🗺️ 📍 🏰',t:K('기원전 42년, 그리스 북쪽 필리피예요. 카시우스는 늪 옆 요새 안에 있어요.','42 BC, at Philippi in northern Greece. Cassius is inside a fort next to a marsh.'),map:1}],
+ hint:K('💡 \'안토니우스 베테랑\'을 오른쪽 날개에 놓아 카시우스 요새를 공격해요!','💡 Put "Antony\'s veterans" on the RIGHT wing to attack Cassius\' fort!'),
+ real:{p:'💪 🏰 ➡️ 🏳️',t:K('안토니우스가 늪을 건너 카시우스의 요새를 빼앗았어요! 카시우스는 다 졌다고 착각했고, 몇 주 뒤 브루투스도 졌어요. 카이사르를 해친 편은 이렇게 끝났어요.','Antony crossed the marsh and captured Cassius\' fort! Cassius wrongly thought everything was lost, and a few weeks later Brutus lost too. That was the end of the side that killed Caesar.')}},
+{chars:[['octavian','P'],['agrippa','P'],['antony','E'],['cleopatra','E']],
+ story:[{p:'🤝 ➡️ 💔',t:K('안토니우스와 옥타비아누스는 함께 싸웠지만, 사이가 나빠졌어요.','Antony and Octavian once fought together, but they fell out.'),ch:1},
+  {p:'💪 ❤️ 👸',t:K('안토니우스는 이집트 여왕 클레오파트라와 한편이 되었어요.','Antony teamed up with Cleopatra, the Queen of Egypt.')},
+  {p:'🗺️ 📍 ⛵🌊',t:K('기원전 31년, 그리스 서쪽 바다 악티움. 이번엔 배끼리 싸우는 바다 싸움이에요!','31 BC, in the sea off Actium, western Greece. This time it\'s ships against ships!'),map:1}],
+ hint:K('💡 \'아그리파 쾌속선\'(⛵)을 왼쪽에 놓아 크고 느린 배를 둘러싸요!','💡 Put "Agrippa\'s liburnians" (⛵) on the LEFT to surround the big, slow ships!'),
+ real:{p:'⛵⛵⛵ 🚢 ➡️ 👸💨 ➡️ 👑',t:K('아그리파의 작고 빠른 배들이 크고 느린 배를 빙 둘러쌌어요. 싸움 중에 클레오파트라의 배들이 빠져나갔고 안토니우스도 따라갔어요. 옥타비아누스는 로마의 첫 황제 \'아우구스투스\'가 되었어요!','Agrippa\'s small, fast ships circled the big, slow ones. In the middle of the fight Cleopatra\'s ships sailed away, and Antony followed. Octavian became Rome\'s first emperor, "Augustus"!')}},
+{chars:[['constantine','P'],['maxentius','E']],
+ story:[{p:'👑 🆚 👑',t:K('약 300년 뒤, 로마에는 황제가 여러 명 있었어요. 콘스탄티누스와 막센티우스가 서로 자기가 진짜 황제라고 했어요.','About 300 years later Rome had several emperors at once. Constantine and Maxentius each said "I\'m the real emperor!"'),ch:1},
+  {p:'🗺️ 📍 🌉',t:K('서기 312년, 로마 바로 옆 테베레 강의 밀비우스 다리예요.','AD 312, at the Milvian Bridge on the Tiber river, right next to Rome.'),map:1},
+  {p:'🏰 🌊 😬',t:K('막센티우스는 강을 등 뒤에 두고 섰어요. 뒤로 물러날 곳이 없어요!','Maxentius lined up with the river right behind him. There\'s nowhere to step back!')}],
+ hint:K('💡 기병(🐎) 두 부대를 왼쪽 날개와 오른쪽 날개에 하나씩 놓아 봐요!','💡 Put your two cavalry units (🐎) on the LEFT and RIGHT wings, one each!'),
+ real:{p:'🐎🐎 ➡️ 🌊🌉💥 ➡️ 👑',t:K('콘스탄티누스의 기병이 양쪽 날개를 이겼어요. 막센티우스 군대는 강 쪽으로 밀렸고, 배로 만든 다리가 무너졌어요. 막센티우스는 강에 빠졌고 콘스탄티누스가 로마를 차지했어요.','Constantine\'s cavalry won on both wings. Maxentius\' army was pushed toward the river, and the bridge made of boats fell apart. Maxentius fell into the river, and Constantine took Rome.')}}];
+KID.forEach((k,i)=>Object.assign(BATTLES[i],k));
+const GLOS=[['⚔️',K('군단','Legion'),K('로마 보병의 큰 무리. 방패와 창을 든 병사가 아주 많아요.','A big group of Roman foot soldiers with shields and spears.')],
+['🐎',K('기병','Cavalry'),K('말을 탄 군인. 빠르지만 창과 방패 벽에는 약해요.','Soldiers on horses. Fast, but weak against a wall of shields and spears.')],
+['🏹',K('궁수 · 투석병','Archers · slingers'),K('활이나 돌팔매로 멀리서 공격하는 병사.','Soldiers who attack from far away with bows or slings.')],
+['🛡️',K('예비대','Reserve'),K('처음엔 뒤에서 기다리다가, 힘든 곳을 도와주러 가는 부대.','A unit that waits at the back, then rushes to help where it\'s tough.')],
+['🪽',K('날개','Wing'),K('군대 줄의 왼쪽 끝과 오른쪽 끝.','The left end and right end of an army\'s line.')],
+['↪️',K('측면','Flank'),K('옆구리. 옆에서 공격받으면 아주 위험해요!','The side of an army. Getting attacked from the side is very dangerous!')],
+['💪',K('사기','Morale'),K('병사들의 용기와 기운. 사기가 떨어지면 도망쳐요.','Soldiers\' courage and spirit. When morale drops, they run away.')],
+['🧠',K('계책 · 전술','Stratagem · tactic'),K('적을 이기기 위한 꾀, 똑똑한 작전.','A clever trick or plan to beat the enemy.')],
+['🏠',K('내전','Civil war'),K('같은 나라 사람끼리 편을 나눠 싸우는 전쟁.','A war where people of the same country fight each other.')],
+['⛵',K('함대','Fleet'),K('함께 싸우는 배들의 무리.','A group of warships fighting together.')],
+['🏛️',K('원로원','Senate'),K('로마의 어른 정치가들이 모여 나라 일을 정하던 곳.','A council of Rome\'s senior politicians who helped run the country.')],
+['👑',K('황제','Emperor'),K('나라 전체를 다스리는 왕 같은 사람.','A ruler like a king, in charge of the whole empire.')],
+['📜',K('독재관','Dictator'),K('급할 때 모든 걸 혼자 정하던 로마의 높은 사람.','A Roman official who could decide everything alone in an emergency.')],
+['⏳',K('기원전 (BC)','BC'),K('서기 1년보다 앞선 시대. 숫자가 클수록 더 옛날이에요!','The years before AD 1. The bigger the number, the longer ago!')]];
+Object.assign(T.ko,{skip:'⏭ 건너뛰기',nextP:'다음 ▶',deployGo:'배치하기 ▶',ourSide:'🔴 우리 편',theirSide:'🔵 상대 편',realT:'📖 진짜 역사에서는?',whyT:'왜 졌을까? 🤔',whyFlank:'↪️ 적이 한쪽 줄을 이기고 옆구리(측면)로 돌아 들어왔어요. 옆에서 맞으면 아주 위험해요!',whyStrong:'💪 이번엔 적이 더 강했어요. 아래 힌트를 써 봐요!',matchT:'🎯 누가 누구에게 강할까?',matchFoot:'카드를 고르면 적 위에 👍유리 / 👎불리 표시가 나와요!',glosT:'❓ 어려운 말 사전',tutBtn:'🎓 하는 법 배우기',tutSkip:'건너뛰기 ✕',seeMatch:'🎯 상성 보기',mapPin:'📍 위 지도의 빨간 핀을 봐요!',tapAny:'아무 데나 탭하면 닫혀요'});
+Object.assign(T.en,{skip:'⏭ Skip',nextP:'Next ▶',deployGo:'Deploy ▶',ourSide:'🔴 Our side',theirSide:'🔵 Other side',realT:'📖 What really happened?',whyT:'Why did we lose? 🤔',whyFlank:'↪️ The enemy won one part of the line and came around your side (flank). Being hit from the side is very dangerous!',whyStrong:'💪 The enemy was stronger this time. Try the hint below!',matchT:'🎯 Who beats whom?',matchFoot:'Pick a card and 👍 strong / 👎 weak signs appear over the enemy!',glosT:'❓ Hard words',tutBtn:'🎓 How to play',tutSkip:'Skip ✕',seeMatch:'🎯 Matchups',mapPin:'📍 Look for the red pin on the map above!',tapAny:'Tap anywhere to close'});
+const MATCH={land:[['🐎 ➜ 🏹',K('기병이 궁수를 이겨요','Cavalry beats archers'),K('말이 빨라서 궁수에게 금방 달려가요','Horses are fast and reach the archers quickly')],['🏹 ➜ ⚔️',K('궁수가 보병을 이겨요','Archers beat legions'),K('멀리서 쏘아서 보병을 괴롭혀요','They shoot from far away')],['⚔️ ➜ 🐎',K('보병이 기병을 이겨요','Legions beat cavalry'),K('창과 방패 벽에 말이 멈춰요','Horses stop at a wall of shields and spears')],['🛡️ = ⚔️',K('예비대는 보병처럼 싸워요','Reserves fight like legions'),K('뒤에서 기다렸다가 도와줘요','They wait at the back, then help')]],
+sea:[['⛵ ➜ 🚢',K('쾌속선이 대형선을 이겨요','Fast ships beat heavy ships'),K('작고 빨라서 큰 배를 빙 둘러싸요','Small and quick, they surround big ships')],['🚢 ➜ 🔥',K('대형선이 불화살선을 이겨요','Heavy ships beat fire ships'),K('튼튼한 배로 부딪쳐 밀어내요','Their strong hulls ram them')],['🔥 ➜ ⛵',K('불화살선이 쾌속선을 이겨요','Fire ships beat fast ships'),K('작은 배는 불화살에 잘 타요','Small ships burn easily')]]};
+const WEAK={inf:K('⚔️보병이 🏹궁수의 화살을 많이 맞았어요.','⚔️ Foot soldiers got hit by lots of 🏹 arrows.'),cav:K('🐎기병이 ⚔️보병의 창과 방패 벽에 막혔어요.','🐎 Cavalry got stuck on a ⚔️ wall of shields and spears.'),arc:K('🏹궁수가 빠른 🐎기병에게 잡혔어요.','🏹 Archers got caught by fast 🐎 cavalry.'),lib:K('⛵쾌속선이 🔥불화살에 약했어요.','⛵ Fast ships burned under 🔥 fire arrows.'),heavy:K('🚢대형선이 빠른 ⛵쾌속선에게 둘러싸였어요.','🚢 Heavy ships got surrounded by fast ⛵ ships.'),fire:K('🔥불화살선이 튼튼한 🚢대형선에 부딪혔어요.','🔥 Fire ships got rammed by strong 🚢 heavy ships.')};
+const TUTS=[{card:'crassus',t:K('① 👆 \'크라수스 군단\' 카드를 눌러요 (끌어도 돼요)','① 👆 Tap the "Crassus\' legion" card (or drag it)'),ok:()=>sel=='crassus'||dep[2]=='crassus'},
+{slot:2,t:K('② 여기 \'오른쪽 날개\'에 놓아요! 크라수스는 오른쪽 담당이에요','② Put it here on the RIGHT wing! Crassus leads the right'),ok:()=>dep[2]=='crassus'},
+{slot:0,t:K('③ \'술라 군단\' 카드를 왼쪽 날개로 끌어 와요','③ Drag the "Sulla\'s legion" card to the LEFT wing'),ok:()=>dep[0]=='sulla'},
+{slot:1,t:K('④ 🏹 \'투석병\'은 가운데로! 멀리서 돌을 던져서 ⚔️보병에게 강해요','④ 🏹 "Slingers" go in the centre! They throw stones from far away, so they beat ⚔️ foot soldiers'),ok:()=>dep[1]=='sling'},
+{slot:4,t:K('⑤ 🐎 \'기병대\'는 뒤쪽 예비대 칸에! 기다렸다가 도와주러 가요','⑤ 🐎 "Cavalry" goes in a back reserve slot! It waits, then rushes to help'),ok:()=>dep.slice(3).includes('scav')},
+{btn:'fight',t:K('⑥ ⚔️ 전투! 를 눌러요. 그다음엔 병사들이 알아서 싸워요','⑥ Press ⚔️ FIGHT! Then the soldiers fight on their own'),ok:()=>scr=='fight'}];
 /*SIM*/
 const ADV={inf:'cav',cav:'arc',arc:'inf',lib:'heavy',heavy:'fire',fire:'lib'};
 function cls(t){return t=='res'?'inf':t}
@@ -386,7 +478,7 @@ function ov(html,fn,guard,mid){const o=$('ov');o.innerHTML=html;o.className=mid?
 function ovHide(){const o=$('ov');o.className='hide';o.innerHTML='';contFn=null}
 function cont(){if(contFn&&now()>=contAt){const f=contFn;contFn=null;sfx('click');f()}}
 $('ov').addEventListener('click',e=>{if(e.target.closest('button,a,.nocont'))return;cont()});
-addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'||e.key==' '||e.key=='Enter'){e.preventDefault();if(e.repeat)return;cont()}});
+addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'||e.key==' '||e.key=='Enter'){e.preventDefault();if(e.repeat)return;if($('pop').className=='on'){popClose();return}cont()}});
 function trayShow(on){$('tray').classList.toggle('hide',!on)}
 function banner(t,k){const b=$('banner');b.textContent=t;b.className='';void b.offsetWidth;b.className='on '+(k||'');b.style.top=(50+FH*.4-16)+'px'}
 function log(t){lastLog=t;$('msg').textContent=t}
@@ -397,30 +489,35 @@ function coin(id,lk){const g=GEN[id],gold=g.g,c1=lk?'#a39c8c':gold?'#e8bd48':'#c
  `<text font-size="8" font-family="Georgia" font-weight="bold" fill="${c2}" letter-spacing=".4"><textPath href="#${pid}" startOffset="3%">${lk?'· · ·':g.lat}</textPath></text></svg>`}
 function gcard(id,isNew){const g=GEN[id];return `<div class="gcard">${coin(id)}<div><div class="gt">${tx(g.n)}${isNew?`<span class="new">${L('nw')}</span>`:''}</div><div class="gb">${tx(g.b)}</div></div></div>`}
 function setLang(){$('lang').textContent=lang=='ko'?'EN':'한';$('home').textContent=L('home');$('ttl').textContent=L('t');$('hintB').textContent=lang=='ko'?'💡 힌트':'💡 Hint';document.documentElement.lang=lang;
- if(scr=='deploy'){renderTray()}else if(scr=='fight'){renderTray();$('msg').textContent=lastLog}else if(curRender&&!(scr=='quiz'&&qAns>=0))curRender();if(!loopOn)draw()}
+ if(scr=='deploy'){renderTray()}if($('pop').className=='on'){$('pop').className=''}else if(scr=='fight'){renderTray();$('msg').textContent=lastLog}else if(curRender&&!(scr=='quiz'&&qAns>=0))curRender();if(!loopOn)draw()}
 $('lang').onclick=e=>{e.stopPropagation();lang=lang=='ko'?'en':'ko';localStorage.setItem('g29lang',lang);setLang()};
 // --- screens
 function rBoot(){ov(`<div class="panel"><div style="text-align:center;font-size:44px">🦅</div><h1>${L('t').slice(3)}</h1><p class="sub">${L('sub')}</p><p class="sub">${L('sub2')}</p><div class="cont">${L('start')}</div></div>`,()=>{au();startLoop();showMenu()},0)}
 function showMenu(){scr='menu';trayShow(0);intense=0;curRender=rMenu;rMenu()}
 function rMenu(){const nd=dex.length;let h=`<div class="panel"><h2>${L('choose')}</h2><div class="blist">`;
  BATTLES.forEach((b,i)=>{const on=i==0||prog[i-1]>0;h+=`<button class="btn bbtn" data-b="${i}" ${on?'':'disabled'}><span class="n">${b.num}</span><span><b>${on?'':L('locked')+' '}${tx(b.name)}</b><br><small>${tx(b.year)} · ${tx(b.vs)}</small></span><span class="s">${'★'.repeat(prog[i])}<span style="color:#c8b48a">${'★'.repeat(3-prog[i])}</span></span></button>`});
- h+=`</div><div class="row"><button class="btn" id="dexB">${L('dex')} ${nd}/10</button></div></div>`;
+ h+=`</div><div class="row"><button class="btn" id="dexB">${L('dex')} ${nd}/10</button><button class="btn" id="tutB2">${L('tutBtn')}</button><button class="btn" id="glB2">${L('glosT')}</button></div></div>`;
  let nx=0;for(let i=0;i<5;i++)if(i==0||prog[i-1]>0)nx=i;for(let i=0;i<5;i++)if((i==0||prog[i-1]>0)&&!prog[i]){nx=i;break}
- ov(h,()=>startBattle(nx),400);$('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{sfx('click');startBattle(+b.dataset.b)});$('dexB').onclick=()=>{sfx('click');showDex()}}
+ ov(h,()=>startBattle(nx),400);$('ov').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{sfx('click');startBattle(+b.dataset.b)});$('dexB').onclick=()=>{sfx('click');showDex()};$('tutB2').onclick=()=>{sfx('click');localStorage.removeItem('g29tut');startBattle(0)};$('glB2').onclick=()=>{sfx('click');showGlos()}}
 function showDex(){scr='dex';curRender=rDex;rDex()}
 function rDex(){let h=`<div class="panel nocont"><h2>${L('dex')} ${dex.length}/10</h2><div class="dexg">`;for(const id of GORDER){const on=dex.includes(id);h+=on?`<div class="gcard">${coin(id)}<div class="gt">${tx(GEN[id].n)}</div><div class="gb">${tx(GEN[id].b)}</div></div>`:`<div class="gcard lk">${coin(id,1)}<div class="gt">???</div></div>`}
  h+=`</div><div class="row"><button class="btn" id="dxc">${L('close')}</button></div></div>`;ov(h,showMenu,300,1);$('dxc').onclick=()=>{sfx('click');showMenu()}}
 function startBattle(i){bi=i;B=BATTLES[i];dep=Array(6).fill(null);sel=null;bgC=null;VU=[];parts=[];showIntro()}
-function showIntro(){scr='intro';introT=0;trayShow(0);curRender=rIntro;rIntro();sfx('horn')}
-function rIntro(){ov(`<div class="panel"><div class="sub">${B.num} · ${tx(B.year)} · ${tx(B.place)}</div><h2>${tx(B.name)}</h2><div class="vs">${tx(B.vs)}</div><p>${tx(B.why)}</p><div class="sit">${tx(B.sit)}</div><div class="cont">${L('toDeploy')}</div></div>`,toDeploy,900)}
+let pi=0;function panels(){return B.story.concat([{p:'⚔️ 🗺️',t:B.sit,last:1}])}
+function showIntro(){scr='intro';introT=0;pi=0;trayShow(0);curRender=rIntro;rIntro();sfx('horn')}
+function charsHTML(){return `<div class="chars">${B.chars.map(([id,sd])=>{const c=CHARS[id];return `<div class="chr ${sd}"><div class="fc">${c.f}</div><div><div class="cn">${tx(c.n)}</div><div class="co">${tx(c.o)}</div><div class="cs">${sd=='P'?L('ourSide'):L('theirSide')}</div></div></div>`}).join('')}</div>`}
+function rIntro(){const ps=panels(),pn=ps[pi],last=pi==ps.length-1;
+ ov(`<div class="panel"><div class="sub">${B.num} · ${tx(B.name)} · ${tx(B.year)}</div><div class="pic">${pn.p}</div><div class="stx">${tx(pn.t)}</div>${pn.ch?charsHTML():''}${pn.map?`<div class="sub" style="margin-top:6px">${L('mapPin')}<br>${tx(B.place)}</div>`:''}<div class="dots">${ps.map((_,i)=>i==pi?'<b>●</b>':'●').join('')}</div><div class="row"><button class="btn" id="skB">${L('skip')}</button><button class="btn red" id="nxB">${last?L('deployGo'):L('nextP')}</button></div></div>`,introNext,300);
+ $('skB').onclick=()=>{sfx('click');toDeploy()};$('nxB').onclick=()=>{sfx('click');introNext()}}
+function introNext(){if(pi<panels().length-1){pi++;rIntro()}else toDeploy()}
 function toDeploy(){scr='deploy';ovHide();trayShow(1);rs();buildVU();parts=[];intense=0;sel=null;renderTray();curRender=null;
- if(bi==0&&!dep.some(Boolean))banner(L('howto'))}
+ tutStep=(bi==0&&!localStorage.getItem('g29tut'))?0:-1;tutCheck();if(B.naval&&!localStorage.getItem('g29nav')){localStorage.setItem('g29nav','1');showMatch()}}
 function valid(){return B.P.every(c=>dep.includes(c.id))&&dep[0]&&dep[1]&&dep[2]}
-function renderTray(){const nav=B.naval;$('legend').textContent=L('beats')+': '+(nav?(lang=='ko'?'⛵쾌속 › 🚢대형 › 🔥불화살 › ⛵':'⛵fast › 🚢heavy › 🔥fire › ⛵'):(lang=='ko'?'⚔️보병 › 🐎기병 › 🏹궁수 › ⚔️ (🛡️=⚔️)':'⚔️legion › 🐎cavalry › 🏹archers › ⚔️ (🛡️=⚔️)'));
+function renderTray(){const nav=B.naval;$('legend').textContent='❓ '+L('beats')+': '+(nav?(lang=='ko'?'⛵쾌속 › 🚢대형 › 🔥불화살 › ⛵':'⛵fast › 🚢heavy › 🔥fire › ⛵'):(lang=='ko'?'⚔️보병 › 🐎기병 › 🏹궁수 › ⚔️ (🛡️=⚔️)':'⚔️legion › 🐎cavalry › 🏹archers › ⚔️ (🛡️=⚔️)'));
  const busy=scr!='deploy';$('cards').innerHTML=B.P.map(c=>`<div class="ucard${dep.includes(c.id)?' placed':''}${sel==c.id?' sel':''}" data-id="${c.id}" style="${busy?'pointer-events:none':''}"><span class="up">⚔${c.p}</span><div class="ui">${TI[c.t]}</div><div class="un">${tx(c.name)}</div></div>`).join('');
  $('cards').querySelectorAll('.ucard').forEach(el=>el.addEventListener('pointerdown',e=>{e.preventDefault();au();drag={id:el.dataset.id,from:'tray',sx:e.clientX,sy:e.clientY,moved:false}}));
  const f=$('fight');f.textContent=busy?L('fighting'):L('fight');f.disabled=busy||!valid();$('hintB').disabled=busy;
- if(!busy)log(valid()?L('ready'):!B.P.every(c=>dep.includes(c.id))?(dep.some(Boolean)?L('needAll'):L('howto')):L('needFront'))}
+ tutCheck();if(!busy)log(valid()?L('ready'):!B.P.every(c=>dep.includes(c.id))?(dep.some(Boolean)?L('needAll'):L('howto')):L('needFront'))}
 function place(id,s){const prev=dep.indexOf(id);if(prev==s)return;const occ=dep[s];if(prev>=0)dep[prev]=occ;dep[s]=id;sfx('place');buildVU();const p=slotPos(s,'P');dust(p.x,p.y,8);if(!loopOn)draw()}
 function cpos(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
 cv.addEventListener('pointerdown',e=>{if(scr!='deploy')return;e.preventDefault();au();const [px,py]=cpos(e),s=slotAt(px,py);
@@ -436,10 +533,24 @@ addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;$('ghost
  renderTray();if(!loopOn)draw()});
 addEventListener('pointercancel',()=>{drag=null;$('ghost').style.display='none'});
 $('fight').onclick=e=>{e.stopPropagation();fight()};
-$('hintB').onclick=e=>{e.stopPropagation();if(scr!='deploy')return;sfx('click');ov(`<div class="panel"><h2>${L('hintT')}</h2><p>${tx(B.hint)}</p><div class="cont">${L('tapClose')}</div></div>`,()=>{ovHide()},250,1)};
+$('hintB').onclick=e=>{e.stopPropagation();if(!B)return;sfx('click');popup(`<h2>${L('hintT')}</h2><p style="font-size:17px">${tx(B.hint)}</p>`)};
+let popAt=0;function popup(h){const p=$('pop');p.innerHTML=`<div class="panel">${h}<div class="cont">${L('tapAny')}</div></div>`;p.className='on';popAt=now()+200}
+function popClose(){if(now()<popAt)return;$('pop').className='';$('pop').innerHTML='';sfx('click')}
+$('pop').addEventListener('click',popClose);
+function showMatch(){const rows=MATCH[B&&B.naval?'sea':'land'];popup(`<h2>${L('matchT')}</h2>${rows.map(r=>`<div class="mrow"><span class="mi">${r[0]}</span><span><b>${tx(r[1])}</b><br>${tx(r[2])}</span></div>`).join('')}<p class="sub" style="font-size:14px">${L('matchFoot')}</p>`)}
+function showGlos(){popup(`<h2>${L('glosT')}</h2>${GLOS.map(g=>`<div class="gl"><span class="ge">${g[0]}</span><span><b>${tx(g[1])}</b><br>${tx(g[2])}</span></div>`).join('')}`)}
+$('legend').onclick=e=>{e.stopPropagation();sfx('click');showMatch()};
+$('glosB').onclick=e=>{e.stopPropagation();au();sfx('click');showGlos()};
+// --- tutorial
+let tutStep=-1;
+function tutEnd(){tutStep=-1;localStorage.setItem('g29tut','1');$('tutA').style.display=$('tutB').style.display='none'}
+function tutCheck(){if(tutStep<0)return;while(tutStep<TUTS.length&&TUTS[tutStep].ok())tutStep++;if(tutStep>=TUTS.length){tutEnd();return}const b=$('tutB');b.innerHTML=`${tx(TUTS[tutStep].t)}<button class="btn" id="tutS">${L('tutSkip')}</button>`;$('tutS').onclick=e=>{e.stopPropagation();sfx('click');tutEnd()}}
+function tutPos(){const a=$('tutA'),b=$('tutB');if(tutStep<0||scr!='deploy'||$('ov').className!='hide'||$('pop').className=='on'){a.style.display=b.style.display='none';return}
+ const st=TUTS[tutStep];let tx2,ty2;if(st.card){const el=document.querySelector(`.ucard[data-id="${st.card}"]`);if(!el)return;const r=el.getBoundingClientRect();tx2=r.left+r.width/2;ty2=r.top+4}else if(st.btn){const r=$(st.btn).getBoundingClientRect();tx2=r.left+r.width/2;ty2=r.top+2}else{const p=slotPos(st.slot,'P');tx2=p.x;ty2=50+p.y-slotH()/2+18}
+ a.style.display=b.style.display='block';a.style.left=tx2+'px';a.style.top=ty2+'px';const bw=Math.min(300,W-20);b.style.width=bw+'px';b.style.left=Math.max(10,Math.min(W-bw-10,tx2-bw/2))+'px';b.style.top=Math.max(56,ty2-48-b.offsetHeight)+'px'}
 // --- battle
 function fight(){if(scr!='deploy'||!valid())return;au();scr='fight';S=newSim(B,dep);for(const v of VU)v.u=S.units.find(u=>u.side==v.side&&u.id==v.card.id);ph='march';ft=0;simAcc=0;evI=0;keyShown=0;resShown=0;bridgeT=-1;tScale=1;slowT=0;intense=1;sel=null;parts=[];
- sfx('horn');renderTray();log(L('march'));banner(L('march'))}
+ sfx('horn');renderTray();tutCheck();log(L('march'));banner(L('march'))}
 function vOf(u){return VU.find(v=>v.u===u)}
 function handleEv(){for(;evI<S.ev.length;evI++){const e=S.ev[evI];
  if(e.k=='rout'){const v=vOf(e.u);if(v&&!v.routed)routV(v);if(!e.mass)log(e.u.side=='E'?L('routE'):L('routP'))}
@@ -471,12 +582,16 @@ function tugBars(){for(let l=0;l<3;l++){let p=0,e=0;for(const u of S.units){if(u
 // --- result & quiz
 function showResult(){scr='result';intense=0;const w=S.win,st=w?stars(S):0;RES={w,st,show:[],nw:[]};
  if(w){if(st>prog[bi])prog[bi]=st;const gs=[B.gen[0]];if(st==3)gs.push(B.gen[1]);for(const g of gs){RES.show.push(g);if(!dex.includes(g)){dex.push(g);RES.nw.push(g)}}save();for(let i=0;i<st;i++)setTimeout(()=>sfx('star'),350+i*300)}
- curRender=rResult;rResult()}
+ RES.why=w?[]:whyLost();curRender=rResult;rResult()}
+function whyLost(){const r=[];for(let i=0;i<3;i++){const c=B.P.find(c=>c.id==dep[i]),e=B.E[i];if(c&&e&&mult(c,e)<1)r.push(`<b>${L('lanes')[i]}</b>: ${tx(WEAK[cls(c.t)])}`)}
+ if(S.ev.some(e=>e.k=='flank'&&e.u.side=='E'))r.push(L('whyFlank'));if(!r.length)r.push(L('whyStrong'));return r.slice(0,3)}
 function rResult(){const r=RES;let h;
  if(r.w){h=`<div class="panel"><h2>${L('win')}</h2><div class="stars">${[0,1,2].map(i=>`<span class="${i<r.st?'':'off'}" style="animation-delay:${.3+i*.3}s">★</span>`).join('')}</div>`+
-  (r.st==3?`<div class="hist"><b>${L('keyT')}</b><p>${tx(B.hist)}</p></div>`:`<p class="sub">${L('keyMiss')}</p>`)+
-  `<div class="sub" style="margin-top:6px">${L('newGen')}</div>`+r.show.map(g=>gcard(g,r.nw.includes(g))).join('')+`<div class="cont">${L('toQuiz')}</div></div>`;ov(h,startQuiz,700,1)}
- else{h=`<div class="panel"><h2>${L('lose')}</h2><p style="text-align:center">${L('loseTxt')}</p><div class="hist"><b>${L('hintT')}</b><p>${tx(B.hint)}</p></div><div class="cont">${L('retry')}</div></div>`;ov(h,()=>toDeploy(),450,1)}}
+  (r.st==3?`<div class="hist"><b>${L('keyT')}</b><p>${tx(B.keyMsg)}</p></div>`:`<div class="hist"><b>${L('keyMiss')}</b><p>${tx(B.hint)}</p></div>`)+
+  `<div class="sub" style="margin-top:6px">${L('newGen')}</div>`+r.show.map(g=>gcard(g,r.nw.includes(g))).join('')+`<div class="cont">${L('contN')}</div></div>`;ov(h,showReal,500,1)}
+ else{h=`<div class="panel"><h2>${L('lose')}</h2><h2 style="font-size:17px">${L('whyT')}</h2>${r.why.map(t=>`<div class="why">${t}</div>`).join('')}<div class="hist"><b>${L('hintT')}</b><p>${tx(B.hint)}</p></div><div class="row"><button class="btn" id="smB">${L('seeMatch')}</button><button class="btn red" id="rdB">${L('retry').split('→').pop().trim()}</button></div></div>`;ov(h,()=>toDeploy(),450,1);$('smB').onclick=e=>{e.stopPropagation();sfx('click');showMatch()};$('rdB').onclick=e=>{e.stopPropagation();sfx('click');toDeploy()}}}
+function showReal(){scr='real';curRender=rReal;rReal()}
+function rReal(){ov(`<div class="panel"><h2>${L('realT')}</h2><div class="pic" style="font-size:36px">${B.real.p}</div><div class="stx">${tx(B.real.t)}</div><div class="row"><button class="btn red" id="qzB">${L('toQuiz').split('→').pop().trim()}</button></div></div>`,startQuiz,400,1);$('qzB').onclick=e=>{e.stopPropagation();sfx('click');startQuiz()}}
 function startQuiz(){scr='quiz';const n=bi==0?2:3;QZ=shuffle(B.quiz.slice()).slice(0,n).map(q=>({q:q.q,opts:shuffle(q.a.map((o,i)=>({o,ok:i==0})))}));qi=0;qok=0;renderQ()}
 function renderQ(){curRender=renderQ;qAns=-1;const q=QZ[qi];ov(`<div class="panel nocont"><div class="sub">${L('quiz')} ${qi+1} / ${QZ.length}</div><h2 style="font-size:18px">${tx(q.q)}</h2><div class="qopts">${q.opts.map((o,i)=>`<button class="btn" data-q="${i}">${tx(o.o)}</button>`).join('')}</div><div class="fb" id="fb"></div></div>`,null,0,1);
  $('ov').querySelectorAll('[data-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();answer(+b.dataset.q)})}
@@ -513,6 +628,6 @@ function draw(){x.setTransform(D,0,0,D,0,0);
  for(const v of VU.slice().sort((a,b)=>a.y-b.y))drawV(v);drawParts();if(scr=='fight'&&ph=='sim')tugBars();if(scr=='deploy')drawLabels();x.restore()}
 function upd(dt){shake=Math.max(0,shake-dt*22);updParts(dt);if(scr=='intro')introT+=dt;if(scr=='fight')updFight(dt)}
 function startLoop(){if(loopOn)return;loopOn=true;lastF=now();requestAnimationFrame(loop)}
-function loop(t){const dt=Math.min(.05,Math.max(0,(t-lastF)/1000));lastF=t;TM+=dt;try{upd(dt);draw()}catch(e){console.error(e)}requestAnimationFrame(loop)}
+function loop(t){const dt=Math.min(.05,Math.max(0,(t-lastF)/1000));lastF=t;TM+=dt;try{upd(dt);draw();tutPos()}catch(e){console.error(e)}requestAnimationFrame(loop)}
 rs();setMute();setLang();curRender=rBoot;rBoot();draw();
 </script></body></html>
