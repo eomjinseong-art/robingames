@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>뿡뿡 신들의 짝 / Toot Gods Match | 뿡뿡 올림포스 · 나두게임즈</title>
+<meta name="description" content="뿡뿡 올림포스 5편 — 신과 상징·가족을 연결하고 가계도를 완성해요. By 나두Ai.">
+<meta name="theme-color" content="#140c28">
+<link rel="icon" href="data:,">
+<script src="/counter.js" defer></script>
+<script src="/games/olympus/myth.js?v=20261015"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html,body{height:100%;background:#140c28;overflow:hidden;font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;color:#fff;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.bar{position:fixed;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:flex;justify-content:space-between;z-index:3;pointer-events:none}
+.bar a,.bar button{pointer-events:auto;width:42px;height:42px;border-radius:14px;border:2px solid #ffd76f88;background:#1b1d4acc;color:#fff;font-size:18px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-left:6px;font-family:inherit}
+.brand{position:fixed;bottom:max(6px,env(safe-area-inset-bottom));width:100%;text-align:center;font-size:11px;opacity:.55;z-index:3;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><a href="/" aria-label="home">🏠</a><span><button id="dex" aria-label="dex">🏛️</button><button id="lang">EN</button><button id="mute">🔊</button></span></div>
+<div class="brand">나두Ai · 뿡뿡 올림포스 5</div>
+<script>
+(()=>{
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let W,H;
+function rs(){const D=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;x.setTransform(D,0,0,D,0,0)}
+addEventListener('resize',rs);rs();
+let lang='ko';try{lang=localStorage.olyLang||'ko'}catch(e){}
+const tt=(a,b)=>lang==='ko'?a:b;
+const UI={
+ko:{t:'뿡뿡 신들의 짝',sub:'뿡뿡 올림포스 ⑤',h:'카드 한 장을 탭하고, 맞는 짝을 탭하세요',w:'앞면이 보여요. 같은 그림 찾기가 아니에요. 틀린 연결은 하트 −1, 연타하면 잠깐 멈춤!',go:'탭해서 시작!',tap:'탭하면 시작!',best:'최고',next:'탭하면 다음 단계',quizgo:'탭하면 퀴즈!',retry:'탭 · 스페이스 · 엔터로 다시!',over:'이번 판 끝!',win:'가계도 완성!',win2:'올림포스 12신을 모두 이었어요',nb:'🎉 새 기록!',miss:'땡!',good:'연결!',time:'시간 초과!',again:'다시!',wave:'다음 자리!',keep:'❤ 이어 하기!',wait:'잠깐!'},
+en:{t:'Toot Gods Match',sub:'Toot Olympus ⑤',h:'Tap one card, then tap its match',w:'Cards stay face up — not a picture memory game. A wrong link costs a heart and a short pause.',go:'Tap to start!',tap:'Tap to begin!',best:'Best',next:'Tap for the next stage',quizgo:'Tap for the quiz!',retry:'Tap / Space / Enter to replay!',over:'Run over!',win:'Tree complete!',win2:'You linked all twelve Olympians',nb:'🎉 New best!',miss:'Nope!',good:'Linked!',time:'Time up!',again:'Again!',wave:'Next seats!',keep:'❤ Keep going!',wait:'Wait!'}
+};
+const L=()=>UI[lang];
+const lb=document.getElementById('lang');
+const setLB=()=>lb.textContent=lang==='ko'?'EN':'KO';setLB();
+lb.onclick=()=>{lang=lang==='ko'?'en':'ko';try{localStorage.olyLang=lang}catch(e){}setLB()};
+document.getElementById('dex').onclick=()=>{Myth.openDex(lang)};
+document.querySelector('.bar').addEventListener('pointerdown',e=>e.stopPropagation());
+const PAL={
+zeus:['#8ec5ff','#163a66'],hera:['#e7b1ff','#5c246f'],poseidon:['#7ee0d6','#0c4c56'],demeter:['#ffe08a','#7a4e10'],
+athena:['#c9d4ff','#2a3178'],apollo:['#ffd36e','#8a4e00'],artemis:['#c8f5c4','#1c6844'],ares:['#ff9d9d','#8a1e28'],
+aphrodite:['#ffd0e4','#8e3058'],hephaistos:['#ffc08a','#6e3812'],hermes:['#fff3b0','#7a5a10'],dionysos:['#e4c0ff','#542878'],
+hades:['#d0cbe6','#2c2644'],persephone:['#ffb7c8','#7a2848'],kronos:['#e4d2b0','#5c4630'],rhea:['#f6d7b4','#6e4424'],
+hestia:['#ffb088','#7a3014'],helios:['#ffe56a','#8a6808'],minos:['#f0e2c0','#5c4a30']
+};
+const ROLES={
+zeus:{ko:'신들의 왕',en:'King of the gods'},hera:{ko:'결혼의 여신',en:'Goddess of marriage'},poseidon:{ko:'바다의 신',en:'God of the sea'},demeter:{ko:'곡식의 여신',en:'Goddess of grain'},
+athena:{ko:'지혜의 여신',en:'Goddess of wisdom'},apollo:{ko:'음악의 신',en:'God of music'},artemis:{ko:'사냥의 여신',en:'Goddess of the hunt'},ares:{ko:'전쟁의 신',en:'God of war'},
+aphrodite:{ko:'사랑의 여신',en:'Goddess of love'},hephaistos:{ko:'대장장이 신',en:'God of the forge'},hermes:{ko:'전령의 신',en:'Messenger god'},dionysos:{ko:'포도주의 신',en:'God of wine'}
+};
+const sym=(em,ko,en)=>({em,ko,en});
+const clue=(ko,en)=>({ko,en});
+const STAGES=[
+{kind:'link',em:'⚡',time:0,hintAt:1,ha:['신','God'],hb:['상징','Symbol'],play:['신 ↔ 상징','God ↔ symbol'],goal:['신을 탭한 다음, 그 상징을 탭하세요','Tap a god, then tap that god\'s symbol'],learn:['제우스의 상징은 번개, 아테나의 새는 올빼미예요.','Zeus\'s sign is the lightning bolt. Athena\'s bird is the owl.'],grant:['zeus','athena'],pairs:[
+{a:'zeus',b:sym('⚡','번개','Lightning'),hint:['제우스의 상징은 번개','Zeus\'s sign is lightning']},
+{a:'athena',b:sym('🦉','올빼미','Owl'),hint:['아테나의 새는 올빼미','Athena\'s bird is the owl']}]},
+{kind:'link',em:'🔱',time:0,hintAt:1,ha:['신','God'],hb:['상징','Symbol'],play:['신 ↔ 상징','God ↔ symbol'],goal:['신과 상징을 이어요','Link each god to a symbol'],learn:['포세이돈은 삼지창, 아폴론은 리라, 아르테미스는 활을 써요.','Poseidon has the trident, Apollo the lyre, Artemis the bow.'],grant:['poseidon','apollo','artemis'],pairs:[
+{a:'poseidon',b:sym('🔱','삼지창','Trident'),hint:['포세이돈의 무기는 삼지창','Poseidon\'s weapon is the trident']},
+{a:'apollo',b:sym('🎵','리라','Lyre'),hint:['아폴론의 악기는 리라','Apollo\'s instrument is the lyre']},
+{a:'artemis',b:sym('🏹','활','Bow'),hint:['아르테미스의 무기는 활','Artemis\'s weapon is the bow']}]},
+{kind:'link',em:'🪽',time:0,hintAt:1,ha:['신','God'],hb:['상징','Symbol'],play:['신 ↔ 상징','God ↔ symbol'],goal:['상징이 늘어났어요. 해(태양)는 함정!','More symbols. The sun is a trap!'],learn:['헤라는 공작, 아레스는 방패, 헤르메스는 날개 신발, 디오니소스는 포도예요. 태양 마차는 헬리오스의 것.','Hera\'s peacock, Ares\'s shield, Hermes\'s winged sandals, Dionysos\'s grapes. The sun chariot belongs to Helios.'],grant:['hera','ares','hermes','dionysos','helios'],dist:[{kind:'sym',em:'🌞',ko:'태양',en:'Sun',id:'sun'}],pairs:[
+{a:'hera',b:sym('🦚','공작','Peacock'),hint:['헤라의 새는 공작','Hera\'s bird is the peacock']},
+{a:'ares',b:sym('🛡️','방패','Shield'),hint:['아레스의 상징은 방패','Ares\'s sign is the shield']},
+{a:'hermes',b:sym('🪽','날개 신발','Winged sandals'),hint:['헤르메스는 날개 신발','Hermes wears winged sandals']},
+{a:'dionysos',b:sym('🍇','포도','Grapes'),hint:['디오니소스의 상징은 포도','Dionysos\'s sign is grapes']}]},
+{kind:'link',em:'💍',time:0,hintAt:1,ha:['관계','Link'],hb:['신','God'],play:['부부 · 쌍둥이','Spouse · twins'],goal:['부부, 또는 쌍둥이를 이어요','Link spouses, or the twins'],learn:['제우스와 헤라는 부부예요. 아폴론과 아르테미스는 레토가 낳은 쌍둥이예요.','Zeus and Hera are husband and wife. Apollo and Artemis are twins born to Leto.'],grant:['zeus','hera','apollo','artemis'],pairs:[
+{a:clue('제우스의 아내','Zeus\'s wife'),b:'hera',hint:['제우스의 아내는 헤라','Zeus\'s wife is Hera']},
+{a:clue('아폴론의 쌍둥이','Apollo\'s twin'),b:'artemis',hint:['아폴론의 쌍둥이는 아르테미스','Apollo\'s twin is Artemis']}]},
+{kind:'link',em:'👑',time:40,hintAt:1,ha:['관계','Link'],hb:['신','God'],play:['부부만','Spouses only'],goal:['부부만 이어요. 이번엔 시간이 줄어요','Spouses only. The clock is running'],learn:['페르세포네는 하데스의 아내, 레아는 크로노스의 아내예요. 헤스티아는 그 딸이라 부부가 아니에요.','Persephone is Hades\'s wife. Rhea is Kronos\'s wife. Hestia is their daughter, not a spouse.'],grant:['hades','persephone','kronos','rhea','hestia'],dist:[{kind:'god',id:'hestia'}],pairs:[
+{a:clue('하데스의 아내','Hades\'s wife'),b:'persephone',hint:['하데스의 아내는 페르세포네','Hades\'s wife is Persephone']},
+{a:clue('크로노스의 아내','Kronos\'s wife'),b:'rhea',hint:['크로노스의 아내는 레아','Kronos\'s wife is Rhea']}]},
+{kind:'link',em:'👪',time:34,hintAt:1,ha:['관계','Link'],hb:['신','God'],play:['부모 → 자식','Parent → child'],goal:['부모와 자식을 이어요','Link each parent clue to the child'],learn:['페르세포네는 데메테르의 딸이에요. 아테나는 제우스의 머리에서 태어났어요. 헤파이스토스는 헤라의 아들로 많이 나오고, 제우스의 아들이라는 말도 있어요.','Persephone is Demeter\'s daughter. Athena was born from Zeus\'s head. Hephaistos is often Hera\'s son, though some say Zeus and Hera\'s.'],grant:['demeter','persephone','zeus','athena','hera','hephaistos','poseidon'],dist:[{kind:'god',id:'poseidon'}],pairs:[
+{a:clue('데메테르의 딸','Demeter\'s daughter'),b:'persephone',hint:['데메테르의 딸은 페르세포네','Demeter\'s daughter is Persephone']},
+{a:clue('제우스의 머리에서','Born from Zeus\'s head'),b:'athena',hint:['머리에서 태어난 여신은 아테나','Athena was born from Zeus\'s head']},
+{a:clue('헤라의 아들','Hera\'s son'),b:'hephaistos',hint:['헤라의 아들로 자주 나오는 신 헤파이스토스','Hephaistos is often called Hera\'s son']}]},
+{kind:'link',em:'🔗',time:32,hintAt:2,ha:['관계','Link'],hb:['신','God'],play:['알맞은 관계','True relation'],goal:['관계 카드를 알맞은 신과 이어요','Link each relation to the right god'],learn:['『오디세이아』에서 아프로디테의 남편은 헤파이스토스예요. 헤르메스는 마이아의 아들, 헤스티아는 레아의 맏딸이에요. 바다는 포세이돈, 저승은 하데스.','In the Odyssey, Aphrodite\'s husband is Hephaistos. Hermes is Maia\'s son. Hestia is Rhea\'s eldest daughter. The sea is Poseidon; the underworld is Hades.'],grant:['aphrodite','hephaistos','hermes','hestia','rhea','poseidon','hades','helios'],dist:[{kind:'god',id:'hades'},{kind:'god',id:'helios'}],pairs:[
+{a:clue('아프로디테의 남편','Aphrodite\'s husband'),b:'hephaistos',hint:['『오디세이아』의 남편은 헤파이스토스','In the Odyssey her husband is Hephaistos']},
+{a:clue('마이아의 아들','Son of Maia'),b:'hermes',hint:['마이아의 아들은 헤르메스','Maia\'s son is Hermes']},
+{a:clue('레아의 맏딸','Rhea\'s eldest daughter'),b:'hestia',hint:['레아의 맏딸은 헤스티아','Rhea\'s eldest daughter is Hestia']},
+{a:clue('바다의 신','God of the sea'),b:'poseidon',hint:['바다의 신은 포세이돈','The sea god is Poseidon']}]},
+{kind:'tree',em:'🌳',time:28,hintAt:1,fromTree:1,slice:[0,3],expect:['hestia','demeter','hera'],capFrom:0,dist:['athena','apollo'],play:['가계도 · 자녀','Tree · children'],goal:['빛나는 빈칸을 탭하고, 크로노스·레아의 자녀를 놓으세요','Tap a glowing seat, then place a child of Kronos and Rhea'],learn:['크로노스와 레아의 자녀 가운데 헤스티아, 데메테르, 헤라가 있어요.','Among the children of Kronos and Rhea are Hestia, Demeter, and Hera.'],grant:['kronos','rhea','athena','apollo']},
+{kind:'tree',em:'🌳',time:24,hintAt:2,fromTree:1,slice:[3,6],expect:['hades','poseidon','zeus'],capFrom:0,dist:['hermes','ares'],play:['가계도 · 나머지','Tree · the rest'],goal:['나머지 세 자녀를 빈칸에 놓으세요','Place the other three children'],learn:['하데스와 포세이돈도 그 아들이고, 제우스가 막내예요.','Hades and Poseidon are sons too, and Zeus is the youngest.'],grant:['kronos','rhea','hermes','ares']},
+{kind:'tree',em:'⚡',time:24,hintAt:2,capIds:['zeus'],play:['제우스의 자녀','Children of Zeus'],goal:['단서 칸에 제우스의 자녀를 놓으세요','Place Zeus\'s children on the clue seats'],learn:['아테나는 제우스의 머리에서, 아폴론과 아르테미스는 레토에게서 태어났어요.','Athena was born from Zeus\'s head. Apollo and Artemis were born to Leto.'],grant:['zeus','athena','apollo','artemis','hestia','hera'],pool:['athena','apollo','artemis','hestia','hera'],slots:[
+{key:'athena',ko:'머리에서 태어남',en:'Born from his head',hint:['머리에서 태어난 딸은 아테나','The daughter from his head is Athena']},
+{key:'apollo',ko:'레토의 아들',en:'Leto\'s son',hint:['레토의 아들은 아폴론','Leto\'s son is Apollo']},
+{key:'artemis',ko:'레토의 딸',en:'Leto\'s daughter',hint:['레토의 딸은 아르테미스','Leto\'s daughter is Artemis']}]},
+{kind:'tree',em:'🍇',time:22,hintAt:2,capIds:['zeus'],play:['제우스의 아들','Sons of Zeus'],goal:['단서에 맞는 아들을 놓으세요','Place the son that fits each clue'],learn:['아레스는 제우스와 헤라의 아들, 헤르메스는 마이아의 아들이에요. 디오니소스는 세멜레의 아들이고 제우스의 허벅지에서 다시 태어났어요.','Ares is the son of Zeus and Hera. Hermes is Maia\'s son. Dionysos, Semele\'s son, was born again from Zeus\'s thigh.'],grant:['ares','hermes','dionysos','hades','demeter','zeus'],pool:['ares','hermes','dionysos','hades','demeter'],slots:[
+{key:'ares',ko:'제우스·헤라의 아들',en:'Son of Zeus and Hera',hint:['제우스와 헤라의 아들은 아레스','The son of Zeus and Hera is Ares']},
+{key:'hermes',ko:'마이아의 아들',en:'Son of Maia',hint:['마이아의 아들은 헤르메스','Maia\'s son is Hermes']},
+{key:'dionysos',ko:'허벅지에서 재탄생',en:'Reborn from the thigh',hint:['허벅지에서 다시 태어난 신은 디오니소스','The god reborn from the thigh is Dionysos']}]},
+{kind:'throne',em:'🏛️',time:75,hearts:4,hintAt:2,ha:['자리','Seat'],hb:['신','God'],play:['올림포스 12신','Twelve Olympians'],goal:['역할 자리를 탭하고, 그 신을 앉히세요','Tap a role, then seat the right god'],learn:['이 열둘이 흔히 말하는 올림포스 12신이에요. 하데스는 저승의 왕이라 보통 빠지고, 화로의 헤스티아 자리에 디오니소스를 넣기도 해요.','These are the usual twelve Olympians. Hades, king of the underworld, is usually left off, and Dionysos often takes Hestia\'s hearth seat.'],grant:['hestia','hades']}
+];
+let ac,mg,muted=false,stepN=0,nt=0,bgmOn=false;try{muted=localStorage.olyMute==='1'}catch(e){}
+const mb=document.getElementById('mute');mb.textContent=muted?'🔇':'🔊';
+mb.onclick=()=>{muted=!muted;try{localStorage.olyMute=muted?'1':'0'}catch(e){}mb.textContent=muted?'🔇':'🔊';if(mg)mg.gain.value=muted?0:.34;if(!muted)au()};
+function tone(f,t,d,ty,v){if(!ac||!f)return;const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(Math.max(.0001,v),t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
+const MEL=[76,79,83,79,76,74,71,74,79,83,86,83,79,76,74,71,74,78,81,78,74,71,69,71,76,74,71,69,67,69,71,74];
+const BAS=[40,47,43,45];
+const mf=n=>440*Math.pow(2,(n-69)/12);
+function sched(){if(!ac||!bgmOn)return;const b=.15;if(nt<ac.currentTime)nt=ac.currentTime;let n=0;while(nt<ac.currentTime+.22&&n<6){const m=MEL[stepN%32];tone(mf(m),nt,.12,'triangle',.05);tone(mf(m)*2,nt,.06,'sine',.012);if(stepN%3===0)tone(mf(BAS[(stepN/3|0)%4]),nt,.3,'sine',.04);nt+=b;stepN++;n++}}
+setInterval(sched,50);
+function sfx(f,d,ty,v){if(ac)tone(f,ac.currentTime,d,ty||'sine',v||.16)}
+function toot(){if(!ac)return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type='sawtooth';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(60,t+.16);g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(mg);o.start(t);o.stop(t+.2)}
+function fan(){[494,659,784,988].forEach((f,i)=>setTimeout(()=>sfx(f,.14,'square',.12),i*60))}
+function au(){try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.gain.value=muted?0:.34;mg.connect(ac.destination);nt=ac.currentTime}if(ac.resume)ac.resume();bgmOn=true}catch(e){}}
+let st='title',stage=0,waveI=0,best=0,bestStage=0,hearts=3,score=0,combo=0,sel=null,solved=new Set(),filled=[],boardA=[],boardB=[];
+let misses=0,hintOn=false,cool=0,lock=0,timeMax=0,timeLeft=0,now=0,lt=performance.now(),shake=0,flash=0,appear=1,guard=0,nb=false,lastBonus=0,newly=0,paused=false;
+const parts=[],pops=[],links=[],found=[];
+try{const b=+localStorage.g30best;best=b>0?b:0;const s=+localStorage.g30stage;bestStage=s>0?s:0}catch(e){}
+function cur(){return STAGES[stage]}
+function oly(){const ids=(Myth.OLY12&&Myth.OLY12.slice())||Object.keys(ROLES);return ids.filter(id=>ROLES[id]&&Myth.C[id])}
+function throneWaves(){const ids=oly(),w=[];for(let i=0;i<ids.length;i+=4)w.push(ids.slice(i,i+4));return w}
+function god(id){const p=PAL[id]||['#ffe08a','#6a4a16'];return{kind:'god',id,mid:id,col:p[0],ink:p[1]}}
+function nm(c){if(!c)return'';if(c.kind==='god'&&c.mid){const k=Myth.card(c.mid,lang);if(k)return k.name}return lang==='ko'?c.ko:c.en}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t}return a}
+function kidSlice(S){const row=(Myth.TREE&&Myth.TREE[S.fromTree])||[];return row.slice(S.slice[0],S.slice[1])}
+function deal(){
+  sel=null;solved=new Set();filled=[];
+  const S=cur();
+  if(S.kind==='tree'){
+    if(S.fromTree!=null){
+      const row=kidSlice(S);S._kids=row;
+      const slotDefs=row.map(()=>({key:'kid',ko:'자녀',en:'Child'}));
+      const pool=row.concat(S.dist||[]);
+      filled=slotDefs.map(()=>null);
+      boardA=slotDefs.map((s,i)=>({kind:'slot',key:s.key,ko:s.ko,en:s.en,uid:'s'+i,side:'a',idx:i,id:'seat'+i}));
+      const kids=new Set(row);
+      boardB=shuffle(pool.map(id=>{const g=god(id);g.uid='b'+id;g.side='b';g.key=kids.has(id)?'kid':('no-'+id);return g}));
+    }else{
+      filled=S.slots.map(()=>null);
+      boardA=S.slots.map((s,i)=>({kind:'slot',key:s.key,ko:s.ko,en:s.en,hint:s.hint,uid:'s'+i,side:'a',idx:i,id:s.key}));
+      const keys=new Set(S.slots.map(s=>s.key));
+      boardB=shuffle(S.pool.map(id=>{const g=god(id);g.uid='b'+id;g.side='b';g.key=keys.has(id)?id:('no-'+id);return g}));
+    }
+  }else if(S.kind==='throne'){
+    const ids=(throneWaves()[waveI])||[];
+    boardA=shuffle(ids.map(id=>{const r=ROLES[id],kc=Myth.card(id,'ko'),ec=Myth.card(id,'en');return{kind:'role',id,key:id,uid:'r'+id,side:'a',ko:r.ko,en:r.en,hint:[r.ko+' → '+(kc?kc.name:id), r.en+' → '+(ec?ec.name:id)]}}));
+    let pool=ids.slice();
+    if(waveI===throneWaves().length-1)pool=pool.concat(['hestia','hades'].filter(id=>!ids.includes(id)&&Myth.C[id]));
+    boardB=shuffle(pool.map(id=>{const g=god(id);g.uid='b'+id;g.side='b';g.key=ids.includes(id)?id:('no-'+id);return g}));
+  }else{
+    boardA=shuffle(S.pairs.map((p,i)=>{
+      if(typeof p.a==='string'){const g=god(p.a);g.side='a';g.key='k'+i;g.uid='a'+p.a;g.hint=p.hint;return g}
+      return{kind:'role',side:'a',key:'k'+i,uid:'c'+i,id:'clue'+i,ko:p.a.ko,en:p.a.en,hint:p.hint};
+    }));
+    const rights=S.pairs.map((p,i)=>{
+      if(typeof p.b==='string'){const g=god(p.b);g.side='b';g.key='k'+i;g.uid='b'+p.b;return g}
+      return{kind:'sym',side:'b',key:'k'+i,uid:'b'+i,id:'sym'+i,em:p.b.em,ko:p.b.ko,en:p.b.en,col:'#fff6d4',ink:'#5a3e12'};
+    });
+    const dists=(S.dist||[]).map((d,i)=>{
+      if(d.kind==='god'){const g=god(d.id);g.side='b';g.key='no'+i;g.uid='d'+d.id+i;return g}
+      return{kind:'sym',side:'b',key:'no'+i,uid:'d'+i,id:d.id||('d'+i),em:d.em,ko:d.ko,en:d.en,col:'#fff6d4',ink:'#5a3e12'};
+    });
+    boardB=shuffle(rights.concat(dists));
+  }
+}
+function grant(id,quiet){try{if(!id||!Myth.C[id])return;if(!Myth.unlock(id))return;found.push(id);if(quiet)newly++;else{const c=Myth.card(id,lang);pop('🃏 '+(c?c.name:id))}}catch(e){}}
+function saveBest(){if(score>best){best=score;nb=true;try{localStorage.g30best=String(best)}catch(e){}}try{localStorage.g30stage=String(bestStage)}catch(e){}}
+function begin(){hearts=cur().hearts||3;waveI=0;misses=0;hintOn=false;combo=0;cool=0;appear=0;deal();timeMax=cur().time||0;timeLeft=timeMax;lock=.05}
+function fresh(){stage=0;score=0;combo=0;cool=0;found.length=0;nb=false;hearts=3;waveI=0;misses=0;hintOn=false;sel=null;solved=new Set();filled=[];st='goal'}
+function sides(a,b){return a.side==='a'?[a,b]:[b,a]}
+function isDone(c){if(!c)return false;if(cur().kind==='tree'){if(c.side==='a')return !!filled[c.idx];return solved.has(c.id)}return solved.has(c.key)}
+function cleared(){const S=cur();if(S.kind==='tree')return filled.length>0&&filled.every(Boolean);return boardA.length>0&&boardA.every(c=>solved.has(c.key))}
+function hintText(){if(!hintOn)return'';const S=cur();if(S.kind==='tree'){const i=filled.findIndex(v=>!v);const sl=boardA[i];if(sl&&sl.hint)return tt(sl.hint[0],sl.hint[1]);if(S._kids){const ko=S._kids.map(id=>{const c=Myth.card(id,'ko');return c?c.name:id}).join(' · ');const en=S._kids.map(id=>{const c=Myth.card(id,'en');return c?c.name:id}).join(' · ');return tt('자녀: '+ko,'Children: '+en)}}const card=boardA.find(c=>!solved.has(c.key)&&c.hint);return card?tt(card.hint[0],card.hint[1]):''}
+function burst(px,py,col,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=50+Math.random()*180;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,l:.4+Math.random()*.3,c:col})}}
+function pop(t,col,px,py){pops.push({t,c:col||'#ffe08a',x:px==null?W/2:px,y:py==null?H*.42:py,l:1.05})}
+function vib(n){try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}}
+function stageClear(){const S=cur();newly=0;if(S._kids)S._kids.forEach(id=>grant(id,true));(S.grant||[]).forEach(id=>grant(id,true));if(stage>=STAGES.length-1){oly().forEach(id=>grant(id,true));['hestia','hades'].forEach(id=>grant(id,true))}if(stage+1>bestStage)bestStage=stage+1;lastBonus=(timeMax?Math.ceil(Math.max(0,timeLeft))*8:40)+hearts*50;score+=lastBonus;saveBest();fan();burst(W/2,H*.4,'#ffe08a',36);st='clear';guard=performance.now()}
+function nextWave(){waveI++;deal();guard=performance.now();pop(L().wave,'#b8f0ff');sfx(880,.08,'square',.12)}
+function succeed(a,b){const pair=sides(a,b),A=pair[0],B=pair[1];combo++;const gain=100*combo;score+=gain;sfx(660+combo*40,.08,'square',.14);if(combo%4===0)toot();if(cur().kind==='tree'){filled[A.idx]=B.id;solved.add(B.id);grant(B.id)}else{solved.add(A.key);if(A.mid)grant(A.mid);if(B.mid)grant(B.mid)}const x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;links.push({x1,y1,x2,y2,l:.42});burst((x1+x2)/2,(y1+y2)/2,'#ffd76f',16);flash=.16;vib(12);pop((combo>1?combo+'× ':'')+nm(B)+' +'+gain,'#d8ffb0',(x1+x2)/2,Math.min(y1,y2)-18);if(cleared()){if(cur().kind==='throne'&&waveI<throneWaves().length-1)nextWave();else stageClear()}}
+function failPair(){combo=0;misses++;if(misses>=(cur().hintAt||1))hintOn=true;hearts--;sfx(110,.22,'sawtooth',.2);shake=10;vib(40);pop(L().miss,'#ff8b8b');cool=.5;if(hearts<=0)wipe()}
+function wipe(){combo=0;if(stage<2){hearts=cur().hearts||3;misses=0;hintOn=false;deal();timeLeft=timeMax;lock=.25;pop(L().again);return}st='quiz';try{Myth.quiz(lang,ok=>{if(ok){hearts=cur().hearts||3;score+=80;misses=0;hintOn=false;cool=0;waveI=0;deal();timeLeft=timeMax;st='play';lock=.2;pop(L().keep,'#d8ffb0')}else{cool=0;saveBest();st='over'}guard=performance.now()})}catch(e){saveBest();st='over'}}
+function onTimeout(){if(st!=='play')return;combo=0;misses++;if(misses>=(cur().hintAt||1))hintOn=true;hearts--;shake=12;sfx(90,.24,'sawtooth',.18);pop(L().time,'#ffb0b0');if(hearts<=0){wipe();return}timeLeft=timeMax;lock=.3}
+function hitAt(px,py,all){const boxes=layout();for(let i=boxes.length-1;i>=0;i--){const b=boxes[i];if(!all&&isDone(b))continue;if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h)return b}return null}
+function playTap(px,py){if(px==null)return;if(lock>0)return;if(cool>0){cool=Math.min(1.25,cool+.18);return}const raw=hitAt(px,py,true);if(raw&&isDone(raw))return;const b=raw;if(!b){sel=null;return}if(!sel){sel=b.uid;sfx(720,.05,'triangle',.1);return}if(sel===b.uid){sel=null;return}const a=boardA.concat(boardB).find(c=>c.uid===sel);if(!a||isDone(a)){sel=b.uid;return}if(a.side===b.side){sel=b.uid;sfx(720,.05,'triangle',.1);return}sel=null;const pair=sides(a,b);if(pair[0].key&&pair[0].key===pair[1].key)succeed(a,b);else{failPair();pair.forEach(c=>{c.bad=now+.32})}}
+function onTap(px,py){au();const t=performance.now();if(Myth.quizOpen&&Myth.quizOpen())return;if(document.querySelector('.myo'))return;if(t-guard<260)return;if(st==='title'||st==='over'||st==='win'){fresh();guard=t;sfx(880,.08,'square',.12);return}if(st==='goal'){begin();st='play';guard=t;sfx(988,.08,'square',.12);return}if(st==='clear'){guard=t;if(stage>=STAGES.length-1){st='quiz';try{Myth.quiz(lang,ok=>{if(ok)score+=200;saveBest();st='win';guard=performance.now()})}catch(e){saveBest();st='win'}return}stage++;st='goal';sfx(740,.06,'triangle',.1);return}if(st==='play')playTap(px,py)}
+const ui=e=>e.target.closest&&(e.target.closest('.bar')||e.target.closest('.myo')||e.target.closest('.myq'));
+addEventListener('pointerdown',e=>{if(ui(e))return;e.preventDefault();onTap(e.clientX,e.clientY)},{passive:false});
+addEventListener('keydown',e=>{if(e.code!=='Space'&&e.code!=='Enter')return;if(e.repeat)return;e.preventDefault();if(Myth.quizOpen&&Myth.quizOpen())return;if(st==='play')return;onTap(W/2,H/2)});
+addEventListener('contextmenu',e=>e.preventDefault());
+function topY(){return timeMax>0?150:128}
+function layout(){if(st!=='play'&&st!=='quiz')return[];if(cur().kind==='tree')return layoutTree();return layoutCols()}
+function layoutCols(){const y0=topY(),y1=H-28,gapX=10,m=12;const w=Math.min(200,(W-m*2-gapX)/2);const xL=(W-gapX)/2-w,xR=(W+gapX)/2;const place=(arr,x0)=>{const n=arr.length||1,gap=n>5?6:8;let h=(y1-y0-(n-1)*gap)/n;const cap=n<=2?210:n<=3?176:150;if(h>cap)h=cap;const used=n*h+(n-1)*gap;const yStart=y0+Math.max(0,(y1-y0-used)*.12);arr.forEach((c,i)=>{c.x=x0;c.y=yStart+i*(h+gap);c.w=w;c.h=h})};place(boardA,xL);place(boardB,xR);return boardA.concat(boardB)}
+function layoutTree(){const boxes=[],m=12,gap=8,n=boardA.length||1;const sw=Math.min(124,(W-m*2-gap*(n-1))/n);const x0=(W-(sw*n+gap*(n-1)))/2;const slotY=topY()+30;const slotH=Math.min(96,Math.max(62,H*.16));boardA.forEach((c,i)=>{c.x=x0+i*(sw+gap);c.y=slotY;c.w=sw;c.h=slotH;boxes.push(c)});const cols=2,rows=Math.ceil(boardB.length/cols)||1;const poolTop=slotY+slotH+18;const pw=Math.min(200,(W-m*2-gap)/2);const avail=H-26-poolTop;let ph=(avail-(rows-1)*gap)/rows;if(ph>118)ph=118;if(ph<50)ph=50;boardB.forEach((c,i)=>{const col=i%cols,row=i/cols|0;const nRow=Math.min(cols,boardB.length-row*cols);const rowW=nRow*pw+(nRow-1)*gap;const rx=(W-rowW)/2;c.x=rx+col*(pw+gap);c.y=poolTop+row*(ph+gap);c.w=pw;c.h=ph;boxes.push(c)});return boxes}
+function upd(dt){if(st==='title')return;if(document.hidden)return;now+=dt;shake=Math.max(0,shake-dt*42);flash=Math.max(0,flash-dt*1.5);if(appear<1)appear=Math.min(1,appear+dt*5);if(cool>0)cool-=dt;for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=90*dt;p.l-=dt}while(parts.length>90)parts.shift();for(let i=parts.length-1;i>=0;i--)if(parts[i].l<=0)parts.splice(i,1);for(const p of pops){p.y-=28*dt;p.l-=dt}for(let i=pops.length-1;i>=0;i--)if(pops[i].l<=0)pops.splice(i,1);for(const Lx of links)Lx.l-=dt;for(let i=links.length-1;i>=0;i--)if(links[i].l<=0)links.splice(i,1);if(st!=='play')return;if(document.querySelector('.myo')||document.querySelector('.myq'))return;if(lock>0){lock-=dt;return}if(timeMax>0){timeLeft-=dt;if(timeLeft<=0)onTimeout()}}
+function rr(px,py,w,h,r){r=Math.max(0,Math.min(r,w/2,h/2));x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath()}
+function txt(s,px,py,sz,col){x.font='bold '+sz+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineWidth=Math.max(3,sz/7);x.strokeStyle='#140c28cc';x.strokeText(s,px,py);x.fillStyle=col;x.fillText(s,px,py)}
+function fit(s,max,sz){x.font='bold '+sz+'px sans-serif';while(sz>11&&x.measureText(s).width>max){sz--;x.font='bold '+sz+'px sans-serif'}return sz}
+function breakLines(t,mw){const lines=[];let cur='';for(const ch of String(t)){const tr=cur+ch;if(ch!==' '&&x.measureText(tr).width>mw&&cur){lines.push(cur.trim());cur=ch===' '?'':ch}else cur=tr}if(cur.trim())lines.push(cur.trim());return lines.slice(0,4)}
+function wrap(t,cx,cy,mw,lh){x.textAlign='center';x.textBaseline='middle';const lines=[];let cur='';for(const ch of String(t)){const tr=cur+ch;if(x.measureText(tr).width>mw&&cur){lines.push(cur);cur=ch===' '?'':ch}else cur=tr}if(cur)lines.push(cur);lines.forEach((ln,i)=>x.fillText(ln,cx,cy+i*lh));return cy+lines.length*lh}
+function panel(px,py,w,h){x.fillStyle='#0005';rr(px+3,py+5,w,h,18);x.fill();x.fillStyle='#1a1448f2';x.strokeStyle='#ffd76f';x.lineWidth=3;rr(px,py,w,h,18);x.fill();x.stroke()}
+function face(cx,cy,r,ink){x.fillStyle='#fff';x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.strokeStyle=ink;x.lineWidth=2;x.stroke();x.fillStyle=ink;x.beginPath();x.arc(cx-r*.28,cy-r*.08,r*.12,0,7);x.arc(cx+r*.28,cy-r*.08,r*.12,0,7);x.fill();x.beginPath();x.arc(cx,cy+r*.15,r*.32,.25,Math.PI-.25);x.stroke()}
+function drawCard(c){const done=isDone(c),selOn=sel===c.uid,bad=c.bad&&c.bad>now;const sc=.9+.1*appear;x.save();x.translate(c.x+c.w/2,c.y+c.h/2);x.scale(sc,sc);x.translate(-(c.x+c.w/2),-(c.y+c.h/2));x.globalAlpha=done?0.62:1;let fill=c.col||'#f4efe2',ink=c.ink||'#3a2a10';if(c.kind==='slot'){const id=filled[c.idx];if(id){const p=PAL[id]||['#ffe08a','#5a3a10'];fill=p[0];ink=p[1]}else fill='#221c4a'}if(c.kind==='role'){fill='#f6efdf';ink='#3d2c12'}if(c.kind==='sym'){fill=c.col||'#fff6d4';ink=c.ink||'#5a3e12'}rr(c.x,c.y,c.w,c.h,14);x.fillStyle=fill;x.fill();x.lineWidth=selOn?5:3;x.strokeStyle=bad?'#ff6b6b':done?'#7bed9f':selOn?'#fff':(c.kind==='slot'&&!filled[c.idx]?'#ffd76f':'#ffffff55');if(c.kind==='slot'&&!filled[c.idx])x.setLineDash([6,5]);x.stroke();x.setLineDash([]);if(c.kind==='god'){face(c.x+c.w/2,c.y+c.h*.36,Math.min(16,c.h*.22),ink);const sz=fit(nm(c),c.w-12,c.h<70?13:16);txt(nm(c),c.x+c.w/2,c.y+c.h*.78,sz,'#1a1030')}else if(c.kind==='sym'){x.font=(Math.min(34,c.h*.42))+'px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(c.em,c.x+c.w/2,c.y+c.h*.38);const sz=fit(nm(c),c.w-10,c.h<70?12:15);txt(nm(c),c.x+c.w/2,c.y+c.h*.78,sz,ink)}else{const label=c.kind==='slot'&&filled[c.idx]?(Myth.card(filled[c.idx],lang)||{}).name||filled[c.idx]:nm(c);x.font='bold 13px sans-serif';x.fillStyle=c.kind==='slot'&&!filled[c.idx]?'#ffe9a8':ink;const ls=breakLines(label,c.w-12);const lh=15,oy=c.y+c.h/2-((ls.length-1)*lh)/2;x.textAlign='center';x.textBaseline='middle';ls.forEach((ln,i)=>x.fillText(ln,c.x+c.w/2,oy+i*lh));if(c.kind==='slot'&&!filled[c.idx]&&c.ko==='자녀'){x.font='20px serif';x.fillStyle='#ffd76f';x.fillText('?',c.x+c.w/2,c.y+16)}}if(done){x.font='bold 12px sans-serif';x.fillStyle='#1c6b3a';x.textAlign='right';x.fillText('✓',c.x+c.w-8,c.y+12)}x.restore();x.globalAlpha=1}
+function capText(S){const ids=S.capIds||(S.capFrom!=null&&Myth.TREE&&Myth.TREE[S.capFrom])||[];return ids.map(id=>{const c=Myth.card(id,lang);return c?c.name:id}).join(' · ')}
+function drawTreeChrome(){if(!boardA.length)return;const yBar=boardA[0].y-12;txt(capText(cur()),W/2,yBar-16,Math.min(18,W*.045),'#ffe9a8');x.strokeStyle='#ffd76faa';x.lineWidth=2;x.beginPath();x.moveTo(W/2,yBar-8);x.lineTo(W/2,yBar);const x1=boardA[0].x+boardA[0].w/2,x2=boardA[boardA.length-1].x+boardA[boardA.length-1].w/2;x.moveTo(x1,yBar);x.lineTo(x2,yBar);boardA.forEach(c=>{x.moveTo(c.x+c.w/2,yBar);x.lineTo(c.x+c.w/2,c.y)});x.stroke();const hot=boardA.find(s=>!isDone(s));if(hot&&st==='play'){const p=.45+.15*Math.sin(now*5);x.strokeStyle=`rgba(255,215,111,${p})`;x.lineWidth=4;rr(hot.x-3,hot.y-3,hot.w+6,hot.h+6,16);x.stroke()}}
+function heartStr(){const max=cur().hearts||3;let s='';for(let i=0;i<max;i++)s+=i<hearts?'❤':'♡';return s}
+function playLabel(){let s=tt(cur().play[0],cur().play[1]);if(cur().kind==='throne')s+=' '+(waveI+1)+'/'+throneWaves().length;if(combo>1)s+='  ×'+combo;return s}
+function bg(){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#24185a');g.addColorStop(.55,'#14102e');g.addColorStop(1,'#0c0818');x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle='#2a1c10';x.fillRect(0,H*.86,W,H);x.fillStyle='#ffd76f33';x.fillRect(0,H*.86,W,3);x.fillStyle='#ffffff22';for(let i=0;i<16;i++)x.fillRect((i*97)%W,(i*53)%(H*.42),2,2)}
+function hud(){txt((stage+1)+'/'+STAGES.length,52,56,15,'#fff');txt(heartStr(),W/2,56,16,'#ffd0dc');txt(String(score),W-52,56,15,'#ffd76f');const pl=playLabel();txt(pl,W/2,78,fit(pl,W-20,15),'#fff');const h=hintText();if(h)txt(h,W/2,98,fit(h,W-16,13),'#ffe08a');if(timeMax>0&&st==='play'){const bw=W-78,bx=14,by=116,r=Math.max(0,Math.min(1,timeLeft/timeMax));x.fillStyle='#0006';rr(bx,by,bw,8,4);x.fill();x.fillStyle=r>.45?'#7bed9f':r>.22?'#ffd76f':'#ff6b6b';rr(bx,by,Math.max(8,bw*r),8,4);x.fill();txt(Math.ceil(Math.max(0,timeLeft))+(lang==='ko'?'초':'s'),W-32,by+4,13,r>.22?'#fff':'#ffb0b0')}}
+function drawPlay(){const boxes=layout();hud();if(cur().kind==='tree')drawTreeChrome();else{x.font='bold 12px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle='#ffffffaa';const y=(boardA[0]?boardA[0].y:topY())-11;if(boardA[0])x.fillText(tt(cur().ha[0],cur().ha[1]),boardA[0].x+boardA[0].w/2,y);if(boardB[0])x.fillText(tt(cur().hb[0],cur().hb[1]),boardB[0].x+boardB[0].w/2,y)}for(const Lx of links){x.globalAlpha=Math.max(0,Lx.l*2);x.strokeStyle='#ffd76f';x.lineWidth=4;x.beginPath();x.moveTo(Lx.x1,Lx.y1);x.quadraticCurveTo((Lx.x1+Lx.x2)/2,Math.min(Lx.y1,Lx.y2)-30,Lx.x2,Lx.y2);x.stroke();x.globalAlpha=1}boxes.forEach(drawCard);if(cool>.12)txt(L().wait,W/2,H-40,14,'#ffb0b0')}
+function drawGoal(){panel(W*.06,H*.16,W*.88,H*.56);txt(cur().em+'  '+(stage+1)+' / '+STAGES.length,W/2,H*.24,18,'#ffd76f');const g=tt(cur().goal[0],cur().goal[1]);x.font='bold 20px sans-serif';x.fillStyle='#fff';wrap(g,W/2,H*.34,W*.76,26);const meta=(cur().hearts||3)+' ❤'+(cur().time?('   '+cur().time+(lang==='ko'?'초':'s')):'');txt(meta,W/2,H*.52,16,'#ffe9c0');txt(tt(cur().play[0],cur().play[1]),W/2,H*.58,16,'#b8f0ff');txt(L().tap,W/2,H*.66,22,Math.sin(now*5)>0?'#7bed9f':'#fff')}
+function drawClear(){panel(W*.06,H*.14,W*.88,H*.64);txt(L().good,W/2,H*.2,22,'#7bed9f');txt('+'+lastBonus,W/2,H*.26,16,'#ffd76f');x.font='16px sans-serif';x.fillStyle='#ffe9c0';const y=wrap(tt(cur().learn[0],cur().learn[1]),W/2,H*.34,W*.76,22);if(newly){x.fillStyle='#9ff';x.fillText('🃏 +'+newly,W/2,y+8)}txt(stage>=STAGES.length-1?L().quizgo:L().next,W/2,H*.7,18,Math.sin(now*5)>0?'#7bed9f':'#fff')}
+function drawTitle(){panel(W*.06,H*.12,W*.88,H*.62);txt(L().sub,W/2,H*.18,15,'#ffd76f');txt(L().t,W/2,H*.24,Math.min(28,W*.072),'#fff');x.font='40px serif';x.textAlign='center';x.textBaseline='middle';x.fillText('⚡   🦉',W/2,H*.34);x.strokeStyle='#ffd76f';x.lineWidth=3;x.beginPath();x.moveTo(W/2-70,H*.4);x.lineTo(W/2+70,H*.4);x.stroke();x.font='18px sans-serif';x.fillStyle='#fff';let y=wrap(L().h,W/2,H*.46,W*.78,24);x.font='14px sans-serif';x.fillStyle='#ffe9c0';y=wrap(L().w,W/2,y+8,W*.76,18);txt(L().go,W/2,H*.66,22,'#7bed9f');x.font='14px sans-serif';x.fillStyle='#fff';x.textAlign='center';x.fillText(L().best+' '+best+' · '+(lang==='ko'?'단계 ':'stage ')+bestStage+'/'+STAGES.length+' · 🏛️ '+Myth.get().length+'/'+Object.keys(Myth.C).length,W/2,H*.72)}
+function drawOver(win){panel(W*.08,H*.18,W*.84,H*.52);txt(win?'🏆':'💨',W/2,H*.26,36,'#fff');txt(win?L().win:L().over,W/2,H*.34,26,win?'#ffd76f':'#fff');if(win)txt(L().win2,W/2,H*.4,15,'#ffe9c0');if(nb)txt(L().nb,W/2,H*.46,16,'#ffd76f');x.font='15px sans-serif';x.fillStyle='#fff';x.textAlign='center';x.fillText(score+' · '+L().best+' '+best,W/2,H*.52);x.fillStyle='#9ff';x.fillText('🃏 '+found.length+' · 🏛️ '+Myth.get().length+'/'+Object.keys(Myth.C).length,W/2,H*.58);txt(L().retry,W/2,H*.64,16,Math.sin(now*5)>0?'#7bed9f':'#fff')}
+function draw(){x.save();if(shake)x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);bg();if(st==='title')drawTitle();else if(st==='goal')drawGoal();else if(st==='play'||st==='quiz')drawPlay();else if(st==='clear')drawClear();else if(st==='over')drawOver(false);else if(st==='win')drawOver(true);for(const p of parts){x.globalAlpha=Math.max(0,p.l*2);x.fillStyle=p.c;x.fillRect(p.x,p.y,5,5)}x.globalAlpha=1;for(const p of pops){x.globalAlpha=Math.min(1,p.l*1.6);txt(p.t,p.x,p.y,18,p.c)}x.globalAlpha=1;x.restore();if(flash>0){x.fillStyle='rgba(255,244,210,'+Math.min(.35,flash)+')';x.fillRect(0,0,W,H)}}
+function loop(t){const dt=Math.min(.033,(t-lt)/1000);lt=t;if(!paused){upd(dt);draw()}requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+function overlap(a,b){return a.x<b.x+b.w-2&&b.x<a.x+a.w-2&&a.y<b.y+b.h-2&&b.y<a.y+a.h-2}
+function audit(){const ps=[];const prev=st,pi=stage,pw=waveI,pt=timeMax;for(let i=0;i<STAGES.length;i++){stage=i;const S=cur();const waves=S.kind==='throne'?throneWaves().length:1;for(let w=0;w<waves;w++){waveI=w;deal();st='play';timeMax=S.time||0;const boxes=layout();if(!boxes.length)ps.push({stage:i+1,empty:true});boxes.forEach(b=>{if(b.w<40||b.h<40||b.x<0||b.y<50||b.x+b.w>W+1||b.y+b.h>H-2)ps.push({stage:i+1,wave:w,id:b.id,x:Math.round(b.x),y:Math.round(b.y),w:Math.round(b.w),h:Math.round(b.h),W,H})});for(let a=0;a<boxes.length;a++)for(let b=a+1;b<boxes.length;b++)if(overlap(boxes[a],boxes[b]))ps.push({stage:i+1,overlap:[boxes[a].id,boxes[b].id]});if(S.kind==='tree'&&S.fromTree!=null){const row=kidSlice(S);if(S.expect&&S.expect.join(',')!==row.join(','))ps.push({stage:i+1,treeDrift:row});if(boardB.filter(g=>g.key==='kid').length<boardA.length)ps.push({stage:i+1,unsolvable:'kids'});(S.dist||[]).forEach(d=>{if(row.includes(d))ps.push({stage:i+1,distInKids:d})})}else if(S.kind==='tree'){boardA.forEach(sl=>{if(!boardB.some(g=>g.key===sl.key))ps.push({stage:i+1,unsolvable:sl.key})})}else{boardA.forEach(a=>{if(!boardB.some(b=>b.key===a.key))ps.push({stage:i+1,wave:w,unsolvable:a.key})})}}}oly().forEach(id=>{if(!ROLES[id]||!Myth.C[id])ps.push({missingRole:id})});const ids=[];STAGES.forEach(S=>{(S.grant||[]).forEach(id=>ids.push(id));(S.pairs||[]).forEach(p=>{if(typeof p.a==='string')ids.push(p.a);if(typeof p.b==='string')ids.push(p.b)});(S.pool||[]).forEach(id=>ids.push(id));(S.dist||[]).forEach(d=>{if(typeof d==='string')ids.push(d);else if(d.kind==='god')ids.push(d.id)})});[...new Set(ids)].filter(id=>!Myth.C[id]).forEach(id=>ps.push({missing:id}));st=prev;stage=pi;waveI=pw;timeMax=pt;return ps}
+function auto(){const boxes=layout().filter(b=>!isDone(b));const a=boxes.find(b=>b.side==='a');if(!a)return'no-a';const b=boxes.find(c=>c.side==='b'&&c.key===a.key);if(!b)return'no-b '+a.key;playTap(a.x+4,a.y+4);playTap(b.x+b.w/2,b.y+b.h/2);return cleared()?'cleared':'ok'}
+window.__g30={get st(){return st},get stage(){return stage},get hearts(){return hearts},get score(){return score},get combo(){return combo},get cool(){return cool},get wave(){return waveI},get solved(){return solved.size},get kind(){return cur().kind},get timeLeft(){return timeLeft},boxes(){return layout().map(b=>({uid:b.uid,id:b.id,side:b.side,key:String(b.key),x:Math.round(b.x),y:Math.round(b.y),w:Math.round(b.w),h:Math.round(b.h),done:!!isDone(b)}))},tap(px,py){onTap(px,py)},jump(i){stage=i;waveI=0;st='goal'},audit,auto,tick(dt){upd(dt)},paint(){draw()},pause(v){paused=!!v},setGuard(v){guard=v}};
+})();
+</script>
+</body>
+</html>

@@ -19,6 +19,7 @@ ares:['아레스','Ares','전쟁의 신','God of war','🛡️ 창과 방패','�
 hephaistos:['헤파이스토스','Hephaistos','대장장이와 불의 신','God of the forge & fire','🔨 망치','헤라의 아들(제우스와 헤라의 아들이라고도 함)','Son of Hera (or of Zeus & Hera)','신들의 무기와 아킬레우스의 방패를 만들었어요.','He forged the gods\' weapons and the shield of Achilles.','hephaistos'],
 hermes:['헤르메스','Hermes','전령과 여행자의 신','Messenger god of travelers','🪽 날개 신발','제우스와 마이아의 아들','Son of Zeus & Maia','페르세우스에게 날개 신발과 굽은 칼(하르페)을 도와주었어요.','He helped Perseus with winged sandals and the curved harpe sword.','hermes'],
 dionysos:['디오니소스','Dionysos','포도주와 축제의 신','God of wine & festivity','🍇 포도','제우스와 세멜레의 아들, 아리아드네의 남편','Son of Zeus & Semele, husband of Ariadne','제우스의 허벅지에서 다시 태어난 "두 번 태어난 신"이에요.','The "twice-born" god, born again from Zeus\'s thigh.','dionysos'],
+aphrodite:['아프로디테','Aphrodite','사랑과 아름다움의 여신','Goddess of love and beauty','🕊️ 비둘기','『오디세이아』에서는 헤파이스토스의 아내. 헤시오도스는 바다 거품에서, 호메로스는 제우스와 디오네의 딸이라고 해요','In the Odyssey, wife of Hephaistos. Hesiod says she rose from sea foam; Homer calls her daughter of Zeus and Dione','올림포스 12신에 들어요. 비둘기·장미·조개가 상징이고 키프로스와 인연이 깊어요.','One of the twelve Olympians. The dove, rose, and shell are her signs, and Cyprus is sacred to her.','aphrodite'],
 persephone:['페르세포네','Persephone','저승의 여왕, 봄의 여신','Queen of the Underworld','🍎 석류','제우스와 데메테르의 딸, 하데스의 아내','Daughter of Zeus & Demeter, wife of Hades','석류 씨를 먹어 해마다 일부를 저승에서 보내야 해요.','Having eaten pomegranate seeds, she must spend part of each year below.','persephone'],
 labyrinth:['라비린토스','Labyrinth','한번 들어가면 못 나오는 미궁','A maze no one could escape','🌀 미궁','다이달로스가 미노스 왕을 위해 지음','Built by Daedalus for King Minos','괴물 미노타우로스를 가두려고 크레타 크노소스에 지었어요.','Built at Knossos on Crete to imprison the Minotaur.','minotauros'],
 minos:['미노스','Minos','크레타의 왕','King of Crete','👑 왕관','제우스와 에우로페의 아들, 파시파에의 남편','Son of Zeus & Europa, husband of Pasiphaë','다이달로스와 이카로스를 크레타에 가두고, 아테네에 젊은이들을 공물로 바치게 했어요.','He kept Daedalus and Icarus captive and made Athens send young people as tribute.',''],
@@ -63,7 +64,8 @@ atlas:['아틀라스','Atlas','하늘을 떠받치는 티탄','Titan who holds u
 cerberus:['케르베로스','Cerberus','저승을 지키는 세 머리 개','Three-headed hound of the Underworld','🐕 세 머리','티폰과 에키드나의 자식','Child of Typhon and Echidna','하데스의 허락을 받아 무기 없이 끌어올려 보인 뒤, 다시 저승으로 돌려보냈어요.','With Hades\' permission Heracles dragged him up without weapons, then brought him back.','kerberos'],
 labors:['12과업','Twelve Labors','죄를 씻는 열두 가지 임무','Twelve tasks of penance','📜 열두 과업','에우리스테우스가 헤라의 뜻으로 명령','Ordered by Eurystheus at Hera\'s will','델포이 신탁대로 티린스의 왕을 섬기며 해냈어요. 도움이나 보수가 있던 일은 인정되지 않기도 했어요.','An oracle at Delphi sent him to serve the king of Tiryns. Tasks done with help or for pay were sometimes disallowed.','']
 };
-const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','hephaistos','hermes','dionysos','persephone','danae'],['perseus','andromeda','heracles']];
+const TREE=[['kronos','rhea'],['hestia','demeter','hera','hades','poseidon','zeus'],['athena','apollo','artemis','ares','aphrodite','hephaistos','hermes','dionysos','persephone','danae'],['perseus','andromeda','heracles']];
+const OLY12=['zeus','hera','poseidon','demeter','athena','apollo','artemis','ares','aphrodite','hephaistos','hermes','dionysos'];
 const Q=[
 ['이카로스의 아버지는?','Icarus\'s father?',['다이달로스','미노스','헬리오스'],['Daedalus','Minos','Helios'],0],
 ['이카로스의 날개를 녹인 것은?','What melted Icarus\'s wings?',['태양','번개','파도'],['The sun','Lightning','Waves'],0],
@@ -125,7 +127,32 @@ const Q=[
 ['케르베로스를 데려올 때 쓰지 않은 것은?','What did Heracles not use on Cerberus?',['무기','힘','하데스의 허락'],['Weapons','Strength','Hades\' permission'],0],
 ['케르베로스의 머리는 흔히 몇 개?','How many heads does Cerberus usually have?',['셋','하나','아홉'],['Three','One','Nine'],0],
 ['12과업의 첫 번째는?','First of the twelve labors?',['네메아의 사자','케르베로스','히드라'],['Nemean Lion','Cerberus','Hydra'],0],
-['12과업의 마지막은?','Last of the twelve labors?',['케르베로스','네메아의 사자','아우게이아스 외양간'],['Cerberus','Nemean Lion','Augean stables'],0]
+['12과업의 마지막은?','Last of the twelve labors?',['케르베로스','네메아의 사자','아우게이아스 외양간'],['Cerberus','Nemean Lion','Augean stables'],0],
+['제우스의 상징은?','What is Zeus\'s symbol?',['번개','삼지창','활'],['Lightning','Trident','Bow'],0],
+['아테나의 새는?','Athena\'s bird?',['올빼미','공작','비둘기'],['Owl','Peacock','Dove'],0],
+['헤라의 새는?','Hera\'s bird?',['공작','올빼미','독수리'],['Peacock','Owl','Eagle'],0],
+['제우스의 아내는?','Who is Zeus\'s wife?',['헤라','아테나','아르테미스'],['Hera','Athena','Artemis'],0],
+['아폴론의 쌍둥이 자매는?','Apollo\'s twin sister?',['아르테미스','아테나','헤스티아'],['Artemis','Athena','Hestia'],0],
+['하데스의 아내는?','Who is Hades\'s wife?',['페르세포네','헤라','아프로디테'],['Persephone','Hera','Aphrodite'],0],
+['크로노스의 아내는?','Who is Kronos\'s wife?',['레아','가이아','헤라'],['Rhea','Gaia','Hera'],0],
+['사랑과 아름다움의 여신은?','Goddess of love and beauty?',['아프로디테','아테나','헤스티아'],['Aphrodite','Athena','Hestia'],0],
+['『오디세이아』에서 아프로디테의 남편은?','In the Odyssey, Aphrodite\'s husband is?',['헤파이스토스','아폴론','헤르메스'],['Hephaistos','Apollo','Hermes'],0],
+['헤시오도스에서 아프로디테가 태어난 곳은?','In Hesiod, Aphrodite is born from?',['바다 거품','제우스의 머리','제우스의 허벅지'],['Sea foam','Zeus\'s head','Zeus\'s thigh'],0],
+['제우스의 머리에서 태어난 여신은?','Which goddess was born from Zeus\'s head?',['아테나','아르테미스','아프로디테'],['Athena','Artemis','Aphrodite'],0],
+['디오니소스가 다시 태어난 곳은?','Dionysos was born again from?',['제우스의 허벅지','바다 거품','헤라의 왕관'],['Zeus\'s thigh','Sea foam','Hera\'s crown'],0],
+['헤르메스의 어머니는?','Hermes\'s mother?',['마이아','헤라','레토'],['Maia','Hera','Leto'],0],
+['아폴론과 아르테미스의 어머니는?','Mother of Apollo and Artemis?',['레토','헤라','데메테르'],['Leto','Hera','Demeter'],0],
+['헤파이스토스의 상징은?','Hephaistos\'s symbol?',['망치','리라','삼지창'],['Hammer','Lyre','Trident'],0],
+['헤르메스의 신발은?','Hermes\'s famous shoes?',['날개 신발','쇠 부츠','나무 나막신'],['Winged sandals','Iron boots','Wooden clogs'],0],
+['헤스티아 대신 12신에 자주 넣는 신은?','Who often takes Hestia\'s seat among the twelve?',['디오니소스','하데스','페르세우스'],['Dionysos','Hades','Perseus'],0],
+['저승의 왕이라 12신 명단에 보통 없는 신은?','Underworld king usually left off the twelve?',['하데스','아레스','포세이돈'],['Hades','Ares','Poseidon'],0],
+['데메테르의 딸은?','Demeter\'s daughter?',['페르세포네','아테나','헤라'],['Persephone','Athena','Hera'],0],
+['아레스의 부모로 많이 나오는 둘은?','Ares is usually the son of?',['제우스와 헤라','크로노스와 레아','제우스와 레토'],['Zeus and Hera','Kronos and Rhea','Zeus and Leto'],0],
+['대장장이의 신은?','God of the forge?',['헤파이스토스','헤르메스','아레스'],['Hephaistos','Hermes','Ares'],0],
+['포도주와 축제의 신은?','God of wine and festivity?',['디오니소스','아폴론','포세이돈'],['Dionysos','Apollo','Poseidon'],0],
+['올림포스 12신의 바다의 신은?','Sea god among the twelve Olympians?',['포세이돈','하데스','헬리오스'],['Poseidon','Hades','Helios'],0],
+['크로노스와 레아의 막내아들은?','Youngest son of Kronos and Rhea?',['제우스','하데스','아레스'],['Zeus','Hades','Ares'],0],
+['화로와 가정의 불의 여신은?','Goddess of the hearth?',['헤스티아','헤라','데메테르'],['Hestia','Hera','Demeter'],0]
 ];
 const K='olympusDex';
 const get=()=>{try{return JSON.parse(localStorage[K]||'[]')}catch(e){return[]}};
@@ -161,5 +188,5 @@ o.addEventListener('pointerup',ev=>{if(o.dataset.a){close();return}const b=ev.ta
 const kd=ev=>{ev.stopPropagation();ev.stopImmediatePropagation();ev.preventDefault();if(ev.repeat)return;const n=+ev.key;if(!o.dataset.a&&n>=1&&n<=ord.length)pick(ord[n-1]);else if(o.dataset.a&&(ev.key=='Enter'||ev.key==' '))close()};
 addEventListener('keydown',kd,true);document.body.appendChild(o)}
 function quizOpen(){return !!document.querySelector('.myq')}
-window.Myth={C,TREE,Q,get,unlock,card,openDex,quiz,quizOpen,LINK};
+window.Myth={C,TREE,OLY12,Q,get,unlock,card,openDex,quiz,quizOpen,LINK};
 })();
