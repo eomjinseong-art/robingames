@@ -45,7 +45,7 @@ for(let i=0;i<80;i++)stars.push({x:Math.random(),y:Math.random()*.5,p:Math.rando
 for(let i=0;i<25;i++)flies.push({x:Math.random(),y:Math.random(),p:Math.random()*6});
 let state='title',stage=1,seq=[],idx=0,showT=0,showI=0,score=0,combo=0,best=+localStorage.getItem('g23best')||0,msg='',msgT=0,goAt=0,lives=0;
 function now(){return performance.now()} // all timing in ms
-function start(){state='show';stage=1;score=0;combo=0;seq=[];for(let i=0;i<3;i++)seq.push(rnd());beginShow();au();if(!bgmOn){bgmOn=true;nextBeat=ac.currentTime+.05;beatN=0}}
+function start(){state='show';stage=1;score=0;combo=0;lives=3;seq=[];for(let i=0;i<3;i++)seq.push(rnd());beginShow();au();if(!bgmOn){bgmOn=true;nextBeat=ac.currentTime+.05;beatN=0}}
 function rnd(){let r;do r=Math.floor(Math.random()*6);while(seq.length&&r==seq[seq.length-1]&&Math.random()<.6);return r}
 function gap(){return Math.max(230,560-stage*28)} // ms between lights
 function beginShow(){state='show';showI=0;showT=now()+350;idx=0}
@@ -58,7 +58,8 @@ function tap(px,py){au();const t=now();
   if(idx>=seq.length){stage++;score+=stage*20;msg=L('nice');msgT=t+700;const add=stage%3==0?2:1;for(let k=0;k<add;k++)seq.push(rnd());
    if(stage>4&&Math.random()<.3)seq=seq.map(()=>rnd()); // occasional remix keeps it fresh
    state='wait';showT=t+450}}
- else{sfx(i,false);state='over';goAt=t;if(score>best){best=score;localStorage.setItem('g23best',best)}}}
+ else if(lives>1){sfx(i,false);lives--;combo=0;msg=lang=='ko'?'다시! ❤️×'+lives+' 남음':'Try again! ❤️×'+lives+' left';msgT=t+1300;state='wait';showT=t+1100}
+ else{sfx(i,false);lives=0;state='over';goAt=t;if(score>best){best=score;localStorage.setItem('g23best',best)}}}
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY)});
 addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'){e.preventDefault();if(state=='title'||state=='over')tap(-1,-1)}else{const k='123456'.indexOf(e.key);if(k>=0&&P[k])tap(P[k].x,P[k].y)}});
 function plant(p,i,t){const g=p.lit,s=p.s;x.save();x.translate(p.x,p.y);
@@ -83,12 +84,13 @@ function loop(){const t=now();sched();
  if(state=='title'){txt(L('s'),H*.2,22,'#9ff');txt(L('best')+' '+best,H*.2+30,16,'#cfc')}
  else{txt(L('st')+' '+stage+'  ·  '+score,122,18,'#cff');
   if(combo>=3)txt(L('combo')+' x'+combo,146,16,'#fd4');
+  x.font='22px sans-serif';x.textAlign='center';x.fillStyle='#fff';x.fillText('❤️'.repeat(Math.max(0,lives))+'🤍'.repeat(Math.max(0,3-lives)),W/2,176);
   txt(state=='input'?L('h')+' ('+idx+'/'+seq.length+')':state=='over'?'':L('w'),H*.2,18,state=='input'?'#7f7':'#f9f');
   if(t<msgT)txt(msg,H*.56,30,'#fd4')}
  if(state=='over'){x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,0,W,H);txt(L('go'),H*.4,40,'#f8a');txt(L('st')+' '+stage+' · '+score,H*.4+40,22);txt(L('best')+' '+best,H*.4+70,18,'#cfc');txt(L('r'),H*.4+110,18,'#9ff')}
  requestAnimationFrame(loop)}
 addEventListener('resize',rs);rs();setLang();loop();
-window.__g23={get state(){return state},get seq(){return seq},get stage(){return stage},P:()=>P};
+window.__g23={get state(){return state},get lives(){return lives},get seq(){return seq},get stage(){return stage},P:()=>P};
 </script>
 <script src="/counter.js" defer></script>
 </body></html>

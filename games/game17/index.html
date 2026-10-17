@@ -36,6 +36,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Jua','M
   <div class="top"><a class="icon" href="../../index.html" aria-label="Home">⌂</a><div class="actions"><button class="icon" id="langBtn">🌐</button><button class="icon" id="muteBtn">🔊</button></div></div>
   <div class="hud"><h1 data-i18n="title">뿡뿡 숫자 찾기</h1><div class="sub" data-i18n="titleEn">TOOT NUMBER HUNT</div>
     <div class="stats"><div class="pill"><span data-i18n="next">다음</span><b id="nextVal">1</b></div><div class="pill"><span data-i18n="time">시간</span><b id="timeVal">30</b></div><div class="pill"><span data-i18n="best">최고</span><b id="bestVal">0</b></div></div>
+    <div id="livesVal" style="font-size:20px;line-height:1.4;margin-top:4px">❤️❤️❤️</div>
   </div>
   <div id="status" data-i18n="ready">1부터 순서대로 톡!</div>
   <div id="field"></div>
@@ -80,7 +81,8 @@ try{snd.muted=localStorage.getItem(MUTE_KEY)==='1'}catch(e){}
 ['pointerdown','touchend','click','keydown'].forEach(ev=>window.addEventListener(ev,()=>snd.init(),{capture:true,passive:true}));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)snd.sleep();else if(snd.ac&&snd.ac.state!=='running')snd.ac.resume().catch(()=>{})});
 
-let state='title', level=1, next=1, N=8, left=30, timer=null, score=0, jig=null;
+let state='title', level=1, next=1, N=8, left=30, timer=null, score=0, jig=null, lives=3, graceT=0;
+function showLives(){$('livesVal').textContent='❤️'.repeat(Math.max(0,lives))+'🤍'.repeat(Math.max(0,3-lives))}
 const COLORS=['#7ec8ff','#ffd56a','#9dffb0','#ff9ec8','#c9a6ff','#ffb07a'];
 function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(e=>{if(T[e.dataset.i18n])e.textContent=t(e.dataset.i18n)});$('langBtn').textContent=lang==='ko'?'🌐 EN':'🌐 한';$('bestVal').textContent=String(save.best);$('muteBtn').textContent=snd.muted?'🔇':'🔊'}
 function show(id){document.querySelectorAll('.overlay').forEach(o=>o.classList.toggle('show',o.id===id))}
@@ -101,17 +103,20 @@ function spawn(){
 function onTap(n,el){if(state!=='play')return;snd.init();
   if(n===next){snd.ok();el.classList.add('ok');next++;score=Math.max(score,next-1);$('nextVal').textContent=String(Math.min(next,N));setStatus(t('go'));
     if(next>N){clearInterval(timer);level++;startLevel()}
-  }else{snd.bad();el.classList.add('bad');setTimeout(()=>el.classList.remove('bad'),260);fail()}}
+  }else{snd.bad();el.classList.add('bad');setTimeout(()=>el.classList.remove('bad'),260);miss()}}
+function miss(){if(state!=='play')return;if(performance.now()<graceT&&left>0)return; // 목숨 남으면 그대로 이어서
+  if(lives>1){lives--;showLives();graceT=performance.now()+1000;if(left<=0){left=FAST?8:Math.max(12,34-level*2);$('timeVal').textContent=String(left)}setStatus(lang==='ko'?'다시! ❤️×'+lives+' 남음':'Try again! ❤️×'+lives+' left');return}
+  lives=0;showLives();fail()}
 function fail(){state='over';clearInterval(timer);if(jig)clearInterval(jig);snd.bad();const reached=Math.max(0,next-1);if(reached>save.best){save.best=reached;persist()}
   $('near').textContent=t('near',{n:reached});$('overSub').textContent=t('best')+': '+save.best;$('bestVal').textContent=String(save.best);show('overScr')}
-function tick(){left--;$('timeVal').textContent=String(Math.max(0,left));if(left<=0)fail()}
+function tick(){left--;$('timeVal').textContent=String(Math.max(0,left));if(left<=0)miss()}
 function startLevel(){state='play';next=1;N=Math.min(20,6+level*2);left=FAST?8:Math.max(12,34-level*2);$('nextVal').textContent='1';$('timeVal').textContent=String(left);setStatus(t('level',{n:level}));show(null);spawn();clearInterval(timer);timer=setInterval(tick,1000)}
-function start(){snd.init();level=1;score=0;startLevel()}
+function start(){snd.init();level=1;score=0;lives=3;graceT=0;showLives();startLevel()}
 $('startBtn').onclick=start;$('goBtn').onclick=start;$('againBtn').onclick=start;
 $('langBtn').onclick=()=>{lang=lang==='ko'?'en':'ko';try{localStorage.setItem(LANG_KEY,lang)}catch(e){}applyLang()};
 $('muteBtn').onclick=()=>{snd.init();snd.setMute(!snd.muted);applyLang();if(!snd.muted)snd.tap()};
 applyLang();
-window.__tootNumberHunt=Object.freeze({snapshot:()=>({state,level,next,N,left,best:save.best,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),forceFail:()=>fail()});
+window.__tootNumberHunt=Object.freeze({snapshot:()=>({state,level,next,N,left,best:save.best,audio:{state:snd.ac?snd.ac.state:'none',music:snd.musicOn,muted:snd.muted}}),forceFail:()=>fail(),forceMiss:()=>{graceT=0;miss()},lives:()=>lives});
 })();
 </script>
 </body>

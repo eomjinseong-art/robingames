@@ -61,7 +61,7 @@ function bfs(sx,sy){const D=new Array(C*R).fill(-1),q=[sy*C+sx];D[q[0]]=0;for(le
 function fit(){const top=118,bot=34;cs=Math.floor(Math.min((W-16)/C,(H-top-bot)/R));ox=(W-cs*C)/2;oy=top+((H-top-bot)-cs*R)/2}
 // state
 let st='title',stage=0,best=+localStorage.g24best||0,now=0,lt=performance.now(),t0=0,shake=0,flash=0,nb=false,cards=[],bonus=0,parts=[],pops=[],
-pl,mt,exit,trail=[],balls=[],glow=0,wake=0,roared=false,qd=-1,clearT=0,tootT=0,pathD=null;
+pl,mt,exit,trail=[],balls=[],glow=0,wake=0,roared=false,qd=-1,clearT=0,tootT=0,pathD=null,lives=3,invT=0;
 function mover(cx,cy){return{cx,cy,tx:cx,ty:cy,p:1,d:-1}}
 function newMaze(){const c=Math.min(15,5+stage),r=Math.min(23,Math.max(c,Math.round(c*Math.max(1,(H-150)/Math.max(1,W-16)))));C=c;R=r;exit={cx:C-1,cy:R-1};
 // generate until start->exit path is verified open by BFS, and Minotaur can spawn off that path
@@ -78,7 +78,7 @@ const mxp=Math.max(...cand.map(i=>PD[i]));const far=cand.filter(i=>PD[i]>=Math.m
 fit();pl=mover(0,0);qd=-1;trail=[[0,0]];glow=0;mt=mover(s%C,s/C|0);
 wake=stage==0?6:Math.max(1.2,4-stage*.25);roared=false;pathD=bfs(exit.cx,exit.cy);
 balls=[];const nb_=1+Math.min(3,stage/3|0);for(let i=0;i<nb_;i++){const p=(Math.random()*C*R)|0;if(p&&p!=s)balls.push({cx:p%C,cy:p/C|0})}}
-function reset(){stage=0;nb=false;cards=[];bonus=0;parts=[];pops=[];newMaze()}
+function reset(){lives=3;invT=0;stage=0;nb=false;cards=[];bonus=0;parts=[];pops=[];newMaze()}
 const psp=()=>6.2+Math.min(stage,12)*.12;const msp=()=>stage==0?1.6:Math.min(5.9,2.4+stage*.33);
 function step1(m,dt,sp,choose){m.p+=dt*sp;let guard=0;while(m.p>=1&&guard++<4){m.cx=m.tx;m.cy=m.ty;const d=choose(m);if(d<0){m.p=1;break}m.d=d;m.tx=m.cx+DX[d];m.ty=m.cy+DY[d];m.p-=1}}
 const pos=m=>[m.cx+(m.tx-m.cx)*Math.min(1,m.p),m.cy+(m.ty-m.cy)*Math.min(1,m.p)];
@@ -94,7 +94,9 @@ function win(){if(st!='play')return;const id=CARDS[stage%CARDS.length];stage++;c
 sfx(660,.1,'square');sfx(990,.12,'square');setTimeout(()=>sfx(1320,.2,'square'),90);burstC(exit.cx,exit.cy,'#9ff',24);flash=.25;
 if(stage>best){best=stage;localStorage.g24best=best;nb=true}st='clear';clearT=now;popTxt=(isNew?'🃏 NEW ':'🃏 ')+c.name}
 let popTxt='';
-function over(){if(st!='play')return;st='over';t0=now;shake=14;flash=.5;sfx(110,.6,'sawtooth',.3);sfx(70,.7,'square',.2);navigator.vibrate&&navigator.vibrate(90);const[a,b]=pos(pl);burstC(a,b,'#f55',30);
+function over(){if(st!='play'||invT>0)return;
+if(lives>1){lives--;invT=1.5;shake=8;flash=.3;sfx(110,.4,'sawtooth',.3);navigator.vibrate&&navigator.vibrate(60);const D=bfs(pl.tx,pl.ty),E=exit.cy*C+exit.cx;let bi=-1;for(let i=0;i<C*R;i++)if(i!=E&&(bi<0||D[i]>D[bi]))bi=i;mt=mover(bi%C,bi/C|0);wake=1.5;roared=false;pops.push({t:lang=='ko'?'다시! ❤️×'+lives+' 남음':'Try again! ❤️×'+lives+' left',c:'#ffb3c7',x:W/2,y:H*.45,l:1.8});return}
+lives=0;st='over';t0=now;shake=14;flash=.5;sfx(110,.6,'sawtooth',.3);sfx(70,.7,'square',.2);navigator.vibrate&&navigator.vibrate(90);const[a,b]=pos(pl);burstC(a,b,'#f55',30);
 setTimeout(()=>{if(st!='over')return;st='quiz';Myth.quiz(lang,ok=>{st='over2';t0=now;if(ok){bonus=1;stage++;sfx(880,.15,'square');sfx(1320,.2,'square');if(stage>best){best=stage;localStorage.g24best=best;nb=true}}else bonus=-1})},600)}
 function start(){au();if(st=='title'||(st=='over2'&&now-t0>.15)){reset();st='play';return true}return false}
 // input: swipe (instant on move) or tap relative to Theseus
@@ -114,6 +116,7 @@ for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;p.l-=dt}part
 for(const p of pops){p.y-=36*dt;p.l-=dt}pops=pops.filter(p=>p.l>0);
 if(st=='clear'&&now-clearT>.7){newMaze();st='play'}
 if(st!='play')return;
+if(invT>0)invT-=dt;
 const moving=pl.p<1;step1(pl,dt,psp(),pChoose);if(st!='play')return;
 if(moving){tootT-=dt;if(tootT<=0){tootT=.5;toot();const[a,b]=pos(pl);parts.push({x:ox+(a+.5)*cs,y:oy+(b+.5)*cs,vx:0,vy:0,l:.5,c:'#e9f2c0'})}}
 if(wake>0){wake-=dt;if(wake<=0&&!roared){roared=true;sfx(90,.5,'sawtooth',.3);shake=5;popAt('😤 '+L().roar,'#ff9a7a',mt.cx,mt.cy)}}
@@ -141,14 +144,15 @@ x.font=Math.floor(cs*.32)+'px serif';x.fillText('👸',s0x-cs*.28,s0y-cs*.28);
 // Minotaur
 const[ma,mb2]=pos(mt);const[mu,mv]=sc(ma,mb2);minotaur(mu,mv,cs*.42,wake>0);
 // Theseus
-hero(pu,pv,cs*.4)}
+if(!(st=='play'&&invT>0&&Math.floor(now*12)%2))hero(pu,pv,cs*.4)}
 for(const p of parts){x.globalAlpha=Math.max(0,p.l);x.fillStyle=p.c;x.fillRect(p.x-3,p.y-3,6,6)}x.globalAlpha=1;
 x.textAlign='center';x.textBaseline='alphabetic';for(const p of pops){x.globalAlpha=Math.min(1,p.l);x.font='bold 16px sans-serif';x.lineWidth=4;x.strokeStyle='#000a';x.strokeText(p.t,p.x,p.y);x.fillStyle=p.c;x.fillText(p.t,p.x,p.y)}x.globalAlpha=1;
 x.restore();if(flash){x.fillStyle=`rgba(255,255,255,${flash})`;x.fillRect(0,0,W,H)}
 x.textBaseline='alphabetic';const top=62;
 if(st=='play'||st=='clear'){x.textAlign='left';x.font='bold 22px sans-serif';x.lineWidth=5;x.strokeStyle='#0008';const s='🌀 '+L().stage+' '+(stage+1);x.strokeText(s,12,top+18);x.fillStyle='#fff';x.fillText(s,12,top+18);
 x.font='15px sans-serif';x.fillText(L().best+' '+best+' · 🃏 '+(CARDS[stage%CARDS.length]?Myth.card(CARDS[stage%CARDS.length],lang).name:''),12,top+38);
-if(wake>0){x.textAlign='right';x.font='bold 15px sans-serif';x.fillStyle='#ffd76f';x.fillText('💤 '+wake.toFixed(1),W-12,top+18)}}
+if(wake>0){x.textAlign='right';x.font='bold 15px sans-serif';x.fillStyle='#ffd76f';x.fillText('💤 '+wake.toFixed(1),W-12,top+18)}
+x.textAlign='right';x.font='20px sans-serif';x.fillStyle='#fff';x.fillText('❤️'.repeat(Math.max(0,lives))+'🤍'.repeat(Math.max(0,3-lives)),W-12,top+42)}
 if(st=='clear'){ban('✨ '+L().clear+'  '+popTxt,'#2a9d5c',H*.5)}
 if(st=='title'){x.fillStyle='#0b1a40cc';x.fillRect(0,H*.13,W,H*.36);x.textAlign='center';x.fillStyle='#ffe58a';x.font='bold 15px sans-serif';x.fillText(L().sub,W/2,H*.2);x.font='bold 30px sans-serif';x.fillStyle='#fff';x.strokeStyle='#2b1a12';x.lineWidth=6;x.strokeText(L().t,W/2,H*.2+38);x.fillText(L().t,W/2,H*.2+38);
 x.font='17px sans-serif';wrap('👆 '+L().h,W/2,H*.2+70,W*.88);x.font='16px sans-serif';wrap(L().w,W/2,H*.2+114,W*.86);
@@ -173,7 +177,7 @@ function ban(t,c,y){x.textAlign='center';x.font='bold 18px sans-serif';const w=M
 function wrap(t,cx,cy,mw){x.textAlign='center';const ws=t.split(' ');let l='',yy=cy;for(const w of ws){if(x.measureText(l+w).width>mw&&l){x.fillText(l,cx,yy);l='';yy+=Math.round(parseFloat((x.font.match(/([\d.]+)px/)||[0,16])[1])*1.45)}l+=w+' '}x.fillText(l,cx,yy)}
 rs();newMaze();
 function loop(t){const dt=Math.min(.033,(t-lt)/1000);lt=t;upd(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__g24={get mz(){return mz},get C(){return C},get R(){return R},get exit(){return exit},get wake(){return wake},start,get st(){return st},get stage(){return stage},get pl(){return pl},get mt(){return mt},setDir};
+window.__g24={get mz(){return mz},get C(){return C},get R(){return R},get exit(){return exit},get wake(){return wake},start,get st(){return st},get stage(){return stage},get pl(){return pl},get mt(){return mt},setDir,get lives(){return lives},forceDie(){invT=0;over()}};
 })();
 </script>
 </body>
