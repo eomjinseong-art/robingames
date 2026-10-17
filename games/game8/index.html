@@ -362,6 +362,7 @@ function drawEmo(ch, x, y, size, rot = 0, sx = 1, sy = 1) {
 /* ================== 게임 상태 ================== */
 let state = 'title'; // title | play | pause | over
 let player, pipes, items, puffs, floaters, clouds, birds;
+let lives = 3, invT = 0;
 let score, potatoes, gas, superT, speed, gap, spawnX, time, shake, eventName, eventT, curEvent, deathT, lastScoreEvent, windY, gravMul, flash;
 const GRAV = 0.42, FLAP = -7.4;
 
@@ -384,7 +385,7 @@ function reset() {
   pipes = []; items = []; puffs = []; floaters = []; birds = [];
   score = 0; potatoes = 0; gas = 0; superT = 0; speed = 2.4; gap = 190; spawnX = W + 40;
   time = 0; shake = 0; eventName = ''; eventT = 0; curEvent = null; deathT = 0; lastScoreEvent = 0;
-  windY = 0; gravMul = 1; flash = 0;
+  windY = 0; gravMul = 1; flash = 0; lives = 3; invT = 0;
 }
 initClouds(); reset();
 
@@ -433,12 +434,20 @@ function triggerEvent() {
 }
 
 function die() {
-  if (!player.alive) return;
+  if (!player.alive || invT > 0) return;
+  lives--;
   player.alive = false; snd.stopMusic();
   player.vy = -9; deathT = 0; shake = 14; flash = 1;
   snd.crash();
   for (let i = 0; i < 18; i++) puffs.push({ x: player.x, y: player.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, r: 8 + Math.random() * 10, life: 1.4, c: '#b8e994' });
   floaters.push({ x: player.x, y: player.y - 30, t: t('crash'), life: 1.6, big: true });
+}
+
+function respawn() {
+  player.alive = true; player.x = 100; player.y = 280; player.vy = 0; player.rot = 0; deathT = 0;
+  pipes = pipes.filter(pp => pp.x > player.x + 330 || pp.x + pp.w < player.x - 70); birds = [];
+  invT = 1.5; snd.startMusic();
+  floaters.push({ x: W / 2, y: 250, t: (lang === 'ko' ? '다시! ❤️×' + lives + ' 남음' : 'Try again! ❤️×' + lives + ' left'), life: 1.8, big: true });
 }
 
 function gameOver() {
@@ -492,6 +501,7 @@ function update(dt) {
   p.r = tiny ? 11 : 17;
 
   if (p.alive) {
+    if (invT > 0) invT -= dt;
     speed = Math.min(5.2, 2.4 + score * 0.045);
     gap = Math.max(138, 190 - score * 1.3);
     const sp = superT > 0 ? speed * 1.9 : speed;
@@ -552,7 +562,7 @@ function update(dt) {
     // 사망 애니메이션: 빙글빙글 튕겨나감
     deathT += dt;
     p.vy += 0.5 * f; p.y += p.vy * f; p.x += 1.5 * f; p.rot += 0.35 * f;
-    if (deathT > 1.1) gameOver();
+    if (deathT > 1.1) { if (lives > 0) respawn(); else gameOver(); }
   }
   // 파티클
   for (const pf of puffs) { pf.x += pf.vx * f; pf.y += pf.vy * f; pf.vy *= 0.96; pf.r += 0.3 * f; pf.life -= dt * 1.6; }
@@ -638,7 +648,7 @@ function render() {
     if (superT > 0) { ctx.fillStyle = 'rgba(255,211,42,.4)'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 10 + Math.sin(time * 20) * 3, 0, 6.28); ctx.fill(); }
     const sq = p.squash;
     const sk = SKINS[store.d.skin];
-    drawEmo(sprite(sk), p.x, p.y, p.r * 2, p.rot, faceX(sk) / sq * (disco ? 1 + Math.sin(time * 16) * 0.15 : 1), sq);
+    if (!(invT > 0 && Math.floor(time * 12) % 2)) drawEmo(sprite(sk), p.x, p.y, p.r * 2, p.rot, faceX(sk) / sq * (disco ? 1 + Math.sin(time * 16) * 0.15 : 1), sq);
   } else {
     // 타이틀 데모: 둥실둥실
     drawEmo(sprite(SKINS[store.d.skin]), 180, 560 + Math.sin(time * 3) * 6, 30, Math.sin(time * 2) * 0.2, faceX(SKINS[store.d.skin]));
@@ -658,6 +668,7 @@ function render() {
     ctx.font = "bold 54px 'Jua','Malgun Gothic',sans-serif";
     ctx.lineWidth = 8; ctx.strokeStyle = '#2d1b00'; ctx.strokeText(score, W / 2, 95);
     ctx.fillStyle = '#fff'; ctx.fillText(score, W / 2, 95);
+    ctx.font = "24px sans-serif"; ctx.fillText('❤️'.repeat(Math.max(0, lives)) + '🤍'.repeat(Math.max(0, 3 - lives)), W / 2, 138);
     // 가스 게이지 (고구마 5개)
     const gx = 70, gy = 612;
     ctx.font = "bold 14px 'Jua','Malgun Gothic',sans-serif"; ctx.fillStyle = '#2d1b00'; ctx.textAlign = 'left';
@@ -796,7 +807,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) pause
 window.addEventListener('blur', () => pause());
 
 // 테스트용 훅 (게임 상태 조회만)
-window.__bbung = { get audio() { return { state: snd.ac ? snd.ac.state : 'none', level: snd.level(), music: snd.musicOn, muted: snd.muted }; }, get state() { return state; }, get score() { return score; }, get y() { return player.y; }, get pipes() { return pipes.map(p => ({ x: p.x, top: p.top, gap })); } };
+window.__bbung = { get audio() { return { state: snd.ac ? snd.ac.state : 'none', level: snd.level(), music: snd.musicOn, muted: snd.muted }; }, get state() { return state; }, get score() { return score; }, get y() { return player.y; }, get pipes() { return pipes.map(p => ({ x: p.x, top: p.top, gap })); }, get lives() { return lives; }, forceDie() { invT = 0; superT = 0; die(); } };
 
 function applyLang() {
   document.documentElement.lang = lang;

@@ -43,17 +43,17 @@ setInterval(sched,40);
 function sfx(f,d,ty){if(ac)tone(f,ac.currentTime,d,ty||'sine',.25)}
 function au(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.gain.value=muted?0:.5;mg.connect(ac.destination);nt=ac.currentTime}ac.resume&&ac.resume()}
 // game — speedy chain loop
-let st='title',score=0,best=+localStorage.g21best||0,cam=0,me,tgs=[],parts=[],pops=[],nb=false,t0=0,combo=0,maxc=0,lastLand=0,tleft=30,shake=0,flash=0,now=0,lt=performance.now();
+let st='title',score=0,best=+localStorage.g21best||0,cam=0,me,tgs=[],parts=[],pops=[],nb=false,t0=0,combo=0,maxc=0,lastLand=0,tleft=30,shake=0,flash=0,now=0,lt=performance.now(),lives=3,invT=0;
 const GAP=()=>Math.min(150,H*.19),JD=.2,ROUND=30;
 const spd=()=>1+Math.min(combo,30)*.05+Math.min(score,300)*.002;
 function mk(y,side,off){const sp=pick(),dir=side||(Math.random()<.5?1:-1);const w=Math.max(56,92-score*.15)*(sp==2?1.25:1);
 return{sp,y,x:dir>0?-w*.3-(off||0):W+w*.3+(off||0),v:(170+Math.random()*90)*dir,w,ph:Math.random()*6}}
 function row(){tgs=[];const y=me.y-GAP();const d=Math.random()<.5?1:-1;tgs.push(mk(y,d,0));tgs.push(mk(y,-d,W*.35))}
-function reset(){score=0;cam=0;nb=false;combo=0;maxc=0;tleft=ROUND;lastLand=now;parts=[];pops=[];me={x:W/2,y:H*.75,jy:0,jt:-1,fall:0,ride:{sp:0,y:H*.75,x:W/2,v:0,w:100,ph:0}};cam=me.y-H*.72;row()}
+function reset(){score=0;cam=0;nb=false;combo=0;maxc=0;tleft=ROUND;lastLand=now;parts=[];pops=[];me={x:W/2,y:H*.75,jy:0,jt:-1,fall:0,ride:{sp:0,y:H*.75,x:W/2,v:0,w:100,ph:0}};cam=me.y-H*.72;row();lives=3;invT=0}
 reset();
 function over(){st='over';t0=now;shake=14;flash=.4;sfx(150,.4,'sawtooth');sfx(90,.5,'square');if(navigator.vibrate)navigator.vibrate(80);if(score>best){best=score;localStorage.g21best=best;nb=true}}
 function tap(){au();if(st=='title'||st=='over'){if(st=='over'&&now-t0<.25)return;st='play';reset();return}
-if(me.jt<0&&!me.fall){me.jt=0;sfx(440+combo*30,.08,'square')}}
+if(me.jt<0&&!me.fall&&invT<.7){me.jt=0;sfx(440+combo*30,.08,'square')}}
 addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.bar')){const t=e.target.closest('a,button');if(t&&t.blur)setTimeout(()=>t.blur(),0);return}e.preventDefault();tap()},{passive:false});
 addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='Enter'){e.preventDefault();const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur();if(!e.repeat)tap()}});
 function burst(px,py,c,n){for(let i=0;i<n;i++){const a=Math.random()*7,s=60+Math.random()*260;parts.push({x:px,y:py,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:.5+Math.random()*.3,c})}}
@@ -64,7 +64,8 @@ for(const t of tgs){t.x+=t.v*spd()*dt;t.ph+=dt*8*spd();if(t.v>0&&t.x>W+t.w*.6)t.
 if(st!='play')return;
 tleft-=dt;if(tleft<=0){tleft=0;over();return}
 if(combo&&now-lastLand>1.6){combo=0}
-if(me.fall){me.fall+=dt;me.jy+=900*dt*me.fall*4;if(me.fall>.35)over();return}
+if(invT>0)invT-=dt;
+if(me.fall){me.fall+=dt;me.jy+=900*dt*me.fall*4;if(me.fall>.35){if(lives>1){lives--;invT=1.2;me.fall=0;me.jy=0;me.jt=-1;combo=0;row();shake=8;flash=.25;sfx(200,.3,'sawtooth');navigator.vibrate&&navigator.vibrate(60);pops.push({s:lang=='ko'?'다시! ❤️×'+lives+' 남음':'Try again! ❤️×'+lives+' left',t:1.6,y:H*.46,c:'#ff9ab8',big:false})}else{lives=0;over()}}return}
 if(me.jt>=0){me.jt+=dt*spd();const p=Math.min(me.jt/JD,1);me.jy=-GAP()*Math.sin(p*Math.PI/2);
 if(p>=1){let hit=null,bd=1e9;for(const t of tgs){const d=Math.abs(t.x-me.x);if(d<t.w*.7&&d<bd){bd=d;hit=t}}
 if(!hit){me.fall=.001;sfx(220,.2,'sawtooth');shake=6;return}
@@ -88,10 +89,10 @@ for(let i=0;i<40;i++){const sy=((i*97-cam*.3)%H+H)%H;x.fillStyle='#ffffff'+(i%3?
 // floating islands deco
 x.save();x.translate((Math.random()-.5)*shake,-cam+(Math.random()-.5)*shake);
 for(const t of tgs)crit(SP[t.sp].c,t.x,t.y,t.w,t.ph);
-if(st!='title'||true){const r=me.ride;crit(SP[r.sp].c,r.x,r.y,r.w,r.ph);hero(me.x,me.y+me.jy-r.w*.12)}
+if(st!='title'||true){const r=me.ride;crit(SP[r.sp].c,r.x,r.y,r.w,r.ph);if(!(st=='play'&&invT>0&&Math.floor(now*12)%2))hero(me.x,me.y+me.jy-r.w*.12)}
 parts.forEach(p=>{x.fillStyle=p.c;x.globalAlpha=p.l/30;x.fillRect(p.x,p.y,5,5)});x.globalAlpha=1;x.restore();if(flash){x.fillStyle='rgba(255,255,255,'+flash+')';x.fillRect(0,0,W,H)}
 x.textAlign='center';x.fillStyle='#fff';
-if(st=='play'){x.font='bold 44px sans-serif';x.fillText(score,W/2,H*.13);x.font='14px sans-serif';x.fillText(L().dex+' '+dex.length+'/'+SP.length,W/2,H*.13+22);
+if(st=='play'){x.font='22px sans-serif';x.fillText('❤️'.repeat(Math.max(0,lives))+'🤍'.repeat(Math.max(0,3-lives)),W/2,H*.13+84);x.font='bold 44px sans-serif';x.fillText(score,W/2,H*.13);x.font='14px sans-serif';x.fillText(L().dex+' '+dex.length+'/'+SP.length,W/2,H*.13+22);
 x.fillStyle=tleft<6?'#ff5c5c':'#ffd76f';x.fillRect(W*.15,H*.13+32,W*.7*tleft/ROUND,6);if(combo>=2){x.fillStyle='#ffd76f';x.font='bold 16px sans-serif';x.fillText('x'+(1+Math.floor(combo/4))+' · '+combo+' combo',W/2,H*.13+56)}
 pops.forEach(p=>{const k=p.big?1+Math.max(0,p.t-.5)*1.5:1;x.globalAlpha=Math.min(1,p.t*3);x.font='bold '+Math.round((p.big?28:22)*k)+'px sans-serif';x.fillStyle=p.c;x.fillText(p.s,W/2,p.y)});x.globalAlpha=1}
 else{x.fillStyle='#0008';x.fillRect(0,H*.2,W,H*.42);x.fillStyle='#ffd76f';x.font='bold 30px sans-serif';
@@ -99,6 +100,7 @@ if(st=='title'){x.fillText(L().t,W/2,H*.3);x.fillStyle='#fff';x.font='17px sans-
 else{x.fillText(L().over,W/2,H*.29);x.fillStyle='#fff';x.font='bold 40px sans-serif';x.fillText(score,W/2,H*.37);x.font='17px sans-serif';x.fillText((nb?L().nb:L().best+' '+best)+' · MAX '+maxc+' COMBO',W/2,H*.43);
 x.fillText(L().dex+' '+dex.length+'/'+SP.length+(dex.length<SP.length?(lang=='ko'?' · 황금 용을 찾아라!':' · Find the Golden Dragon!'):''),W/2,H*.48);x.font='bold 22px sans-serif';x.fillStyle='#ffd76f';x.fillText(L().retry,W/2,H*.56)}}}
 function loop(t){const dt=Math.min(.05,Math.max(0,(t-lt)/1000))||.016;lt=t;upd(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+window.__tootSkyTamer=Object.freeze({forceFall:()=>{if(st=='play'){me.jt=-1;me.fall=.001}},snapshot:()=>({st,lives,score,invT})});
 window.__g21={get st(){return st},get score(){return score},get combo(){return combo},get aligned(){return me.jt<0&&tgs.some(t=>Math.abs(t.x+t.v*spd()*(JD/spd()+.05)-me.x)<t.w*.3)}};
 })();
 </script>

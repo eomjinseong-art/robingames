@@ -317,7 +317,7 @@ function gen(lv) {
 }
 
 /* ===== 상태 ===== */
-let state = 'title', phase = 'run', last = 0, tm = 0;
+let state = 'title', phase = 'run', last = 0, tm = 0, lives = 3, invT = 0;
 const pl = { x: 0, z: 0, y: 0, S: 10, rDisp: 0.28, color: 0, squash: 0, sv: 0, flat: 0, step: 0, bump: 0 };
 let parts = [], texts = [], shake = 0, combo = 0, comboT = 0, mult = 1, bossOut = null, endT = 0, hintT = 0, loseWhy = '';
 const keys = { l: false, r: false };
@@ -325,7 +325,7 @@ const radius = S => Math.max(0.12, Math.min(0.6, 0.13 + Math.sqrt(Math.max(0, S)
 function startLevel(lv) {
   level = lv; gen(lv); state = 'play'; phase = 'run'; tm = 0;
   Object.assign(pl, { x: 0, z: 0, y: 0, S: 10, color: startColor, squash: 0, sv: 0, flat: 0, step: 0, bump: 0 }); pl.rDisp = radius(10);
-  parts = []; texts = []; shake = 0; combo = 0; mult = 1; bossOut = null; endT = 0; hintT = 3;
+  parts = []; texts = []; shake = 0; combo = 0; mult = 1; bossOut = null; endT = 0; hintT = 3; lives = 3; invT = 0;
   $('lvl').textContent = 'LEVEL ' + lv + (lv >= END_LEVEL ? ' · END' : ''); show(null);
   $('pauseBtn').style.visibility = 'visible'; snd.bpm = 150; snd.startMusic(); snd.fart(0.3, 120, 0.5);
 }
@@ -350,6 +350,7 @@ function burst(x, y, z, col, n = 10, spd = 2.5, sz = 0.08) { for (let i = 0; i <
 function fartPuff(big) { const r = pl.rDisp; parts.push({ x: pl.x + (Math.random() - 0.5) * r, y: pl.y + r * 0.4, z: pl.z - r, vx: (Math.random() - 0.5) * 0.4, vy: 0.3, vz: -1.5, life: 1, max: 1, sz: r * (big ? 0.9 : 0.45), col: 'rgba(170,200,120,.55)', cloud: true }); }
 function txt(s, col, big, x = pl.x, y = pl.y + pl.rDisp * 2.2, z = pl.z) { texts.push({ s, col, big, x, y, z, t: 0 }); }
 function addSize(d, why) {
+  if (d < 0 && invT > 0) return;
   pl.S += d; pl.sv += d > 0 ? 0.35 : -0.25;
   if (pl.S <= 0) { pl.S = 0; lose('pop'); }
 }
@@ -357,6 +358,7 @@ function addSize(d, why) {
 /* ===== 업데이트 ===== */
 function update(dt) {
   tm += dt;
+  if (invT > 0 && state === 'play') invT -= dt;
   if (comboT > 0) { comboT -= dt; if (comboT <= 0) combo = 0; }
   // 크기 스프링 + 찌그러짐
   const rT = radius(pl.S); pl.rDisp += (rT - pl.rDisp) * Math.min(1, dt * 10);
@@ -427,7 +429,15 @@ function update(dt) {
 }
 const stepCol = i => ['#ff5f5f', '#ff8f3f', '#ffc23f', '#d6e83f', '#7fe05a', '#3fdc9a', '#3fc8e0', '#3f8fff', '#8f5fff', '#ff5fd2'][i];
 function lose(why) {
-  if (phase === 'lose') return; phase = 'lose'; loseWhy = why; endT = 0; snd.stopMusic(); snd.sad(); shake = 1; buzz([80, 50, 80]);
+  if (phase === 'lose') return;
+  if (why === 'pop' && lives > 1) { // 목숨 남음: 그 자리에서 다시 (크기 10, 앞 장애물 치움, 잠깐 무적)
+    lives--; invT = 1.2; burst(pl.x, 0.2, pl.z, COLS[pl.color].c, 30, 4, 0.08); snd.sad(); shake = 0.8; buzz([60, 40, 60]);
+    pl.S = 10; pl.sv += 0.4;
+    for (const o of objs) if (!o.done && o.z >= pl.z && o.z < pl.z + 3 && o.t !== 'gate') o.done = true;
+    toast(lang === 'ko' ? '다시! ❤️×' + lives + ' 남음' : 'Try again! ❤️×' + lives + ' left', 1600);
+    return;
+  }
+  if (why === 'pop') lives = 0; phase = 'lose'; loseWhy = why; endT = 0; snd.stopMusic(); snd.sad(); shake = 1; buzz([80, 50, 80]);
   if (why === 'pop') burst(pl.x, 0.2, pl.z, COLS[pl.color].c, 30, 4, 0.08);
 }
 function showLose() {
@@ -484,6 +494,7 @@ function draw() {
   // 떠오르는 숫자
   for (const tx of texts) { const p = P(tx.x, tx.y + tx.t * 1.2, tx.z); if (!p) continue; const sc = tx.t < 0.15 ? tx.t / 0.15 * 1.4 : 1 + Math.max(0, 0.4 - (tx.t - 0.15) * 2); const fs = (tx.big ? 46 : 28) * sc; cx.globalAlpha = Math.max(0, 1 - Math.max(0, tx.t - 0.6) * 2); cx.font = '900 ' + fs + 'px Jua, sans-serif'; cx.textAlign = 'center'; cx.lineWidth = 6; cx.strokeStyle = '#3b2352'; cx.strokeText(tx.s, p.x, p.y); cx.fillStyle = tx.col; cx.fillText(tx.s, p.x, p.y); cx.globalAlpha = 1; }
   cx.restore();
+  if (state === 'play' || state === 'pause') { cx.font = '24px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'alphabetic'; cx.fillText('❤️'.repeat(Math.max(0, lives)) + '🤍'.repeat(Math.max(0, 3 - lives)), W / 2, 142); }
 }
 function ball(x, y, r, col, dark) { const g = cx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r); g.addColorStop(0, '#fff'); g.addColorStop(0.25, col); g.addColorStop(1, dark); cx.fillStyle = g; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill(); }
 function drawObj(o) {
@@ -528,6 +539,7 @@ function drawObj(o) {
 function shade(hex) { const n = parseInt(hex.slice(1), 16); const r = (n >> 16) * 0.7 | 0, g = ((n >> 8) & 255) * 0.7 | 0, b = (n & 255) * 0.7 | 0; return 'rgb(' + r + ',' + g + ',' + b + ')'; }
 function badge(x, y, s, col, fs) { cx.font = '900 ' + fs + 'px Jua, sans-serif'; cx.textAlign = 'center'; const w = cx.measureText(s).width + fs * 0.8; cx.fillStyle = col; cx.strokeStyle = '#3b2352'; cx.lineWidth = 3; cx.beginPath(); if (cx.roundRect) cx.roundRect(x - w / 2, y - fs * 0.85, w, fs * 1.15, fs * 0.4); else cx.rect(x - w / 2, y - fs * 0.85, w, fs * 1.15); cx.fill(); cx.stroke(); cx.fillStyle = '#fff'; cx.fillText(s, x, y + fs * 0.1); }
 function drawPlayer() {
+  if (invT > 0 && state === 'play' && Math.floor(tm * 12) % 2) return;
   const r = pl.rDisp, run = state === 'play' && (phase === 'run' || phase === 'boss') ? Math.abs(Math.sin(tm * 13)) : 0;
   const yb = pl.y + r + run * 0.06;
   const sh = P(pl.x, pl.y + 0.001, pl.z), p = P(pl.x, yb, pl.z); if (!p) return;
@@ -574,7 +586,7 @@ const snapshot = () => {
   const ahead = objs.filter(o => !o.done && o.z > pl.z && o.z < pl.z + 25).slice(0, 12).map(o => o.t === 'bean' ? { t: 'bean', x: +o.x.toFixed(2), z: +(o.z - pl.z).toFixed(1), color: COLS[o.c].n } : o.t === 'wall' ? { t: 'wall', x: o.x, w: o.w, z: +(o.z - pl.z).toFixed(1) } : { t: o.t, z: +(o.z - pl.z).toFixed(1), left: o.t === 'gate' ? COLS[o.l.c].n : o.l.op + o.l.v, right: o.t === 'gate' ? COLS[o.r.c].n : o.r.op + o.r.v });
   return { state, phase, lang, level, size: Math.floor(pl.S), color: COLS[pl.color].n, x: +pl.x.toFixed(3), z: +pl.z.toFixed(2), length: L, progress: +Math.min(1, pl.z / L).toFixed(3), bossNeed, stepCost, multiplier: mult, loseWhy, ahead, coins: store.coins, nextLevel: store.level, bestMult: store.bestMult, bestLevel: store.bestLevel, audio: { state: snd.ac ? snd.ac.state : 'none', music: snd.musicOn, muted: snd.muted } };
 };
-window.__tootrunner = Object.freeze({ snapshot });
+window.__tootrunner = Object.freeze({ snapshot, lives: () => lives, forcePop: () => { invT = 0; if (state === 'play') addSize(-9999); } });
 
 resize(); applyLang(); updateMuteBtn(); show('titleScr'); $('pauseBtn').style.visibility = 'hidden'; preview();
 requestAnimationFrame(loop);

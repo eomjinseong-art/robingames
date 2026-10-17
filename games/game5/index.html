@@ -430,6 +430,7 @@ const KICK_I = {
 let state = 'title'; // title | play | pause | over
 let board, piece, nextType, bag, score, lines, level, combo, timeLeft, elapsed;
 let fallT, lockT, lockResets, softDrop, phase, phaseT, clearRows, megaRows, pendingMega;
+let lives = 3, invT = 0;
 let puffs = [], floaters = [], confetti = [], shake = 0, flash = 0, time = 0, stats, overT = 0, lastTickSec = 99;
 
 function newBag() { const b = [0, 1, 2, 3, 4, 5, 6]; for (let i = 6; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -439,7 +440,7 @@ function reset() {
   bag = []; nextType = takeType(); piece = null;
   score = 0; lines = 0; level = 1; combo = 0; timeLeft = ROUND_TIME; elapsed = 0;
   fallT = 0; lockT = 0; lockResets = 0; softDrop = false; phase = 'fall'; phaseT = 0; clearRows = []; megaRows = []; pendingMega = false;
-  puffs = []; floaters = []; confetti = []; shake = 0; flash = 0; lastTickSec = 99;
+  puffs = []; floaters = []; confetti = []; shake = 0; flash = 0; lastTickSec = 99; lives = 3; invT = 0;
   stats = { animal: 0, combo: 0, multi: 0, hard: 0, lines: 0, mega: 0, score: 0 };
 }
 function fits(type, rot, x, y) {
@@ -541,6 +542,14 @@ function speedFor(lv) { return Math.max(0.07, 0.8 * Math.pow(0.8, lv - 1)); }
 
 function gameOver(why) {
   if (state !== 'play') return;
+  if (why === 'top' && lives > 1) { // 목숨 남음: 위쪽 절반 비우고 바로 이어하기
+    lives--; invT = 1.2;
+    for (let r = 0; r < 9; r++) board[r].fill(-1);
+    piece = null; phase = 'fall'; shake = 10; flash = 0.3; snd.over(); buzz([40, 30, 40]);
+    floaters.push({ x: W / 2, y: BY + 6 * CELL, t: lang === 'ko' ? '다시! ❤️×' + lives + ' 남음' : 'Try again! ❤️×' + lives + ' left', life: 1.8, s: 26, vy: -0.3, c: '#ff7eb6', big: 1 });
+    spawn(); return;
+  }
+  if (why === 'top') lives = 0;
   state = 'over'; overT = 0; piece = null; g = null; softDrop = false; snd.stopMusic();
   store.d.plays++; store.d.lines += lines;
   const prevTotal = store.d.total;
@@ -590,6 +599,7 @@ function update(dt) {
   time += dt;
   const f = dt * 60;
   if (state === 'play') {
+    if (invT > 0) invT -= dt;
     elapsed += dt; timeLeft -= dt;
     const newLv = 1 + Math.floor(elapsed / 15) + Math.floor(lines / 12);
     if (newLv > level) { level = newLv; floaters.push({ x: W / 2, y: BY + 4 * CELL, t: t('speedUp'), life: 1.2, s: 20, vy: -0.4, c: '#70d6ff', big: 1 }); snd.levelUp(); }
@@ -773,6 +783,9 @@ function render() {
       if (i < filled) { ctx.font = `14px ${FONT}`; ctx.fillStyle = '#3b2352'; ctx.fillText('💨', gx, y + 17); }
     }
     ctx.font = `bold 13px ${FONT}`; ctx.fillStyle = '#3b2352'; ctx.fillText('x' + combo, gx, gTop + 5 * 30 + 12);
+    ctx.font = `18px ${FONT}`; ctx.globalAlpha = invT > 0 && Math.floor(time * 10) % 2 ? 0.35 : 1; // 목숨 (세로로)
+    for (let i = 0; i < 3; i++) ctx.fillText(i < lives ? '❤️' : '🤍', gx, gTop + 5 * 30 + 44 + i * 26);
+    ctx.globalAlpha = 1;
     // 속도 게이지 (오른쪽)
     const rx = W - BX / 2 + 1, rTop = BY + 40, rH = 170;
     ctx.fillStyle = 'rgba(255,255,255,.7)'; rr(ctx, rx - 7, rTop, 14, rH, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#3b2352'; ctx.stroke();
@@ -961,6 +974,7 @@ const api = {
   get combo() { return combo; }, get level() { return level; }, get timeLeft() { return timeLeft; }, get stats() { return stats && { ...stats }; },
   get board() { return board ? board.map(r => r.slice()) : null; }, get next() { return nextType; },
   get piece() { return piece && { type: piece.type, rot: piece.rot, x: piece.x, y: piece.y, id: piece.id, cells: CELLS[piece.type][piece.rot].map(([cx, cy]) => [piece.x + cx, piece.y + cy]), ghostY: ghostY() }; },
+  get lives() { return lives; }, forceTop() { gameOver('top'); },
   cols: COLS, rows: ROWS, cellsFor: (type, rot) => CELLS[type][rot].map(c => c.slice()),
   get mission() { return { id: mission.id, n: mission.n, k: mission.k, text: missionText(), done: missionDone(), progress: missionProgress() }; },
   layout() { const r = cvs.getBoundingClientRect(); const k = r.width / W; return { left: r.left + BX * k, top: r.top + BY * k, cell: CELL * k, width: COLS * CELL * k, height: ROWS * CELL * k }; },
