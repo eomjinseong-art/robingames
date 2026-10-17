@@ -1,0 +1,532 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>나두 빵집 대소동 / Nadoo Bread Rush - 나두Ai</title>
+<link rel="icon" href="data:,">
+<script src="/counter.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#3a2414;overflow:hidden;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2b1a0e;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+#top{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px;background:linear-gradient(#fff3dc,#f1d9ae);border-bottom:3px solid #8a5a2b;z-index:5}
+#ttl{font-size:16px;font-weight:700;color:#6b3a12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{background:linear-gradient(#fffaf0,#f3e0bc);color:#4a2a10;border:2px solid #a8703a;border-radius:12px;padding:8px 12px;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45}
+.tb{padding:6px 10px;font-size:16px}
+.big{font-size:19px;padding:12px 22px;background:linear-gradient(#ffb347,#e07b1a);color:#fff;border-color:#9c4e0c;text-shadow:0 1px 0 #8a4210}
+canvas{position:fixed;top:52px;left:0;display:block;touch-action:none}
+#tray{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:7px;justify-content:center;flex-wrap:wrap;z-index:4;background:linear-gradient(rgba(58,36,20,0),rgba(58,36,20,.55) 30%)}
+#tray.hide{display:none}
+.jar{min-width:74px;flex:0 1 92px;padding:6px 4px;border-radius:14px;background:linear-gradient(#fffaf0,#f0dcb6);border:2.5px solid #a8703a;display:flex;flex-direction:column;align-items:center;font-family:inherit;color:#3a2210;font-size:16px;line-height:1.25;touch-action:none}
+.jar .e{font-size:28px;line-height:34px}
+.jar.on{border-color:#e07b1a;box-shadow:0 0 0 3px #ffd27a}
+.jar.done{opacity:.55}
+.hold{font-size:19px;padding:14px 26px;border-radius:18px;background:linear-gradient(#ff9a5a,#e0531a);color:#fff;border:2.5px solid #8a2c0a;font-weight:700;font-family:inherit;touch-action:none}
+.hold.pressed{transform:scale(.96);filter:brightness(1.1)}
+#ov{position:fixed;left:0;right:0;top:52px;bottom:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,22,10,.35)}
+#ov.hide{display:none}
+#ov.low{align-items:flex-end;background:none;pointer-events:none}
+#ov.low .panel{pointer-events:auto}
+.panel{width:100%;max-width:460px;max-height:100%;overflow:auto;background:linear-gradient(#fffaf0,#f7e6c6);border:3px solid #a8703a;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:16px 18px;animation:pin .3s ease-out}
+@keyframes pin{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.panel h1{font-size:30px;margin:4px 0 8px;text-align:center;color:#7a3b0e}
+.panel h2{font-size:22px;margin:2px 0 8px;text-align:center;color:#7a3b0e}
+.panel p,.tx{font-size:17px;line-height:1.55;font-weight:400;margin:8px 0;color:#2b1a0e}
+.sub{font-size:16px;line-height:1.5;color:#5a3a1e;text-align:center;font-weight:400}
+.pic{font-size:52px;text-align:center;line-height:1.2;margin:4px 0}
+.srow{position:sticky;bottom:-16px;background:#f7e6c6;padding:8px 0 10px}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.cont{text-align:center;margin-top:10px;font-size:16px;color:#9c4e0c;font-weight:500;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.5}}
+.blist{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.bb{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 12px;white-space:normal}
+.bb .e{font-size:32px}.bb .n{font-size:17px;font-weight:700}.bb .d{font-size:16px;font-weight:400;color:#5a3a1e;line-height:1.4}
+.bb .s{margin-left:auto;color:#e0a000;font-size:18px;letter-spacing:1px}
+.why{background:#fff;border-left:6px solid #e0531a;border-radius:10px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.tip{background:#fff6dc;border:2px dashed #d39a3a;border-radius:12px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.qopts .btn{font-size:17px;font-weight:500;padding:12px;text-align:left;white-space:normal;line-height:1.4}
+.qopts .btn[disabled]{opacity:1;color:#6a5440}.qopts .ok{background:#c9efb9;border-color:#3f8a2f}.qopts .no{background:#f6c0b3;border-color:#b0402a}
+.fb{font-size:17px;line-height:1.5;margin-top:10px;min-height:26px}
+.fb b{font-size:20px}
+.dexg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dc{background:#fff;border:2px solid #d8b07a;border-radius:14px;padding:8px;text-align:center}
+.dc .e{font-size:36px}.dc .n{font-size:17px;font-weight:700}.dc .t{font-size:16px;line-height:1.5;text-align:left;font-weight:400}
+.dc.lk{opacity:.5}
+.gl{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed #d8b07a;font-size:17px;line-height:1.5}.gl .e{font-size:28px;width:38px;text-align:center}
+#hud{position:fixed;top:58px;left:8px;right:8px;z-index:3;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font-size:16px;font-weight:500;color:#3a2210}#hud span{background:rgba(255,250,238,.92);border:1.5px solid #c8955a;border-radius:12px;padding:2px 10px}#hud span:empty{display:none}
+#hud.hide{display:none}
+#msg{position:fixed;left:10px;right:10px;z-index:3;text-align:center;font-size:17px;font-weight:400;line-height:1.45;color:#2b1a0e;background:rgba(255,250,238,.94);border:2px solid #d6a565;border-radius:14px;padding:6px 10px;pointer-events:none}#msg:empty{display:none}
+#finger{position:fixed;z-index:7;font-size:46px;pointer-events:none;display:none;transform:translate(-30%,-10%);animation:fb .7s infinite alternate;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+@keyframes fb{to{margin-top:14px}}
+#banner{position:fixed;left:50%;top:38%;z-index:5;margin-left:-130px;width:260px;text-align:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(#ffb347,#e0661a);border:3px solid #fff3d6;border-radius:22px;padding:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.35);text-shadow:0 2px 0 #8a3a0a;pointer-events:none;opacity:0}
+#banner.on{animation:bn 1.3s ease-out both}
+@keyframes bn{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.stars{text-align:center;font-size:42px;color:#f0a800;letter-spacing:4px}.stars .off{color:#dcc9a4}
+</style></head><body>
+<div id="top"><a class="btn tb" href="/" id="home">🏠 홈</a><b id="ttl">🥐 나두 빵집 대소동</b><span style="display:flex;gap:5px"><button class="btn tb" id="glB" aria-label="glossary">📖</button><button class="btn tb" id="lang">EN</button><button class="btn tb" id="mute">🔊</button></span></div>
+<canvas id="c"></canvas>
+<div id="hud" class="hide"><span id="hudL"></span><span id="hudR"></span></div>
+<div id="msg"></div>
+<div id="tray" class="hide"></div>
+<div id="ov" class="hide"></div>
+<div id="banner"></div>
+<div id="finger">👆</div>
+<script>
+const K=(ko,en)=>({ko,en});
+const UI={ko:{t:'🥐 나두 빵집 대소동',home:'🏠 홈',sub:'빵 축제 시즌! 반죽부터 오븐까지 내 손으로 빵을 만들어요',sub2:'계량 → 반죽 → 발효 → 성형 → 굽기, 그리고 주문 러시!',start:'탭 / Space 로 시작',choose:'🍞 오늘은 어떤 빵을 만들까?',locked:'🔒 앞의 빵을 먼저 만들어요',dex:'📚 빵 도감',fest:'🎪 빵 축제의 날',festLock:'🔒 바게트까지 만들면 열려요',tut:'🎓 처음부터 배우기',glos:'📖 빵 사전',close:'닫기',go:'시작! ▶',skip:'⏭ 건너뛰기',skipTut:'튜토리얼 끄기',retry:'↻ 다시 하기',next:'다음 ▶',contN:'탭 / Space → 계속',step:'단계',perfect:'완벽해요! ✨',good:'좋아요! 👍',fail:'앗, 실패!',whyT:'왜 실패했을까? 🤔',tipT:'💡 이렇게 해 봐요',
+ measureH:'재료 병을 꾹 누르고 있으면 그릇에 부어져요. 초록 칸에서 손을 떼요!',kneadH:'동그라미가 반죽에 딱 닿을 때 반죽을 탭!',proofH:'🔥 버튼을 꾹 눌러 온도를 27~35℃ 초록 칸에 맞춰요',shapeH:'점선을 따라 손가락으로 쭉 그려요',bakeH:'빵이 황금색이 되면 꺼내요!',pull:'🧤 꺼내기!',heat:'🔥 따뜻하게 (꾹)',pour:'꾹 눌러 붓기',
+ rushT:'⏰ 주문 러시!',rushH:'빵 반죽을 고르고 빈 오븐 칸을 탭! 황금색일 때 다시 탭해서 꺼내요',rushGoal:'손님 {n}명에게 빵을 팔아요',served:'판매',hearts:'하트',combo:'콤보',early:'덜 익었어요…',burnt:'탔어요!',perf:'완벽! ✨',ok:'좋아요',angry:'손님이 화났어요 😤',rushWin:'🎉 러시 성공!',rushLose:'💥 러시 실패…',
+ quiz:'빵 퀴즈',right:'정답!',wrong:'아쉬워요! 정답:',why:'왜냐하면',qDone:'퀴즈 끝!',score:'맞힌 문제',newCard:'📚 새 도감 카드!',menu:'🍞 빵 고르기',again:'↻ 다시',cleared:'완성!',breadDone:'{b} 완성!',wind:'윈도우페인 테스트',windT:'반죽을 얇게 늘려도 안 찢어지고 빛이 비쳐요! 글루텐 그물이 튼튼하게 생겼다는 뜻이에요.',
+ festWin:'🏆 빵 축제 대성공!',coins:'코인',lane:'칸',sel:'선택',empty:'비었어요',slowW:'반죽이 덜 부풀었어요',windy:'찬바람!',strays:'선 밖으로 나갔어요. 다시!',dexEmpty:'???'},
+en:{t:'🥐 Nadoo Bread Rush',home:'🏠 Home',sub:'Bread festival season! Make real bread with your own hands, from dough to oven',sub2:'Measure → Knead → Proof → Shape → Bake, then an order rush!',start:'Tap / Space to start',choose:'🍞 Which bread shall we bake?',locked:'🔒 Bake the bread before it first',dex:'📚 Bread Dex',fest:'🎪 Bread Festival Day',festLock:'🔒 Opens after the baguette',tut:'🎓 Learn from the start',glos:'📖 Bread words',close:'Close',go:'Start! ▶',skip:'⏭ Skip',skipTut:'Turn off tutorial',retry:'↻ Try again',next:'Next ▶',contN:'Tap / Space → Continue',step:'Step',perfect:'Perfect! ✨',good:'Good! 👍',fail:'Oops, it failed!',whyT:'Why did it fail? 🤔',tipT:'💡 Try this',
+ measureH:'Hold an ingredient jar to pour it into the bowl. Let go in the green zone!',kneadH:'Tap the dough when the circle touches it!',proofH:'Hold 🔥 to keep the temperature in the green 27–35°C zone',shapeH:'Trace the dotted line with your finger',bakeH:'Take the bread out when it turns golden!',pull:'🧤 Take out!',heat:'🔥 Warm (hold)',pour:'Hold to pour',
+ rushT:'⏰ Order Rush!',rushH:'Pick a dough, tap an empty oven slot. Tap again when golden to take it out',rushGoal:'Sell bread to {n} customers',served:'Sold',hearts:'Hearts',combo:'Combo',early:'Not baked yet…',burnt:'Burnt!',perf:'Perfect! ✨',ok:'Good',angry:'A customer got angry 😤',rushWin:'🎉 Rush cleared!',rushLose:'💥 Rush failed…',
+ quiz:'Bread quiz',right:'Correct!',wrong:'Not quite! Answer:',why:'Why:',qDone:'Quiz done!',score:'Correct answers',newCard:'📚 New dex card!',menu:'🍞 Pick a bread',again:'↻ Again',cleared:'Done!',breadDone:'{b} complete!',wind:'Windowpane test',windT:'Stretch the dough thin and it doesn\'t tear, and light shines through! That means a strong gluten net has formed.',
+ festWin:'🏆 The festival was a huge success!',coins:'Coins',lane:'slot',sel:'picked',empty:'empty',slowW:'The dough didn\'t rise enough',windy:'Cold draft!',strays:'You left the line. Try again!',dexEmpty:'???'}};
+// ingredients
+const ING={
+flour:{e:'🌾',n:K('밀가루','Flour'),u:'g',info:K('밀가루는 빵의 몸이에요. 물을 만나면 글루텐이 생겨요.','Flour is the body of the bread. With water it makes gluten.'),over:K('밀가루가 너무 많아서 반죽이 돌덩이처럼 딱딱하고 퍽퍽해졌어요!','Too much flour! The dough became hard and dry like a rock!'),tip:K('밀가루는 초록 칸 안에서 멈춰요. 천천히 짧게 눌러도 돼요.','Stop the flour inside the green zone. Short, gentle holds work too.')},
+water:{e:'💧',n:K('물','Water'),u:'ml',info:K('물은 밀가루 속 단백질을 깨워서 쭉쭉 늘어나는 글루텐을 만들어요.','Water wakes up the proteins in flour so they make stretchy gluten.'),over:K('물이 너무 많아서 반죽이 죽처럼 질척질척! 모양을 만들 수 없어요.','Too much water! The dough turned into soupy goo and can\'t hold a shape.'),tip:K('물은 빨리 차요. 초록 칸 바로 아래에서 살짝씩 눌러요.','Water fills fast. Near the green zone, use tiny taps.')},
+milk:{e:'🥛',n:K('우유','Milk'),u:'ml',info:K('우유는 물 대신 반죽을 촉촉하고 부드럽게 해 줘요.','Milk wets the dough like water, and makes it soft and tender.'),over:K('우유가 너무 많아서 반죽이 질척하게 늘어져 버렸어요!','Too much milk! The dough went sloppy and runny!'),tip:K('초록 칸 근처에서는 짧게 톡톡 눌러요.','Near the green zone, use short taps.')},
+yeast:{e:'🫧',n:K('효모(이스트)','Yeast'),u:'g',info:K('효모는 아주 작은 살아 있는 친구예요. 설탕을 먹고 이산화탄소 가스를 뽀글뽀글 내뿜어서 반죽을 부풀려요.','Yeast are tiny living helpers. They eat sugar and burp carbon dioxide gas, which puffs up the dough.'),over:K('효모가 너무 많아서 가스가 폭발하듯 생겼다가 반죽이 푹 꺼지고 시큼한 냄새가 나요!','Too much yeast! Gas burst out, the dough collapsed and smells sour!'),tip:K('효모는 아주 조금만 필요해요. 살짝만 눌러요.','You only need a little yeast. Just a short press.')},
+salt:{e:'🧂',n:K('소금','Salt'),u:'g',info:K('소금은 효모가 너무 날뛰지 않게 조절하고, 빵 맛을 살려요.','Salt keeps the yeast from going wild, and makes bread taste good.'),over:K('소금이 너무 많아서 효모가 잠들어 버렸어요 😴 반죽이 하나도 안 부풀어요!','Too much salt! The yeast fell asleep 😴 and the dough won\'t rise at all!'),tip:K('소금은 조금만! 초록 칸이 좁으니 짧게 톡.','Just a pinch of salt! The green zone is small, so tap briefly.')},
+sugar:{e:'🍬',n:K('설탕','Sugar'),u:'g',info:K('설탕은 효모의 밥이에요. 그리고 구울 때 빵 겉을 노릇노릇하게 만들어요.','Sugar is food for the yeast. It also helps the crust turn golden brown.'),over:K('설탕이 너무 많아서 효모가 목이 말라 힘이 없고, 빵이 금방 타 버려요!','Too much sugar! The yeast got thirsty and weak, and the bread burns quickly!'),tip:K('초록 칸이 보이면 손을 떼요.','Let go when you reach the green zone.')},
+butter:{e:'🧈',n:K('버터','Butter'),u:'g',info:K('버터는 빵을 부드럽고 고소하게 해 줘요.','Butter makes bread soft and rich.'),over:K('버터가 너무 많아서 반죽이 미끌미끌, 글루텐 그물이 서로 못 붙어요!','Too much butter! The dough went greasy and the gluten net can\'t join up!'),tip:K('버터는 무거워서 천천히 차요. 초록 칸에서 떼요.','Butter pours slowly. Let go in the green zone.')},
+egg:{e:'🥚',n:K('달걀','Egg'),u:'g',info:K('달걀은 반죽을 노랗고 폭신하게 해 주고, 재료들을 서로 붙여 줘요.','Egg makes dough yellow and fluffy, and helps everything stick together.'),over:K('달걀이 너무 많아서 반죽이 너무 질어졌어요!','Too much egg! The dough got too wet!'),tip:K('짧게 나눠서 부어 봐요.','Pour in short bursts.')}};
+// steps (explain cards)
+const STEPS=['measure','knead','proof','shape','bake'];
+const STEPN={measure:K('계량','Measure'),knead:K('반죽','Knead'),proof:K('발효','Proof'),shape:K('성형','Shape'),bake:K('굽기','Bake')};
+const STEPE={measure:'⚖️',knead:'👐',proof:'🌡️',shape:'✋',bake:'🔥'};
+const EXPL={
+measure:{p:'🌾 + 💧 + 🫧 + 🧂',t:K('빵은 재료의 양이 아주 중요해요! 조금만 틀려도 빵이 안 부풀거나 딱딱해져요. 그래서 제빵사는 저울로 꼭 재요.','In baking, amounts really matter! A little too much or too little and the bread won\'t rise, or turns hard. That\'s why bakers always weigh.')},
+knead:{p:'👐 ➜ 🕸️',t:K('반죽을 치대면 밀가루 속 단백질이 손을 잡고 쭉쭉 늘어나는 \'글루텐 그물\'을 만들어요. 이 그물이 효모의 가스를 붙잡아 빵을 부풀려요.','Kneading makes the flour proteins hold hands and form a stretchy "gluten net". The net traps the yeast\'s gas so the bread can puff up.')},
+proof:{p:'🫧😋 ➜ 💨 ➜ 🎈',t:K('발효는 효모가 밥(설탕)을 먹고 가스를 뽀글뽀글 내뿜어 반죽이 부푸는 시간이에요. 효모는 27~35℃를 제일 좋아해요. 추우면 느려지고, 너무 뜨거우면 죽어요!','Proofing is when yeast eat sugar and puff out gas, so the dough rises. Yeast love 27–35°C. Too cold and they slow down; too hot and they die!')},
+shape:{p:'⚪ ➜ 🥖',t:K('성형은 빵의 모양을 만드는 거예요. 모양마다 굽는 방법과 맛이 달라져요.','Shaping gives the bread its form. Each shape bakes and tastes a bit different.')},
+bake:{p:'🔥 ➜ 🍞✨',t:K('오븐에 넣으면 처음엔 빵이 한 번 더 확 부풀어요(오븐 스프링). 뜨거워지면 설탕과 단백질이 노릇노릇 맛있는 색으로 변해요(갈변 반응).','In the oven the bread first puffs up once more (oven spring). Then the heat turns sugar and protein golden and tasty (browning reaction).')}};
+// breads
+const BR=[
+{id:'shik',e:'🍞',n:K('식빵','White bread'),d:K('가장 기본 빵. 빵 만들기의 첫걸음!','The most basic loaf. Your first step in baking!'),
+ ing:[['flour',500,.12],['water',320,.11],['yeast',7,.16],['salt',9,.16]],knead:{bpm:84,need:8,win:.17},proof:{drift:.9,need:6,gust:0},shape:'shik',bake:{t:7.5,lo:.6,hi:.8},
+ principle:K('식빵은 글루텐 그물이 효모의 가스를 꽉 잡아서 폭신하게 부풀어요. 틀에 넣어 구워서 네모난 모양이에요.','White bread rises fluffy because the gluten net traps the yeast\'s gas. It bakes in a tin, so it\'s square.'),
+ rush:{slots:2,types:['shik'],n:5,pat:17,spawn:3.2},
+ quiz:[['효모(이스트)가 하는 일은?','What does yeast do?','설탕을 먹고 가스를 내뿜어 반죽을 부풀려요','It eats sugar and puffs out gas to raise the dough','빵을 짜게 만들어요','It makes bread salty','빵 색을 하얗게 만들어요','It makes bread white','효모는 살아 있는 아주 작은 생물이라, 설탕을 먹고 이산화탄소를 만들어요.','Yeast are tiny living things that eat sugar and make carbon dioxide gas.'],
+ ['반죽을 치대면 생기는 쭉쭉 늘어나는 그물은?','The stretchy net made by kneading is called…?','글루텐','Gluten','거미줄','A spider web','설탕 실','Sugar thread','밀가루 단백질과 물이 만나 치대지면 글루텐 그물이 생겨요.','Flour protein plus water, kneaded, forms a gluten net.'],
+ ['소금을 너무 많이 넣으면?','What if you add too much salt?','효모가 잠들어 반죽이 안 부풀어요','The yeast sleeps and the dough won\'t rise','빵이 더 커져요','The bread gets bigger','빵이 달콤해져요','The bread gets sweet','소금은 효모의 힘을 줄여요. 조금은 좋지만 많으면 효모가 일을 못 해요.','Salt slows yeast. A little is good, but too much stops it working.'],
+ ['반죽이 다 됐는지 확인하는 얇게 늘려 보기 테스트는?','The test where you stretch dough thin to check it is…?','윈도우페인 테스트','The windowpane test','풍선 테스트','The balloon test','점프 테스트','The jump test','얇게 늘렸을 때 찢어지지 않고 빛이 비치면 글루텐이 잘 생긴 거예요.','If it stretches thin without tearing and light shines through, the gluten is ready.']]},
+{id:'danpat',e:'🫘',n:K('단팥빵','Red bean bun'),d:K('달콤한 팥소를 감싼 한국 빵집 대표 빵','A soft bun wrapped around sweet red bean paste'),
+ ing:[['flour',500,.11],['milk',280,.1],['sugar',70,.13],['yeast',8,.14]],knead:{bpm:90,need:9,win:.16},proof:{drift:1.1,need:6.5,gust:0},shape:'danpat',bake:{t:6.5,lo:.6,hi:.78},
+ principle:K('단팥빵 반죽엔 설탕이 많아요. 설탕은 효모의 밥이라 발효가 잘 되고, 구우면 겉이 금방 진한 갈색이 돼요.','Red bean bun dough has lots of sugar. Sugar feeds yeast for a good rise, and makes the crust brown quickly.'),
+ rush:{slots:2,types:['shik','danpat'],n:6,pat:16,spawn:3},
+ quiz:[['단팥빵 반죽에 설탕을 넣는 이유 두 가지는?','Two reasons to add sugar to bun dough?','효모의 밥 + 노릇한 색','Food for yeast + golden colour','빵을 차갑게 + 딱딱하게','Make it cold + hard','소금 대신 + 짠맛','Replace salt + saltiness','설탕은 효모가 먹고 가스를 만들고, 구울 때 갈변 반응으로 색을 내요.','Yeast eat sugar to make gas, and sugar helps browning in the oven.'],
+ ['팥소를 반죽으로 감싸는 단계는?','Wrapping the bean paste in dough is which step?','성형','Shaping','계량','Measuring','굽기','Baking','성형은 빵의 모양을 만드는 단계예요.','Shaping is the step where you give the bread its form.'],
+ ['효모가 가장 좋아하는 발효 온도는?','Which proofing temperature do yeast like best?','27~35℃ 따뜻한 곳','Warm, 27–35°C','0℃ 얼음 속','0°C in ice','100℃ 끓는 물','100°C boiling water','따뜻하면 효모가 활발해요. 너무 뜨거우면 효모가 죽어요.','Yeast are lively when warm. Too hot and they die.']]},
+{id:'salt',e:'🧂',n:K('소금빵','Salt bread'),d:K('버터가 녹아 속이 빈, 요즘 인기 최고 빵','Butter melts inside to leave it hollow; super popular now'),
+ ing:[['flour',500,.1],['water',300,.09],['salt',10,.12],['butter',60,.11]],knead:{bpm:96,need:9,win:.15},proof:{drift:1.2,need:6.5,gust:.25},shape:'salt',bake:{t:6,lo:.62,hi:.78},
+ principle:K('소금빵은 반죽 안에 버터 막대를 넣고 돌돌 말아요. 구우면 버터가 녹아서 속이 비고, 바닥은 바삭해져요. 위에 뿌린 굵은 소금이 짭짤한 맛을 줘요.','Salt bread rolls a stick of butter inside. In the oven the butter melts, leaving it hollow with a crispy base. Coarse salt on top adds a salty kick.'),
+ rush:{slots:3,types:['shik','danpat','salt'],n:7,pat:15,spawn:2.8},
+ quiz:[['소금빵 속이 비어 있는 이유는?','Why is salt bread hollow inside?','안에 넣은 버터가 구울 때 녹아서','The butter rolled inside melts while baking','벌레가 먹어서','Bugs ate it','공기를 불어 넣어서','Someone blew air in','버터가 녹아 빠져나가면 그 자리가 빈 공간으로 남아요.','When the butter melts out, its space stays hollow.'],
+ ['소금의 역할이 아닌 것은?','Which is NOT a job of salt?','효모의 밥이 된다','Being food for yeast','효모를 조절한다','Controlling yeast','맛을 살린다','Bringing out flavour','효모의 밥은 설탕이에요. 소금은 효모를 조절하고 맛을 내요.','Yeast food is sugar. Salt controls yeast and adds taste.'],
+ ['발효 중에 너무 뜨거우면(40℃ 넘게)?','During proofing, if it gets too hot (over 40°C)?','효모가 죽어서 더 안 부풀어요','The yeast die and it stops rising','더 빨리 부풀어 터져요','It rises faster and pops','소금이 녹아요','The salt melts','효모는 살아 있는 생물이라 너무 뜨거우면 죽어요.','Yeast are alive, so too much heat kills them.']]},
+{id:'sobo',e:'🍪',n:K('소보로빵','Soboro bun'),d:K('바삭한 땅콩 소보로 가루를 덮은 빵','A bun under a crunchy, crumbly topping'),
+ ing:[['flour',500,.1],['sugar',60,.11],['butter',50,.1],['egg',50,.11]],knead:{bpm:100,need:10,win:.14},proof:{drift:1.3,need:7,gust:.35},shape:'sobo',bake:{t:5.6,lo:.62,hi:.77},
+ principle:K('소보로는 버터, 설탕, 밀가루를 손으로 비벼 만든 보슬보슬 가루예요. 구우면 설탕이 녹았다 굳으며 바삭해져요. 대전의 튀김소보로도 유명해요!','Soboro topping is butter, sugar and flour rubbed into crumbs. Baked, the sugar melts and hardens into crunch. Daejeon\'s fried soboro is famous too!'),
+ rush:{slots:3,types:['danpat','salt','sobo'],n:8,pat:14,spawn:2.6},
+ quiz:[['소보로가 바삭한 이유는?','Why is soboro topping crunchy?','설탕이 녹았다가 단단하게 굳어서','Sugar melts and then hardens','물을 많이 넣어서','Lots of water was added','얼려서','It was frozen','뜨거울 때 녹은 설탕이 식으면서 바삭하게 굳어요.','Melted sugar hardens into crunch as it cools.'],
+ ['튀김소보로로 유명한 도시는?','Which city is famous for fried soboro?','대전','Daejeon','제주','Jeju','인천','Incheon','대전의 한 빵집이 만든 튀김소보로는 대전의 대표 빵이 됐어요.','Fried soboro from a Daejeon bakery became the city\'s famous bread.'],
+ ['달걀이 반죽에서 하는 일은?','What does egg do in dough?','노랗고 폭신하게, 재료를 붙여 줘요','Makes it yellow and fluffy, sticks things together','빵을 차갑게 해요','Keeps bread cold','빵을 짜게 해요','Makes bread salty','달걀은 색과 부드러움을 주고 재료를 이어 줘요.','Egg adds colour and softness and binds the ingredients.']]},
+{id:'crois',e:'🥐',n:K('크루아상','Croissant'),d:K('버터 층을 접고 또 접는 바삭한 겹겹 빵','Fold butter layers again and again for flaky layers'),
+ ing:[['flour',500,.09],['water',260,.08],['yeast',10,.1],['butter',250,.09]],knead:{bpm:104,need:10,win:.13},proof:{drift:1.4,need:7,gust:.45},shape:'crois',bake:{t:5.2,lo:.63,hi:.77},
+ principle:K('크루아상은 반죽 사이에 버터를 넣고 여러 번 접어 수십 겹을 만들어요. 오븐에서 버터 속 물이 수증기가 되어 층을 부풀려서 겹겹이 바삭해져요.','Croissants fold butter between dough again and again to make dozens of layers. In the oven, water in the butter turns to steam and puffs the layers apart, so it\'s flaky.'),
+ rush:{slots:3,types:['salt','sobo','crois'],n:9,pat:13,spawn:2.4},
+ quiz:[['크루아상이 겹겹이 부푸는 이유는?','Why do croissant layers puff up?','버터 속 물이 수증기가 되어 층을 밀어 올려서','Water in the butter turns to steam and pushes the layers apart','공기 펌프로 넣어서','An air pump','설탕이 많아서','Lots of sugar','수증기가 층 사이를 밀어서 얇은 겹이 생겨요.','Steam pushes between layers, making thin flakes.'],
+ ['반죽을 3번 접으면 층이 몇 배가 될까? (3겹 접기)','Fold the dough in three, three times. Layers grow…?','3 × 3 × 3 = 27배','3 × 3 × 3 = 27 times','3배','3 times','100배','100 times','한 번 접을 때마다 층이 3배씩 늘어나요.','Each fold triples the layers.'],
+ ['오븐에 넣자마자 빵이 한 번 더 확 부푸는 것은?','When bread puffs up right after going in the oven, it\'s called…?','오븐 스프링','Oven spring','오븐 점프','Oven jump','빵 풍선','Bread balloon','뜨거워지면 가스와 수증기가 커져서 빵이 확 부풀어요.','Heat makes gas and steam expand, so the bread springs up.']]},
+{id:'bag',e:'🥖',n:K('바게트','Baguette'),d:K('밀가루·물·소금·효모만! 겉바속촉 프랑스 빵','Just flour, water, salt and yeast. Crispy French bread'),
+ ing:[['flour',500,.08],['water',350,.07],['salt',10,.1],['yeast',4,.1]],knead:{bpm:108,need:11,win:.12},proof:{drift:1.5,need:7.5,gust:.55},shape:'bag',bake:{t:5,lo:.65,hi:.79},
+ principle:K('바게트는 설탕과 버터 없이 딱 4가지 재료만 써요. 칼집(쿠프)을 내면 오븐 스프링 때 가스와 수증기가 그쪽으로 빠져나가서 예쁘게 터져요. 겉은 바삭, 속은 쫄깃해요.','Baguettes use only four ingredients, no sugar or butter. The slashes let gas and steam escape during oven spring, so they burst open neatly. Crispy outside, chewy inside.'),
+ rush:{slots:4,types:['shik','crois','bag'],n:10,pat:12,spawn:2.2},
+ quiz:[['바게트에 칼집을 내는 이유는?','Why slash a baguette?','가스와 수증기가 빠져나갈 길을 만들려고','To give gas and steam a way out','예쁜 낙서를 하려고','To draw a nice doodle','소금을 넣으려고','To put salt in','칼집이 없으면 빵이 아무 데나 터져요.','Without slashes, the bread bursts wherever it wants.'],
+ ['바게트에 들어가지 않는 재료는?','Which ingredient is NOT in a baguette?','설탕과 버터','Sugar and butter','밀가루','Flour','물','Water','바게트는 밀가루·물·소금·효모 네 가지로 만들어요.','Baguettes use flour, water, salt and yeast only.'],
+ ['빵이 노릇노릇 맛있는 색이 되는 것은?','Bread turning golden and tasty is called…?','갈변 반응','The browning reaction','냉동 반응','The freezing reaction','소금 반응','The salt reaction','뜨거우면 설탕과 단백질이 만나 갈색의 맛있는 향을 만들어요.','When hot, sugar and protein make golden colour and tasty smells.']]}];
+const FEST={slots:4,types:['shik','danpat','salt','sobo','crois','bag'],n:14,pat:12,spawn:1.9};
+const SPECIAL=[{id:'twsobo',e:'🍩',n:K('튀김소보로 (대전)','Fried soboro (Daejeon)'),t:K('소보로빵을 기름에 튀겨 겉은 바삭, 속은 팥소로 달콤해요. 대전의 대표 빵이에요.','Soboro bun deep-fried: crunchy outside, sweet bean paste inside. Daejeon\'s signature bread.'),from:'sobo'},
+{id:'pumpkin',e:'🎃',n:K('단호박빵 (지역 특산)','Sweet pumpkin bread (regional)'),t:K('달콤한 단호박을 반죽에 넣어 노랗고 촉촉해요. 단호박이 많이 나는 지역 빵집에서 인기예요.','Sweet pumpkin in the dough makes it yellow and moist. Popular at bakeries in pumpkin-growing regions.'),from:'fest'}];
+const GLOS=[['🕸️',K('글루텐','Gluten'),K('밀가루와 물을 섞어 치대면 생기는 쭉쭉 늘어나는 그물. 가스를 붙잡아 빵을 부풀려요.','A stretchy net made when flour and water are kneaded. It traps gas so bread rises.')],
+['🫧',K('효모 (이스트)','Yeast'),K('아주 작은 살아 있는 생물. 설탕을 먹고 이산화탄소 가스를 뽀글뽀글 내뿜어요.','Tiny living things that eat sugar and burp out carbon dioxide gas.')],
+['🎈',K('발효','Proofing (fermentation)'),K('효모가 가스를 만들어 반죽이 부푸는 시간. 따뜻해야 잘 돼요.','The time when yeast make gas and the dough rises. It works best when warm.')],
+['🚀',K('오븐 스프링','Oven spring'),K('오븐에 넣자마자 가스와 수증기가 커져서 빵이 한 번 더 확 부푸는 것.','Right after going in the oven, gas and steam expand and the bread puffs up once more.')],
+['🍯',K('갈변 반응','Browning reaction'),K('뜨거우면 설탕과 단백질이 만나 노릇노릇한 색과 고소한 향이 생기는 것.','When hot, sugar and protein turn golden and make tasty smells.')],
+['👐',K('반죽 / 치대기','Dough / kneading'),K('재료를 섞은 덩어리가 반죽. 꾹꾹 누르고 늘리는 게 치대기예요.','Mixed ingredients make dough. Pressing and stretching it is kneading.')],
+['✋',K('성형','Shaping'),K('반죽으로 빵 모양을 만드는 것.','Giving the dough the shape of the bread.')],
+['📄',K('접기 (라미네이팅)','Lamination (folding)'),K('반죽 사이에 버터를 넣고 여러 번 접어 얇은 층을 만드는 것. 크루아상의 비밀!','Folding butter between dough many times to make thin layers. The croissant secret!')]];
+// shape strokes (normalized 0..1 coords in play area square)
+const SHAPES={
+shik:[{k:K('반죽을 위에서 아래로 돌돌 말아요','Roll the dough from top to bottom'),p:[[.5,.15],[.5,.85]]},{k:K('식빵 틀에 쏙! U 모양으로 넣어요','Into the loaf tin! Trace a U'),p:[[.25,.3],[.27,.7],[.5,.82],[.73,.7],[.75,.3]]}],
+danpat:[{k:K('팥소를 동그랗게 감싸요','Wrap the bean paste in a circle'),circle:1},{k:K('가운데를 꾹! 배꼽을 만들어요','Press the middle to make a belly button'),tap:1}],
+salt:[{k:K('반죽을 길쭉한 삼각형으로 밀어요','Roll the dough into a long triangle'),p:[[.5,.12],[.5,.88]]},{k:K('버터를 올리고 넓은 쪽부터 돌돌!','Add butter and roll from the wide end!'),p:[[.3,.25],[.7,.4],[.3,.55],[.7,.7],[.5,.85]]}],
+sobo:[{k:K('반죽을 동그랗게 굴려요','Roll the dough into a ball'),circle:1},{k:K('소보로 가루를 위에 톡톡 뿌려요 (지그재그)','Sprinkle the crumbs on top (zig-zag)'),p:[[.2,.3],[.8,.42],[.2,.55],[.8,.68]]}],
+crois:[{k:K('버터를 넣고 접어요 ① (아래로)','Fold in the butter ① (down)'),p:[[.5,.15],[.5,.85]],fold:3},{k:K('한 번 더 접어요 ② (위로)','Fold again ② (up)'),p:[[.5,.85],[.5,.15]],fold:9},{k:K('마지막 접기 ③ (아래로) → 27겹!','Last fold ③ (down) → 27 layers!'),p:[[.5,.15],[.5,.85]],fold:27},{k:K('삼각형을 돌돌 말아 초승달!','Roll the triangle into a crescent!'),p:[[.2,.35],[.5,.75],[.8,.35]]}],
+bag:[{k:K('반죽을 길게 늘여요','Stretch the dough long'),p:[[.12,.5],[.88,.5]]},{k:K('칼집 ①','Slash ①'),p:[[.24,.58],[.38,.42]]},{k:K('칼집 ②','Slash ②'),p:[[.43,.58],[.57,.42]]},{k:K('칼집 ③','Slash ③'),p:[[.62,.58],[.76,.42]]}]};
+// ===== core =====
+const $=id=>document.getElementById(id);
+const cv=$('c'),cx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+let L=localStorage.getItem('nbLang')||'ko';
+const T=k=>UI[L][k]||k, tx=o=>o?o[L]:'';
+let SV;try{SV=JSON.parse(localStorage.getItem('nbSave'))||{}}catch(e){SV={}}
+SV.done=SV.done||{};SV.dex=SV.dex||{};SV.tut=!!SV.tut;SV.fest=SV.fest||0;
+const save=()=>{try{localStorage.setItem('nbSave',JSON.stringify(SV))}catch(e){}};
+const now=()=>performance.now();
+const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight-52;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+function trayH(){const t=$('tray');return t.classList.contains('hide')?0:t.offsetHeight}
+// ===== audio =====
+let AC=null,MG=null,muted=localStorage.getItem('nbMute')==='1',bgmOn=false,nextT=0,stepN=0;
+function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=muted?0:.8;MG.connect(AC.destination);bgmOn=true;nextT=AC.currentTime+.1}catch(e){}}
+function tone(f,d,type,v,slide,when){if(!AC)return;const t=when||AC.currentTime;const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.2,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(MG);o.start(t);o.stop(t+d+.05)}
+let NB=null;function noise(d,v,when,hp){if(!AC)return;const t=when||AC.currentTime;if(!NB){NB=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const s=AC.createBufferSource();s.buffer=NB;const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=hp||5000;const g=AC.createGain();g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.02)}
+const SFX={tap:()=>tone(660,.08,'triangle',.18),good:()=>{tone(784,.1,'triangle',.2);tone(1047,.14,'triangle',.18,0,AC&&AC.currentTime+.08)},bad:()=>tone(220,.25,'sawtooth',.12,140),
+ pour:()=>noise(.06,.05,0,2500),squish:()=>tone(180,.12,'sine',.3,90),pop:()=>tone(500,.08,'sine',.2,900),ding:()=>{tone(1319,.3,'sine',.2);tone(1760,.35,'sine',.12)},
+ win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.2,0,AC&&AC.currentTime+i*.1)),coin:()=>{tone(988,.06,'square',.08);tone(1319,.12,'square',.08,0,AC&&AC.currentTime+.06)},
+ fail:()=>[392,330,262].forEach((f,i)=>tone(f,.25,'triangle',.18,0,AC&&AC.currentTime+i*.13))};
+const sfx=k=>{try{AC&&SFX[k]()}catch(e){}};
+const MEL=[0,2,4,7, 9,7,4,2, 4,4,7,9, 12,9,7,-1, 9,7,4,2, 0,2,4,-1, 2,4,2,0, -3,0,0,-1];
+const BAS=[0,0,7,7, 5,5,7,7];
+const sc=[0,2,4,5,7,9,11];
+function noteF(semi){return 392*Math.pow(2,semi/12)}
+function bgmTick(){if(!AC||!bgmOn)return;const sp=60/116/2;while(nextT<AC.currentTime+.15){const i=stepN%32,t=nextT;const m=MEL[i];if(m>=0&&!muted)tone(noteF(m),sp*.9,'triangle',.06,0,t);
+ if(i%4==0)tone(98*Math.pow(2,BAS[(i/4)|0]/12),sp*1.6,'sine',.16,0,t);if(i%4==2)tone(98*Math.pow(2,BAS[(i/4)|0]/12)*2,sp*.6,'sine',.07,0,t);
+ noise(.04,i%2?.025:.045,t,7000);if(i%8==4)noise(.1,.05,t,1500);nextT+=sp;stepN++}}
+function setMute(m){muted=m;localStorage.setItem('nbMute',m?'1':'0');$('mute').textContent=m?'🔇':'🔊';if(MG)MG.gain.value=m?0:.8}
+// ===== drawing =====
+const CRS=[[0,[243,227,196]],[.45,[240,214,160]],[.62,[226,168,72]],[.75,[205,130,45]],[.9,[150,80,30]],[1.1,[50,34,22]]];
+function crust(c,dk){let a=CRS[0],b=CRS[CRS.length-1];for(let i=0;i<CRS.length-1;i++)if(c>=CRS[i][0]&&c<=CRS[i+1][0]){a=CRS[i];b=CRS[i+1];break}if(c>1.1)a=b;const t=b[0]==a[0]?0:clamp((c-a[0])/(b[0]-a[0]),0,1);const k=dk||1;return `rgb(${lerp(a[1][0],b[1][0],t)*k|0},${lerp(a[1][1],b[1][1],t)*k|0},${lerp(a[1][2],b[1][2],t)*k|0})`}
+function glossFill(x,y,r,c){const g=cx.createRadialGradient(x-r*.35,y-r*.45,r*.1,x,y,r*1.2);g.addColorStop(0,crust(Math.max(0,c-.14),1.08));g.addColorStop(.6,crust(c));g.addColorStop(1,crust(c+.08,.85));return g}
+function ell(x,y,rx,ry,rot){cx.beginPath();cx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,7)}
+function drawBread(type,x,y,s,c,opt){opt=opt||{};cx.save();cx.translate(x,y);const sy=opt.sy||1;cx.scale(opt.sx||1,sy);
+ cx.fillStyle='rgba(0,0,0,.18)';ell(0,s*.42,s*.9,s*.14);cx.fill();
+ const f=glossFill(0,0,s,c);cx.fillStyle=f;cx.strokeStyle=crust(c+.15,.75);cx.lineWidth=2;
+ if(type=='shik'){cx.beginPath();cx.moveTo(-s*.7,s*.4);cx.lineTo(-s*.7,-s*.05);cx.bezierCurveTo(-s*.95,-s*.75,-s*.05,-s*.85,0,-s*.35);cx.bezierCurveTo(s*.05,-s*.85,s*.95,-s*.75,s*.7,-s*.05);cx.lineTo(s*.7,s*.4);cx.closePath();cx.fill();cx.stroke();
+  cx.fillStyle='rgba(255,250,235,.35)';ell(-s*.38,-s*.45,s*.18,s*.08,-.5);cx.fill();ell(s*.36,-s*.45,s*.18,s*.08,.5);cx.fill()}
+ else if(type=='danpat'||type=='sobo'||type=='ball'){ell(0,0,s*.82,s*.58);cx.fill();cx.stroke();
+  if(type=='danpat'){cx.fillStyle='rgba(255,250,235,.4)';ell(-s*.3,-s*.28,s*.25,s*.1,-.3);cx.fill();if(opt.belly!==false){cx.fillStyle=crust(c+.2,.7);ell(0,-s*.08,s*.1,s*.07);cx.fill();cx.fillStyle='#fff8e6';for(let i=0;i<6;i++){ell(Math.cos(i)*s*.2,-s*.08+Math.sin(i*1.7)*s*.08,s*.035,s*.018,i);cx.fill()}}}
+  if(type=='sobo'&&opt.crumb!==false){const cc=crust(Math.max(.3,c-.12),1.05);for(let i=0;i<38;i++){const a=i*2.4,r=s*.62*Math.sqrt((i+.5)/38);cx.fillStyle=i%3?cc:crust(c,.92);ell(Math.cos(a)*r,Math.sin(a)*r*.62-s*.06,s*.09,s*.07);cx.fill()}}}
+ else if(type=='salt'){cx.beginPath();cx.moveTo(-s*.85,s*.25);cx.quadraticCurveTo(-s*.6,-s*.55,0,-s*.5);cx.quadraticCurveTo(s*.6,-s*.55,s*.85,s*.25);cx.quadraticCurveTo(0,s*.42,-s*.85,s*.25);cx.fill();cx.stroke();
+  cx.strokeStyle=crust(c+.12,.8);cx.lineWidth=2;for(let i=-2;i<=2;i++){cx.beginPath();cx.moveTo(i*s*.26-s*.06,-s*.42+Math.abs(i)*s*.05);cx.quadraticCurveTo(i*s*.3+s*.08,-s*.05,i*s*.24,s*.26);cx.stroke()}
+  if(c>.3){cx.fillStyle='#fff';for(let i=0;i<9;i++){cx.fillRect(-s*.5+i*s*.13,-s*.38+Math.sin(i*2.1)*s*.06,s*.05,s*.04)}}}
+ else if(type=='crois'){const seg=[[0,-.1,.32,.4],[-.36,0,.26,.34],[.36,0,.26,.34],[-.64,.14,.18,.24],[.64,.14,.18,.24]];for(let i=seg.length-1;i>=0;i--){const q=seg[i];cx.fillStyle=glossFill(q[0]*s,q[1]*s,q[2]*s*1.6,c);ell(q[0]*s,q[1]*s,q[2]*s,q[3]*s,q[0]*.6);cx.fill();cx.stroke();cx.strokeStyle=crust(c+.15,.75)}
+  cx.strokeStyle='rgba(255,240,210,.5)';cx.lineWidth=1.5;for(let i=0;i<3;i++){cx.beginPath();cx.ellipse(0,-s*.1,s*.32*(1-i*.25),s*.4*(1-i*.25),0,3.6,5.8);cx.stroke()}}
+ else if(type=='bag'){cx.rotate(-.12);ell(0,0,s*1.05,s*.26);cx.fill();cx.stroke();cx.fillStyle=crust(Math.max(.3,c-.25),1.05);for(let i=-1;i<=1;i++){ell(i*s*.5,-s*.02,s*.2,s*.06,-.45);cx.fill()}}
+ else{ell(0,0,s*.8,s*.55);cx.fill();cx.stroke()}
+ if(c>1){cx.fillStyle=`rgba(20,10,5,${clamp((c-1)*3,0,.5)})`;ell(0,0,s*.9,s*.6);cx.fill()}
+ cx.restore()}
+let steam=[],crumbs=[];
+function puff(x,y,n,col){for(let i=0;i<n;i++)crumbs.push({x,y,vx:rnd(-90,90),vy:rnd(-160,-40),l:rnd(.5,1),c:col||'#e8b062',r:rnd(2,4)})}
+function drawBG(t){const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#f9e3bf');g.addColorStop(1,'#eccb95');cx.fillStyle=g;cx.fillRect(0,0,W,H);
+ cx.fillStyle='rgba(180,120,60,.09)';for(let y=0;y<H*.62;y+=34)for(let x=((y/34)%2)*17;x<W;x+=34)cx.fillRect(x+1,y+1,32,32);
+ // shelf
+ const sy=H*.17;cx.fillStyle='#9a6334';cx.fillRect(0,sy,W,8);cx.fillStyle='rgba(0,0,0,.12)';cx.fillRect(0,sy+8,W,5);
+ const ts=['shik','danpat','salt','sobo','crois','bag'];for(let i=0;i<Math.ceil(W/70);i++){drawBread(ts[i%6],35+i*70,sy-14,20,.72)}
+ // counter
+ const cy=H*.66;const wg=cx.createLinearGradient(0,cy,0,H);wg.addColorStop(0,'#b0743c');wg.addColorStop(1,'#7a4a22');cx.fillStyle=wg;cx.fillRect(0,cy,W,H-cy);
+ cx.strokeStyle='rgba(60,30,10,.25)';cx.lineWidth=1.5;for(let y=cy+18;y<H;y+=22){cx.beginPath();cx.moveTo(0,y);for(let x=0;x<=W;x+=40)cx.lineTo(x,y+Math.sin(x*.03+y)*2);cx.stroke()}
+ cx.fillStyle='#d49a5c';cx.fillRect(0,cy,W,6);
+ // flour dust
+ cx.fillStyle='rgba(255,255,255,.35)';for(let i=0;i<14;i++){ell((i*97)%W,cy+20+(i*53)%Math.max(10,H-cy-30),6,2);cx.fill()}}
+function drawFX(dt){for(const p of crumbs){p.vy+=400*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt;cx.globalAlpha=clamp(p.l,0,1);cx.fillStyle=p.c;ell(p.x,p.y,p.r,p.r);cx.fill()}cx.globalAlpha=1;crumbs=crumbs.filter(p=>p.l>0);
+ for(const s of steam){s.y-=30*dt;s.x+=Math.sin(s.y*.05)*.4;s.l-=dt*.6;s.r+=dt*6;cx.fillStyle=`rgba(255,255,255,${clamp(s.l,0,1)*.35})`;ell(s.x,s.y,s.r,s.r);cx.fill()}steam=steam.filter(s=>s.l>0)}
+function steamAt(x,y,n){for(let i=0;i<(n||1);i++)steam.push({x:x+rnd(-15,15),y,r:rnd(5,9),l:1})}
+function txt(s,x,y,sz,col,al,out){cx.font=`500 ${sz}px system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif`;cx.textAlign=al||'center';cx.textBaseline='middle';if(out){cx.lineWidth=4;cx.strokeStyle=out;cx.lineJoin='round';cx.strokeText(s,x,y)}cx.fillStyle=col||'#2b1a0e';cx.fillText(s,x,y)}
+function rrect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+function drawOven(x,y,w,h,glow,lbl){cx.fillStyle='#5b5f66';rrect(x,y,w,h,14);cx.fill();cx.fillStyle='#454950';rrect(x+6,y+6,w-12,14,6);cx.fill();
+ const ix=x+12,iy=y+26,iw=w-24,ih=h-38;const g=cx.createRadialGradient(ix+iw/2,iy+ih*.7,5,ix+iw/2,iy+ih/2,iw*.7);g.addColorStop(0,`rgba(255,${170+glow*50|0},70,1)`);g.addColorStop(1,'#6a2a10');cx.fillStyle=g;rrect(ix,iy,iw,ih,10);cx.fill();
+ cx.strokeStyle='#ffb04a';cx.globalAlpha=.6;cx.lineWidth=2;for(let i=0;i<3;i++){cx.beginPath();cx.moveTo(ix+10,iy+ih-8-i*5);cx.lineTo(ix+iw-10,iy+ih-8-i*5);cx.stroke()}cx.globalAlpha=1;
+ cx.strokeStyle='#2c2f34';cx.lineWidth=3;rrect(ix,iy,iw,ih,10);cx.stroke();return {ix,iy,iw,ih}}
+// ===== overlay =====
+const ov=$('ov');let ACT=[],contFn=null,contAt=0;
+function B(label,fn,cls){ACT.push(fn);return `<button class="btn ${cls||''}" data-i="${ACT.length-1}">${label}</button>`}
+function show(html,o){o=o||{};ACT=ACT.slice(-0);ov.innerHTML=`<div class="panel">${html}${o.cont?`<div class="cont">${T('contN')}</div>`:''}</div>`;ov.className=o.low?'low':'';contFn=o.cont||null;contAt=now()+(o.guard||550);fingerOff()}
+function hideOv(){ov.className='hide';ov.innerHTML='';contFn=null;ACT=[]}
+function tryCont(){if(contFn&&now()>contAt){const f=contFn;contFn=null;sfx('tap');f()}}
+ov.addEventListener('click',e=>{initAudio();const b=e.target.closest('[data-i]');if(b){if(now()<contAt-300)return;const f=ACT[+b.dataset.i];if(f){sfx('tap');f()}return}if(e.target.closest('.qopts'))return;tryCont()});
+let banT=0;function banner(s){const b=$('banner');b.textContent=s;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
+let lastMsg=null;function msg(s,top){const m=$('msg');const k=(s||'')+'|'+(top||100);if(k===lastMsg)return;lastMsg=k;m.innerHTML=s||'';m.style.top=(top||100)+'px'}
+function hud(l,r){const h=$('hud');if(l==null){h.className='hide';return}h.className='';$('hudL').innerHTML=l;$('hudR').innerHTML=r||''}
+function tray(html){const t=$('tray');if(!html){t.className='hide';t.innerHTML='';return}t.className='';t.innerHTML=html}
+const fg=$('finger');function fingerAt(x,y){fg.style.display='block';fg.style.left=x+'px';fg.style.top=y+'px'}function fingerOff(){fg.style.display='none'}
+function elCenter(el){const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}
+// ===== state & steps =====
+const UX={ko:{bk1:'오븐 스프링! 빵이 한 번 더 확 부풀어요',bk2:'갈변 반응이 시작돼요… 점점 노릇노릇',bk3:'지금이에요! 황금색! 🧤 꺼내요',bk4:'앗, 타고 있어요!',pale:'덜 익음',gold:'황금색',burn:'탐',
+ paleW:'너무 일찍 꺼내서 빵이 하얗고 속이 끈적끈적해요. 갈변 반응이 일어날 시간이 부족했어요.',paleT:'빵 색이 황금색 칸에 들어갈 때까지 기다려요.',burnW:'너무 오래 구워서 설탕과 단백질이 까맣게 타 버렸어요. 쓴맛이 나요!',burnT:'황금색 칸에 들어가면 바로 꺼내요.',
+ hotW:'너무 뜨거워서 효모가 죽어 버렸어요 🥵 효모는 살아 있는 생물이라 40℃ 가까이 되면 힘을 잃어요.',hotT:'온도가 초록 칸 위로 올라가면 손을 떼요.',coldW:'너무 추워서 효모가 졸려요 😴 효모는 차가우면 아주 느리게 일해서 반죽이 거의 안 부풀었어요.',coldT:'🔥 버튼을 눌러 27~35℃ 초록 칸을 지켜요.',
+ kneadW:'아무 때나 두드리면 글루텐 그물이 제대로 안 생겨요. 리듬에 맞춰 꾹꾹 치대야 그물이 튼튼해져요!',kneadT:'동그라미가 반죽 테두리에 닿는 순간에 탭해요.',shapeW:'선 밖으로 너무 많이 나갔어요. 모양이 엉망이면 빵이 고르게 안 구워져요.',shapeT:'천천히, 점선 위를 따라가요. 손을 떼도 진행은 남아 있어요.',
+ temp:'온도',zone:'효모가 신나요! 😋',cold:'추워서 효모가 졸려요 😴',hot:'너무 뜨거워요! 🥵',proofP:'발효',layers:'겹',gtap:'좋아요!',miss:'박자가 안 맞아요',goal:'목표',now:'지금',startHere:'여기서 시작'},
+en:{bk1:'Oven spring! The bread puffs up once more',bk2:'Browning is starting… getting golden',bk3:'Now! It\'s golden! 🧤 Take it out',bk4:'Oh no, it\'s burning!',pale:'Pale',gold:'Golden',burn:'Burnt',
+ paleW:'You took it out too early, so it\'s white and gooey inside. The browning reaction didn\'t have enough time.',paleT:'Wait until the colour reaches the golden zone.',burnW:'It baked too long, so the sugar and protein burned black. It tastes bitter!',burnT:'Take it out as soon as it reaches the golden zone.',
+ hotW:'It got so hot the yeast died 🥵 Yeast are alive, and near 40°C they lose their power.',hotT:'Let go when the temperature goes above the green zone.',coldW:'It was so cold the yeast got sleepy 😴 Cold yeast work very slowly, so the dough barely rose.',coldT:'Hold 🔥 to keep it in the green 27–35°C zone.',
+ kneadW:'Random tapping doesn\'t build a good gluten net. Knead to the rhythm to make the net strong!',kneadT:'Tap the moment the circle touches the edge of the dough.',shapeW:'You went off the line too often. A messy shape doesn\'t bake evenly.',shapeT:'Go slowly along the dotted line. If you lift your finger, your progress stays.',
+ temp:'Temp',zone:'The yeast are happy! 😋',cold:'Too cold, the yeast are sleepy 😴',hot:'Too hot! 🥵',proofP:'Rise',layers:'layers',gtap:'Nice!',miss:'Off the beat',goal:'Goal',now:'Now',startHere:'Start here'}};
+const X=k=>UX[L][k];
+const ICOL={flour:'#fffaf0',water:'#7cc4f5',milk:'#fffdf6',yeast:'#c9a46a',salt:'#ffffff',sugar:'#fdfbff',butter:'#ffd85a',egg:'#ffc02a'};
+const G={mode:'title',b:0,stepI:0,perf:0,cur:null,tok:0,tut:false,fest:false};
+function later(f,ms){const k=G.tok;setTimeout(()=>{if(k===G.tok)f()},ms)}
+function area(){return {top:56,bot:H-trayH()-10}}
+const BRD=()=>BR[G.b];
+function skipBtn(){return `<button class="btn" id="skipS" style="align-self:center">${T('skip')}</button>`}
+function bindSkip(){const s=$('skipS');if(s)s.onclick=()=>{sfx('tap');skipStep()}}
+function finishStep(perf){if(!G.cur)return;G.cur=null;fingerOff();tray(null);msg('');if(perf)G.perf++;banner(perf?T('perfect'):T('good'));sfx(perf?'win':'good');later(()=>{G.stepI++;runStep()},1250)}
+function skipStep(){G.cur=null;fingerOff();tray(null);msg('');G.stepI++;runStep()}
+function failStep(why,tip,retry){const cur=G.cur;G.cur=null;fingerOff();sfx('fail');msg('');
+ show(`<h2>${T('whyT')}</h2><div class="pic">😵‍💫</div><div class="why">${why}</div><div class="tip">${T('tipT')}<br>${tip}</div><div class="row">${B(T('retry'),()=>{hideOv();retry(cur)},'big')}${B(T('skip'),()=>{hideOv();skipStep()})}</div>`,{cont:()=>{hideOv();retry(cur)},guard:700})}
+function explain(){const s=STEPS[G.stepI],b=BRD();const e=EXPL[s];
+ show(`<h2>${T('step')} ${G.stepI+1}/5 · ${STEPE[s]} ${tx(STEPN[s])}</h2><div class="pic">${e.p}</div><p>${tx(e.t)}</p><div class="tip">👉 ${T(s+'H')}</div><div class="row">${B(T('go'),()=>{hideOv();startStep()},'big')}${B(T('skip'),()=>{hideOv();skipStep()})}${G.tut?B(T('skipTut'),()=>{G.tut=false;SV.tut=true;save();hideOv();startStep()}):''}</div>`,{cont:()=>{hideOv();startStep()}})}
+function runStep(){if(G.stepI>=5){breadDone();return}explain()}
+function startStep(){const s=STEPS[G.stepI];G.cur=STEP[s];G.cur.init();hud(`${BRD().e} ${tx(BRD().n)}`,`${STEPE[s]} ${tx(STEPN[s])} ${G.stepI+1}/5`)}
+const STEP={};
+// --- measure
+STEP.measure={init(){const b=BRD();this.ing=b.ing.map(([k,tg,tol])=>({k,tg,tol,a:0,done:0,perf:0}));this.sel=0;this.pour=false;this.hold=0;this.pt=0;
+ tray(this.ing.map((g,i)=>`<button class="jar" data-j="${i}"><span class="e">${ING[g.k].e}</span>${tx(ING[g.k].n)}</button>`).join('')+skipBtn());bindSkip();
+ document.querySelectorAll('.jar').forEach(el=>{el.addEventListener('pointerdown',e=>{e.preventDefault();initAudio();const i=+el.dataset.j;if(this.ing[i].done||G.cur!==this)return;this.sel=i;this.startPour()})});this.info()},
+ info(){const g=this.ing[this.sel];document.querySelectorAll('.jar').forEach((el,i)=>{el.classList.toggle('on',i==this.sel);el.classList.toggle('done',!!this.ing[i].done)});msg(`${ING[g.k].e} ${tx(ING[g.k].info)}`,60+52-4)},
+ startPour(){this.pour=true;this.hold=0;this.info()},
+ release(){if(!this.pour)return;this.pour=false;const g=this.ing[this.sel];if(g.a>=g.tg*(1-g.tol)){g.done=1;g.perf=Math.abs(g.a-g.tg)<=g.tg*g.tol*.5;sfx('good');puff(W/2,area().bot*.62,10,ICOL[g.k]);
+  const n=this.ing.findIndex(x=>!x.done);if(n<0){this.info();const pc=this.ing.filter(x=>x.perf).length;finishStep(pc>=this.ing.length-1);return}this.sel=n;this.info()}},
+ key(d){if(d)this.startPour();else this.release()},
+ update(dt){const g=this.ing[this.sel];if(this.pour&&!g.done){this.hold+=dt;g.a+=g.tg*(.16+.42*Math.min(this.hold,1.4))*dt;this.pt-=dt;if(this.pt<0){this.pt=.09;sfx('pour')}
+  if(g.a>g.tg*(1+g.tol)){this.pour=false;const k=g.k;failStep(tx(ING[k].over),tx(ING[k].tip),c=>{G.cur=c;g.a=0;c.info();hud(`${BRD().e} ${tx(BRD().n)}`,`⚖️ ${tx(STEPN.measure)} 1/5`)});return}}
+  if(G.tut&&!this.pour){const el=document.querySelectorAll('.jar')[this.sel];if(el){const [x,y]=elCenter(el);fingerAt(x,y-40)}}else if(G.tut)fingerOff()},
+ draw(t){const A=area(),g=this.ing[this.sel];const bx=W*.42,by=A.top+(A.bot-A.top)*.68,br=Math.min(W*.3,(A.bot-A.top)*.3);
+  // stream
+  if(this.pour){cx.fillStyle=ICOL[g.k];for(let i=0;i<14;i++){const yy=A.top+130+((t*400+i*37)%Math.max(10,by-A.top-130));ell(bx+Math.sin(i*3+t*9)*6,yy,g.k=='water'||g.k=='milk'?4:3,g.k=='water'||g.k=='milk'?7:3);cx.fill()}
+   txt(ING[g.k].e,bx,A.top+116,40)}
+  // bowl
+  cx.fillStyle='#d9e6ef';ell(bx,by-br*.15,br*1.05,br*.3);cx.fill();
+  const fill=this.ing.reduce((s,x)=>s+Math.min(x.a/x.tg,1.2),0)/this.ing.length;cx.save();ell(bx,by-br*.15,br*.98,br*.25);cx.clip();cx.fillStyle=crust(0);ell(bx,by-br*.15+br*.3*(1-fill),br,br*.28);cx.fill();
+  this.ing.forEach((x,i)=>{if(x.a>0){cx.fillStyle=ICOL[x.k];ell(bx-br*.5+i*br*.33,by-br*.18+br*.2*(1-fill),br*.18*Math.min(1,x.a/x.tg),br*.07);cx.fill()}});cx.restore();
+  const bg=cx.createLinearGradient(bx-br,0,bx+br,0);bg.addColorStop(0,'#5d86b0');bg.addColorStop(.4,'#a9cbe6');bg.addColorStop(1,'#4f769c');cx.fillStyle=bg;cx.beginPath();cx.moveTo(bx-br*1.05,by-br*.15);cx.quadraticCurveTo(bx-br,by+br*.75,bx,by+br*.75);cx.quadraticCurveTo(bx+br,by+br*.75,bx+br*1.05,by-br*.15);cx.ellipse(bx,by-br*.15,br*1.05,br*.3,0,0,Math.PI);cx.fill();
+  // gauge
+  const gx=W-58,gt=A.top+150,gb=A.bot-30,gh=gb-gt,mx=g.tg*1.5,Y=v=>gb-gh*clamp(v/mx,0,1);
+  cx.fillStyle='#fffaf0';rrect(gx-16,gt-6,32,gh+12,14);cx.fill();cx.strokeStyle='#8a5a2b';cx.lineWidth=2.5;cx.stroke();
+  cx.fillStyle='#7bd36a';cx.fillRect(gx-14,Y(g.tg*(1+g.tol)),28,Y(g.tg*(1-g.tol))-Y(g.tg*(1+g.tol)));cx.fillStyle='#3f9a2f';cx.fillRect(gx-14,Y(g.tg)-1.5,28,3);
+  cx.fillStyle=g.a>g.tg*(1+g.tol)?'#e0402a':ICOL[g.k]=='#ffffff'||ICOL[g.k]=='#fffaf0'||ICOL[g.k]=='#fffdf6'||ICOL[g.k]=='#fdfbff'?'#e8c48a':ICOL[g.k];const ay=Y(g.a);cx.fillRect(gx-8,ay,16,gb-ay);
+  cx.fillStyle='#2b1a0e';cx.beginPath();cx.moveTo(gx-26,ay);cx.lineTo(gx-16,ay-7);cx.lineTo(gx-16,ay+7);cx.fill();
+  txt(`${ING[g.k].e} ${tx(ING[g.k].n)}`,gx-24,gt-26,17,'#2b1a0e','right');
+  txt(`${X('now')} ${Math.round(g.a)}${ING[g.k].u}`,gx-24,gb+16,17,'#2b1a0e','right');txt(`${X('goal')} ${g.tg}${ING[g.k].u}`,gx-24,Math.abs(Y(g.tg)-ay)<22?Y(g.tg)-24:Y(g.tg),16,'#2b6a1f','right')}};
+// --- knead
+STEP.knead={init(){const b=BRD();this.cfg=b.knead;this.per=60/b.knead.bpm;this.t=-this.per*.5;this.good=0;this.miss=0;this.sq=0;this.lastB=-9;this.wp=-1;this.pulse=0;
+ this.web=[];for(let i=0;i<26;i++){const a=rnd(0,7),r=Math.sqrt(Math.random())*.85;this.web.push([Math.cos(a)*r,Math.sin(a)*r*.7])}
+ tray(`<button class="hold" id="kn">👐 ${L=='ko'?'치대기 (탭)':'Knead (tap)'}</button>`+skipBtn());bindSkip();$('kn').addEventListener('pointerdown',e=>{e.preventDefault();initAudio();this.tap()});msg('👐 '+T('kneadH'),104)},
+ tap(){if(G.cur!==this||this.wp>=0)return;const ph=((this.t%this.per)+this.per)%this.per,err=Math.min(ph,this.per-ph),bi=Math.round(this.t/this.per);
+  if(this.t>0&&err<this.cfg.win&&bi!==this.lastB){this.lastB=bi;this.good++;this.sq=1;sfx('squish');const A=area();puff(W/2,(A.top+A.bot)/2,6,'#fff');this.pop=[X('gtap'),1];
+   if(this.good>=this.cfg.need){this.wp=0;sfx('ding');msg('🪟 '+T('wind')+' — '+T('windT'),104)}}
+  else{this.miss++;this.good=Math.max(0,this.good-1);sfx('bad');this.pop=[X('miss'),1];if(this.miss>=8)failStep(X('kneadW'),X('kneadT'),c=>{G.cur=c;c.init()})}},
+ down(x,y){this.tap()},key(d){if(d)this.tap()},
+ update(dt){this.t+=dt;this.sq=Math.max(0,this.sq-dt*4);if(this.pop)this.pop[1]-=dt*1.5;if(this.wp>=0){this.wp+=dt;if(this.wp>2.6)finishStep(this.miss<=2)}
+  if(G.tut&&this.wp<0){const A=area();fingerAt(W/2+20,52+(A.top+A.bot)/2+10)}},
+ draw(t){const A=area(),x=W/2,y=(A.top+A.bot)/2+10,R=Math.min(W*.24,(A.bot-A.top)*.22);
+  if(this.wp>=0){const k=Math.min(1,this.wp/1);const rx=R*(1+k*.9),ry=R*(.75+k*.25);
+   const lg=cx.createRadialGradient(x,y,5,x,y,rx*1.3);lg.addColorStop(0,'rgba(255,255,220,.95)');lg.addColorStop(1,'rgba(255,220,150,0)');cx.fillStyle=lg;ell(x,y,rx*1.4,ry*1.4);cx.fill();
+   cx.fillStyle=`rgba(245,228,190,${1-k*.5})`;ell(x,y,rx,ry);cx.fill();cx.strokeStyle='#d2a868';cx.lineWidth=2;cx.stroke();
+   cx.strokeStyle='rgba(200,140,60,.8)';cx.lineWidth=1.5;for(let i=0;i<this.web.length;i++)for(let j=i+1;j<this.web.length;j++){const a=this.web[i],b=this.web[j];if(Math.hypot(a[0]-b[0],a[1]-b[1])<.42){cx.beginPath();cx.moveTo(x+a[0]*rx,y+a[1]*ry/.7*.7);cx.lineTo(x+b[0]*rx,y+b[1]*ry/.7*.7);cx.stroke()}}
+   txt('🙌',x-rx-8,y,34);txt('🙌',x+rx+8,y,34);return}
+  const rx=R*(1+this.sq*.28),ry=R*.8*(1-this.sq*.22);cx.fillStyle='rgba(0,0,0,.15)';ell(x,y+ry*.9,rx*1.05,ry*.25);cx.fill();
+  cx.fillStyle=glossFill(x,y,R,.05);ell(x,y,rx,ry);cx.fill();cx.strokeStyle='#d8b37a';cx.lineWidth=2;cx.stroke();
+  const pr=this.good/this.cfg.need;cx.strokeStyle=`rgba(190,130,50,${.15+pr*.75})`;cx.lineWidth=1.6;const n=Math.floor(this.web.length*(.3+pr*.7));
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=this.web[i],b=this.web[j];if(Math.hypot(a[0]-b[0],a[1]-b[1])<.42){cx.beginPath();cx.moveTo(x+a[0]*rx,y+a[1]*ry/.7*.7);cx.lineTo(x+b[0]*rx,y+b[1]*ry/.7*.7);cx.stroke()}}
+  if(this.t>-this.per*.5){const ph=((this.t%this.per)+this.per)%this.per/this.per;const rr=R*(1+(1-ph)*1.3);const err=Math.min(ph,1-ph)*this.per;cx.strokeStyle=err<this.cfg.win?'#3fb02f':'#ff8a2a';cx.lineWidth=6;cx.globalAlpha=.25+ph*.75;ell(x,y,rr,rr*.8);cx.stroke();cx.globalAlpha=1}
+  const dw=Math.min(26,(W-40)/this.cfg.need);for(let i=0;i<this.cfg.need;i++){cx.fillStyle=i<this.good?'#f0a020':'rgba(255,255,255,.7)';ell(x-(this.cfg.need-1)*dw/2+i*dw,y+R*1.25,dw*.35,dw*.35);cx.fill();cx.strokeStyle='#8a5a2b';cx.lineWidth=1.5;cx.stroke()}
+  txt(`🕸️ ${L=='ko'?'글루텐 그물':'Gluten net'} ${Math.round(pr*100)}%`,x,y+R*1.25+30,17,'#3a2210');
+  if(this.pop&&this.pop[1]>0){cx.globalAlpha=clamp(this.pop[1],0,1);txt(this.pop[0],x,y-R-24-(1-this.pop[1])*20,20,'#fff','center','#6b3a12');cx.globalAlpha=1}}};
+// --- proof
+STEP.proof={init(){const b=BRD();this.cfg=b.proof;this.temp=22;this.prog=0;this.dmg=0;this.t=0;this.out=0;this.heat=false;this.gt=rnd(3,6);this.wind=0;
+ tray(`<button class="hold" id="ht">${T('heat')}</button>`+skipBtn());bindSkip();const h=$('ht');
+ h.addEventListener('pointerdown',e=>{e.preventDefault();initAudio();this.heat=true;h.classList.add('pressed')});
+ const up=()=>{this.heat=false;h.classList.remove('pressed')};h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);h.addEventListener('pointerleave',up);msg('',100)},
+ key(d){this.heat=d;const h=$('ht');if(h)h.classList.toggle('pressed',d)},
+ update(dt){this.t+=dt;this.temp+=this.heat?6*dt:-(.8+1.3*this.cfg.drift)*dt;if(this.cfg.gust){this.gt-=dt;if(this.gt<0){this.gt=rnd(3,6);if(Math.random()<this.cfg.gust+.3){this.temp-=4;this.wind=1.2;sfx('bad')}}}
+  this.wind=Math.max(0,this.wind-dt);this.temp=clamp(this.temp,10,45);const tp=this.temp;
+  if(tp>=27&&tp<=35)this.prog+=dt;else{this.out+=dt;if(tp>=20&&tp<38)this.prog+=dt*.3}
+  if(tp>38)this.dmg+=dt;else this.dmg=Math.max(0,this.dmg-dt*.5);
+  msg(this.wind>0?'🌬️ '+T('windy'):tp<27?X('cold'):tp>35?X('hot'):X('zone'),104);
+  if(Math.random()<dt*3)steamAt(W/2+rnd(-30,30),area().top+(area().bot-area().top)*.45);
+  if(this.dmg>1.6){failStep(X('hotW'),X('hotT'),c=>{G.cur=c;c.init()});return}
+  if(this.t>this.cfg.need*3+8){failStep(X('coldW'),X('coldT'),c=>{G.cur=c;c.init()});return}
+  if(this.prog>=this.cfg.need)finishStep(this.out<this.cfg.need*.6);
+  if(G.tut){const h=$('ht');if(h&&tp<29&&!this.heat){const [x,y]=elCenter(h);fingerAt(x,y-44)}else fingerOff()}},
+ draw(t){const A=area(),x=W*.42,y=A.top+(A.bot-A.top)*.6,R=Math.min(W*.26,(A.bot-A.top)*.25),pr=clamp(this.prog/this.cfg.need,0,1),tp=this.temp;
+  const s=1+pr*.55;cx.fillStyle='#c98a4a';ell(x,y+R*.55,R*1.25,R*.32);cx.fill();
+  cx.fillStyle=glossFill(x,y-R*.2*s,R*s,.04);ell(x,y-R*.15*s+R*.3,R*s,R*.75*s);cx.fill();cx.strokeStyle='#d8b37a';cx.lineWidth=2;cx.stroke();
+  for(let i=0;i<Math.floor(pr*14);i++){const a=i*2.3,r=R*s*.7*Math.sqrt((i+1)/14);cx.strokeStyle='rgba(255,255,255,.7)';cx.lineWidth=1.5;ell(x+Math.cos(a)*r,y-R*.15*s+R*.3+Math.sin(a)*r*.6,3+i%3*2,3+i%3*2);cx.stroke()}
+  const face=tp<27?'😴':tp>35?'🥵':'😋';for(let i=0;i<3;i++)txt(face,x-R*.5+i*R*.5,y-R*.15*s+R*.3+Math.sin(t*4+i)*3,26);
+  cx.fillStyle='#9a6334';rrect(x-R*1.3,y+R*.55,R*2.6,R*.42,10);cx.fill();
+  // thermometer
+  const tx0=W-50,tt=A.top+60,tb=A.bot-40,th=tb-tt,Y=v=>tb-th*(v-10)/35;cx.fillStyle='#fffaf0';rrect(tx0-15,tt-8,30,th+16,15);cx.fill();cx.strokeStyle='#8a5a2b';cx.lineWidth=2.5;cx.stroke();
+  cx.fillStyle='#7bd36a';cx.fillRect(tx0-13,Y(35),26,Y(27)-Y(35));cx.fillStyle='#f6b0a0';cx.fillRect(tx0-13,Y(45),26,Y(38)-Y(45));
+  cx.fillStyle=tp>38?'#d0301a':'#e0531a';cx.fillRect(tx0-6,Y(tp),12,tb-Y(tp)+8);ell(tx0,tb+10,13,13);cx.fill();
+  txt(Math.round(tp)+'℃',tx0-24,Y(tp),20,'#2b1a0e','right','#fffaf0');txt('27~35℃',tx0-24,Y(31)+(Math.abs(Y(tp)-Y(31))<26?28:0),16,'#2b6a1f','right','#fffaf0');
+  // progress
+  const bw=Math.min(220,W*.5);cx.fillStyle='rgba(255,255,255,.8)';rrect(x-bw/2,A.top+52,bw,16,8);cx.fill();cx.fillStyle='#f0a020';rrect(x-bw/2,A.top+52,bw*pr,16,8);cx.fill();txt(`🎈 ${X('proofP')} ${Math.round(pr*100)}%`,x,A.top+84,17,'#3a2210')}};
+// --- shape
+STEP.shape={init(){this.list=SHAPES[BRD().shape];this.si=0;this.strays=0;this.prep();tray(skipBtn());bindSkip()},
+ prep(){const A=area();const side=Math.min(W-60,A.bot-A.top-90);this.side=side;this.ox=(W-side)/2;this.oy=A.top+80+(A.bot-A.top-90-side)/2;const s=this.list[this.si];
+  if(s.circle){const c=[this.ox+side/2,this.oy+side/2],r=side*.3;this.pts=[];for(let i=0;i<=28;i++){const a=-Math.PI/2+i/28*Math.PI*2;this.pts.push([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r])}}
+  else if(s.tap)this.pts=[[this.ox+side/2,this.oy+side/2]];else this.pts=s.p.map(p=>[this.ox+p[0]*side,this.oy+p[1]*side]);
+  this.cum=[0];for(let i=1;i<this.pts.length;i++)this.cum.push(this.cum[i-1]+Math.hypot(this.pts[i][0]-this.pts[i-1][0],this.pts[i][1]-this.pts[i-1][1]));this.len=this.cum[this.cum.length-1];this.prog=0;this.drag=false;msg('✋ '+tx(s.k),104)},
+ at(d){for(let i=1;i<this.pts.length;i++)if(d<=this.cum[i]){const a=this.pts[i-1],b=this.pts[i],k=(d-this.cum[i-1])/((this.cum[i]-this.cum[i-1])||1);return [lerp(a[0],b[0],k),lerp(a[1],b[1],k)]}return this.pts[this.pts.length-1]},
+ near(x,y){let best=1e9,bd=this.prog;for(let i=1;i<this.pts.length;i++){const a=this.pts[i-1],b=this.pts[i],lo=Math.max(this.cum[i-1],this.prog-30),hi=Math.min(this.cum[i],this.prog+90);if(lo>hi)continue;const dx=b[0]-a[0],dy=b[1]-a[1],sl=Math.sqrt(dx*dx+dy*dy)||1;
+   let d=this.cum[i-1]+clamp(((x-a[0])*dx+(y-a[1])*dy)/sl,0,sl);d=clamp(d,lo,hi);const k=(d-this.cum[i-1])/sl,px=a[0]+dx*k,py=a[1]+dy*k,dist=Math.hypot(x-px,y-py);if(dist<best){best=dist;bd=d}}return [best,bd]},
+ down(x,y){const s=this.list[this.si];if(s.tap){if(Math.hypot(x-this.pts[0][0],y-this.pts[0][1])<70){sfx('squish');puff(x,y,8,'#f5e0b8');this.done()}return}
+  const p=this.at(this.prog);if(Math.hypot(x-p[0],y-p[1])<50){this.drag=true;sfx('tap')}},
+ move(x,y){if(!this.drag)return;const [d,pd]=this.near(x,y);if(d>40){this.drag=false;this.prog=0;this.strays++;sfx('bad');msg('↩️ '+T('strays'),104);if(this.strays>=5)failStep(X('shapeW'),X('shapeT'),c=>{G.cur=c;c.init()});return}
+  if(pd>this.prog){this.prog=pd;if(Math.random()<.3)puff(x,y,1,'#f5e0b8')}if(this.prog>=this.len-14)this.done()},
+ up(){this.drag=false},
+ done(){this.drag=false;sfx('good');const s=this.list[this.si];if(s.fold)this.layers=s.fold;this.si++;if(this.si>=this.list.length){this.si--;this.fin=1;finishStep(this.strays<=1);return}this.prep()},
+ update(dt){if(G.tut){const p=this.at(this.prog);if(this.drag){const q=this.at(Math.min(this.len,this.prog+60));fingerAt(q[0],q[1]+52)}else fingerAt(p[0],p[1]+52)}},
+ draw(t){const b=BRD(),s=this.list[this.si],cxp=this.ox+this.side/2,cyp=this.oy+this.side/2,S=this.side;
+  cx.fillStyle='rgba(255,255,255,.35)';rrect(this.ox-10,this.oy-10,S+20,S+20,18);cx.fill();
+  const id=b.shape;const late=this.si>0||this.fin;
+  if(id=='crois'&&this.si<3&&!this.fin){const lay=this.layers||1;cx.fillStyle=glossFill(cxp,cyp,S*.4,.04);rrect(cxp-S*.32,cyp-S*.3,S*.64,S*.6,10);cx.fill();cx.strokeStyle='#d8b37a';cx.lineWidth=2;cx.stroke();
+   const n=Math.min(lay,27);cx.strokeStyle='rgba(240,200,80,.9)';cx.lineWidth=Math.max(1,6/Math.sqrt(n));for(let i=1;i<=n;i++){const yy=cyp-S*.3+S*.6*i/(n+1);cx.beginPath();cx.moveTo(cxp-S*.3,yy);cx.lineTo(cxp+S*.3,yy);cx.stroke()}
+   txt(`🧈 ${lay} ${X('layers')}`,cxp,this.oy-26,18,'#3a2210')}
+  else if(id=='bag'&&late){drawBread('bag',cxp,cyp,S*.42,.04);for(let i=1;i<this.si+(this.fin?1:0);i++){const p=this.list[i].p;cx.strokeStyle='#a0703a';cx.lineWidth=5;cx.beginPath();cx.moveTo(this.ox+p[0][0]*S,this.oy+p[0][1]*S);cx.lineTo(this.ox+p[1][0]*S,this.oy+p[1][1]*S);cx.stroke()}}
+  else if(late&&id!='danpat'&&id!='sobo'||this.fin)drawBread(id=='crois'?'crois':id,cxp,cyp,S*.36,.04,{belly:id=='danpat'&&!!this.fin,crumb:!!this.fin});
+  else if(late)drawBread(id,cxp,cyp,S*.34,.04,{belly:false,crumb:false});
+  else drawBread('ball',cxp,cyp,S*.3,.04);
+  if(this.fin)return;
+  if(s.tap){const p=this.pts[0];cx.strokeStyle='#fff';cx.lineWidth=4;cx.setLineDash([6,6]);ell(p[0],p[1],34+Math.sin(t*6)*4,34+Math.sin(t*6)*4);cx.stroke();cx.setLineDash([]);return}
+  cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle='rgba(110,60,20,.55)';cx.lineWidth=12;cx.beginPath();this.pts.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1]));cx.stroke();
+  cx.strokeStyle='#fff';cx.lineWidth=6;cx.setLineDash([2,12]);cx.lineDashOffset=-t*30;cx.stroke();cx.setLineDash([]);
+  if(this.prog>0){cx.strokeStyle='#ff9a2a';cx.lineWidth=10;cx.beginPath();cx.moveTo(this.pts[0][0],this.pts[0][1]);for(let i=1;i<this.pts.length&&this.cum[i]<=this.prog;i++)cx.lineTo(this.pts[i][0],this.pts[i][1]);const q=this.at(this.prog);cx.lineTo(q[0],q[1]);cx.stroke()}
+  const e=this.pts[this.pts.length-1];if(!s.circle)txt('🏁',e[0]+14,e[1]-14,22);const q=this.at(this.prog);cx.fillStyle='#3fb02f';ell(q[0],q[1],13+Math.sin(t*6)*2,13+Math.sin(t*6)*2);cx.fill();cx.strokeStyle='#fff';cx.lineWidth=3;cx.stroke();
+  if(this.list.length>1)txt(`${this.si+1} / ${this.list.length}`,this.ox+S,this.oy-26,17,'#3a2210','right')}};
+// --- bake
+STEP.bake={init(){this.cfg=BRD().bake;this.p=0;this.t=0;tray(`<button class="hold" id="pl">${T('pull')}</button>`+skipBtn());bindSkip();$('pl').addEventListener('pointerdown',e=>{e.preventDefault();initAudio();this.pull()})},
+ pull(){if(G.cur!==this||this.t<.35)return;const c=this.cfg,p=this.p;if(p<c.lo){failStep(X('paleW'),X('paleT'),q=>{G.cur=q;q.init()});return}if(p>c.hi){failStep(X('burnW'),X('burnT'),q=>{G.cur=q;q.init()});return}
+  const mid=(c.lo+c.hi)/2;sfx('ding');puff(W/2,area().top+150,14,'#e8a040');finishStep(Math.abs(p-mid)<(c.hi-c.lo)*.25)},
+ key(d){if(d)this.pull()},
+ update(dt){this.t+=dt;this.p+=dt/this.cfg.t;const c=this.cfg,p=this.p;msg(p<.3?'🚀 '+X('bk1'):p<c.lo?'🍯 '+X('bk2'):p<=c.hi?'✨ '+X('bk3'):'🔥 '+X('bk4'),104);
+  if(p>.3&&Math.random()<dt*6)steamAt(W/2,area().top+100);if(p>1.12){failStep(X('burnW'),X('burnT'),q=>{G.cur=q;q.init()});return}
+  if(G.tut){const el=$('pl');if(el&&p>=c.lo){const [x,y]=elCenter(el);fingerAt(x,y-44)}else fingerOff()}},
+ draw(t){const A=area(),c=this.cfg,p=this.p;const ow=Math.min(W-40,330),oh=Math.min(250,(A.bot-A.top)*.55),ox=(W-ow)/2,oy=A.top+90;
+  const r=drawOven(ox,oy,ow,oh,Math.sin(t*5)*.5+.5);const sp=.72+.28*Math.min(1,p/.3);const sz=Math.min(r.iw*.3,r.ih*.42);
+  drawBread(BRD().shape,r.ix+r.iw/2,r.iy+r.ih*.62,sz,p*1.0,{sy:sp});if(p>c.hi){cx.fillStyle='rgba(60,60,60,.35)';for(let i=0;i<5;i++){ell(r.ix+r.iw/2+Math.sin(t*2+i)*30,r.iy+20+((t*30+i*20)%60),16,12);cx.fill()}}
+  cx.fillStyle='rgba(255,255,255,.12)';rrect(r.ix,r.iy,r.iw,r.ih*.3,10);cx.fill();
+  // bar
+  const bw=ow,bx=ox,by=oy+oh+22,bh=22;const g=cx.createLinearGradient(bx,0,bx+bw,0);[0,.45,.62,.75,.9,1.1].forEach(v=>g.addColorStop(v/1.12,crust(v)));cx.fillStyle=g;rrect(bx,by,bw,bh,10);cx.fill();
+  const X2=v=>bx+bw*clamp(v/1.12,0,1);cx.strokeStyle='#2f8a1f';cx.lineWidth=4;rrect(X2(c.lo),by-4,X2(c.hi)-X2(c.lo),bh+8,6);cx.stroke();
+  cx.fillStyle='#2b1a0e';cx.beginPath();cx.moveTo(X2(p),by-2);cx.lineTo(X2(p)-9,by-16);cx.lineTo(X2(p)+9,by-16);cx.fill();
+  txt(X('pale'),bx,by+bh+18,16,'#3a2210','left');txt(X('gold'),(X2(c.lo)+X2(c.hi))/2,by+bh+18,16,'#2b6a1f');txt(X('burn'),bx+bw,by+bh+18,16,'#3a2210','right')}};
+// ===== rush =====
+const RX={ko:{shelf:'진열대',fast:'빠름',mid:'보통',slow:'느림',full:'진열대가 꽉 찼어요',loseW:'손님을 너무 오래 기다리게 했어요. 빵이 나오기 전에 손님들이 돌아가 버렸어요.',loseT:'손님이 원하는 빵 반죽을 미리 여러 오븐에 넣어 두고, 황금색이 되면 바로 꺼내요.',
+ earlyW:'덜 익은 빵은 팔 수 없어요',festIntro:'모든 빵이 총출동! 오븐 4칸으로 손님 14명에게 빵을 팔아요. 전국에서 손님이 몰려와요!',pick:'반죽 고르기'},
+en:{shelf:'Shelf',fast:'Fast',mid:'Normal',slow:'Slow',full:'The shelf is full',loseW:'Customers waited too long and left before their bread was ready.',loseT:'Put the doughs customers want into several ovens early, and take them out as soon as they turn golden.',
+ earlyW:'You can\'t sell unbaked bread',festIntro:'Every bread at once! Sell bread to 14 customers with 4 ovens. Visitors come from all over the country!',pick:'Pick a dough'}};
+const Y_=k=>RX[L][k];
+const SPD=[1,1.3,.8,1.15],FACES=['🧒','👧','👦','👵','👴','👩','👨','🧑'];
+let R=null;
+const BID=id=>BR.find(b=>b.id==id);
+function rushIntro(){const fest=G.fest,c=fest?FEST:BRD().rush;G.mode='rushI';G.vis=null;hud(null);msg('');
+ show(`<h2>${fest?T('fest'):T('rushT')}</h2><div class="pic">${fest?'🎪🥖🥐🍞':'🔥⏰🧺'}</div><p>${fest?Y_('festIntro'):T('rushGoal').replace('{n}',c.n)}</p><div class="tip">👉 ${T('rushH')}</div><div class="row">${B(T('go'),()=>{hideOv();rushStart()},'big')}${fest?'':B(T('skip'),()=>{hideOv();G.rushOK=false;quiz()})}</div>`,{cont:()=>{hideOv();rushStart()}})}
+function rushStart(){const c=G.fest?FEST:BRD().rush;G.mode='rush';R={c,slots:[],cust:[],served:0,hearts:3,combo:0,coins:0,sel:c.types[c.types.length-1],sp:.4,shelf:[],lost:0,t:0,pops:[],maxC:Math.min(G.fest?4:3,Math.floor(W/92))};
+ for(let i=0;i<c.slots;i++)R.slots.push({ty:null,p:0,sp:SPD[i]});
+ tray(c.types.map(ty=>{const b=BID(ty);return `<button class="jar" data-ty="${ty}"><span class="e">${b.e}</span>${tx(b.n)}</button>`}).join('')+(G.fest?'':`<button class="btn" id="skipR" style="align-self:center">${T('skip')}</button>`));
+ document.querySelectorAll('[data-ty]').forEach(el=>el.addEventListener('pointerdown',e=>{e.preventDefault();initAudio();R.sel=el.dataset.ty;sfx('tap');rushTray()}));
+ const sk=$('skipR');if(sk)sk.onclick=()=>{sfx('tap');endRush(false,true)};rushTray();rushLay()}
+function rushTray(){document.querySelectorAll('[data-ty]').forEach(el=>el.classList.toggle('on',el.dataset.ty==R.sel))}
+function rushLay(){const A=area();const n=R.c.slots,cols=n==3?3:2,rows=Math.ceil(n/cols);const top=A.top+150,avail=A.bot-top;const w=Math.min(170,(W-24)/cols-10),h=Math.min(w*.95,avail/rows-34);
+ R.lay=R.slots.map((s,i)=>{const r=Math.floor(i/cols),c=i%cols,inRow=Math.min(cols,n-r*cols);const x=W/2-(inRow*(w+10)-10)/2+c*(w+10);return {x,y:top+r*(h+34),w,h}})}
+function rpop(x,y,s,col){R.pops.push({x,y,s,c:col||'#fff',l:1.2})}
+function rushTap(x,y){if(!R||G.mode!='rush')return;R.lay.forEach((l,i)=>{if(x<l.x||x>l.x+l.w||y<l.y||y>l.y+l.h+24)return;const s=R.slots[i];
+ if(!s.ty){s.ty=R.sel;s.p=0;sfx('pop');return}
+ const p=s.p;if(p<.6){rpop(l.x+l.w/2,l.y+24,T('early'),'#ffe0a0');sfx('bad');R.combo=0;s.ty=null;return}
+ if(p>.8){rpop(l.x+l.w/2,l.y+24,T('burnt'),'#ffb0a0');sfx('bad');R.combo=0;puff(l.x+l.w/2,l.y+l.h/2,8,'#333');s.ty=null;return}
+ const perf=Math.abs(p-.7)<.05;if(perf){R.combo++;R.coins+=15+R.combo*3;rpop(l.x+l.w/2,l.y+24,T('perf')+(R.combo>1?' x'+R.combo:''),'#fff4a0');sfx('ding')}else{R.coins+=10;rpop(l.x+l.w/2,l.y+24,T('ok'));sfx('good')}
+ puff(l.x+l.w/2,l.y+l.h/2,8,'#e8a040');serve(s.ty);s.ty=null})}
+function serve(ty){const i=R.cust.findIndex(c=>c.ty==ty&&!c.gone);if(i>=0){const c=R.cust[i];c.gone=1;c.happy=1;R.served++;R.coins+=5;sfx('coin');if(R.served>=R.c.n){G.mode='rushE';later(()=>endRush(true),500)}}else if(R.shelf.length<4)R.shelf.push(ty);else rpop(W/2,area().top+130,Y_('full'))}
+function rushUpdate(dt){R.t+=dt;R.sp-=dt;const act=R.cust.filter(c=>!c.gone);
+ if(R.sp<=0&&act.length<R.maxC&&R.served+act.length<R.c.n){R.sp=R.c.spawn+rnd(-.4,.6);const ty=R.c.types[Math.random()*R.c.types.length|0];const c={ty,pat:R.c.pat,max:R.c.pat,f:FACES[Math.random()*FACES.length|0],a:0};R.cust.push(c);
+  const si=R.shelf.indexOf(ty);if(si>=0){R.shelf.splice(si,1);c.gone=1;c.happy=1;R.served++;sfx('coin');if(R.served>=R.c.n){G.mode='rushE';later(()=>endRush(true),500)}}}
+ for(const c of R.cust){c.a=Math.min(1,c.a+dt*3);if(c.gone){c.out=(c.out||0)+dt*2;continue}c.pat-=dt;if(c.pat<=0){c.gone=1;c.happy=0;R.hearts--;R.lost++;R.combo=0;sfx('bad');rpop(W/2,area().top+60,T('angry'),'#ffd0c0');if(R.hearts<=0){later(()=>endRush(false),400);G.mode='rushE'}}}
+ R.cust=R.cust.filter(c=>!c.gone||c.out<1);
+ R.slots.forEach((s,i)=>{if(s.ty){s.p+=dt*s.sp/6.5;if(s.p>.35&&Math.random()<dt*2){const l=R.lay[i];steamAt(l.x+l.w/2,l.y)}}});
+ for(const p of R.pops){p.l-=dt;p.y-=dt*30}R.pops=R.pops.filter(p=>p.l>0);
+ hud(`👥 ${T('served')} ${R.served}/${R.c.n}`,`${'❤️'.repeat(Math.max(0,R.hearts))}${'🤍'.repeat(3-Math.max(0,R.hearts))} 🪙${R.coins}`);
+ if(G.tut){let tgt=null;const gi=R.slots.findIndex(s=>s.ty&&s.p>=.62&&s.p<=.78);if(gi>=0){const l=R.lay[gi];tgt=[l.x+l.w/2,l.y+l.h/2+52]}
+  else{const want=act[0]&&act[0].ty;const loaded=R.slots.some(s=>s.ty);if(want&&!loaded){if(R.sel!=want){const el=document.querySelector(`[data-ty="${want}"]`);if(el){const c=elCenter(el);tgt=[c[0],c[1]-40]}}else{const ei=R.slots.findIndex(s=>!s.ty);if(ei>=0){const l=R.lay[ei];tgt=[l.x+l.w/2,l.y+l.h/2+52]}}}}
+  if(tgt)fingerAt(tgt[0],tgt[1]);else fingerOff()}}
+function drawRush(t){const A=area();if(!R.lay)rushLay();
+ // customers
+ const cw=Math.min(100,(W-20)/R.maxC);const act=R.cust;let k=0;act.forEach(c=>{const x=W/2-(R.maxC*cw)/2+cw*(k++)+cw/2,y=A.top+46-(c.out||0)*30;cx.globalAlpha=clamp(1-(c.out||0),0,1);
+  cx.fillStyle='#fffaf0';rrect(x-cw/2+4,y-28,cw-8,80,14);cx.fill();cx.strokeStyle=c.gone?(c.happy?'#3f9a2f':'#c0402a'):'#a8703a';cx.lineWidth=2.5;cx.stroke();
+  txt(c.gone?(c.happy?'😋':'😤'):c.pat<c.max*.3?'😠':c.f,x-cw*.2,y,28);drawBread(c.ty,x+cw*.2,y+2,Math.min(17,cw*.17),.7);
+  if(!c.gone){const pr=clamp(c.pat/c.max,0,1);cx.fillStyle='#e8dcc4';rrect(x-cw/2+12,y+32,cw-24,10,5);cx.fill();cx.fillStyle=pr>.5?'#5cc04a':pr>.25?'#f0b020':'#e0402a';rrect(x-cw/2+12,y+32,(cw-24)*pr,10,5);cx.fill()}cx.globalAlpha=1});
+ // shelf
+ const sy=A.top+120;cx.fillStyle='#9a6334';cx.fillRect(16,sy+16,W-32,7);txt('🧺 '+Y_('shelf'),20,sy,16,'#3a2210','left');R.shelf.forEach((ty,i)=>drawBread(ty,140+i*48,sy+4,15,.7));
+ // ovens
+ R.lay.forEach((l,i)=>{const s=R.slots[i];const r=drawOven(l.x,l.y,l.w,l.h,s.ty?Math.sin(t*5+i)*.5+.5:0);
+  if(s.ty){drawBread(BID(s.ty).shape,r.ix+r.iw/2,r.iy+r.ih*.6,Math.min(r.iw*.3,r.ih*.4),s.p,{sy:.75+.25*Math.min(1,s.p/.3)});
+   const by=l.y+l.h+6,bw=l.w;const g=cx.createLinearGradient(l.x,0,l.x+bw,0);[0,.45,.62,.75,.9,1.1].forEach(v=>g.addColorStop(v/1.12,crust(v)));cx.fillStyle=g;rrect(l.x,by,bw,12,6);cx.fill();
+   cx.strokeStyle='#2f8a1f';cx.lineWidth=3;rrect(l.x+bw*.6/1.12,by-3,bw*.2/1.12,18,4);cx.stroke();const mx=l.x+bw*clamp(s.p/1.12,0,1);cx.fillStyle='#2b1a0e';cx.fillRect(mx-2,by-4,4,20);
+   if(s.p>=.6&&s.p<=.8){cx.strokeStyle=`rgba(255,240,120,${.6+Math.sin(t*10)*.4})`;cx.lineWidth=4;rrect(l.x-3,l.y-3,l.w+6,l.h+6,16);cx.stroke()}
+   if(s.p>.8){cx.fillStyle='rgba(50,50,50,.4)';ell(r.ix+r.iw/2+Math.sin(t*3)*10,r.iy+12,18,10);cx.fill()}}
+  else{txt('＋',r.ix+r.iw/2,r.iy+r.ih/2,30,'#ffe0b0');txt(`${SPD[i]>1.1?Y_('fast'):SPD[i]<.9?Y_('slow'):Y_('mid')}`,l.x+l.w/2,l.y+l.h+12,16,'#3a2210')}});
+ for(const p of R.pops){cx.globalAlpha=clamp(p.l,0,1);txt(p.s,p.x,p.y,20,'#6a2400','center','#fffaf0');cx.globalAlpha=1}}
+function endRush(win,skipped){if(!R)return;fingerOff();tray(null);hud(null);const r=R;G.mode='rushE';
+ if(skipped){R=null;G.rushOK=false;quiz();return}
+ if(win){sfx('win');G.rushOK=r.lost==0;R=null;
+  if(G.fest){SV.fest=1;SV.dex.pumpkin=1;SV.dex.trophy=1;save();show(`<h1>${T('festWin')}</h1><div class="pic">🏆🎪🍞</div><p>🪙 ${r.coins} · ${T('served')} ${r.served}</p><div class="tip">${T('newCard')}<br>🎃 ${tx(SPECIAL[1].n)}</div><div class="row">${B(T('dex'),dexPanel)}${B(T('menu'),menu,'big')}</div>`,{cont:menu});return}
+  show(`<h2>${T('rushWin')}</h2><div class="pic">🧺✨</div><p>🪙 ${r.coins} · ${T('served')} ${r.served}/${r.c.n} · ${'❤️'.repeat(r.hearts)}</p><div class="row">${B(T('next'),quiz,'big')}</div>`,{cont:quiz});return}
+ R=null;sfx('fail');show(`<h2>${T('rushLose')}</h2><div class="pic">😤🧺</div><div class="why">${Y_('loseW')}</div><div class="tip">${T('tipT')}<br>${Y_('loseT')}</div><div class="row">${B(T('retry'),()=>{hideOv();rushStart()},'big')}${G.fest?B(T('menu'),menu):B(T('skip'),()=>{G.rushOK=false;quiz()})}</div>`,{cont:()=>{hideOv();rushStart()},guard:800})}
+// ===== quiz =====
+function quiz(){G.mode='quiz';tray(null);hud(null);msg('');const b=BRD();G.qs=shuf(b.quiz).slice(0,3);G.qi=0;G.qok=0;askQ()}
+function askQ(){const q=G.qs[G.qi],ko=L=='ko';const opts=shuf([0,1,2]);
+ show(`<h2>❓ ${T('quiz')} ${G.qi+1}/3</h2><p style="font-size:19px;font-weight:500">${ko?q[0]:q[1]}</p><div class="qopts">${opts.map(o=>`<button class="btn" data-o="${o}">${ko?q[2+o*2]:q[3+o*2]}</button>`).join('')}</div><div class="fb" id="fb"></div><div class="row" id="qn"></div>`,{guard:300});
+ ov.querySelectorAll('[data-o]').forEach(el=>el.onclick=()=>{if(G.ans)return;G.ans=1;const o=+el.dataset.o,ok=o===0;ov.querySelectorAll('[data-o]').forEach(e=>{e.disabled=e!==el&&+e.dataset.o!==0;if(+e.dataset.o===0)e.classList.add('ok')});if(!ok)el.classList.add('no');
+  if(ok){G.qok++;sfx('good')}else sfx('bad');$('fb').innerHTML=(ok?`<b>⭕ ${T('right')}</b><br>`:`<b>❌ ${T('wrong')} ${ko?q[2]:q[3]}</b><br>`)+`💡 ${ko?q[8]:q[9]}`;
+  const nx=()=>{G.ans=0;G.qi++;if(G.qi<3)askQ();else result()};$('qn').innerHTML=B(T('next'),nx,'big');contFn=nx;contAt=now()+700;ov.querySelector('.panel').insertAdjacentHTML('beforeend',`<div class="cont">${T('contN')}</div>`)})}
+// ===== result / menu =====
+function result(){const b=BRD();const st=1+(G.perf>=3?1:0)+(G.rushOK?1:0);SV.done[b.id]=Math.max(SV.done[b.id]||0,st);const nw=!SV.dex[b.id];SV.dex[b.id]=1;let extra='';
+ if(b.id=='sobo'&&!SV.dex.twsobo){SV.dex.twsobo=1;extra=`<div class="dc" style="margin-top:8px"><div class="e">${SPECIAL[0].e}</div><div class="n">${tx(SPECIAL[0].n)}</div><div class="t">${tx(SPECIAL[0].t)}</div></div>`}
+ if(G.b==0){SV.tut=true;G.tut=false}save();sfx('win');G.mode='menu';
+ const nb=BR[G.b+1];show(`<h1>${T('breadDone').replace('{b}',b.e+' '+tx(b.n))}</h1><div class="stars">${[0,1,2].map(i=>i<st?'★':'<span class="off">★</span>').join('')}</div><p class="sub">${T('score')} ${G.qok}/3 · ✨ ${G.perf}/5</p>
+ ${nw?`<div class="tip">${T('newCard')}</div>`:''}<div class="dc"><div class="e">${b.e}</div><div class="n">${tx(b.n)}</div><div class="t">${tx(b.principle)}</div></div>${extra}
+ <div class="row">${nb?B(`${nb.e} ${tx(nb.n)} ▶`,()=>startBread(G.b+1),'big'):B(T('fest'),startFest,'big')}${B(T('menu'),menu)}${B(T('again'),()=>startBread(G.b))}</div>`,{cont:menu,guard:900})}
+function unlocked(i){return i==0||!!SV.done[BR[i-1].id]}
+function menu(){G.tok++;G.mode='menu';G.cur=null;G.vis=null;R=null;tray(null);hud(null);msg('');fingerOff();G.reshow=menu;
+ show(`<h2>${T('choose')}</h2><div class="blist">${BR.map((b,i)=>{const u=unlocked(i),s=SV.done[b.id]||0;return B(`<span class="e">${u?b.e:'🔒'}</span><span><span class="n">${tx(b.n)}</span><br><span class="d">${u?tx(b.d):T('locked')}</span></span><span class="s">${'★'.repeat(s)}${'☆'.repeat(3-s)}</span>`,u?()=>startBread(i):()=>{sfx('bad')},'bb')}).join('')}</div>
+ <div class="row srow">${B(SV.done.bag?T('fest'):T('festLock'),SV.done.bag?startFest:()=>sfx('bad'))}${B(T('dex'),dexPanel)}${B(T('glos'),glossary)}${B(T('tut'),()=>{SV.tut=false;save();startBread(0)})}</div>`)}
+function startBread(i){G.tok++;G.b=i;G.stepI=0;G.perf=0;G.rushOK=false;G.fest=false;G.mode='step';G.tut=!SV.tut&&i==0;hideOv();tray(null);msg('');const b=BR[i];G.reshow=null;
+ show(`<h1>${b.e} ${tx(b.n)}</h1><p class="sub">${tx(b.d)}</p><div class="pic" style="font-size:34px">${STEPS.map(s=>STEPE[s]).join(' ➜ ')} ➜ ⏰</div><p class="sub">${STEPS.map(s=>tx(STEPN[s])).join(' · ')} · ${L=='ko'?'주문 러시':'Order rush'}</p><div class="row">${B(T('go'),()=>{hideOv();runStep()},'big')}${B(T('menu'),menu)}</div>`,{cont:()=>{hideOv();runStep()}})}
+function startFest(){G.tok++;G.fest=true;G.b=5;hideOv();rushIntro()}
+function breadDone(){const b=BRD();G.mode='done';G.vis=null;hud(null);msg('');sfx('win');
+ show(`<h1>${b.e} ${T('cleared')}</h1><div class="pic">${b.e}✨</div><p>${tx(b.principle)}</p><div class="row">${B(T('next'),rushIntro,'big')}</div>`,{cont:rushIntro})}
+function dexPanel(){G.reshow=dexPanel;const cards=BR.map(b=>SV.dex[b.id]?`<div class="dc"><div class="e">${b.e}</div><div class="n">${tx(b.n)}</div><div class="t">${tx(b.principle)}</div></div>`:`<div class="dc lk"><div class="e">❔</div><div class="n">${T('dexEmpty')}</div></div>`)
+ .concat(SPECIAL.map(s=>SV.dex[s.id]?`<div class="dc"><div class="e">${s.e}</div><div class="n">${tx(s.n)}</div><div class="t">${tx(s.t)}</div></div>`:`<div class="dc lk"><div class="e">❔</div><div class="n">${T('dexEmpty')}</div></div>`))
+ .concat([SV.dex.trophy?`<div class="dc"><div class="e">🏆</div><div class="n">${T('fest')}</div><div class="t">${T('festWin')}</div></div>`:`<div class="dc lk"><div class="e">🏆</div><div class="n">${T('dexEmpty')}</div></div>`]);
+ show(`<h2>${T('dex')}</h2><div class="dexg">${cards.join('')}</div><div class="row" style="position:sticky;bottom:-16px;background:#f7e6c6;padding:8px 0">${B(T('close'),menu,'big')}</div>`)}
+let ov2=null;function glossary(){if(ov2)return closeGl();ov2=document.createElement('div');ov2.id='ov2';ov2.style.cssText='position:fixed;left:0;right:0;top:52px;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,22,10,.45)';
+ ov2.innerHTML=`<div class="panel"><h2>${T('glos')}</h2>${GLOS.map(g=>`<div class="gl"><span class="e">${g[0]}</span><span><b style="font-size:18px">${tx(g[1])}</b><br>${tx(g[2])}</span></div>`).join('')}<div class="row" style="position:sticky;bottom:-16px;background:#f7e6c6;padding:8px 0"><button class="btn big" id="glX">${T('close')}</button></div></div>`;
+ document.body.appendChild(ov2);$('glX').onclick=()=>{sfx('tap');closeGl()}}
+function closeGl(){if(ov2){ov2.remove();ov2=null}}
+function title(){G.mode='title';G.reshow=title;show(`<h1>${T('t')}</h1><div class="pic">🍞🥐🥖</div><p class="sub">${T('sub')}</p><p class="sub">${T('sub2')}</p><div class="row">${B('▶ '+(L=='ko'?'시작하기':'Start'),menu,'big')}</div>`,{cont:menu,guard:300})}
+// ===== loop & input =====
+let last=0,started=false;
+function loop(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;const t=ts/1000;const paused=!!ov2||!ov.classList.contains('hide');
+ if(started&&!paused){if(G.cur){G.cur.update(dt);if(G.cur)G.vis=G.cur}if(G.mode=='rush'&&R)rushUpdate(dt)}
+ drawBG(t);if(G.vis&&G.mode=='step')G.vis.draw(t);if((G.mode=='rush'||G.mode=='rushE')&&R)drawRush(t);
+ if(G.mode=='title'||G.mode=='menu'){drawBread('crois',W*.25,H*.6,40,.7);drawBread('shik',W*.5,H*.58,46,.68);drawBread('bag',W*.78,H*.62,40,.72)}
+ drawFX(started&&!paused?dt:0);if(started)bgmTick();requestAnimationFrame(loop)}
+function pos(e){return [e.clientX,e.clientY-52]}
+cv.addEventListener('pointerdown',e=>{initAudio();started=true;if(ov2||!ov.classList.contains('hide'))return;const [x,y]=pos(e);if(G.mode=='rush')rushTap(x,y);else if(G.cur&&G.cur.down)G.cur.down(x,y)});
+cv.addEventListener('pointermove',e=>{if(G.cur&&G.cur.move){const [x,y]=pos(e);G.cur.move(x,y)}});
+addEventListener('pointerup',()=>{if(G.cur&&G.cur.up)G.cur.up();if(G.cur===STEP.measure)G.cur.release()});
+addEventListener('pointercancel',()=>{if(G.cur===STEP.measure)G.cur.release()});
+addEventListener('pointerdown',()=>{initAudio();started=true},true);
+addEventListener('keydown',e=>{if(e.code!='Space'&&e.code!='Enter')return;e.preventDefault();initAudio();started=true;if(e.repeat)return;
+ if(ov2){closeGl();return}if(!ov.classList.contains('hide')){tryCont();return}if(G.cur&&G.cur.key)G.cur.key(true)});
+addEventListener('keyup',e=>{if(e.code!='Space'&&e.code!='Enter')return;if(G.cur&&G.cur.key&&(G.cur===STEP.measure||G.cur===STEP.proof))G.cur.key(false)});
+$('mute').onclick=()=>{initAudio();setMute(!muted)};$('glB').onclick=()=>{initAudio();sfx('tap');glossary()};
+function applyLang(){document.documentElement.lang=L;$('lang').textContent=L=='ko'?'EN':'한국어';$('home').textContent=T('home');$('ttl').textContent=T('t');if(G.reshow&&!ov.classList.contains('hide'))G.reshow()}
+$('lang').onclick=()=>{L=L=='ko'?'en':'ko';localStorage.setItem('nbLang',L);sfx('tap');if(ov2){closeGl();glossary()}applyLang()};
+setMute(muted);applyLang();title();requestAnimationFrame(loop);
+</script></body></html>
