@@ -1,0 +1,470 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>나두 드래곤 길들이기 / Nadoo Dragon Tamer - 나두Ai</title>
+<link rel="icon" href="data:,">
+<script src="/counter.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1d2a44;overflow:hidden;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1f2333;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+#top{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px;background:linear-gradient(#fff3dc,#f1d9ae);border-bottom:3px solid #8a5a2b;z-index:5}
+#ttl{font-size:16px;font-weight:700;color:#6b3a12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{background:linear-gradient(#fffaf0,#f3e0bc);color:#4a2a10;border:2px solid #a8703a;border-radius:12px;padding:8px 12px;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45}
+.tb{padding:6px 10px;font-size:16px}
+.big{font-size:19px;padding:12px 22px;background:linear-gradient(#ffb347,#e07b1a);color:#fff;border-color:#9c4e0c;text-shadow:0 1px 0 #8a4210}
+canvas{position:fixed;top:52px;left:0;display:block;touch-action:none}
+#tray{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:7px;justify-content:center;flex-wrap:wrap;z-index:4;background:linear-gradient(rgba(20,26,44,0),rgba(20,26,44,.6) 25%)}
+#tray.hide{display:none}
+.jar{min-width:74px;flex:0 1 92px;padding:6px 4px;border-radius:14px;background:linear-gradient(#fffaf0,#f0dcb6);border:2.5px solid #a8703a;display:flex;flex-direction:column;align-items:center;font-family:inherit;color:#3a2210;font-size:16px;line-height:1.25;touch-action:none}
+.jar .e{font-size:28px;line-height:34px}
+.jar.on{border-color:#e07b1a;box-shadow:0 0 0 3px #ffd27a}
+.jar.done{opacity:.55}
+.hold{font-size:19px;padding:14px 26px;border-radius:18px;background:linear-gradient(#ff9a5a,#e0531a);color:#fff;border:2.5px solid #8a2c0a;font-weight:700;font-family:inherit;touch-action:none}
+.hold.pressed{transform:scale(.96);filter:brightness(1.1)}
+#ov{position:fixed;left:0;right:0;top:52px;bottom:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,22,10,.35)}
+#ov.hide{display:none}
+#ov.low{align-items:flex-end;background:none;pointer-events:none}
+#ov.low .panel{pointer-events:auto}
+.panel{width:100%;max-width:460px;max-height:100%;overflow:auto;background:linear-gradient(#fffaf0,#f7e6c6);border:3px solid #a8703a;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:16px 18px;animation:pin .3s ease-out}
+@keyframes pin{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.panel h1{font-size:30px;margin:4px 0 8px;text-align:center;color:#7a3b0e}
+.panel h2{font-size:22px;margin:2px 0 8px;text-align:center;color:#7a3b0e}
+.panel p,.tx{font-size:17px;line-height:1.55;font-weight:400;margin:8px 0;color:#2b1a0e}
+.sub{font-size:16px;line-height:1.5;color:#5a3a1e;text-align:center;font-weight:400}
+.pic{font-size:52px;text-align:center;line-height:1.2;margin:4px 0}
+.srow{position:sticky;bottom:-16px;background:#f7e6c6;padding:8px 0 10px}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.cont{text-align:center;margin-top:10px;font-size:16px;color:#9c4e0c;font-weight:500;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.5}}
+.blist{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.bb{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 12px;white-space:normal}
+.bb .e{font-size:32px}.bb .n{font-size:17px;font-weight:700}.bb .d{font-size:16px;font-weight:400;color:#5a3a1e;line-height:1.4}
+.bb .s{margin-left:auto;color:#e0a000;font-size:18px;letter-spacing:1px}
+.why{background:#fff;border-left:6px solid #e0531a;border-radius:10px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.tip{background:#fff6dc;border:2px dashed #d39a3a;border-radius:12px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.qopts .btn{font-size:17px;font-weight:500;padding:12px;text-align:left;white-space:normal;line-height:1.4}
+.qopts .btn[disabled]{opacity:1;color:#6a5440}.qopts .ok{background:#c9efb9;border-color:#3f8a2f}.qopts .no{background:#f6c0b3;border-color:#b0402a}
+.fb{font-size:17px;line-height:1.5;margin-top:10px;min-height:26px}
+.fb b{font-size:20px}
+.dexg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dc{background:#fff;border:2px solid #d8b07a;border-radius:14px;padding:8px;text-align:center}
+.dc .e{font-size:36px}.dc .n{font-size:17px;font-weight:700}.dc .t{font-size:16px;line-height:1.5;text-align:left;font-weight:400}
+.dc.lk{opacity:.5}
+.gl{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed #d8b07a;font-size:17px;line-height:1.5}.gl .e{font-size:28px;width:38px;text-align:center}
+#hud{position:fixed;top:58px;left:8px;right:8px;z-index:3;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font-size:16px;font-weight:500;color:#3a2210}#hud span{background:rgba(255,250,238,.92);border:1.5px solid #c8955a;border-radius:12px;padding:2px 10px}#hud span:empty{display:none}
+#hud.hide{display:none}
+#msg{position:fixed;left:10px;right:10px;z-index:3;text-align:center;font-size:17px;font-weight:400;line-height:1.45;color:#2b1a0e;background:rgba(255,250,238,.94);border:2px solid #d6a565;border-radius:14px;padding:6px 10px;pointer-events:none}#msg:empty{display:none}
+#finger{position:fixed;z-index:7;font-size:46px;pointer-events:none;display:none;transform:translate(-30%,-10%);animation:fb .7s infinite alternate;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+@keyframes fb{to{margin-top:14px}}
+#banner{position:fixed;left:50%;top:38%;z-index:5;margin-left:-130px;width:260px;text-align:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(#ffb347,#e0661a);border:3px solid #fff3d6;border-radius:22px;padding:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.35);text-shadow:0 2px 0 #8a3a0a;pointer-events:none;opacity:0}
+#banner.on{animation:bn 1.3s ease-out both}
+@keyframes bn{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.stars{text-align:center;font-size:42px;color:#f0a800;letter-spacing:4px}.stars .off{color:#dcc9a4}
+.act{flex:1 1 30%;max-width:160px;min-height:58px;padding:6px 4px;border-radius:16px;background:linear-gradient(#ffffff,#e9eefc);border:2.5px solid #5a6aa8;color:#1f2333;font-family:inherit;font-size:16px;font-weight:600;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:manipulation}
+.act .e{font-size:24px;line-height:28px}.act:active{transform:scale(.96)}.act.hint{border-color:#e0901a;box-shadow:0 0 0 4px #ffd27a}.act[disabled]{opacity:.5}
+.dpic{display:block;margin:0 auto;max-width:220px;width:70%}
+.mood{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed #c9b48a;font-size:17px;line-height:1.5}.mood .e{font-size:26px;width:36px;text-align:center}
+.dc img{width:100%;max-width:150px}
+</style></head><body>
+<div id="top"><a class="btn tb" href="/" id="home">🏠 홈</a><b id="ttl">🐉 나두 드래곤 길들이기</b><span style="display:flex;gap:5px"><button class="btn tb" id="glB" aria-label="glossary">📖</button><button class="btn tb" id="lang">EN</button><button class="btn tb" id="mute">🔊</button></span></div>
+<canvas id="c"></canvas>
+<div id="hud" class="hide"><span id="hudL"></span><span id="hudR"></span></div>
+<div id="msg"></div>
+<div id="tray" class="hide"></div>
+<div id="ov" class="hide"></div>
+<div id="banner"></div>
+<div id="finger">👆</div>
+<script>
+const K=(ko,en)=>({ko,en});
+const UI={ko:{t:'🐉 나두 드래곤 길들이기',home:'🏠 홈',sub:'드래곤의 몸짓을 읽고 마음을 얻어요!',sub2:'꼬리, 귀, 눈, 연기… 드래곤은 말 대신 몸으로 이야기해요. 기분에 맞는 행동을 골라 믿음을 쌓아요.',start:'▶ 시작하기',contN:'탭 / Space → 계속',
+ choose:'🐉 어떤 드래곤을 만나러 갈까?',locked:'🔒 앞의 드래곤과 먼저 친구가 돼요',dex:'📚 드래곤 도감',glos:'📖 몸짓 사전',tut:'🎓 처음부터 배우기',close:'닫기',go:'만나러 가기! ▶',menu:'🗺️ 드래곤 고르기',retry:'↻ 다시 하기',next:'다음 ▶',skip:'⏭ 건너뛰기',skipTut:'튜토리얼 끄기',
+ trust:'믿음',read:'드래곤의 기분은? 몸짓을 보고 행동을 골라요!',newAct:'새 행동이 생겼어요!',right:'정답!',wrong:'아쉬워요! 정답:',quiz:'동물 마음 퀴즈',whyT:'왜 실패했을까? 🤔',cueWas:'드래곤의 몸짓:',meant:'이건 이런 기분이에요:',should:'이럴 땐:',
+ tooSlow:'너무 오래 고민했더니 드래곤이 다른 곳을 봐요. 기분이 바뀌었어요!',flew:'드래곤이 놀라서 잠깐 날아가 버렸어요',flewT:'괜찮아요! 몸짓을 다시 잘 읽어 봐요. 바로 다시 해요.',
+ press:'드래곤이 머리를 손에 꾹 기댔어요! 💞',pressT:'이제 우리는 친구예요. 동물이 먼저 다가와 몸을 기대는 건 마음을 열었다는 뜻이에요.',
+ flyT:'🌤️ 하늘 비행 보너스!',flyH:'화면을 꾹 누르고 있으면 위로, 떼면 아래로! 별을 모아요',flyGo:'날아오르기! ▶',stars:'별',flyDone:'비행 끝!',learnT:'🐾 진짜 동물도 그래요!',
+ tamed:'{d} 친구가 됐어요!',newCard:'📚 도감에 새 드래곤!',score:'맞힌 문제',head:'머리',left:'왼쪽',right2:'오른쪽',phase:'단계',tutRead:'👆 손가락이 가리키는 행동을 눌러 봐요',dexEmpty:'???',pers:'성격',home2:'사는 곳',allDone:'🏆 모든 드래곤과 친구가 됐어요!'},
+en:{t:'🐉 Nadoo Dragon Tamer',home:'🏠 Home',sub:'Read a dragon\'s body language and win its heart!',sub2:'Tail, ears, eyes, smoke… dragons talk with their bodies, not words. Choose the action that fits the mood to build trust.',start:'▶ Start',contN:'Tap / Space → Continue',
+ choose:'🐉 Which dragon shall we meet?',locked:'🔒 Befriend the dragon before it first',dex:'📚 Dragon Dex',glos:'📖 Body language',tut:'🎓 Learn from the start',close:'Close',go:'Go meet it! ▶',menu:'🗺️ Pick a dragon',retry:'↻ Try again',next:'Next ▶',skip:'⏭ Skip',skipTut:'Turn off tutorial',
+ trust:'Trust',read:'How does the dragon feel? Watch its body and pick an action!',newAct:'New action unlocked!',right:'Correct!',wrong:'Not quite! Answer:',quiz:'Animal feelings quiz',whyT:'Why did it fail? 🤔',cueWas:'The dragon\'s body language:',meant:'That means it feels:',should:'So you should:',
+ tooSlow:'You thought too long and the dragon looked away. Its mood changed!',flew:'The dragon got startled and flew off for a moment',flewT:'That\'s okay! Read its body carefully again. Try right away.',
+ press:'The dragon pressed its head into your hand! 💞',pressT:'Now we\'re friends. When an animal comes to you and leans in, it means it trusts you.',
+ flyT:'🌤️ Sky flight bonus!',flyH:'Hold the screen to rise, let go to dive! Collect stars',flyGo:'Take off! ▶',stars:'Stars',flyDone:'Flight over!',learnT:'🐾 Real animals do this too!',
+ tamed:'You befriended {d}!',newCard:'📚 New dragon in the dex!',score:'Correct answers',head:'head',left:'Left',right2:'Right',phase:'Phase',tutRead:'👆 Tap the action the finger points at',dexEmpty:'???',pers:'Personality',home2:'Home',allDone:'🏆 You befriended every dragon!'}};
+// moods: cue description + action + why
+const MOODS={
+happy:{e:'😊',n:K('기분 좋음 · 궁금해요','Happy · curious'),cue:K('꼬리를 살랑살랑 흔들고, 귀를 쫑긋 세우고, 고개를 갸웃해요','Tail wagging, ears perked up, head tilted'),act:'approach',
+ why:K('기분 좋고 궁금할 땐 천천히 다가가도 괜찮아요. 갑자기 뛰어가면 놀라니까 천천히!','When it\'s happy and curious, it\'s okay to come closer. Slowly, so it isn\'t startled!')},
+scared:{e:'😨',n:K('무서워요','Scared'),cue:K('귀와 지느러미를 납작하게 눕히고, 눈을 피하고, 몸을 낮게 웅크리고 떨어요','Ears and frills flat, looking away, crouching low and trembling'),act:'hand',
+ why:K('무서워하는 동물을 똑바로 쳐다보면 더 무서워해요. 눈을 피하고 손을 내밀어 먼저 냄새를 맡게 해 줘요.','Staring at a scared animal scares it more. Look away and hold out your hand so it can sniff you first.')},
+hungry:{e:'🤤',n:K('배고파요','Hungry'),cue:K('혀로 입술을 날름 핥고, 코를 킁킁거리고, 배에서 꼬르륵 소리가 나요','Licking its lips, sniffing the air, tummy rumbling'),act:'food',
+ why:K('입술을 핥고 킁킁 냄새를 맡으면 배고프다는 신호예요. 먹이를 주면 좋아해요.','Lip-licking and sniffing mean it\'s hungry. Offer some food!')},
+grumpy:{e:'😤',n:K('짜증 나요','Grumpy'),cue:K('콧김과 연기를 뿜고, 등의 가시를 바짝 세우고, 꼬리를 탁탁 휘둘러요','Snorting smoke, back spikes raised, tail lashing'),act:'wait',
+ why:K('짜증 날 때 다가가거나 만지면 더 화가 나요. 움직이지 말고 가만히 기다려서 진정할 시간을 줘요.','Going closer when it\'s grumpy makes it angrier. Stay still and give it time to calm down.')},
+sleepy:{e:'😪',n:K('졸려요 · 차분해요','Sleepy · calm'),cue:K('하품을 크게 하고, 눈이 반쯤 감기고, 몸이 천천히 흔들려요','Big yawns, half-closed eyes, swaying slowly'),act:'hum',
+ why:K('졸린 동물은 조용하고 부드러운 소리를 좋아해요. 노래를 흥얼거리면 편안해져요.','Sleepy animals like soft, quiet sounds. Humming a gentle song helps it relax.')},
+furious:{e:'😡',n:K('엄청 화났어요 (경고!)','Furious (warning!)'),cue:K('날개를 크게 펴고, 이빨을 드러내고, 입에서 불빛이 이글거려요','Wings spread wide, teeth showing, fire glowing in its mouth'),act:'back',
+ why:K('몸을 크게 부풀리고 이빨을 보이는 건 "가까이 오지 마!"라는 경고예요. 천천히 뒤로 물러나 공간을 줘요.','Puffing up big and showing teeth is a warning: "Don\'t come closer!" Slowly back away and give it space.')}};
+const ACTS={approach:{e:'🚶',n:K('천천히 다가가기','Approach slowly')},food:{e:'🍎',n:K('먹이 주기','Offer food')},hand:{e:'🤚',n:K('눈 피하고 손 내밀기','Look away, offer hand')},
+ wait:{e:'🧍',n:K('가만히 기다리기','Wait, stay still')},hum:{e:'🎵',n:K('노래 흥얼거리기','Hum a song')},back:{e:'🔙',n:K('뒤로 물러나기','Back off')}};
+const ACT_ORDER=['approach','food','hand','wait','hum','back'];
+// dragons
+const DR=[
+{id:'puff',n:K('몽실','Puffle'),bg:'cliff',pl:K('해 뜨는 절벽','Sunrise cliff'),col:{b:'#a9c8ff',bl:'#eef4ff',w:'#c9b6ff',sp:'#ffffff',e:'#6a7fc9'},sz:.72,kind:'baby',
+ pers:K('구름처럼 폭신한 아기 드래곤. 겁이 많지만 호기심도 많아요.','A baby dragon fluffy as a cloud. Very shy, but very curious too.'),
+ moods:['scared','happy','hungry','scared','happy','grumpy'],acts:4,need:5,time:9,intro:K('몽실이는 아직 아기라서 겁이 많아요. 몸짓을 잘 보고 천천히 친해져요.','Puffle is just a baby, so it gets scared easily. Watch its body and make friends slowly.'),
+ learn:K('처음 만난 개나 고양이가 무서워하면 몸을 낮추고 눈을 피해요. 이럴 땐 똑바로 쳐다보지 말고, 주먹 쥔 손등을 살짝 내밀어 냄새를 맡게 해 줘요. 만지기 전에 꼭 주인에게 먼저 물어봐요!','A dog or cat meeting you for the first time may crouch and look away when scared. Don\'t stare. Hold out the back of your loosely closed hand and let it sniff. Always ask the owner before petting!'),
+ quiz:[['무서워하는 강아지를 처음 만났을 때 좋은 행동은?','Meeting a scared puppy for the first time, what\'s good?','눈을 피하고 손등을 내밀어 냄새 맡게 하기','Look away and let it sniff the back of your hand','눈을 똑바로 쳐다보며 달려가기','Run to it while staring','큰 소리로 부르기','Call it loudly','똑바로 쳐다보는 건 동물에게 위협처럼 느껴질 수 있어요. 냄새로 먼저 인사하게 해 줘요.','A direct stare can feel like a threat. Let it say hello with its nose first.'],
+ ['몸을 웅크리고 떨면서 눈을 피하는 동물의 기분은?','An animal crouching, trembling and looking away feels…?','무서워요','Scared','신나요','Excited','배불러요','Full','몸을 작게 만들고 눈을 피하는 건 무섭다는 신호예요.','Making itself small and avoiding eyes means it\'s scared.'],
+ ['남의 강아지를 만지기 전에 꼭 해야 할 일은?','Before petting someone\'s dog, you should…?','주인에게 만져도 되는지 물어보기','Ask the owner if it\'s okay','바로 꼬리 잡기','Grab its tail right away','먹던 과자 주기','Give it your snack','주인이 강아지 성격을 제일 잘 알아요. 사람 과자는 강아지에게 해로울 수도 있어요.','The owner knows the dog best. And human snacks can be bad for dogs.']]},
+{id:'glob',n:K('꿀떡','Gobbleglob'),bg:'swamp',pl:K('안개 낀 늪','Misty swamp'),col:{b:'#7fbf5a',bl:'#e6f2a8',w:'#5f9e4a',sp:'#f2c94c',e:'#2f6a2a'},sz:.95,kind:'chubby',
+ pers:K('늘 배고픈 먹보 늪 드래곤. 먹을 때 제일 행복해요.','A swamp dragon who is always hungry. Happiest while eating.'),
+ moods:['hungry','hungry','happy','grumpy','scared','hungry'],acts:4,need:6,time:8,intro:K('꿀떡이는 먹보예요! 하지만 배고픈 몸짓과 짜증 난 몸짓을 헷갈리면 안 돼요.','Gobbleglob loves food! But don\'t mix up its hungry signs with its grumpy signs.'),
+ learn:K('많은 동물이 배고플 때 코를 킁킁거리고 입술을 핥아요. 그런데 개가 입술을 핥는 건 불안할 때도 있어요. 그래서 한 가지만 보지 말고 몸 전체를 함께 봐야 해요. 그리고 야생동물에게는 먹이를 주면 안 돼요!','Many animals sniff and lick their lips when hungry. But a dog may also lick its lips when it feels nervous, so look at the whole body, not just one sign. And never feed wild animals!'),
+ quiz:[['개가 입술을 핥는 이유가 될 수 있는 것은?','Why might a dog lick its lips?','배고프거나, 불안해서','It\'s hungry, or it feels nervous','날고 싶어서','It wants to fly','추워서만','Only because it\'s cold','같은 몸짓도 뜻이 여러 개일 수 있어서 몸 전체를 봐야 해요.','One sign can mean different things, so look at the whole body.'],
+ ['공원에서 만난 야생 너구리가 배고파 보여요. 어떻게 할까?','A wild raccoon in the park looks hungry. What should you do?','먹이를 주지 않고 멀리서 지켜보기','Don\'t feed it, watch from far away','과자를 나눠 주기','Share your snacks','쓰다듬어 주기','Pet it','야생동물에게 먹이를 주면 사람 음식에 익숙해져 위험해지고 병이 날 수도 있어요.','Feeding wild animals makes them depend on people and can make them sick.'],
+ ['콧김을 뿜고 가시를 세운 드래곤에게 먹이를 내밀면?','Offering food to a dragon snorting with spikes up…?','더 짜증 낼 수 있어요. 먼저 기다려요','It may get grumpier. Wait first','무조건 좋아해요','It always loves it','잠들어요','It falls asleep','짜증 난 동물은 먼저 진정할 시간이 필요해요.','A grumpy animal needs time to calm down first.']]},
+{id:'petal',n:K('꽃잎이','Petalwing'),bg:'meadow',pl:K('꽃 피는 언덕','Blooming hills'),col:{b:'#ff9ab8',bl:'#fff0f4',w:'#8fd18a',sp:'#ffe27a',e:'#c2456e'},sz:.82,kind:'leaf',
+ pers:K('꽃밭에서 낮잠을 즐기는 느긋한 드래곤. 노래를 좋아해요.','A laid-back dragon who naps in flower fields. Loves songs.'),
+ moods:['sleepy','happy','sleepy','hungry','scared','grumpy'],acts:5,need:6,time:7.5,newAct:'hum',intro:K('꽃잎이는 자주 졸려요. 하품하고 눈이 감기면, 새 행동 "노래 흥얼거리기"를 써 봐요!','Petalwing gets sleepy a lot. When it yawns with droopy eyes, try the new action "Hum a song"!'),
+ learn:K('개는 꼬리를 흔들어요. 엉덩이까지 같이 흔들며 넓게 살랑살랑하면 반가운 거예요. 하지만 꼬리를 높이 세우고 빠르게 떠는 건 긴장했다는 뜻일 수도 있어요. 하품도 졸릴 때만이 아니라 긴장을 풀려고 할 때도 해요.','Dogs wag their tails. A loose, wide wag with a wiggly bottom means "Happy to see you!" But a tail held high and quivering fast can mean it\'s tense. Dogs also yawn to calm themselves, not only when sleepy.'),
+ quiz:[['엉덩이까지 흔들며 꼬리를 넓게 살랑살랑 흔드는 개의 기분은?','A dog wagging its tail wide with a wiggly bottom feels…?','반갑고 기분 좋아요','Happy and friendly','엄청 화났어요','Very angry','아파요','Hurt','느슨하고 넓게 흔드는 꼬리는 반가움의 신호예요.','A loose, wide wag is a friendly signal.'],
+ ['졸린 드래곤에게 알맞은 행동은?','The right action for a sleepy dragon?','부드럽게 노래 흥얼거리기','Hum a gentle song','크게 소리 지르기','Shout loudly','억지로 깨우기','Wake it up','쉬고 싶은 동물에게는 조용하고 부드러운 소리가 좋아요.','Animals that want rest like soft, quiet sounds.'],
+ ['개가 하품하는 이유가 될 수 있는 것은?','Why might a dog yawn?','졸리거나, 긴장을 풀려고','It\'s sleepy, or calming itself down','배가 불러서 날려고','It\'s full and wants to fly','노래하려고','To sing','개는 긴장될 때 스스로 진정하려고 하품을 하기도 해요.','Dogs sometimes yawn to calm themselves when nervous.']]},
+{id:'zap',n:K('번쩍이','Zapflick'),bg:'storm',pl:K('천둥 치는 고원','Thunder plateau'),col:{b:'#ffd84a',bl:'#fff8d0',w:'#4ad0ff',sp:'#4ad0ff',e:'#b07a00'},sz:.8,kind:'zap',flash:1.5,
+ pers:K('번개처럼 빠른 드래곤. 기분도 번쩍번쩍 빨리 바뀌어요.','A dragon fast as lightning. Its moods flash by quickly too.'),
+ moods:['happy','grumpy','scared','sleepy','hungry','happy'],acts:5,need:7,time:5.5,intro:K('번쩍이의 몸짓은 아주 잠깐만 보여요! 처음 1초를 놓치지 말고 잘 봐요.','Zapflick\'s signals only flash for a moment! Watch closely in the first second.'),
+ learn:K('고양이는 무섭거나 화날 때 귀를 납작하게 옆이나 뒤로 눕혀요. 이런 신호는 아주 빨리 지나가요. 고양이가 귀를 눕히고 꼬리를 탁탁 치면 "그만!"이라는 뜻이니 쓰다듬기를 멈춰요.','Cats flatten their ears sideways or back when scared or annoyed. These signals pass very quickly. If a cat flattens its ears and flicks its tail, it means "Stop!" so stop petting.'),
+ quiz:[['고양이가 귀를 납작하게 눕혔어요. 기분은?','A cat flattens its ears. How does it feel?','무섭거나 짜증 나요','Scared or annoyed','배고파요','Hungry','졸려요','Sleepy','납작한 귀는 무섭거나 불편하다는 신호예요.','Flat ears mean it feels scared or uncomfortable.'],
+ ['쓰다듬던 고양이가 꼬리를 탁탁 치기 시작하면?','A cat you\'re petting starts flicking its tail. You should…?','쓰다듬기를 멈춰요','Stop petting','더 세게 쓰다듬어요','Pet harder','꼬리를 잡아요','Grab its tail','꼬리를 탁탁 치는 건 "이제 그만!"이라는 뜻이에요.','Tail flicking means "That\'s enough!"'],
+ ['동물의 몸짓이 아주 빨리 지나갈 때 중요한 것은?','When an animal\'s signals pass very fast, what matters?','처음부터 집중해서 잘 보기','Watch carefully from the start','눈 감기','Close your eyes','아무 버튼이나 누르기','Press any button','몸짓은 순간적으로 나타나니까 계속 잘 살펴야 해요.','Signals can flash by, so keep watching.']]},
+{id:'frost',n:K('서리','Frostbell'),bg:'ice',pl:K('얼음 동굴','Ice cave'),col:{b:'#e8f6ff',bl:'#ffffff',w:'#9fdcff',sp:'#7fd0ff',e:'#3a8ac0'},sz:.86,kind:'ice',
+ pers:K('자존심 센 얼음 드래곤. 화가 나면 무섭지만 사실 다정해요.','A proud ice dragon. Scary when angry, but truly gentle.'),
+ moods:['furious','grumpy','sleepy','happy','scared','furious'],acts:6,need:7,time:6,newAct:'back',intro:K('서리는 엄청 화나면 날개를 크게 펴고 이빨을 보여요. 그럴 땐 새 행동 "뒤로 물러나기"! 짜증(연기·가시)과 경고(날개·이빨)를 구별해요.','When Frostbell is furious it spreads its wings wide and shows its teeth. Then use the new action "Back off"! Tell grumpy (smoke, spikes) from warning (wings, teeth).'),
+ learn:K('개가 이빨을 드러내고 으르렁거리거나, 고양이가 털을 부풀리고 "하악" 하면 "가까이 오지 마!"라는 경고예요. 뛰지 말고 천천히 뒤로 물러나서 공간을 주는 게 가장 안전해요.','When a dog shows its teeth and growls, or a cat puffs up its fur and hisses, it\'s a warning: "Stay away!" Don\'t run. Slowly backing away to give it space is safest.'),
+ quiz:[['개가 이빨을 드러내고 으르렁거려요. 어떻게 할까?','A dog shows its teeth and growls. What do you do?','뛰지 말고 천천히 뒤로 물러나기','Don\'t run, slowly back away','달려가서 안아 주기','Run and hug it','소리 지르며 도망가기','Scream and run','갑자기 뛰면 쫓아올 수 있어요. 천천히 물러나 공간을 줘요.','Running can make it chase you. Back away slowly and give it space.'],
+ ['고양이가 털을 부풀리고 "하악" 소리를 내는 뜻은?','A cat puffs its fur and hisses. It means…?','가까이 오지 마!','Stay away!','같이 놀자!','Let\'s play!','배고파!','I\'m hungry!','몸을 크게 보이게 하는 건 경고 신호예요.','Making itself look bigger is a warning.'],
+ ['"짜증"과 "경고"의 차이로 맞는 것은?','Which tells "grumpy" from "warning"?','경고는 날개를 펴고 이빨을 보여요','A warning shows spread wings and teeth','둘 다 하품해요','Both yawn','경고는 꼬리를 살랑 흔들어요','A warning wags its tail gently','경고는 몸을 크게 부풀리고 이빨을 보이는 더 강한 신호예요.','A warning is stronger: puffing up big and showing teeth.']]},
+{id:'twin',n:K('해랑 & 달랑','Sol & Luna'),bg:'peaks',pl:K('해달 쌍둥이 봉우리','Twin sun-moon peaks'),col:{b:'#ffad5a',b2:'#6f7cff',bl:'#fff1dc',w:'#c58cff',sp:'#ffe27a',e:'#b05a10'},sz:.92,kind:'twin',
+ pers:K('머리가 둘인 쌍둥이 드래곤. 해랑이는 활발하고, 달랑이는 수줍어요.','A two-headed twin dragon. Sol is lively and Luna is shy.'),
+ moods:['happy','scared','hungry','grumpy','sleepy','furious'],acts:6,need:8,time:6.5,twin:1,intro:K('머리마다 기분이 달라요! 빛나는 쪽 머리부터 하나씩 읽고 행동을 골라요.','Each head has its own mood! Read the glowing head first, one at a time.'),
+ learn:K('말은 화가 나면 귀를 뒤로 바짝 눕히고, 기분 좋거나 궁금하면 귀를 앞으로 세워요. 함께 사는 동물들도 기분이 서로 달라요. 한 마리가 신나도 다른 한 마리는 무서울 수 있으니 하나씩 살펴봐요.','Horses pin their ears flat back when angry, and point them forward when relaxed or curious. Animals living together can feel differently: one may be excited while the other is scared, so check each one.'),
+ quiz:[['말이 귀를 뒤로 바짝 눕혔어요. 기분은?','A horse pins its ears flat back. It feels…?','화났어요','Angry','신나요','Excited','졸려요','Sleepy','말이 귀를 뒤로 바짝 붙이는 건 화났다는 강한 신호예요.','Ears pinned back is a strong angry signal in horses.'],
+ ['말이 귀를 앞으로 쫑긋 세웠어요. 기분은?','A horse points its ears forward. It feels…?','궁금하거나 관심 있어요','Curious or interested','무서워서 도망가요','Scared, running away','화났어요','Angry','앞으로 향한 귀는 무언가에 관심을 갖고 있다는 뜻이에요.','Forward ears mean it\'s paying attention to something.'],
+ ['강아지 두 마리 중 한 마리만 꼬리를 흔들어요. 어떻게 할까?','Of two puppies, only one wags its tail. What do you do?','한 마리씩 따로 몸짓을 살펴요','Check each puppy\'s body language','둘 다 똑같이 대해요','Treat both the same','둘 다 안아요','Hug both','동물마다 기분이 달라서 각각 읽어야 해요.','Each animal can feel different, so read each one.']]},
+{id:'king',n:K('불꽃왕 칼데라','King Caldera'),bg:'volcano',pl:K('불의 화산','Fire volcano'),col:{b:'#d8433a',bl:'#ffd9a0',w:'#7a1f2a',sp:'#ffc23a',e:'#6a1010'},sz:.95,kind:'king',
+ pers:K('화산에 사는 거대한 드래곤의 왕. 몸짓이 아주 작고 은근해서 읽기 어려워요.','The giant king of dragons, living in a volcano. Its signals are small and subtle, hard to read.'),
+ moods:['grumpy','furious','scared','hungry','sleepy','happy'],acts:6,need:5,phases:3,time:6,intro:K('왕은 3단계로 마음을 열어요. 단계가 오를수록 몸짓이 작아지고 시간이 짧아져요. 꼬리, 귀, 눈, 입을 모두 살펴요!','The king opens up in 3 phases. Each phase, signals get smaller and time gets shorter. Check the tail, ears, eyes and mouth!'),
+ learn:K('큰 동물일수록 신호가 은근할 수 있어요. 코끼리는 귀를 크게 펴서 몸을 커 보이게 하며 경고하고, 기분 좋으면 귀를 편하게 펄럭여요. 동물원이나 농장에서는 사육사의 말을 듣고 안전한 거리를 지켜요.','Big animals can give subtle signals. An elephant spreads its ears wide to look bigger as a warning, and flaps them gently when relaxed. At zoos and farms, listen to the keepers and keep a safe distance.'),
+ quiz:[['코끼리가 귀를 크게 쫙 펴서 몸을 커 보이게 해요. 뜻은?','An elephant spreads its ears wide to look bigger. It means…?','경고! 가까이 오지 마','Warning! Stay back','같이 놀자','Let\'s play','졸려요','I\'m sleepy','몸을 크게 보이게 하는 건 많은 동물의 경고 신호예요.','Looking bigger is a warning signal for many animals.'],
+ ['동물의 몸짓을 잘 읽는 방법은?','The best way to read an animal\'s body language?','꼬리·귀·눈·입을 모두 함께 보기','Look at tail, ears, eyes and mouth together','꼬리만 보기','Only look at the tail','소리만 듣기','Only listen','한 가지 신호만 보면 헷갈릴 수 있어서 몸 전체를 봐야 해요.','One sign alone can fool you, so look at the whole body.'],
+ ['동물원에서 큰 동물을 볼 때 지킬 것은?','At the zoo, watching big animals, you should…?','사육사 말을 듣고 안전 거리 지키기','Listen to keepers, keep a safe distance','울타리 넘어가기','Climb the fence','유리를 쾅쾅 두드리기','Bang on the glass','큰 소리나 갑작스러운 행동은 동물에게 스트레스를 줘요.','Loud noises and sudden moves stress animals.']]}];
+// ===== core =====
+const $=id=>document.getElementById(id);
+const cv=$('c');let cx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+let L=localStorage.getItem('dtLang')||'ko';
+const T=k=>UI[L][k]||k, tx=o=>o?o[L]:'';
+let SV;try{SV=JSON.parse(localStorage.getItem('dtSave'))||{}}catch(e){SV={}}
+SV.done=SV.done||{};SV.tut=!!SV.tut;
+const save=()=>{try{localStorage.setItem('dtSave',JSON.stringify(SV))}catch(e){}};
+const now=()=>performance.now();
+const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight-52;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+function trayH(){const t=$('tray');return t.classList.contains('hide')?0:t.offsetHeight}
+// ===== audio =====
+let AC=null,MG=null,muted=localStorage.getItem('dtMute')==='1',bgmOn=false,nextT=0,stepN=0;
+function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=muted?0:.8;MG.connect(AC.destination);bgmOn=true;nextT=AC.currentTime+.1}catch(e){}}
+function tone(f,d,type,v,slide,when){if(!AC)return;const t=when||AC.currentTime;const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.2,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(MG);o.start(t);o.stop(t+d+.05)}
+let NB=null;function noise(d,v,when,hp){if(!AC)return;const t=when||AC.currentTime;if(!NB){NB=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const s=AC.createBufferSource();s.buffer=NB;const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=hp||5000;const g=AC.createGain();g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.02)}
+const SFX={tap:()=>tone(660,.08,'triangle',.16),good:()=>{tone(784,.12,'triangle',.2);tone(1175,.18,'triangle',.16,0,AC&&AC.currentTime+.09)},bad:()=>tone(240,.3,'sawtooth',.1,120),
+ fire:()=>{noise(.5,.25,0,300);tone(110,.4,'sawtooth',.08,60)},flee:()=>tone(900,.25,'sine',.12,300),purr:()=>{for(let i=0;i<5;i++)tone(90+i%2*8,.12,'triangle',.12,0,AC&&AC.currentTime+i*.09)},
+ chomp:()=>{noise(.06,.2,0,800);tone(200,.08,'square',.06,0,AC&&AC.currentTime+.12);noise(.06,.2,AC&&AC.currentTime+.12,800)},hum:()=>[523,659,784,659].forEach((f,i)=>tone(f,.3,'sine',.12,0,AC&&AC.currentTime+i*.2)),
+ star:()=>tone(1568,.1,'sine',.14,2093),flap:()=>noise(.12,.06,0,900),
+ win:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.18,0,AC&&AC.currentTime+i*.1)),fail:()=>[392,330,262].forEach((f,i)=>tone(f,.25,'triangle',.16,0,AC&&AC.currentTime+i*.13)),
+ tick:()=>tone(1200,.04,'square',.04)};
+const sfx=k=>{try{AC&&SFX[k]()}catch(e){}};
+const MEL=[0,4,7,11, 12,11,7,4, 6,7,9,7, 4,-1,2,-1, 0,4,7,12, 14,12,11,7, 9,7,6,4, 2,4,0,-1];
+const BAS=[0,0,9,9,5,5,7,7];
+function noteF(semi){return 349*Math.pow(2,semi/12)}
+function bgmTick(){if(!AC||!bgmOn)return;const sp=60/124/2;while(nextT<AC.currentTime+.15){const i=stepN%32,t=nextT;const m=MEL[i];if(m>=0&&!muted){tone(noteF(m),sp*.85,'square',.03,0,t);tone(noteF(m)*2,sp*.5,'sine',.025,0,t)}
+ if(i%4==0)tone(87*Math.pow(2,BAS[(i/4)|0]/12),sp*1.8,'triangle',.18,0,t);if(i%4==3)tone(87*Math.pow(2,BAS[(i/4)|0]/12)*1.5,sp*.6,'triangle',.08,0,t);
+ if(i%8==0||i%8==5)tone(60,.15,'sine',.25,40,t);if(i%8==4)noise(.12,.06,t,2000);noise(.03,.02,t,8000);nextT+=sp;stepN++}}
+function setMute(m){muted=m;localStorage.setItem('dtMute',m?'1':'0');$('mute').textContent=m?'🔇':'🔊';if(MG)MG.gain.value=m?0:.8}
+function ell(x,y,rx,ry,rot){cx.beginPath();cx.ellipse(x,y,Math.max(.001,rx),Math.max(.001,ry),rot||0,0,7)}
+function txt(s,x,y,sz,col,al,out){cx.font=`500 ${sz}px system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif`;cx.textAlign=al||'center';cx.textBaseline='middle';if(out){cx.lineWidth=4;cx.strokeStyle=out;cx.lineJoin='round';cx.strokeText(s,x,y)}cx.fillStyle=col||'#1f2333';cx.fillText(s,x,y)}
+function rrect(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+// ===== overlay =====
+const ov=$('ov');let ACT=[],contFn=null,contAt=0;
+function B(label,fn,cls){ACT.push(fn);return `<button class="btn ${cls||''}" data-i="${ACT.length-1}">${label}</button>`}
+function show(html,o){o=o||{};ACT=ACT.slice(-0);ov.innerHTML=`<div class="panel">${html}${o.cont?`<div class="cont">${T('contN')}</div>`:''}</div>`;ov.className=o.low?'low':'';contFn=o.cont||null;contAt=now()+(o.guard||550);fingerOff()}
+function hideOv(){ov.className='hide';ov.innerHTML='';contFn=null;ACT=[]}
+function tryCont(){if(contFn&&now()>contAt){const f=contFn;contFn=null;sfx('tap');f()}}
+ov.addEventListener('click',e=>{initAudio();const b=e.target.closest('[data-i]');if(b){if(now()<contAt-300)return;const f=ACT[+b.dataset.i];if(f){sfx('tap');f()}return}if(e.target.closest('.qopts'))return;tryCont()});
+let banT=0;function banner(s){const b=$('banner');b.textContent=s;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
+let lastMsg=null;function msg(s,top){const m=$('msg');const k=(s||'')+'|'+(top||100);if(k===lastMsg)return;lastMsg=k;m.innerHTML=s||'';m.style.top=(top||100)+'px'}
+function hud(l,r){const h=$('hud');if(l==null){h.className='hide';return}h.className='';$('hudL').innerHTML=l;$('hudR').innerHTML=r||''}
+function tray(html){const t=$('tray');if(!html){t.className='hide';t.innerHTML='';return}t.className='';t.innerHTML=html}
+const fg=$('finger');function fingerAt(x,y){fg.style.display='block';fg.style.left=x+'px';fg.style.top=y+'px'}function fingerOff(){fg.style.display='none'}
+function elCenter(el){const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}
+// ===== scenes =====
+let FX=[];
+function fx(o){FX.push(Object.assign({l:1,vx:0,vy:0,r:4},o))}
+function lg(y0,y1,stops){const g=cx.createLinearGradient(0,y0,0,y1);stops.forEach((c,i)=>g.addColorStop(i/(stops.length-1),c));return g}
+function hills(y,amp,f,ph,col){cx.fillStyle=col;cx.beginPath();cx.moveTo(0,H);for(let x=0;x<=W;x+=8)cx.lineTo(x,y+Math.sin(x*f+ph)*amp+Math.sin(x*f*2.3+ph*2)*amp*.4);cx.lineTo(W,H);cx.fill()}
+let flashT=0;
+function drawScene(bg,t,dt){const gy=GY();
+ if(bg=='cliff'){cx.fillStyle=lg(0,gy,['#ffb8a0','#ffd9a8','#fff1c8']);cx.fillRect(0,0,W,H);cx.fillStyle='rgba(255,240,190,.9)';ell(W*.22,gy*.55,38,38);cx.fill();
+  hills(gy*.72,18,.012,1,'#c9a0c8');hills(gy*.85,14,.02,3,'#a77fb0');cx.fillStyle='#8a6a5a';cx.beginPath();cx.moveTo(0,gy);cx.lineTo(W*.82,gy);cx.lineTo(W*.9,gy+30);cx.lineTo(W*.86,H);cx.lineTo(0,H);cx.fill();
+  cx.fillStyle='#7fbf5a';cx.beginPath();cx.moveTo(0,gy-6);for(let x=0;x<=W*.84;x+=10)cx.lineTo(x,gy-6+Math.sin(x*.3)*3);cx.lineTo(W*.84,gy+8);cx.lineTo(0,gy+8);cx.fill();
+  cx.strokeStyle='rgba(90,60,70,.6)';cx.lineWidth=2;for(let i=0;i<3;i++){const bx=(t*20+i*120)%(W+60)-30,by=gy*.3+i*22;cx.beginPath();cx.moveTo(bx-8,by);cx.quadraticCurveTo(bx-4,by-5,bx,by);cx.quadraticCurveTo(bx+4,by-5,bx+8,by);cx.stroke()}}
+ else if(bg=='swamp'){cx.fillStyle=lg(0,gy,['#5f8f7a','#9cc2a0','#cfe2b8']);cx.fillRect(0,0,W,H);
+  for(let i=0;i<5;i++){const x=i*W/4.5+20;cx.fillStyle='#3d5e48';cx.fillRect(x-7,gy*.25,14,gy*.8);ell(x,gy*.25,50,34);cx.fill();cx.strokeStyle='rgba(120,160,100,.8)';cx.lineWidth=2;for(let k=-2;k<=2;k++){cx.beginPath();cx.moveTo(x+k*16,gy*.3);cx.lineTo(x+k*16+Math.sin(t+k)*3,gy*.3+40+Math.abs(k)*8);cx.stroke()}}
+  cx.fillStyle='rgba(255,255,255,.22)';cx.fillRect(0,gy*.6,W,30);cx.fillStyle='#5a7a3e';cx.fillRect(0,gy,W,H-gy);cx.fillStyle='#4a7a8a';rrect(-20,gy+40,W*.6,60,30);cx.fill();
+  cx.fillStyle='#6fbf5a';for(let i=0;i<4;i++){ell(30+i*55,gy+60+(i%2)*14,14,6);cx.fill()}
+  if(Math.random()<dt*3)fx({k:'fly',x:rnd(0,W),y:rnd(gy*.4,gy),vx:rnd(-10,10),vy:rnd(-8,8),l:2})}
+ else if(bg=='meadow'){cx.fillStyle=lg(0,gy,['#8fd3ff','#c8ecff','#f4fbff']);cx.fillRect(0,0,W,H);cx.fillStyle='rgba(255,255,255,.9)';for(let i=0;i<3;i++){const x=(i*170+t*8)%(W+120)-60;ell(x,50+i*30,40,14);cx.fill();ell(x+22,44+i*30,26,14);cx.fill()}
+  hills(gy*.8,16,.01,2,'#a8dd8a');hills(gy*.92,10,.018,0,'#8fcf6e');cx.fillStyle='#7cc35a';cx.fillRect(0,gy,W,H-gy);
+  const fc=['#ff7aa8','#ffd84a','#ffffff','#b48aff'];for(let i=0;i<26;i++){cx.fillStyle=fc[i%4];ell((i*61)%W,gy+8+(i*37)%Math.max(20,H-gy-20),4,4);cx.fill()}
+  if(Math.random()<dt*2)fx({k:'petal',x:rnd(0,W),y:-10,vx:rnd(10,30),vy:rnd(20,40),l:6})}
+ else if(bg=='storm'){cx.fillStyle=lg(0,gy,['#1f2550','#3a3f78','#5d5a8a']);cx.fillRect(0,0,W,H);flashT-=dt;if(Math.random()<dt*.25)flashT=.18;
+  cx.fillStyle='rgba(30,30,60,.8)';for(let i=0;i<5;i++){ell((i*110+t*12)%(W+150)-60,40+(i%2)*25,70,26);cx.fill()}
+  hills(gy*.85,22,.015,4,'#2c2f55');cx.fillStyle='#4a4766';cx.fillRect(0,gy,W,H-gy);cx.fillStyle='#5d5a7a';cx.fillRect(0,gy,W,5);
+  cx.strokeStyle='rgba(180,200,255,.35)';cx.lineWidth=1.5;for(let i=0;i<40;i++){const x=(i*37+t*200)%W,y=(i*53+t*500)%gy;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x-4,y+12);cx.stroke()}
+  if(flashT>0){cx.fillStyle=`rgba(255,255,230,${flashT*2.5})`;cx.fillRect(0,0,W,H);cx.strokeStyle='#fffbd0';cx.lineWidth=3;cx.beginPath();let x=W*.2,y=0;cx.moveTo(x,y);while(y<gy*.7){x+=rnd(-20,20);y+=24;cx.lineTo(x,y)}cx.stroke()}}
+ else if(bg=='ice'){cx.fillStyle=lg(0,H,['#2a5f8f','#6fb5e0','#d8f2ff']);cx.fillRect(0,0,W,H);cx.fillStyle='rgba(220,245,255,.9)';for(let i=0;i<14;i++){const x=i*W/13,h=30+(i*37)%50;cx.beginPath();cx.moveTo(x-12,0);cx.lineTo(x+12,0);cx.lineTo(x,h);cx.fill()}
+  cx.fillStyle='rgba(180,225,250,.6)';cx.beginPath();cx.moveTo(0,gy);cx.lineTo(W*.15,gy*.55);cx.lineTo(W*.3,gy);cx.fill();cx.beginPath();cx.moveTo(W*.7,gy);cx.lineTo(W*.9,gy*.5);cx.lineTo(W,gy);cx.fill();
+  cx.fillStyle=lg(gy,H,['#e8f8ff','#a8d8f0']);cx.fillRect(0,gy,W,H-gy);cx.fillStyle='rgba(255,255,255,.6)';for(let i=0;i<6;i++){ell((i*83)%W,gy+20+(i*29)%60,30,3);cx.fill()}
+  if(Math.random()<dt*4)fx({k:'snow',x:rnd(0,W),y:-5,vx:rnd(-8,8),vy:rnd(20,40),l:8})}
+ else if(bg=='peaks'){cx.fillStyle=lg(0,gy,['#2d2a6a','#8a5aa8','#ffb38a']);cx.fillRect(0,0,W,H);cx.fillStyle='#ffe08a';ell(W*.15,gy*.3,26,26);cx.fill();cx.fillStyle='#e8eaff';ell(W*.85,gy*.25,22,22);cx.fill();cx.fillStyle='#8a5aa8';ell(W*.85+8,gy*.25-4,18,18);cx.fill();
+  cx.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<20;i++){const x=(i*71)%W,y=(i*43)%(gy*.4);cx.globalAlpha=.4+.4*Math.sin(t*2+i);cx.fillRect(x,y,2,2)}cx.globalAlpha=1;
+  cx.fillStyle='#4a3a7a';cx.beginPath();cx.moveTo(0,gy);cx.lineTo(W*.25,gy*.42);cx.lineTo(W*.45,gy);cx.fill();cx.beginPath();cx.moveTo(W*.5,gy);cx.lineTo(W*.75,gy*.38);cx.lineTo(W,gy);cx.fill();
+  cx.fillStyle='#fff';cx.beginPath();cx.moveTo(W*.25,gy*.42);cx.lineTo(W*.21,gy*.52);cx.lineTo(W*.29,gy*.52);cx.fill();cx.beginPath();cx.moveTo(W*.75,gy*.38);cx.lineTo(W*.71,gy*.48);cx.lineTo(W*.79,gy*.48);cx.fill();
+  cx.fillStyle='#6a5a8a';cx.fillRect(0,gy,W,H-gy);cx.fillStyle='#7d6c9e';cx.fillRect(0,gy,W,5)}
+ else if(bg=='volcano'){cx.fillStyle=lg(0,gy,['#2a0e14','#6a1a1a','#c84a1a']);cx.fillRect(0,0,W,H);cx.fillStyle='#3a1a1a';cx.beginPath();cx.moveTo(W*.1,gy);cx.lineTo(W*.42,gy*.35);cx.lineTo(W*.58,gy*.35);cx.lineTo(W*.9,gy);cx.fill();
+  const gl=cx.createRadialGradient(W*.5,gy*.35,4,W*.5,gy*.35,90);gl.addColorStop(0,'rgba(255,200,80,.9)');gl.addColorStop(1,'rgba(255,80,20,0)');cx.fillStyle=gl;ell(W*.5,gy*.35,90,60);cx.fill();
+  cx.strokeStyle='#ff7a1a';cx.lineWidth=4;cx.beginPath();cx.moveTo(W*.48,gy*.36);cx.quadraticCurveTo(W*.45,gy*.6,W*.38,gy*.8);cx.stroke();
+  cx.fillStyle='#2a1a1e';cx.fillRect(0,gy,W,H-gy);cx.strokeStyle='rgba(255,110,30,.8)';cx.lineWidth=2;for(let i=0;i<5;i++){cx.beginPath();const x=(i*97)%W;cx.moveTo(x,gy+10);cx.lineTo(x+20,gy+30+i*5);cx.lineTo(x+8,gy+60);cx.stroke()}
+  if(Math.random()<dt*5)fx({k:'ember',x:rnd(0,W),y:gy,vx:rnd(-10,10),vy:rnd(-60,-30),l:3})}
+ return gy}
+function GY(){return Math.round(H-trayH()-Math.max(24,H*.06))}
+// ===== dragon drawing =====
+const POSE0={tail:.25,tsp:4,lash:0,tuck:0,ear:.7,crouch:0,tall:0,look:0,shiver:0,lick:0,sniff:0,yawn:0,lids:.1,spikes:.3,smoke:0,brows:0,teeth:0,glow:0,wings:0,bounce:0,tilt:0,flee:0,flinch:0,rumble:0};
+function moodPose(m,k){const p=Object.assign({},POSE0);k=k==null?1:k;const S=(key,v)=>{p[key]=lerp(POSE0[key],v,k)};
+ if(m=='happy'){S('tail',.7);p.tsp=9;S('ear',1);S('bounce',1);S('tilt',.25);S('lids',0);S('spikes',.25)}
+ else if(m=='scared'){S('tail',.05);S('tuck',1);S('ear',0);S('crouch',1);S('look',1);S('shiver',1);S('brows',-1);S('spikes',0);S('lids',0)}
+ else if(m=='hungry'){S('tail',.25);p.tsp=3;S('ear',.7);S('lick',1);S('sniff',1);S('rumble',1)}
+ else if(m=='grumpy'){S('tail',.1);S('lash',1);S('ear',.35);S('spikes',1);S('smoke',1);S('brows',1);S('crouch',.25);S('lids',.35)}
+ else if(m=='sleepy'){S('tail',.08);p.tsp=1.5;S('ear',.4);S('lids',.6);S('yawn',1);S('crouch',.4);S('spikes',.15)}
+ else if(m=='furious'){S('tail',.1);S('lash',1.3);S('ear',.2);S('spikes',1);S('smoke',.6);S('brows',1);S('teeth',1);S('glow',1);S('wings',1);S('tall',1);S('lids',.2)}
+ else if(m=='love'){S('tail',.9);p.tsp=7;S('ear',1);S('bounce',.5);S('lids',.5);S('tilt',.3);S('spikes',.2);S('crouch',.3)}
+ return p}
+function stepPose(cur,tg,dt,r){for(const k in tg)if(typeof tg[k]=='number')cur[k]=lerp(cur[k]||0,tg[k],Math.min(1,dt*(r||7)))}
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;if(f>0){r+=(255-r)*f;g+=(255-g)*f;b+=(255-b)*f}else{r*=1+f;g*=1+f;b*=1+f}return `rgb(${r|0},${g|0},${b|0})`}
+const ANCH={};
+function drawDragon(d,P,x,y,s,t,P2,key){key=key||'a';const c=d.col,kd=d.kind,B=P.body||P;cx.save();cx.translate(x+(P.flee||0)*s,y);cx.scale(s,s);const LW=.014;cx.lineJoin='round';cx.lineCap='round';
+ const shv=Math.sin(t*55)*.01*B.shiver,bnc=-Math.abs(Math.sin(t*7))*.05*B.bounce,fl=B.flinch*.06;cx.translate(shv+fl,0);
+ const chub=kd=='chubby'?1.18:kd=='baby'?.92:1,rx=.42*chub,ry=.27*chub*(kd=='baby'?1.05:1);
+ const by=-.36*chub+B.crouch*.12-B.tall*.1+bnc;
+ if(!P.noShadow){cx.fillStyle='rgba(0,0,0,.22)';ell(0,0,.6,.07);cx.fill()}
+ const wsp=B.wings,wf=Math.sin(t*(B.bounce>.3?8:3))*.04;const wing=(dx,dk)=>{cx.fillStyle=shade(c.w,dk);cx.strokeStyle=c.e;cx.lineWidth=LW;cx.beginPath();const ax=.02+dx,ay=by-ry*.7;
+  const pts=[[ax,ay],[lerp(.25,-.05,wsp)+dx,lerp(by-.5,by-.9,wsp)-wf],[lerp(.45,.35,wsp)+dx,lerp(by-.55,by-1.0,wsp)-wf],[lerp(.5,.75,wsp)+dx,lerp(by-.35,by-.65,wsp)-wf],[lerp(.38,.55,wsp)+dx,by-ry*.4]];
+  cx.moveTo(pts[0][0],pts[0][1]);cx.lineTo(pts[1][0],pts[1][1]);for(let i=2;i<pts.length;i++){const a=pts[i-1],b=pts[i];cx.quadraticCurveTo((a[0]+b[0])/2+.03,(a[1]+b[1])/2+.06,b[0],b[1])}cx.closePath();cx.fill();cx.stroke();
+  cx.strokeStyle=shade(c.w,-.3);cx.lineWidth=LW*.8;for(let i=1;i<4;i++){cx.beginPath();cx.moveTo(ax,ay);cx.lineTo(pts[i][0],pts[i][1]);cx.stroke()}};
+ wing(.08,-.18);
+ // tail
+ const ts=[rx*.9,by+.02],a=Math.sin(t*B.tsp)*B.tail+Math.sin(t*16)*.5*B.lash-B.tuck*2.3+.15;const L=kd=='king'?.65:.5;
+ const te=[ts[0]+Math.cos(a)*L,ts[1]-Math.sin(a)*L*.6-.05],tc=[ts[0]+.25,ts[1]+.12-B.tuck*.05];const q=u=>[(1-u)*(1-u)*ts[0]+2*(1-u)*u*tc[0]+u*u*te[0],(1-u)*(1-u)*ts[1]+2*(1-u)*u*tc[1]+u*u*te[1]];
+ for(let pass=0;pass<2;pass++)for(let i=0;i<10;i++){const u0=i/10,p0=q(u0),p1=q((i+1)/10);cx.strokeStyle=pass?c.b:c.e;cx.lineWidth=.14*(1-u0*.8)+(pass?0:LW*2);cx.beginPath();cx.moveTo(p0[0],p0[1]);cx.lineTo(p1[0],p1[1]);cx.stroke()}
+ cx.save();cx.translate(te[0],te[1]);cx.rotate(-a);cx.fillStyle=c.sp;cx.strokeStyle=c.e;cx.lineWidth=LW;
+ if(kd=='leaf'){cx.fillStyle=c.w;ell(.07,0,.09,.045);cx.fill();cx.stroke()}else if(kd=='king'){cx.fillStyle='#ffb02a';cx.beginPath();cx.moveTo(0,0);cx.quadraticCurveTo(.08,-.12+Math.sin(t*12)*.02,.16,-.02);cx.quadraticCurveTo(.08,.04,0,0);cx.fill()}
+ else if(kd=='zap'){cx.beginPath();cx.moveTo(0,0);cx.lineTo(.08,-.07);cx.lineTo(.06,-.01);cx.lineTo(.15,-.04);cx.lineTo(.06,.06);cx.lineTo(.08,0);cx.closePath();cx.fill();cx.stroke()}
+ else if(kd=='baby'||kd=='chubby'){ell(.04,0,.055,.055);cx.fill();cx.stroke()}else if(kd=='ice'){for(let i=0;i<3;i++){cx.beginPath();cx.moveTo(0,0);cx.lineTo(.1*Math.cos(i-1),.1*Math.sin(i-1));cx.lineWidth=.025;cx.strokeStyle=c.sp;cx.stroke()}}
+ else{cx.beginPath();cx.moveTo(0,0);cx.lineTo(.12,-.06);cx.lineTo(.09,0);cx.lineTo(.12,.06);cx.closePath();cx.fill();cx.stroke()}cx.restore();
+ const leg=(lx,dk)=>{cx.fillStyle=shade(c.b,dk);cx.strokeStyle=c.e;cx.lineWidth=LW;rrect(lx-.07,by+ry*.3,.14,-by-ry*.3+.005,.06);cx.fill();cx.stroke();cx.fillStyle='#fff';for(let i=0;i<3;i++){ell(lx-.05+i*.045,-.01,.016,.012);cx.fill()}};
+ leg(rx*.55,-.15);leg(-rx*.45,-.15);
+ const g=cx.createRadialGradient(-.1,by-ry*.6,.02,0,by,rx*1.2);g.addColorStop(0,shade(c.b,.35));g.addColorStop(.6,c.b);g.addColorStop(1,shade(c.b,-.2));cx.fillStyle=g;cx.strokeStyle=c.e;cx.lineWidth=LW;ell(0,by,rx,ry);cx.fill();cx.stroke();
+ cx.save();ell(0,by,rx,ry);cx.clip();cx.fillStyle=c.bl;ell(-.05,by+ry*.55,rx*.8,ry*.6);cx.fill();cx.strokeStyle=shade(c.bl,-.15);cx.lineWidth=LW*.8;for(let i=-2;i<=2;i++){cx.beginPath();cx.moveTo(-.05+i*.08,by+ry*.1);cx.lineTo(-.05+i*.09,by+ry);cx.stroke()}cx.restore();
+ if(kd=='baby'){cx.fillStyle='rgba(255,255,255,.6)';for(let i=0;i<5;i++){ell(-.15+i*.08,by-ry*.75,.05,.035);cx.fill()}}
+ if(kd=='zap'){cx.strokeStyle=c.w;cx.lineWidth=LW*2;cx.beginPath();cx.moveTo(-.15,by-ry*.5);cx.lineTo(-.05,by-ry*.1);cx.lineTo(-.1,by-ry*.1);cx.lineTo(.02,by+ry*.3);cx.stroke()}
+ if(kd=='king'){cx.fillStyle='rgba(255,190,60,.5)';for(let i=0;i<6;i++){ell(-.2+i*.09,by-ry*.2+(i%2)*.05,.035,.025);cx.fill()}}
+ cx.fillStyle=c.sp;cx.strokeStyle=c.e;cx.lineWidth=LW;const sh=(kd=='baby'?.025:.04)+.08*B.spikes;for(let i=0;i<6;i++){const px=rx*.75-i*rx*.27;const k2=1-Math.pow(px/rx,2);if(k2<=0)continue;const py=by-ry*Math.sqrt(k2);
+  cx.beginPath();cx.moveTo(px-.035,py+.01);cx.lineTo(px+.01,py-sh);cx.lineTo(px+.04,py+.01);cx.closePath();cx.fill();cx.stroke()}
+ if(B.rumble>.3){cx.strokeStyle=`rgba(80,60,40,${.5*B.rumble})`;cx.lineWidth=LW;for(let i=0;i<3;i++){const r=.06+((t*1.5+i*.3)%1)*.1;cx.beginPath();cx.arc(-.02,by+ry*.4,r,-.6,.6);cx.stroke()}}
+ leg(rx*.35,0);leg(-rx*.6,0);
+ const heads=d.twin&&P2?[[P,-.06,c.b],[P2,.12,c.b2]]:[[P,0,c.b]];
+ heads.forEach(([HP,off,hc],hi)=>{const hbase=kd=='baby'?1.25:1;const nx=-rx*.55+off,ny=by-ry*.5;const hx=-rx-.12+off*1.5+(d.twin?(hi?.12:-.14):0),hy=by-.36+HP.crouch*.16-HP.tall*.12+Math.sin(t*9)*.02*HP.sniff+(HP.yawn>.5?Math.sin(t*1.2)*.02:0);
+  const hy2=hy+(d.twin?(hi?-.42:.08):0);cx.strokeStyle=c.e;cx.lineWidth=.17+LW*2;cx.beginPath();cx.moveTo(nx,ny);cx.quadraticCurveTo(hx+.12,(ny+hy2)/2,hx+.05,hy2);cx.stroke();cx.strokeStyle=hc;cx.lineWidth=.17;cx.stroke();
+  drawHead(d,HP,hx,hy2,hbase*(kd=='king'?1.05:1)*(d.twin?.85:1),t,hc,key+hi,x+(P.flee||0)*s+(shv+fl)*s,y,s)});
+ cx.save();cx.globalAlpha=1-B.wings*.25;if(B.wings>.05)cx.translate(.12*B.wings,0);wing(-.04,0);cx.restore();
+ cx.restore()}
+function drawHead(d,P,hx,hy,sc,t,hc,key,ox,oy,s){const c=d.col,kd=d.kind,LW=.014/sc;cx.save();cx.translate(hx,hy);cx.scale(sc,sc);
+ const look=P.look,fx2=Math.abs(1-2*look)<.2?(1-2*look<0?-.2:.2):1-2*look;cx.rotate(-P.tilt*.5*(Math.sin(t*2)*.3+1)+P.crouch*.15);cx.scale(fx2,1);
+ const ea=lerp(-.2,-1.9,P.ear);cx.fillStyle=kd=='leaf'?c.w:shade(hc,-.1);cx.strokeStyle=c.e;cx.lineWidth=LW;for(let i=0;i<2;i++){cx.save();cx.translate(.1+i*.05,-.08);cx.rotate(ea+i*.25);ell(.11,0,.12,.045);cx.fill();cx.stroke();cx.fillStyle=kd=='leaf'?shade(c.w,.3):'rgba(255,200,220,.7)';ell(.11,0,.07,.02);cx.fill();cx.restore();cx.fillStyle=kd=='leaf'?c.w:shade(hc,-.1)}
+ cx.fillStyle=c.sp;if(kd=='king'){for(let i=0;i<3;i++){cx.beginPath();cx.moveTo(-.06+i*.06,-.14);cx.lineTo(-.04+i*.06,-.26-(i==1?.04:0));cx.lineTo(-.02+i*.06,-.14);cx.fill();cx.stroke()}}
+ else if(kd=='leaf'){for(let i=0;i<5;i++){cx.fillStyle='#ff6a9a';ell(-.02+Math.cos(i*1.26)*.04,-.18+Math.sin(i*1.26)*.04,.03,.03);cx.fill()}cx.fillStyle='#ffe27a';ell(-.02,-.18,.022,.022);cx.fill()}
+ else if(kd=='zap'){cx.strokeStyle=c.sp;cx.lineWidth=.02;cx.beginPath();cx.moveTo(0,-.13);cx.lineTo(-.03,-.2);cx.lineTo(.01,-.2);cx.lineTo(-.02,-.27);cx.stroke();cx.strokeStyle=c.e;cx.lineWidth=LW}
+ else if(kd=='ice'){cx.fillStyle='#bfeaff';cx.beginPath();cx.moveTo(-.02,-.13);cx.lineTo(.02,-.28);cx.lineTo(.05,-.13);cx.fill();cx.stroke()}
+ else if(kd!='chubby'){cx.beginPath();cx.moveTo(.0,-.14);cx.lineTo(.03,-.2);cx.lineTo(.06,-.13);cx.fill();cx.stroke()}
+ const g=cx.createRadialGradient(-.05,-.08,.01,0,0,.25);g.addColorStop(0,shade(hc,.35));g.addColorStop(1,hc);cx.fillStyle=g;cx.strokeStyle=c.e;cx.lineWidth=LW;
+ ell(.0,0,.19,.16);cx.fill();cx.stroke();ell(-.17,.045,.14,.1);cx.fill();cx.stroke();ell(.0,0,.18,.15);cx.fill();
+ cx.fillStyle=shade(hc,-.35);ell(-.27,.01,.014,.01);cx.fill();ell(-.23,.0,.012,.009);cx.fill();
+ cx.fillStyle='rgba(255,120,150,.45)';ell(-.07,.08,.04,.025);cx.fill();
+ const mx=-.2,my=.1;if(P.yawn>.05){const yo=P.yawn*Math.max(0,Math.sin(t*1.6));if(yo>.1){cx.fillStyle='#7a1a2a';ell(mx+.03,my+.01,.06,.06*yo);cx.fill();cx.stroke();cx.fillStyle='#ff7a9a';ell(mx+.03,my+.03*yo,.035,.02*yo);cx.fill()}else{cx.strokeStyle=c.e;cx.beginPath();cx.arc(mx+.03,my-.01,.04,.3,2.8);cx.stroke()}}
+ else if(P.teeth>.3||P.glow>.3){cx.fillStyle='#4a0a10';ell(mx+.02,my+.01,.075,.035*(.5+P.teeth));cx.fill();cx.stroke();if(P.glow>.2){const gl=cx.createRadialGradient(mx,my,.005,mx,my,.08);gl.addColorStop(0,`rgba(255,230,120,${P.glow})`);gl.addColorStop(1,'rgba(255,90,20,0)');cx.fillStyle=gl;ell(mx,my,.09,.06);cx.fill()}
+  cx.fillStyle='#fff';for(let i=0;i<4;i++){cx.beginPath();cx.moveTo(mx-.05+i*.035,my-.015);cx.lineTo(mx-.035+i*.035,my+.015);cx.lineTo(mx-.02+i*.035,my-.015);cx.fill()}}
+ else if(P.brows>.4){cx.strokeStyle=c.e;cx.beginPath();cx.moveTo(mx-.04,my+.02);cx.quadraticCurveTo(mx+.02,my-.02,mx+.07,my+.02);cx.stroke()}
+ else if(P.brows<-.4){cx.strokeStyle=c.e;cx.beginPath();cx.moveTo(mx-.02,my+.01);cx.quadraticCurveTo(mx+.02,my-.01+Math.sin(t*30)*.005,mx+.06,my+.01);cx.stroke()}
+ else{cx.strokeStyle=c.e;cx.beginPath();cx.arc(mx+.02,my-.02,.045,.4,2.7);cx.stroke()}
+ if(P.lick>.2){const lk=Math.sin(t*6);cx.fillStyle='#ff6a8a';cx.strokeStyle='#c03a5a';ell(mx+lk*.03,my+.02,.035*P.lick,.022*P.lick,lk*.5);cx.fill();cx.stroke();cx.fillStyle='rgba(180,230,255,.9)';ell(mx+.05,my+.05+((t*.8)%1)*.05,.01,.014);cx.fill()}
+ const ex=-.05,ey=-.04,eo=1-P.lids*.85;cx.fillStyle='#fff';cx.strokeStyle=c.e;cx.lineWidth=LW;ell(ex,ey,.06,.07);cx.fill();cx.stroke();
+ const pr=P.brows<-.4?.026:.038,px=ex-.012+(P.shiver?Math.sin(t*40)*.006:0),py=ey+.005;cx.fillStyle='#1b1430';ell(px,py,pr,pr*1.15);cx.fill();cx.fillStyle='#fff';ell(px-.012,py-.015,.012,.012);cx.fill();
+ if(eo<.97){cx.fillStyle=hc;cx.save();ell(ex,ey,.062,.072);cx.clip();cx.fillRect(ex-.07,ey-.08,.14,.15*(1-eo));cx.restore();cx.strokeStyle=c.e;cx.beginPath();cx.moveTo(ex-.06,ey-.075+.15*(1-eo));cx.lineTo(ex+.06,ey-.075+.15*(1-eo));cx.stroke()}
+ if(Math.abs(P.brows)>.3){const b=P.brows;cx.strokeStyle=c.e;cx.lineWidth=.02;cx.beginPath();cx.moveTo(ex-.07,ey-.09+.03*b);cx.lineTo(ex+.05,ey-.11-.025*b);cx.stroke();cx.lineWidth=LW}
+ cx.restore();
+ const flip=fx2;ANCH[key]={nose:[ox+s*(hx-.27*flip*sc),oy+s*(hy+.01*sc)],mouth:[ox+s*(hx-.2*flip*sc),oy+s*(hy+.1*sc)],head:[ox+s*hx,oy+s*hy],r:s*.2*sc,dir:flip}}
+function drawHand(x,y,reach,t,palm){cx.save();cx.translate(x+reach*60,y-reach*30);cx.rotate(-.5);cx.fillStyle='#4a7adf';rrect(-70,-16,70,32,10);cx.fill();cx.fillStyle='#ffd2b0';cx.strokeStyle='#c98a6a';cx.lineWidth=2;
+ ell(10,0,20,17);cx.fill();cx.stroke();for(let i=0;i<4;i++){cx.save();cx.translate(24,-11+i*7.5);cx.rotate(palm?0:.2);rrect(0,-3.5,16-Math.abs(i-1.5)*2,8,4);cx.fill();cx.stroke();cx.restore()}ell(8,-16,8,6,-.6);cx.fill();cx.stroke();cx.restore()}
+function drawFX(dt){for(const p of FX){p.l-=dt*(p.k=='smoke'?.9:p.k=='heart'||p.k=='note'||p.k=='z'?.7:1);p.x+=p.vx*dt;p.y+=p.vy*dt;const a=clamp(p.l,0,1);cx.globalAlpha=a;
+ if(p.k=='smoke'){p.r+=dt*14;cx.fillStyle='rgba(110,110,120,.6)';ell(p.x,p.y,p.r,p.r);cx.fill()}
+ else if(p.k=='fire'){p.r+=dt*20;const g=cx.createRadialGradient(p.x,p.y,1,p.x,p.y,p.r);g.addColorStop(0,'rgba(255,240,150,.95)');g.addColorStop(.5,'rgba(255,130,30,.8)');g.addColorStop(1,'rgba(200,40,10,0)');cx.fillStyle=g;ell(p.x,p.y,p.r,p.r);cx.fill()}
+ else if(p.k=='heart'){txt('💗',p.x,p.y,p.sz||24)}else if(p.k=='note'){txt(p.ch||'♪',p.x,p.y,24,'#6a3ad0','center','#fff')}else if(p.k=='z'){txt('Z',p.x,p.y,18+(1-p.l)*10,'#3a4a8a','center','#fff')}
+ else if(p.k=='spark'){p.vy+=200*dt;cx.fillStyle=p.c||'#ffe27a';ell(p.x,p.y,3,3);cx.fill()}else if(p.k=='q'){txt(p.ch||'?',p.x,p.y,30,'#3a2a8a','center','#fff')}
+ else if(p.k=='petal'){cx.fillStyle='#ffb0c8';ell(p.x+Math.sin(p.y*.05)*10,p.y,5,3,p.y*.05);cx.fill()}else if(p.k=='snow'){cx.fillStyle='#fff';ell(p.x+Math.sin(p.y*.04)*6,p.y,2.5,2.5);cx.fill()}
+ else if(p.k=='ember'){cx.fillStyle='#ffa030';ell(p.x,p.y,2,2);cx.fill()}else if(p.k=='fly'){cx.globalAlpha=a*(.5+.5*Math.sin(p.y));cx.fillStyle='#fff7a0';ell(p.x,p.y,2.5,2.5);cx.fill()}
+ else if(p.k=='apple'){p.vy+=500*dt;txt('🍎',p.x,p.y,28)}else if(p.k=='txt'){txt(p.s,p.x,p.y,18,'#3a2a8a','center','#fff')}}
+ cx.globalAlpha=1;FX=FX.filter(p=>p.l>0&&p.y<H+40)}
+// ===== game =====
+const G={mode:'title',di:0,tok:0,tut:false};let E=null,F=null;
+function later(f,ms){const k=G.tok;setTimeout(()=>{if(k===G.tok)f()},ms)}
+const curD=()=>DR[G.di];
+const PORT={};
+function portrait(d,locked){const key=d.id+(locked?'L':'');if(PORT[key])return PORT[key];const c=document.createElement('canvas');c.width=240;c.height=200;const old=cx;cx=c.getContext('2d');
+ if(locked)cx.filter='brightness(0) opacity(.35)';const P=moodPose('happy',.6);let P2=null;if(d.twin){P2=moodPose('happy',.6);P.body=moodPose('happy',.3)}drawDragon(d,P,140,180,d.kind=='king'?100:115,1.3,P2,'port');cx=old;return PORT[key]=c.toDataURL()}
+function dlayout(){const gy=GY();const s=Math.min(W*.6,(gy-150)/1.2)*curD().sz;return {x:W*.58,y:gy,s:Math.min(s,W*.6),gy}}
+function josa(w){const c=w.charCodeAt(w.length-1);const b=c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28>0;return w+(b?'과':'와')}
+// --- encounter
+function startEnc(i){G.tok++;G.reshow=null;G.di=i;const d=DR[i];G.mode='intro';G.tut=!SV.tut&&i==0;hideOv();tray(null);hud(null);msg('');FX=[];
+ E={d,P:Object.assign({},POSE0),P2:d.twin?Object.assign({},POSE0):null,trust:0,phase:1,hearts:3,hand:0,handT:0,palm:false,react:null,lock:true,t:0,tmax:9,mood:'happy',mood2:'happy',active:0,last:[],tutN:0,cueT:0};
+ const na=d.newAct?`<div class="tip">✨ ${T('newAct')} ${ACTS[d.newAct].e} ${tx(ACTS[d.newAct].n)}</div>`:'';
+ show(`<h1>${tx(d.n)}</h1><img class="dpic" src="${portrait(d)}" alt=""><p class="sub">📍 ${tx(d.pl)}</p><p>${tx(d.intro)}</p>${na}<div class="row">${B(T('go'),()=>{hideOv();encBegin()},'big')}${B(T('menu'),menu)}${G.tut?B(T('skipTut'),()=>{G.tut=false;SV.tut=true;save();hideOv();encBegin()}):''}</div>`,{cont:()=>{hideOv();encBegin()}})}
+function encBegin(){G.mode='enc';const d=E.d;tray(ACT_ORDER.slice(0,d.acts).map(a=>`<button class="act" data-a="${a}"><span class="e">${ACTS[a].e}</span>${tx(ACTS[a].n)}</button>`).join(''));
+ document.querySelectorAll('.act').forEach(b=>b.addEventListener('click',()=>{initAudio();choose(b.dataset.a)}));newRound()}
+function pickMood(){const d=E.d;let m,n=0;do{m=d.moods[Math.random()*d.moods.length|0];n++}while(n<20&&m===E.last[0]);return m}
+function newRound(){if(!E)return;const d=E.d;E.lock=false;E.react=null;E.cueT=0;E.tmax=(d.time-(E.phase-1)*1)*(G.tut?99:1);E.t=E.tmax;
+ if(d.twin){E.mood=pickMood();let m2,n=0;do{m2=d.moods[Math.random()*d.moods.length|0];n++}while(n<20&&m2===E.mood);E.mood2=m2;E.active=0}else E.mood=pickMood();
+ E.last=[E.mood];E.hand=0;E.palm=false;prompt();hint()}
+function prompt(){const d=E.d;if(d.twin){const nm=E.active?(L=='ko'?'달랑이':'Luna'):(L=='ko'?'해랑이':'Sol');msg(`✨ ${L=='ko'?nm+'(빛나는 머리)의 기분은?':'How does '+nm+' (glowing head) feel?'}`,112)}else msg(T('read'),112)}
+function actMood(){return E.d.twin&&E.active?E.mood2:E.mood}
+function hint(){document.querySelectorAll('.act').forEach(b=>b.classList.remove('hint'));fingerOff();if(!G.tut||E.lock)return;const m=actMood(),a=MOODS[m].act;const b=document.querySelector(`.act[data-a="${a}"]`);if(!b)return;b.classList.add('hint');const [x,y]=elCenter(b);fingerAt(x,y-46);
+ msg(`👀 ${tx(MOODS[m].cue)} → ${MOODS[m].e} ${tx(MOODS[m].n)}<br>${T('tutRead')}`,112)}
+function choose(a){if(!E||E.lock||G.mode!='enc'||!ov.classList.contains('hide'))return;const m=actMood();const ok=MOODS[m].act===a;E.lock=true;fingerOff();document.querySelectorAll('.act').forEach(b=>b.classList.remove('hint'));
+ const an=ANCH[E.d.twin?('a'+E.active):'a0']||{mouth:[W*.5,H*.5],head:[W*.5,H*.4],nose:[W*.5,H*.5],dir:1};
+ if(ok){E.trust++;sfx('good');E.react={m:'love',t:1.1};react(a,an);msg(`⭕ ${MOODS[m].e} ${tx(MOODS[m].n)} → ${ACTS[a].e} ${tx(ACTS[a].n)}`,112);
+  later(()=>{if(E.trust>=E.d.need){if(E.d.phases&&E.phase<E.d.phases){E.phase++;E.trust=0;banner(`${T('phase')} ${E.phase} / ${E.d.phases}`);sfx('win');later(newRound,1200);return}pressMoment();return}
+   if(E.d.twin&&E.active==0){E.active=1;E.lock=false;E.react=null;E.cueT=0;E.t=E.tmax;prompt();hint();return}if(G.tut){E.tutN++;if(E.tutN>=3)G.tut=false}newRound()},1150)}
+ else{E.hearts--;wrongReact(m,an);later(()=>whyCard(m,a),900)}}
+function react(a,an){const [mx,my]=an.mouth,[hx,hy]=an.head;
+ if(a=='approach'){E.hand=.6;for(let i=0;i<5;i++)fx({k:'heart',x:hx+rnd(-30,30),y:hy-20,vy:-50,vx:rnd(-15,15)});sfx('purr')}
+ else if(a=='food'){fx({k:'apple',x:W*.12,y:GY()-20,vx:(mx-W*.12)/.55,vy:-((GY()-20-my)/.55)-140,l:.55});later(()=>{sfx('chomp');for(let i=0;i<6;i++)fx({k:'spark',x:mx,y:my,vx:rnd(-80,80),vy:rnd(-150,-50),c:'#ff5a5a'});fx({k:'heart',x:hx,y:hy-30,vy:-50})},550)}
+ else if(a=='hand'){E.hand=1;later(()=>{fx({k:'txt',s:L=='ko'?'킁킁…':'sniff…',x:hx,y:hy-40,vy:-30});for(let i=0;i<3;i++)fx({k:'heart',x:hx+rnd(-20,20),y:hy-20,vy:-40})},400);sfx('purr')}
+ else if(a=='wait'){fx({k:'txt',s:'…',x:hx,y:hy-50,vy:-20});later(()=>{fx({k:'heart',x:hx,y:hy-30,vy:-40});sfx('purr')},500)}
+ else if(a=='hum'){sfx('hum');for(let i=0;i<5;i++)later(()=>fx({k:'note',x:W*.15+i*20,y:GY()-60,vx:60,vy:-40,ch:i%2?'♫':'♪'}),i*150);later(()=>fx({k:'heart',x:hx,y:hy-30,vy:-40}),700)}
+ else if(a=='back'){E.hand=-.6;fx({k:'txt',s:L=='ko'?'휴…':'phew…',x:hx,y:hy-50,vy:-20});later(()=>fx({k:'heart',x:hx,y:hy-30,vy:-40}),600)}}
+function wrongReact(m,an){const [mx,my]=an.mouth,[hx,hy]=an.head;E.P.flinch=1;if(E.P2)E.P2.flinch=1;
+ if(m=='grumpy'||m=='furious'||m=='sleepy'){sfx('fire');for(let i=0;i<16;i++)fx({k:'fire',x:mx,y:my,vx:-an.dir*rnd(120,260),vy:rnd(-40,40),r:rnd(6,12),l:rnd(.6,1)});E.react={m:'furious',t:1}}
+ else if(m=='scared'){sfx('flee');E.react={m:'scared',t:1,flee:.45}}
+ else if(m=='hungry'){sfx('chomp');for(let i=0;i<4;i++)fx({k:'smoke',x:mx,y:my,vx:-30,vy:-20,r:5});fx({k:'q',ch:'💢',x:hx,y:hy-40,vy:-30});E.react={m:'grumpy',t:1}}
+ else{sfx('bad');fx({k:'q',ch:'?',x:hx,y:hy-50,vy:-30});E.react={m:'scared',t:1,flee:.2}}
+ E.hand=0}
+function whyCard(m,a){if(!E)return;const ra=MOODS[m].act;if(E.hearts<=0){sfx('fail');show(`<h2>💨 ${T('flew')}</h2><img class="dpic" src="${portrait(E.d)}" alt="" style="max-width:150px"><p>${T('flewT')}</p><div class="why">${T('cueWas')} ${tx(MOODS[m].cue)}<br>→ ${MOODS[m].e} ${tx(MOODS[m].n)} → ${ACTS[ra].e} ${tx(ACTS[ra].n)}</div><div class="row">${B(T('retry'),()=>{hideOv();retryEnc()},'big')}${B(T('menu'),menu)}</div>`,{cont:()=>{hideOv();retryEnc()},guard:800});return}
+ show(`<h2>${T('whyT')}</h2><div class="why">👀 ${T('cueWas')} ${tx(MOODS[m].cue)}</div><p>${T('meant')} ${MOODS[m].e} ${tx(MOODS[m].n)}<br>${T('should')} ${ACTS[ra].e} ${tx(ACTS[ra].n)}</p><div class="tip">💡 ${tx(MOODS[m].why)}</div><div class="row">${B(T('next'),()=>{hideOv();newRound()},'big')}</div>`,{low:1,cont:()=>{hideOv();newRound()},guard:600})}
+function retryEnc(){E.trust=0;E.hearts=3;E.phase=1;E.P=Object.assign({},POSE0);if(E.P2)E.P2=Object.assign({},POSE0);FX=[];newRound()}
+function encUpdate(dt){const d=E.d;E.cueT+=dt;
+ if(!E.lock&&G.mode=='enc'){E.t-=dt;if(E.t<=0){sfx('bad');msg('⏰ '+T('tooSlow'),112);E.lock=true;fx({k:'q',ch:'💤',x:W*.6,y:GY()-dlayout().s,vy:-20});later(newRound,1300)}}
+ if(E.react){E.react.t-=dt;if(E.react.t<=0)E.react=null}
+ const kph=d.phases?[1,.75,.5][E.phase-1]:1;const kz=d.flash?(E.cueT<d.flash?1:.28):1;const k=kph*kz;const press=G.mode=='press';
+ if(d.twin){const t1=press?moodPose('love',1):E.react&&E.active==0?moodPose(E.react.m,1):moodPose(E.mood,k);const t2=press?moodPose('love',1):E.react&&E.active==1?moodPose(E.react.m,1):moodPose(E.mood2,k);
+  t1.flee=press?-.32:(E.react&&E.react.flee||0);t1.flinch=0;t2.flinch=0;stepPose(E.P,t1,dt);stepPose(E.P2,t2,dt);E.P.body=E.P.body||Object.assign({},POSE0);stepPose(E.P.body,moodPose(press?'love':'happy',.3),dt);E.P.body.flinch=E.P.flinch}
+ else{const tg=press?moodPose('love',1):E.react?moodPose(E.react.m,1):moodPose(E.mood,k);tg.flee=press?-.32:(E.react&&E.react.flee||0);tg.flinch=0;stepPose(E.P,tg,dt)}
+ E.handT=lerp(E.handT,press?1.2:E.hand,Math.min(1,dt*6));
+ const heads=d.twin?[[E.mood,'a0'],[E.mood2,'a1']]:[[E.react?null:E.mood,'a0']];if(G.mode=='enc')heads.forEach(([m,key])=>{const an=ANCH[key];if(!an||!m)return;const r=Math.random();
+  if((m=='grumpy'||m=='furious')&&r<dt*7*k)fx({k:'smoke',x:an.nose[0],y:an.nose[1],vx:-an.dir*rnd(10,30),vy:rnd(-40,-20),r:4});
+  if(m=='furious'&&r<dt*4*k)fx({k:'spark',x:an.mouth[0],y:an.mouth[1],vx:rnd(-60,20),vy:rnd(-80,-20),c:'#ffb02a'});
+  if(m=='sleepy'&&r<dt*1.1*k)fx({k:'z',x:an.head[0]+20,y:an.head[1]-30,vx:15,vy:-25});
+  if(m=='happy'&&r<dt*1.2*k)fx({k:'note',x:an.head[0],y:an.head[1]-40,vx:rnd(-20,20),vy:-30});
+  if(m=='hungry'&&r<dt*.8*k)fx({k:'txt',s:Math.random()<.5?(L=='ko'?'킁킁':'sniff'):(L=='ko'?'꼬르륵':'grumble'),x:an.head[0]+rnd(-10,30),y:an.head[1]-40,vy:-25});
+  if(m=='scared'&&r<dt*k)fx({k:'q',ch:'💦',x:an.head[0]+15,y:an.head[1]-30,vy:-15})})}
+function drawEnc(t){const L0=dlayout();drawDragon(E.d,E.P,L0.x,L0.y,L0.s,t,E.P2,'a');
+ if(E.d.twin&&G.mode=='enc'&&!E.lock){const an=ANCH['a'+E.active];if(an){cx.strokeStyle=`rgba(255,240,120,${.6+.4*Math.sin(t*6)})`;cx.lineWidth=4;ell(an.head[0],an.head[1],an.r*1.2,an.r*1.05);cx.stroke()}}
+ drawHand(W*.04,L0.gy+14,E.handT,t,E.palm);
+ const bw=Math.min(W-40,320),bx=(W-bw)/2,by=40;cx.fillStyle='rgba(255,255,255,.92)';rrect(bx,by,bw,22,11);cx.fill();cx.strokeStyle='#5a6aa8';cx.lineWidth=2;cx.stroke();
+ const pr=clamp(E.trust/E.d.need,0,1);cx.fillStyle='#ff6a9a';rrect(bx+2,by+2,Math.max(0,(bw-4)*pr),18,9);if(pr>0)cx.fill();txt(`💗 ${T('trust')} ${Math.round(pr*100)}%`,bx+bw/2,by+11,16,'#2a1a3a');
+ if(G.mode=='enc'&&!E.lock&&E.tmax<50){const tp=clamp(E.t/E.tmax,0,1);cx.fillStyle='rgba(0,0,0,.25)';rrect(bx,by+26,bw,7,4);cx.fill();cx.fillStyle=tp>.4?'#4ac06a':tp>.2?'#f0b020':'#e04a2a';rrect(bx,by+26,Math.max(1,bw*tp),7,4);cx.fill()}
+ hud(`${tx(E.d.n)}${E.d.phases?' · '+T('phase')+' '+E.phase:''}`,'❤️'.repeat(Math.max(0,E.hearts))+'🤍'.repeat(3-Math.max(0,E.hearts)))}
+function pressMoment(){G.mode='press';tray(null);fingerOff();E.lock=true;sfx('win');msg('💞 '+T('press'),112);
+ for(let i=0;i<12;i++)later(()=>{const an=ANCH.a0;if(an)fx({k:'heart',x:an.head[0]+rnd(-40,40),y:an.head[1]+rnd(-20,20),vy:-60,vx:rnd(-20,20),sz:26})},i*120);
+ later(()=>{msg('');show(`<h2>💞 ${T('press')}</h2><p>${T('pressT')}</p><div class="row">${B(T('flyGo'),flyIntro,'big')}</div>`,{low:1,cont:flyIntro,guard:700})},2200)}
+// --- flight
+function flyIntro(){hideOv();G.mode='flyI';msg('');hud(null);show(`<h2>${T('flyT')}</h2><div class="pic">🐉✨⭐</div><p>${T('flyH')}</p><div class="row">${B(T('flyGo'),flyStart,'big')}${B(T('skip'),()=>{hideOv();learn(0)})}</div>`,{cont:flyStart})}
+function flyStart(){hideOv();G.mode='fly';F={t:0,dur:10,y:H*.45,vy:0,hold:false,st:[],got:0,sp:0,cl:[]};for(let i=0;i<6;i++)F.cl.push({x:rnd(0,W),y:rnd(40,H-80),s:rnd(.6,1.4)})}
+function flyUpdate(dt){F.t+=dt;F.vy+=(F.hold?-950:720)*dt;F.vy=clamp(F.vy,-360,380);F.y+=F.vy*dt;if(F.y<70){F.y=70;F.vy=0}if(F.y>H-60){F.y=H-60;F.vy=0}
+ F.sp-=dt;if(F.sp<=0&&F.t<F.dur-1){F.sp=.32;const base=H*.5+Math.sin(F.t*1.3)*H*.3;F.st.push({x:W+20,y:clamp(base,90,H-80),big:Math.random()<.12})}
+ for(const s of F.st){s.x-=230*dt;if(!s.got&&Math.hypot(s.x-W*.3,s.y-F.y)<38){s.got=1;F.got+=s.big?3:1;sfx('star');for(let i=0;i<5;i++)fx({k:'spark',x:s.x,y:s.y,vx:rnd(-80,80),vy:rnd(-120,0),c:'#ffe27a'})}}F.st=F.st.filter(s=>s.x>-30&&!s.got);
+ for(const c of F.cl){c.x-=60*c.s*dt;if(c.x<-80){c.x=W+80;c.y=rnd(40,H-80)}}if(Math.random()<dt*2.5)sfx('flap');
+ hud(`⭐ ${T('stars')} ${F.got}`,`⏱️ ${Math.max(0,Math.ceil(F.dur-F.t))}`);if(F.t>=F.dur){G.mode='flyE';F.hold=false;sfx('win');later(()=>{hud(null);show(`<h2>${T('flyDone')}</h2><div class="pic">⭐ × ${F.got}</div><div class="row">${B(T('next'),()=>{hideOv();learn(F.got)},'big')}</div>`,{cont:()=>{hideOv();learn(F.got)}})},500)}}
+function drawFly(t){const d=curD();const sky={cliff:['#ffb8a0','#fff1c8'],swamp:['#7fb59a','#d8ecc8'],meadow:['#7fc8ff','#eaf8ff'],storm:['#3a4a8a','#9aa8d8'],ice:['#4a8fc0','#e0f6ff'],peaks:['#4a3a8a','#ffb38a'],volcano:['#6a1a1a','#ff9a4a']}[d.bg];
+ cx.fillStyle=lg(0,H,sky);cx.fillRect(0,0,W,H);hills(H*.86,20,.01,t*.4,'rgba(255,255,255,.35)');
+ for(const c of F.cl){cx.fillStyle='rgba(255,255,255,.85)';ell(c.x,c.y,40*c.s,15*c.s);cx.fill();ell(c.x+18*c.s,c.y-8*c.s,24*c.s,14*c.s);cx.fill()}
+ for(const s of F.st)txt(s.big?'🌟':'⭐',s.x,s.y,s.big?34:26);
+ const P=moodPose('happy',1);P.wings=.5+.5*Math.sin(t*10);P.noShadow=1;let P2=null;if(d.twin){P2=moodPose('happy',1);P.body=Object.assign(moodPose('happy',1),{wings:P.wings})}
+ const rot=clamp(F.vy/900,-.35,.35);cx.save();cx.translate(W*.3,F.y+30);cx.rotate(rot);drawDragon(d,P,0,0,d.kind=='king'?80:95,t,P2,'f');cx.restore();
+ cx.save();cx.translate(W*.3,F.y+30);cx.rotate(rot);cx.fillStyle='#ffd2b0';ell(0,-58,10,10);cx.fill();cx.fillStyle='#ff6a3a';cx.beginPath();cx.arc(0,-60,11,Math.PI,0);cx.fill();cx.fillStyle='#4a7adf';rrect(-8,-50,16,16,5);cx.fill();cx.restore();
+ const tp=1-F.t/F.dur;cx.fillStyle='rgba(255,255,255,.8)';rrect(20,40,W-40,8,4);cx.fill();cx.fillStyle='#ffb02a';rrect(20,40,Math.max(1,(W-40)*tp),8,4);cx.fill()}
+// --- learn / quiz / result
+function learn(stars){G.mode='learn';G.flyStars=stars;tray(null);hud(null);msg('');const d=curD();const ms=[...new Set(d.moods)];
+ show(`<h2>${T('learnT')}</h2><p>${tx(d.learn)}</p>${ms.map(m=>`<div class="mood"><span class="e">${MOODS[m].e}</span><span>${tx(MOODS[m].cue)} → ${ACTS[MOODS[m].act].e} ${tx(ACTS[MOODS[m].act].n)}</span></div>`).join('')}<div class="row srow">${B(T('next'),quiz,'big')}</div>`,{cont:quiz,guard:800})}
+function quiz(){G.mode='quiz';const d=curD();G.qs=shuf(d.quiz).slice(0,3);G.qi=0;G.qok=0;G.ans=0;askQ()}
+function askQ(){const q=G.qs[G.qi],ko=L=='ko';const opts=shuf([0,1,2]);
+ show(`<h2>❓ ${T('quiz')} ${G.qi+1}/3</h2><p style="font-size:19px;font-weight:500">${ko?q[0]:q[1]}</p><div class="qopts">${opts.map(o=>`<button class="btn" data-o="${o}">${ko?q[2+o*2]:q[3+o*2]}</button>`).join('')}</div><div class="fb" id="fb"></div><div class="row" id="qn"></div>`,{guard:300});
+ ov.querySelectorAll('[data-o]').forEach(el=>el.onclick=()=>{if(G.ans)return;G.ans=1;const o=+el.dataset.o,ok=o===0;ov.querySelectorAll('[data-o]').forEach(e=>{e.disabled=e!==el&&+e.dataset.o!==0;if(+e.dataset.o===0)e.classList.add('ok')});if(!ok)el.classList.add('no');
+  if(ok){G.qok++;sfx('good')}else sfx('bad');$('fb').innerHTML=(ok?`<b>⭕ ${T('right')}</b><br>`:`<b>❌ ${T('wrong')} ${ko?q[2]:q[3]}</b><br>`)+`💡 ${ko?q[8]:q[9]}`;
+  const nx=()=>{G.ans=0;G.qi++;if(G.qi<3)askQ();else result()};$('qn').innerHTML=B(T('next'),nx,'big');contFn=nx;contAt=now()+700;ov.querySelector('.panel').insertAdjacentHTML('beforeend',`<div class="cont">${T('contN')}</div>`)})}
+function result(){const d=curD();const h=E?E.hearts:1;const st=h>=3?3:h>=2?2:1;const nw=!SV.done[d.id];SV.done[d.id]=Math.max(SV.done[d.id]||0,st);if(G.di==0){SV.tut=true;G.tut=false}save();sfx('win');G.mode='menu';
+ const nd=DR[G.di+1];const all=DR.every(x=>SV.done[x.id]);
+ show(`<h1>${T('tamed').replace('{d}',L=='ko'?josa(tx(d.n)):tx(d.n))}</h1><div class="stars">${[0,1,2].map(i=>i<st?'★':'<span class="off">★</span>').join('')}</div><p class="sub">${T('score')} ${G.qok}/3 · ⭐ ${G.flyStars||0}</p>${nw?`<div class="tip">${T('newCard')}</div>`:''}
+ <div class="dc"><img src="${portrait(d)}" alt=""><div class="n">${tx(d.n)}</div><div class="t">${T('pers')}: ${tx(d.pers)}</div></div>${all?`<p class="sub">${T('allDone')}</p>`:''}
+ <div class="row">${nd?B(`${tx(nd.n)} ▶`,()=>startEnc(G.di+1),'big'):''}${B(T('menu'),menu,nd?'':'big')}${B(T('retry'),()=>startEnc(G.di))}</div>`,{cont:menu,guard:900})}
+function unlocked(i){return i==0||!!SV.done[DR[i-1].id]}
+function menu(){G.tok++;G.mode='menu';E=null;F=null;tray(null);hud(null);msg('');fingerOff();G.reshow=menu;
+ show(`<h2>${T('choose')}</h2><div class="blist">${DR.map((d,i)=>{const u=unlocked(i),s=SV.done[d.id]||0;return B(`<img src="${portrait(d,!u)}" alt="" style="width:64px;height:54px;object-fit:contain"><span><span class="n">${u?tx(d.n):'???'}</span><br><span class="d">${u?'📍 '+tx(d.pl):T('locked')}</span></span><span class="s">${'★'.repeat(s)}${'☆'.repeat(3-s)}</span>`,u?()=>startEnc(i):()=>sfx('bad'),'bb')}).join('')}</div>
+ <div class="row srow">${B(T('dex'),dexPanel)}${B(T('glos'),glossary)}${B(T('tut'),()=>{SV.tut=false;save();startEnc(0)})}</div>`)}
+function dexPanel(){G.reshow=dexPanel;const cards=DR.map(d=>SV.done[d.id]?`<div class="dc"><img src="${portrait(d)}" alt=""><div class="n">${tx(d.n)}</div><div class="t">📍 ${tx(d.pl)}<br>${tx(d.pers)}</div></div>`:`<div class="dc lk"><img src="${portrait(d,1)}" alt=""><div class="n">${T('dexEmpty')}</div></div>`);
+ show(`<h2>${T('dex')}</h2><div class="dexg">${cards.join('')}</div><div class="row srow">${B(T('close'),menu,'big')}</div>`)}
+let ov2=null;function glossary(){if(ov2)return closeGl();ov2=document.createElement('div');ov2.id='ov2';ov2.style.cssText='position:fixed;left:0;right:0;top:52px;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(20,26,44,.5)';
+ ov2.innerHTML=`<div class="panel"><h2>${T('glos')}</h2>${ACT_ORDER.map(a=>{const m=Object.keys(MOODS).find(k=>MOODS[k].act==a);return `<div class="mood"><span class="e">${MOODS[m].e}</span><span><b style="font-size:18px">${tx(MOODS[m].n)}</b><br>👀 ${tx(MOODS[m].cue)}<br>→ ${ACTS[a].e} ${tx(ACTS[a].n)}</span></div>`}).join('')}<div class="row srow"><button class="btn big" id="glX">${T('close')}</button></div></div>`;
+ document.body.appendChild(ov2);$('glX').onclick=()=>{sfx('tap');closeGl()}}
+function closeGl(){if(ov2){ov2.remove();ov2=null}}
+function title(){G.mode='title';G.reshow=title;show(`<h1>${T('t')}</h1><img class="dpic" src="${portrait(DR[0])}" alt=""><p class="sub">${T('sub')}</p><p class="sub">${T('sub2')}</p><div class="row">${B(T('start'),menu,'big')}</div>`,{cont:menu,guard:300})}
+// ===== loop & input =====
+let last=0,started=false,VT=0;const TP=Object.assign({},POSE0);
+function loop(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(started)VT+=dt;const t=VT;const paused=!!ov2||!ov.classList.contains('hide');
+ if(G.mode=='fly'||G.mode=='flyE'){if(started&&!paused&&G.mode=='fly')flyUpdate(dt);drawFly(t)}
+ else{const d=(E&&E.d)||DR[G.di];drawScene(d.bg,t,started?dt:0);
+  if(E&&(G.mode=='enc'||G.mode=='press'||G.mode=='intro')){if(started&&!paused)encUpdate(dt);drawEnc(t)}
+  else if(G.mode!='learn'&&G.mode!='quiz'||true){stepPose(TP,moodPose('happy',.7),dt);const L0=dlayout();let P2=null;if(d.twin){P2=Object.assign({},TP);TP.body=Object.assign({},POSE0)}else delete TP.body;drawDragon(d,TP,L0.x,L0.y,L0.s,t,P2,'m')}}
+ drawFX(started?dt:0);if(started)bgmTick();requestAnimationFrame(loop)}
+function setHold(v){if(F&&G.mode=='fly')F.hold=v}
+cv.addEventListener('pointerdown',e=>{initAudio();started=true;if(ov2||!ov.classList.contains('hide'))return;setHold(true)});
+addEventListener('pointerup',()=>setHold(false));addEventListener('pointercancel',()=>setHold(false));
+addEventListener('pointerdown',()=>{initAudio();started=true},true);
+addEventListener('keydown',e=>{const n=+e.key;if(n>=1&&n<=6&&G.mode=='enc'&&E){if(n<=E.d.acts&&!e.repeat)choose(ACT_ORDER[n-1]);return}
+ if(e.code!='Space'&&e.code!='Enter')return;e.preventDefault();initAudio();started=true;if(e.repeat)return;if(ov2){closeGl();return}if(!ov.classList.contains('hide')){tryCont();return}setHold(true)});
+addEventListener('keyup',e=>{if(e.code=='Space'||e.code=='Enter')setHold(false)});
+$('mute').onclick=()=>{initAudio();setMute(!muted)};$('glB').onclick=()=>{initAudio();sfx('tap');glossary()};
+function applyLang(){document.documentElement.lang=L;$('lang').textContent=L=='ko'?'EN':'한국어';$('home').textContent=T('home');$('ttl').textContent=T('t');if(G.reshow&&!ov.classList.contains('hide'))G.reshow();
+ if(G.mode=='enc'&&E){document.querySelectorAll('.act').forEach(b=>{const a=b.dataset.a;b.innerHTML=`<span class="e">${ACTS[a].e}</span>${tx(ACTS[a].n)}`});if(!E.lock){prompt();hint()}}}
+$('lang').onclick=()=>{L=L=='ko'?'en':'ko';localStorage.setItem('dtLang',L);sfx('tap');if(ov2){closeGl();glossary()}applyLang()};
+setMute(muted);applyLang();title();requestAnimationFrame(loop);
+</script></body></html>
