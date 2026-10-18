@@ -1,0 +1,659 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>나두 바리스타 / Nadoo Barista - 나두Ai</title>
+<link rel="icon" href="data:,">
+<script src="/counter.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#3b2417;overflow:hidden;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a1a10;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+#top{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px;background:linear-gradient(#fff4e4,#efd8b8);border-bottom:3px solid #7a4a2a;z-index:5}
+#ttl{font-size:17px;font-weight:600;color:#5a3218;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{background:linear-gradient(#fffaf2,#f1dfc4);color:#40240f;border:2px solid #9c6a44;border-radius:12px;padding:8px 12px;font-size:17px;font-weight:500;text-decoration:none;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation;line-height:1.3}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45}
+.tb{padding:6px 10px;font-size:16px}
+.big{font-size:19px;padding:12px 22px;background:linear-gradient(#c98a55,#94552c);color:#fff;border-color:#5e3016;text-shadow:0 1px 0 #4a250f}
+canvas{position:fixed;top:52px;left:0;display:block;touch-action:none}
+#tray{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:7px;justify-content:center;flex-wrap:wrap;z-index:4;background:linear-gradient(rgba(59,36,23,0),rgba(59,36,23,.6) 30%)}
+#tray.hide{display:none}
+.chip{min-width:64px;flex:0 1 auto;padding:7px 10px;border-radius:14px;background:linear-gradient(#fffaf2,#efdcc0);border:2.5px solid #9c6a44;display:flex;flex-direction:column;align-items:center;font-family:inherit;color:#33200f;font-size:16px;line-height:1.3;touch-action:manipulation;cursor:pointer}
+.chip .e{font-size:27px;line-height:33px}
+.chip.on{border-color:#d9772b;box-shadow:0 0 0 3px #ffcf86;background:linear-gradient(#fff3dc,#ffd9a0)}
+.hold{font-size:19px;padding:13px 24px;border-radius:18px;background:linear-gradient(#e9965c,#b9561f);color:#fff;border:2.5px solid #6e2c0a;font-weight:600;font-family:inherit;touch-action:none;cursor:pointer}
+.hold.green{background:linear-gradient(#7cc47a,#3d8a3a);border-color:#245a22}
+.hold.pressed{transform:scale(.96);filter:brightness(1.12)}
+#ov{position:fixed;left:0;right:0;top:52px;bottom:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,22,10,.38)}
+#ov.hide{display:none}
+.panel{width:100%;max-width:470px;max-height:100%;overflow:auto;background:linear-gradient(#fffaf3,#f6e5cc);border:3px solid #9c6a44;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:16px 18px;animation:pin .3s ease-out}
+@keyframes pin{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.panel h1{font-size:29px;margin:4px 0 8px;text-align:center;color:#6a3512;font-weight:700}
+.panel h2{font-size:23px;margin:2px 0 8px;text-align:center;color:#6a3512;font-weight:700}
+.panel p,.tx{font-size:17px;line-height:1.55;font-weight:400;margin:8px 0;color:#2a1a10}
+.sub{font-size:17px;line-height:1.5;color:#4e3220;text-align:center;font-weight:400}
+.pic{font-size:50px;text-align:center;line-height:1.2;margin:4px 0}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.srow{position:sticky;bottom:-16px;background:#f6e5cc;padding:8px 0 10px}
+.cont{text-align:center;margin-top:10px;font-size:16px;color:#8a4a1c;font-weight:500;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.5}}
+.blist{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.bb{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 12px;white-space:normal}
+.bb .e{font-size:32px}.bb .n{font-size:18px;font-weight:600}.bb .d{font-size:16px;font-weight:400;color:#4e3220;line-height:1.45}
+.bb .s{margin-left:auto;color:#d79200;font-size:18px;letter-spacing:1px}
+.why{background:#fff;border-left:6px solid #c0501c;border-radius:10px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.tip{background:#fff5df;border:2px dashed #c98a3a;border-radius:12px;padding:9px 12px;margin:8px 0;font-size:17px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.qopts .btn{font-size:17px;font-weight:400;padding:12px;text-align:left;white-space:normal;line-height:1.45}
+.qopts .btn[disabled]{opacity:1;color:#5e4a3a}.qopts .ok{background:#cdeec0;border-color:#3f8a2f}.qopts .no{background:#f6c4b6;border-color:#b0402a}
+.fb{font-size:17px;line-height:1.5;margin-top:10px;min-height:26px}
+.fb b{font-size:20px;font-weight:600}
+.tabs{display:flex;gap:6px;justify-content:center;margin:4px 0 8px}
+.tabs .btn.on{background:linear-gradient(#ffe0b0,#f3b874);border-color:#b8661f}
+.dexg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dc{background:#fff;border:2px solid #d4ab80;border-radius:14px;padding:8px;text-align:center}
+.dc .e{font-size:36px}.dc .n{font-size:17px;font-weight:600}.dc .t{font-size:16px;line-height:1.5;text-align:left;font-weight:400}
+.dc.lk{opacity:.5}
+.fc{background:#fff;border:2px solid #d4ab80;border-radius:14px;padding:10px 12px;margin:8px 0;text-align:left}
+.fc .n{font-size:18px;font-weight:600}.fc .t{font-size:17px;line-height:1.55}
+.lg{display:inline-block;background:#ffe2a8;border:1.5px solid #c98a3a;border-radius:8px;padding:0 6px;font-size:16px;margin-left:4px}
+.gl{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed #d4ab80;font-size:17px;line-height:1.5}.gl .e{font-size:28px;width:38px;text-align:center}
+#hud{position:fixed;top:58px;left:8px;right:8px;z-index:3;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font-size:16px;font-weight:500;color:#33200f;gap:6px}#hud span{background:rgba(255,250,240,.94);border:1.5px solid #b98758;border-radius:12px;padding:2px 10px;line-height:1.5}#hud span:empty{display:none}
+#hud.hide{display:none}
+#msg{position:fixed;left:10px;right:10px;z-index:3;text-align:center;font-size:17px;font-weight:400;line-height:1.5;color:#2a1a10;background:rgba(255,250,240,.95);border:2px solid #c99a6a;border-radius:14px;padding:6px 10px;pointer-events:none}#msg:empty{display:none}
+#finger{position:fixed;z-index:7;font-size:46px;pointer-events:none;display:none;transform:translate(-30%,-10%);animation:fb .7s infinite alternate;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+@keyframes fb{to{margin-top:14px}}
+#banner{position:fixed;left:50%;top:36%;z-index:5;margin-left:-140px;width:280px;text-align:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(#c98a55,#8a4a22);border:3px solid #fff1dc;border-radius:22px;padding:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.35);text-shadow:0 2px 0 #4a250f;pointer-events:none;opacity:0}
+#banner.on{animation:bn 1.3s ease-out both}
+@keyframes bn{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.stars{text-align:center;font-size:42px;color:#e8a400;letter-spacing:4px}.stars .off{color:#dccbb0}
+.face{font-size:64px;text-align:center;line-height:1.1}
+.tk{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}.tk span{background:#fff;border:2px solid #d4ab80;border-radius:10px;padding:3px 9px;font-size:17px}
+</style></head><body>
+<div id="top"><a class="btn tb" href="/" id="home">🏠 홈</a><b id="ttl">☕ 나두 바리스타</b><span style="display:flex;gap:5px"><button class="btn tb" id="glB" aria-label="glossary">📖</button><button class="btn tb" id="lang">EN</button><button class="btn tb" id="mute">🔊</button></span></div>
+<canvas id="c"></canvas>
+<div id="hud" class="hide"><span id="hudL"></span><span id="hudR"></span></div>
+<div id="msg"></div>
+<div id="tray" class="hide"></div>
+<div id="ov" class="hide"></div>
+<div id="banner"></div>
+<div id="finger">👆</div>
+<script>
+const K=(ko,en)=>({ko,en});
+const ING={
+ shot:['☕',K('에스프레소','Espresso'),'#3a1c0c'],water:['💧',K('뜨거운 물','Hot water'),'#d9ecf7'],coldw:['🚰',K('찬물','Cold water'),'#d9ecf7'],
+ ice:['🧊',K('얼음','Ice'),'#e8f6ff'],milk:['🥛',K('스팀 우유','Steamed milk'),'#fff4e2'],cmilk:['🍼',K('찬 우유','Cold milk'),'#fffaf0'],
+ foam:['☁️',K('우유 거품','Milk foam'),'#ffffff'],choco:['🍫',K('초콜릿 소스','Chocolate sauce'),'#5a2e17'],vanilla:['🍯',K('바닐라 시럽','Vanilla syrup'),'#f3d27a'],
+ caramel:['🍮',K('캐러멜 드리즐','Caramel drizzle'),'#c9781e'],cream:['🍦',K('휘핑크림','Whipped cream'),'#fffdf8'],icecream:['🍨',K('아이스크림','Ice cream'),'#fff3d6'],
+ straw:['🍓',K('딸기 퓨레','Strawberry purée'),'#e8435a'],fruit:['🍋',K('과일청','Fruit syrup'),'#f7c93a'],soda:['🫧',K('탄산수','Sparkling water'),'#e3f4ff'],
+ stir:['🥄',K('젓기','Stir'),null],cocoa:['🤎',K('코코아 가루','Cocoa dust'),'#7a4a2a'],yogurt:['🥣',K('요거트','Yogurt'),'#fbf7ef'],
+ frozen:['🫐',K('냉동 과일','Frozen fruit'),'#7a5fc0'],coldbrew:['🫙',K('콜드브루','Cold brew'),'#2e1709']};
+const SZ={S:[K('작은 컵','Small'),'8oz · 240ml'],M:[K('중간 컵','Medium'),'12oz · 355ml'],L:[K('큰 컵','Large'),'16oz · 473ml']};
+const PUMPS={S:2,M:3,L:4};
+const ROAST={light:['🟫',K('약배전 (라이트)','Light roast'),K('과일처럼 상큼·밝은 맛','fruity, bright, floral'),'#a8703c'],medium:['🟤',K('중배전 (미디엄)','Medium roast'),K('고소·달콤한 캐러멜 맛','nutty, caramel, balanced'),'#6e3f1e'],dark:['⚫',K('강배전 (다크)','Dark roast'),K('진하고 쌉싸름한 초콜릿 맛','bold, chocolatey, smoky'),'#2e1a0e']};
+// quiz: [q_ko,q_en, right_ko,right_en, w1_ko,w1_en, w2_ko,w2_en, why_ko,why_en]
+const DR=[
+{id:'espresso',e:'☕',n:K('에스프레소','Espresso'),d:K('커피의 심장! 곱게 갈고, 꾹 다지고, 25~30초','The heart of coffee! Fine grind, even tamp, 25–30 s'),cup:'demi',steps:['order','beans','grind','dose','tamp','shot'],build:[],temp:'hot',sizes:false,beans:true,
+ card:K('원두 18g → 25~30초 → 에스프레소 약 36g (1:2 비율). 너무 빨리 나오면 시고 묽어요(과소추출) → 더 곱게. 너무 느리면 써요(과다추출) → 더 굵게.','18 g of coffee → 25–30 s → about 36 g of espresso (a 1:2 ratio). Too fast tastes sour and weak (under-extracted) → grind finer. Too slow tastes bitter (over-extracted) → grind coarser.'),
+ quiz:[['에스프레소가 15초 만에 다 나왔어요. 맛은 어떨까요?','The espresso finished in only 15 seconds. How will it taste?','시고 묽어요 (과소추출)','Sour and weak (under-extracted)','아주 써요','Very bitter','완벽해요','Perfect','물이 너무 빨리 지나가면 단맛 성분이 덜 녹아 나와 신맛만 남아요. 더 곱게 갈면 천천히 나와요.','Water rushing through too fast dissolves too little of the sweet stuff, so it tastes sour. Grind finer to slow it down.'],
+  ['원두 18g으로 1:2 비율 에스프레소를 내리면 몇 g이 나올까요?','With 18 g of coffee and a 1:2 ratio, how much espresso comes out?','약 36g','About 36 g','약 18g','About 18 g','약 100g','About 100 g','1:2는 원두 무게의 두 배예요. 18 × 2 = 36g!','1:2 means twice the coffee weight. 18 × 2 = 36 g!']]},
+{id:'americano',e:'🫖',n:K('아메리카노','Americano'),d:K('에스프레소 + 뜨거운 물. 순서가 중요해요!','Espresso + hot water. The order matters!'),cup:'cup',steps:['order','beans','shot','build'],build:[['water',1],['shot','S']],temp:'hot',sizes:true,beans:true,xshot:true,
+ why:K('물을 먼저 붓고 에스프레소를 위에 올리면 크레마(갈색 거품)가 깨지지 않고 예쁘게 남아요.','Pour the hot water first, then the espresso on top, so the crema (the golden foam) stays on top instead of breaking up.'),
+ card:K('컵에 뜨거운 물 → 에스프레소. 크레마가 위에 동동! 샷 추가하면 더 진해요.','Hot water in the cup → espresso on top. The crema floats! An extra shot makes it stronger.'),
+ quiz:[['아메리카노를 만들 때 물을 먼저 붓는 이유는?','Why pour the water first for an Americano?','크레마가 깨지지 않고 위에 남아서','So the crema stays on top','물이 더 뜨거워져서','The water gets hotter','컵이 가벼워져서','The cup gets lighter','에스프레소 위에 물을 쏟으면 크레마가 흩어져요. 물 위에 살살 부으면 크레마가 그대로 떠 있어요.','Pouring water onto espresso breaks up the crema. Espresso poured gently onto water keeps it floating.'],
+  ['아메리카노는 무엇으로 만들까요?','What is an Americano made of?','에스프레소 + 뜨거운 물','Espresso + hot water','에스프레소 + 우유','Espresso + milk','우유 + 초콜릿','Milk + chocolate','진한 에스프레소를 물로 부드럽게 늘린 커피예요.','It is strong espresso stretched with hot water.']]},
+{id:'latte',e:'🥛',n:K('카페 라떼','Café Latte'),d:K('에스프레소 + 매끈한 스팀 우유 + 얇은 거품','Espresso + silky steamed milk + a thin foam layer'),cup:'cup',steps:['order','shot','steam','build','art'],build:[['shot','S'],['milk',1]],temp:'hot',sizes:true,xshot:true,milk:{t:[60,65],f:.25},
+ why:K('에스프레소를 먼저 담고 그 위에 우유를 부어야 섞이면서 라떼 아트도 그릴 수 있어요.','Espresso goes in first; pouring milk into it mixes them and lets you draw latte art.'),
+ card:K('에스프레소 → 60~65℃ 스팀 우유 (거품 약 1cm). \'latte\'는 이탈리아어로 우유!','Espresso → milk steamed to 60–65°C (about 1 cm of foam). \'Latte\' means milk in Italian!'),
+ quiz:[['우유를 스팀할 때 알맞은 온도는?','What is the right temperature for steamed milk?','60~65℃','60–65°C','100℃ 끓을 때까지','100°C, until it boils','30℃','30°C','너무 뜨거우면 우유의 단맛이 줄고 익은 냄새가 나요. 70℃가 넘으면 거품도 금방 꺼져요.','Too hot and milk loses its sweetness and tastes cooked. Above 70°C the foam collapses quickly.'],
+  ['\'라떼(latte)\'는 이탈리아어로 무슨 뜻일까요?','What does \'latte\' mean in Italian?','우유','Milk','커피','Coffee','거품','Foam','카페 라떼 = 커피와 우유! 그래서 우유가 많이 들어가요.','Caffè latte = coffee and milk! That is why it has lots of milk.']]},
+{id:'cappu',e:'☁️',n:K('카푸치노','Cappuccino'),d:K('라떼보다 거품이 훨씬 두툼해요','Much thicker foam than a latte'),cup:'cup',steps:['order','shot','steam','build','art'],build:[['shot','S'],['milk',1]],temp:'hot',sizes:true,milk:{t:[60,65],f:.6},
+ why:K('에스프레소 먼저, 그 위에 거품 많은 우유!','Espresso first, then the foamy milk on top!'),
+ card:K('에스프레소 → 공기를 많이 넣은 우유 (거품 2cm 이상). 가볍고 폭신해요.','Espresso → milk with lots of air (2 cm+ of foam). Light and fluffy.'),
+ quiz:[['카푸치노가 라떼와 가장 다른 점은?','What makes a cappuccino different from a latte?','우유 거품이 더 두꺼워요','Thicker milk foam','초콜릿이 들어가요','It has chocolate','차갑게 마셔요','It is served cold','스팀할 때 공기를 더 오래 넣으면(스트레칭) 거품이 두툼해져요.','Adding air for longer while steaming (stretching) makes thick foam.'],
+  ['\'카푸치노\' 이름은 어디서 왔을까요?','Where does the name \'cappuccino\' come from?','카푸친 수도사의 갈색 옷 색깔','The brown robes of Capuchin friars','이탈리아의 산 이름','An Italian mountain','첫 바리스타의 이름','The first barista\'s name','커피와 우유가 섞인 색이 카푸친 수도회 수도사들의 옷 색과 닮았대요.','The coffee-and-milk colour looked like the robes of the Capuchin friars.']]},
+{id:'flat',e:'🤍',n:K('플랫 화이트','Flat White'),d:K('작은 컵, 아주 얇고 매끈한 마이크로폼','Small cup with a very thin, silky microfoam'),cup:'cup',steps:['order','shot','steam','build','art'],build:[['shot','S'],['milk',1]],temp:'hot',sizes:false,fixSize:'S',milk:{t:[60,65],f:.1},
+ why:K('에스프레소 먼저, 그 위에 매끈한 우유!','Espresso first, then the silky milk!'),
+ card:K('작은 컵 + 에스프레소 → 공기를 아주 조금만 넣은 매끈한 우유. 커피 맛이 진해요. 호주·뉴질랜드에서 유래.','Small cup + espresso → silky milk with only a little air. Strong coffee taste. From Australia/New Zealand.'),
+ quiz:[['플랫 화이트의 특징은?','What is special about a flat white?','얇고 매끈한 거품, 진한 커피 맛','Thin silky foam, strong coffee taste','거품이 산처럼 높아요','Foam piled like a mountain','물을 많이 넣어요','Lots of water','\'플랫\'은 납작하다는 뜻! 거품이 얇아서 표면이 평평해요.','\'Flat\' because the foam is so thin the top is flat.'],
+  ['플랫 화이트는 보통 어떤 크기 컵에 담을까요?','What cup size is a flat white usually served in?','작은 컵','A small cup','아주 큰 컵','A huge cup','유리병','A glass jar','작은 컵이라 우유가 적고 커피 맛이 또렷해요.','Less milk in a small cup keeps the coffee flavour clear.']]},
+{id:'mocha',e:'🍫',n:K('카페 모카','Café Mocha'),d:K('초콜릿 + 에스프레소 + 우유 + 크림','Chocolate + espresso + milk + cream'),cup:'cup',steps:['order','shot','steam','build'],build:[['choco',1],['shot','S'],['stir',1],['milk',1],['cream',1]],temp:'hot',sizes:true,milk:{t:[60,65],f:.2},
+ why:K('초콜릿 소스를 먼저 넣고 뜨거운 에스프레소로 녹여 저어야 바닥에 뭉치지 않아요. 그다음 우유, 마지막에 크림!','Chocolate first, melt it with the hot espresso and stir so it doesn\'t clump at the bottom. Then milk, and cream last!'),
+ card:K('초콜릿 소스 → 에스프레소 → 젓기 → 스팀 우유 → 휘핑크림.','Chocolate sauce → espresso → stir → steamed milk → whipped cream.'),
+ quiz:[['모카에서 초콜릿 소스를 제일 먼저 넣는 이유는?','Why does the chocolate go in first for a mocha?','뜨거운 에스프레소로 녹여 고루 섞으려고','To melt it with hot espresso and mix evenly','색이 예뻐서','It looks pretty','크림을 아끼려고','To save cream','진한 초콜릿은 차가운 우유엔 잘 안 녹아요. 뜨거운 샷과 먼저 섞어야 해요.','Thick chocolate won\'t dissolve in milk well. Mix it with the hot shot first.'],
+  ['\'모카\'라는 이름은 어디서 왔을까요?','Where does the name \'mocha\' come from?','예멘의 모카 항구','The port of Mocha in Yemen','초콜릿 회사 이름','A chocolate company','커피 기계 이름','A coffee machine','옛날 커피는 예멘의 모카 항구에서 세계로 퍼졌어요.','Long ago, coffee travelled to the world from the port of Mocha in Yemen.']]},
+{id:'vanilla',e:'🍯',n:K('바닐라 라떼','Vanilla Latte'),d:K('컵 크기에 맞게 시럽 펌프!','Syrup pumps that match the cup size!'),cup:'cup',steps:['order','shot','steam','build','art'],build:[['vanilla','P'],['shot','S'],['milk',1]],temp:'hot',sizes:true,milk:{t:[60,65],f:.25},
+ why:K('시럽을 먼저 넣고 뜨거운 에스프레소로 섞어야 고루 퍼져요. 펌프 수: 작은 2 · 중간 3 · 큰 4!','Syrup first, then the hot espresso mixes it in. Pumps: Small 2 · Medium 3 · Large 4!'),
+ card:K('바닐라 시럽 (작은 2·중간 3·큰 4 펌프) → 에스프레소 → 스팀 우유.','Vanilla syrup (Small 2 · Medium 3 · Large 4 pumps) → espresso → steamed milk.'),
+ quiz:[['우리 카페 규칙! 큰 컵 바닐라 라떼엔 시럽 몇 펌프?','Our cafe rule! How many syrup pumps for a Large vanilla latte?','4펌프','4 pumps','1펌프','1 pump','10펌프','10 pumps','컵이 클수록 우유가 많으니 시럽도 늘려야 맛이 같아요. 작은 2, 중간 3, 큰 4!','Bigger cups have more milk, so more syrup keeps the taste the same. Small 2, Medium 3, Large 4!'],
+  ['바닐라는 어떤 식물에서 얻을까요?','Where does vanilla come from?','바닐라 난초의 꼬투리','The pods of a vanilla orchid','콩나무','A bean tree','해바라기','Sunflowers','바닐라는 난초 꽃이 진 뒤 생기는 긴 꼬투리를 말리고 숙성해서 얻어요.','Vanilla comes from the long pods of an orchid, dried and cured.']]},
+{id:'macch',e:'🍮',n:K('캐러멜 마키아토','Caramel Macchiato'),d:K('층 쌓기! 에스프레소를 맨 마지막에','Layering! Espresso goes on last'),cup:'glass',steps:['order','shot','steam','build'],build:[['vanilla','P'],['milk',1],['foam',1],['shot','S'],['caramel',1]],temp:'hot',sizes:true,milk:{t:[60,65],f:.4},
+ why:K('바닐라 시럽 → 우유 → 거품 → 에스프레소를 거품 위에 \'점찍듯\' → 캐러멜. 샷을 마지막에 부어야 예쁜 층이 생겨요.','Vanilla → milk → foam → espresso poured onto the foam to \'mark\' it → caramel. Adding the shot last makes the layers.'),
+ card:K('시럽 → 스팀 우유 → 거품 → 에스프레소 → 캐러멜 격자. \'마키아토\' = 점 찍은, 얼룩진.','Syrup → steamed milk → foam → espresso → caramel crosshatch. \'Macchiato\' = marked, stained.'),
+ quiz:[['\'마키아토(macchiato)\'는 이탈리아어로 무슨 뜻?','What does \'macchiato\' mean in Italian?','점 찍은, 얼룩진','Marked, stained','달콤한','Sweet','차가운','Cold','하얀 우유 거품 위에 에스프레소로 \'점\'을 찍어서 붙은 이름이에요.','Espresso \'marks\' the white milk foam, giving it the name.'],
+  ['캐러멜 마키아토에서 에스프레소를 마지막에 붓는 이유는?','Why is the espresso poured last in a caramel macchiato?','우유 위에 예쁜 층을 만들려고','To make pretty layers on the milk','빨리 식히려고','To cool it quickly','시럽을 아끼려고','To save syrup','거품이 샷을 잠깐 받쳐 주면서 갈색·흰색 층이 생겨요.','The foam catches the shot, making brown and white layers.']]},
+{id:'iceame',e:'🧊',n:K('아이스 아메리카노','Iced Americano'),d:K('얼음이 먼저! 이유는?','Ice first! Why?'),cup:'ice',steps:['order','beans','shot','build'],build:[['ice',1],['coldw',1],['shot','S']],temp:'iced',sizes:true,beans:true,xshot:true,
+ why:K('얼음을 먼저 넣어야 뜨거운 샷이 얼음 위로 떨어지며 바로 차가워지고, 튀지 않고, 양도 맞추기 쉬워요.','Ice goes first so the hot shot lands on the ice and chills instantly, without splashing, and the amount is easy to judge.'),
+ card:K('얼음 → 찬물 → 에스프레소. 샷이 얼음에 닿아 바로 시원해져요.','Ice → cold water → espresso. The shot hits the ice and chills right away.'),
+ quiz:[['아이스 음료에서 얼음을 먼저 넣는 이유는?','Why does ice go in first for iced drinks?','음료가 바로 차가워지고 덜 튀어서','The drink chills at once and splashes less','얼음이 예뻐서','Ice looks nice','컵이 무거워져서','The cup gets heavier','뜨거운 샷이 얼음 위로 떨어지면 순식간에 식어요. 얼음을 나중에 넣으면 풍덩 튀어요!','A hot shot landing on ice chills instantly. Ice added last splashes everywhere!'],
+  ['얼음이 녹으면 아메리카노는?','What happens when the ice melts?','조금 묽어져요','It gets a bit weaker','더 진해져요','It gets stronger','초콜릿 맛이 나요','It tastes like chocolate','녹은 얼음은 물이에요. 그래서 얼음까지 생각해서 물 양을 맞춰요.','Melted ice is water, so baristas plan the water amount with the ice in mind.']]},
+{id:'icelatte',e:'🥤',n:K('아이스 라떼','Iced Latte'),d:K('얼음 → 찬 우유 → 샷, 대리석 무늬!','Ice → cold milk → shot, a marble swirl!'),cup:'ice',steps:['order','shot','build'],build:[['ice',1],['cmilk',1],['shot','S']],temp:'iced',sizes:true,xshot:true,
+ why:K('얼음 → 찬 우유 → 에스프레소를 마지막에! 샷이 천천히 내려가며 예쁜 무늬가 생겨요.','Ice → cold milk → espresso last! The shot slowly sinks in a pretty swirl.'),
+ card:K('스팀 없이 찬 우유! 얼음 → 찬 우유 → 에스프레소.','No steaming, just cold milk! Ice → cold milk → espresso.'),
+ quiz:[['아이스 라떼는 우유를 어떻게 할까요?','What do we do with the milk for an iced latte?','스팀하지 않고 찬 우유 그대로','Use it cold, no steaming','끓여요','Boil it','거품만 써요','Use only foam','차갑게 마시는 음료라 데우지 않아요. 얼음이 녹지 않게 찬 우유를 써요.','It is a cold drink, so no heating. Cold milk keeps the ice from melting.'],
+  ['아이스 라떼에서 샷을 마지막에 넣으면?','What happens if the shot goes in last in an iced latte?','우유 사이로 내려가며 예쁜 층이 생겨요','It sinks through the milk in pretty layers','샷이 사라져요','The shot disappears','우유가 끓어요','The milk boils','에스프레소가 우유 사이로 천천히 섞이며 대리석 무늬가 생겨요.','The espresso drifts down through the milk in a marble pattern.']]},
+{id:'cold',e:'🫙',n:K('콜드브루','Cold Brew'),d:K('굵게 갈아 찬물에 오래오래','Coarse grind, cold water, a long, long time'),cup:'ice',steps:['order','grind','steep','build'],build:[['ice',1],['coldbrew',1],['coldw',1]],temp:'iced',sizes:true,
+ why:K('얼음 → 콜드브루 원액 → 찬물로 농도를 맞춰요.','Ice → cold brew concentrate → cold water to adjust the strength.'),
+ card:K('굵게 간 원두 + 찬물 → 12~20시간 천천히 우리기 → 거르기. 쓴맛이 적고 부드러워요.','Coarse coffee + cold water → steep slowly 12–20 hours → filter. Smooth, with less bitterness.'),
+ quiz:[['콜드브루는 어떻게 만들까요?','How is cold brew made?','찬물에 12시간 넘게 천천히 우려요','Steeped in cold water for 12+ hours','뜨거운 물로 30초','Hot water for 30 seconds','우유로 끓여요','Boiled in milk','찬물은 맛을 아주 천천히 녹여내서 오래 기다려야 해요. 그래서 부드러워요.','Cold water extracts flavour very slowly, so it needs a long time, which makes it smooth.'],
+  ['콜드브루용 원두는 왜 굵게 갈까요?','Why is coffee ground coarse for cold brew?','오래 담가두니 쓴맛이 너무 나오지 않게','It soaks a long time, so coarse avoids bitterness','빨리 녹으라고','To dissolve fast','에스프레소처럼 진하게','To be like espresso','고운 가루를 오래 담그면 과다추출로 써지고 거름망도 막혀요.','Fine grounds soaked for hours over-extract (bitter) and clog the filter.']]},
+{id:'einsp',e:'🐴',n:K('아인슈페너','Einspänner'),d:K('진한 커피 위에 달콤한 크림 모자','A sweet cream hat on strong coffee'),cup:'glass',steps:['order','shot','build'],build:[['water',1],['shot','S'],['cream',1]],temp:'hot',sizes:true,
+ why:K('물 → 에스프레소 → 크림을 맨 위에 살포시. 크림이 뚜껑처럼 커피를 덮어요.','Water → espresso → cream gently on top. The cream covers the coffee like a lid.'),
+ card:K('뜨거운 물 + 에스프레소 위에 휘핑크림. 젓지 않고 크림과 커피를 함께 마셔요. 오스트리아 빈에서 온 커피.','Hot water + espresso topped with whipped cream. Don\'t stir; sip coffee through the cream. From Vienna, Austria.'),
+ quiz:[['\'아인슈페너\'는 독일어로 무슨 뜻일까요?','What does \'Einspänner\' mean in German?','말 한 마리가 끄는 마차','A carriage pulled by one horse','눈 덮인 산','A snowy mountain','달콤한 구름','A sweet cloud','빈의 마부들이 즐겨 마셨다는 이야기에서 온 이름이에요 (전해지는 이야기).','The name comes from a story that Vienna\'s carriage drivers loved it (a traditional tale).'],
+  ['아인슈페너는 어떻게 마시면 좋을까요?','How do you enjoy an Einspänner?','젓지 않고 크림과 커피를 함께','Without stirring, cream and coffee together','크림만 먼저 다 먹기','Eat all the cream first','얼음을 가득 넣기','Fill it with ice','시원·달콤한 크림과 따뜻·쌉싸름한 커피를 한 모금에 함께 느껴요.','You taste cool sweet cream and warm bitter coffee in one sip.']]},
+{id:'affo',e:'🍨',n:K('아포가토','Affogato'),d:K('아이스크림 위에 에스프레소 퐁당','Espresso poured over ice cream'),cup:'bowl',steps:['order','shot','build'],build:[['icecream',1],['shot','S']],temp:'hot',sizes:false,fixSize:'S',
+ why:K('아이스크림을 먼저 담고 뜨거운 샷을 위에 부어야 사르르 녹아요.','Ice cream first, then the hot shot poured over it so it melts just right.'),
+ card:K('바닐라 아이스크림 한 스쿱 → 에스프레소 한 샷. \'아포가토\' = 빠진, 잠긴.','One scoop of vanilla ice cream → one espresso shot. \'Affogato\' = drowned.'),
+ quiz:[['\'아포가토(affogato)\'는 이탈리아어로 무슨 뜻?','What does \'affogato\' mean in Italian?','빠진, 잠긴','Drowned','얼어붙은','Frozen','달콤한 아침','Sweet morning','아이스크림이 에스프레소에 \'빠진\' 디저트라서 그래요.','The ice cream is \'drowned\' in espresso!'],
+  ['아포가토는 무엇이 먼저 담길까요?','What goes in first for an affogato?','아이스크림','Ice cream','에스프레소','Espresso','우유','Milk','차가운 아이스크림 위에 뜨거운 샷을 부어야 맛이 섞이며 녹아요.','Hot espresso poured onto cold ice cream melts and mixes beautifully.']]},
+// kids (no coffee)
+{id:'hotchoc',kid:1,e:'🍫',n:K('핫초코','Hot Chocolate'),d:K('어린이 메뉴 · 따끈(뜨겁지 않게!)','Kids\' menu · warm, not hot!'),cup:'cup',steps:['order','steam','build'],build:[['choco',1],['milk',1],['stir',1],['cream',1]],temp:'hot',sizes:true,milk:{t:[50,55],f:.2},
+ why:K('초콜릿 → 따뜻한 우유 → 잘 젓기 → 크림!','Chocolate → warm milk → stir well → cream!'),
+ card:K('초콜릿 소스 → 50~55℃ 우유 (어린이는 입 데지 않게) → 젓기 → 크림. 커피 0!','Chocolate sauce → milk at 50–55°C (kid-warm, no burnt tongues) → stir → cream. Zero coffee!'),
+ quiz:[['어린이 음료는 몇 도쯤이 좋을까요?','About what temperature is good for kids\' drinks?','50~55℃쯤, 따뜻하게','About 50–55°C, warm','끓기 직전 95℃','95°C, almost boiling','얼음처럼 0℃','0°C like ice','어린이 입은 더 쉽게 데요. 어른 음료(60~65℃)보다 조금 덜 뜨겁게!','Kids\' mouths burn more easily, so a bit cooler than adult drinks (60–65°C)!'],
+  ['초콜릿의 원료는?','What is chocolate made from?','카카오 콩','Cacao beans','커피 콩','Coffee beans','땅콩','Peanuts','초콜릿은 카카오나무 열매 속 콩으로 만들어요. 커피 콩과는 달라요!','Chocolate comes from the beans inside cacao pods, not coffee beans!']]},
+{id:'baby',kid:1,e:'🧸',n:K('베이비치노','Babyccino'),d:K('커피 없는 폭신 거품 우유 + 코코아','Fluffy milk foam with cocoa, no coffee'),cup:'demi',steps:['order','steam','build'],build:[['foam',1],['cocoa',1]],temp:'hot',sizes:false,fixSize:'S',milk:{t:[40,50],f:.75},
+ why:K('거품 우유를 먼저 담고 코코아 가루를 솔솔!','Spoon in the milk foam first, then sprinkle cocoa!'),
+ card:K('40~50℃로 미지근하게, 거품 듬뿍 → 코코아 가루. 커피 대신 우유만! 호주에서 시작됐어요.','Lukewarm 40–50°C with lots of foam → cocoa dust. Only milk, no coffee! It started in Australia.'),
+ quiz:[['베이비치노에는 커피가 얼마나 들어갈까요?','How much coffee is in a babyccino?','하나도 없어요','None at all','한 샷','One shot','두 샷','Two shots','어린이는 카페인을 피하는 게 좋아서 거품 우유만 담아요.','Kids should avoid caffeine, so it is just milk foam.'],
+  ['거품을 많이 만들려면 스팀할 때?','To make lots of foam while steaming, you…','공기를 더 오래 넣어요 (스트레칭)','Add air longer (stretching)','우유를 끓여요','Boil the milk','물을 넣어요','Add water','스팀 노즐 끝을 우유 표면에 대면 쉭쉭 공기가 들어가 거품이 커져요.','With the wand tip at the surface, air hisses in and the foam grows.']]},
+{id:'straw',kid:1,e:'🍓',n:K('딸기 우유','Strawberry Milk'),d:K('딸기 퓨레를 먼저, 그다음 우유','Strawberry purée first, then milk'),cup:'ice',steps:['order','build'],build:[['straw',1],['cmilk',1],['stir',1]],temp:'iced',sizes:true,
+ why:K('무거운 딸기 퓨레를 먼저 넣고 우유를 부으면 저절로 섞이기 시작해요. 마지막에 저어요!','Heavy purée goes in first; pouring milk on top starts the mixing. Then stir!'),
+ card:K('딸기 퓨레 → 찬 우유 → 젓기. 진짜 딸기로 만든 분홍색!','Strawberry purée → cold milk → stir. Pink from real strawberries!'),
+ quiz:[['딸기 퓨레를 먼저 넣는 이유는?','Why does the purée go in first?','무거워서 바닥에 있고 우유가 섞어 줘요','It is heavy, sits at the bottom, and milk mixes it','색이 사라지게','To hide the colour','얼음이 녹게','To melt ice','나중에 넣으면 컵 바닥까지 가라앉느라 덩어리로 뭉쳐요.','Added last, it sinks and clumps at the bottom.'],
+  ['딸기 씨는 어디에 있을까요?','Where are a strawberry\'s seeds?','겉에 콕콕 박혀 있어요','Dotted on the outside','속 한가운데','Right in the middle','잎 속에','Inside the leaves','딸기는 씨가 겉에 있는 특별한 과일이에요. 하나에 200개쯤!','Strawberries wear their seeds on the outside, about 200 each!']]},
+{id:'ade',kid:1,e:'🍋',n:K('과일 에이드','Fruit Ade'),d:K('톡톡 탄산! 순서가 기포를 지켜요','Fizzy! The order protects the bubbles'),cup:'ice',steps:['order','build'],build:[['fruit',1],['ice',1],['soda',1],['stir',1]],temp:'iced',sizes:true,
+ why:K('과일청 → 얼음 → 탄산수는 마지막에 살살 → 살짝 젓기. 탄산을 세게 붓거나 많이 저으면 기포가 빠져요.','Fruit syrup → ice → sparkling water last, gently → a light stir. Pouring hard or over-stirring lets the fizz escape.'),
+ card:K('과일청 → 얼음 → 탄산수 (살살) → 살짝 젓기.','Fruit syrup → ice → sparkling water (gently) → a light stir.'),
+ quiz:[['탄산수 속 기포의 정체는?','What are the bubbles in sparkling water?','이산화탄소','Carbon dioxide','산소','Oxygen','수증기','Steam','물에 녹아 있던 이산화탄소가 빠져나오며 톡톡 기포가 생겨요.','Carbon dioxide dissolved in the water escapes as fizzy bubbles.'],
+  ['탄산수를 마지막에 넣는 이유는?','Why is sparkling water added last?','기포가 덜 빠지게','So less fizz escapes','더 달게','To make it sweeter','색을 바꾸려고','To change colour','얼음과 시럽 위로 살살 부으면 탄산이 오래 살아 있어요.','Poured gently last over ice and syrup, the fizz lasts longer.']]},
+{id:'smoo',kid:1,e:'🫐',n:K('요거트 스무디','Yogurt Smoothie'),d:K('냉동 과일로 걸쭉·시원하게 갈기','Blend thick and cold with frozen fruit'),cup:'ice',steps:['order','build','blend'],build:[['yogurt',1],['frozen',1],['cmilk',1]],temp:'iced',sizes:true,
+ why:K('요거트 → 냉동 과일 → 우유 순서로 넣고 갈아요. 액체가 칼날 근처에 있으면 잘 갈려요.','Yogurt → frozen fruit → milk, then blend. Liquid near the blades helps it blend.'),
+ card:K('요거트 + 냉동 과일 + 우유 → 매끈해질 때까지만 갈기. 너무 오래 갈면 미지근·묽어져요.','Yogurt + frozen fruit + milk → blend just until smooth. Too long and it turns warm and runny.'),
+ quiz:[['스무디에 냉동 과일을 쓰는 이유는?','Why use frozen fruit in a smoothie?','얼음 없이도 차갑고 걸쭉해서','Cold and thick without watering it down','색이 진해서','The colour is stronger','더 빨리 녹아서','It melts faster','얼음은 녹으면 물이 되지만 냉동 과일은 녹아도 과일 맛이에요.','Ice melts into water, but frozen fruit melts into more fruit!'],
+  ['요거트를 만드는 작은 생물은?','What tiny living things make yogurt?','유산균','Lactic acid bacteria','곰팡이 버섯','Mushrooms','효모 빵','Bread yeast','유산균이 우유를 발효시켜 새콤하고 걸쭉한 요거트가 돼요.','Lactic acid bacteria ferment milk into tangy, thick yogurt.']]}
+];
+const FACTS=[
+ {e:'🐐',n:K('칼디와 춤추는 염소','Kaldi and the dancing goats'),lg:1,t:K('에티오피아의 목동 칼디가 빨간 열매를 먹은 염소들이 밤새 껑충껑충 뛰는 걸 보고 커피를 알게 됐다는 이야기예요. 아주 오래된 전설이라 진짜인지는 몰라요. 커피나무의 고향이 에티오피아인 건 사실이에요!','An Ethiopian goatherd named Kaldi saw his goats leaping all night after eating red berries, and so coffee was discovered. It is an old legend and may not be true, but Ethiopia really is the homeland of the coffee plant!')},
+ {e:'⛵',n:K('예멘과 모카 항구','Yemen and the port of Mocha'),t:K('15세기 예멘의 수도자들은 밤 기도 때 졸지 않으려고 커피를 마셨어요. 예멘의 모카(알무카) 항구에서 커피가 배에 실려 세계로 퍼졌고, 그래서 \'모카\'라는 이름이 남았어요.','In the 1400s, Sufi monks in Yemen drank coffee to stay awake for night prayers. Ships carried coffee to the world from Yemen\'s port of Mocha (al-Makha), which is how the name \'mocha\' was born.')},
+ {e:'🇮🇹',n:K('에스프레소의 뜻','What \'espresso\' means'),t:K('\'에스프레소\'는 이탈리아어로 \'눌러 짜낸\', 또 \'주문 즉시 빠르게 만든\'이라는 느낌의 말이에요. 1884년 이탈리아 토리노에서 증기 커피 기계 특허가 나왔고, 1940년대 레버 기계가 높은 압력으로 크레마를 만들었어요.','\'Espresso\' in Italian means \'pressed out\', with the feeling of \'made fast, just for you\'. A steam coffee machine was patented in Turin, Italy in 1884, and 1940s lever machines used high pressure to create crema.')},
+ {e:'🟤',n:K('카푸친 수도사의 옷','The Capuchin friars\' robes'),t:K('카푸치노는 갈색 두건 옷을 입은 카푸친 수도회 수도사들의 옷 색과 닮아서 붙은 이름이에요. 18세기 빈에서는 크림을 넣은 커피를 \'카푸치너\'라고 불렀대요.','The cappuccino is named for the brown hooded robes of the Capuchin friars. In 1700s Vienna, coffee with cream was called a \'Kapuziner\'.')},
+ {e:'🌍',n:K('커피 벨트','The bean belt'),t:K('커피나무는 적도 근처, 북회귀선과 남회귀선 사이 따뜻한 지역에서 잘 자라요. 이 띠를 \'커피 벨트\'라고 불러요. 브라질, 베트남, 콜롬비아, 에티오피아가 대표 산지예요.','Coffee grows best in the warm band around the equator, between the Tropics of Cancer and Capricorn: the \'bean belt\'. Brazil, Vietnam, Colombia and Ethiopia are big growers.')},
+ {e:'🌱',n:K('아라비카 vs 로부스타','Arabica vs robusta'),t:K('아라비카는 높은 산에서 자라고 향이 풍부하고 산뜻해요. 세계 커피의 약 60%예요. 로부스타는 튼튼하고 더 쓰고, 카페인이 약 두 배예요. 에스프레소 블렌드에 넣으면 크레마가 풍성해져요.','Arabica grows high in the mountains with rich, bright flavours, about 60% of the world\'s coffee. Robusta is hardy, more bitter, with about twice the caffeine, and adds thick crema to espresso blends.')},
+ {e:'👑',n:K('고종과 커피','King Gojong and coffee'),lg:1,t:K('고종 황제가 1896년 러시아 공사관에 머물 때 커피를 즐겼다는 이야기가 유명해요. 하지만 \'한국 최초의 커피\'라는 건 전해지는 이야기예요. 기록에 따르면 1880년대에 이미 외국인들과 함께 커피가 들어와 있었대요.','A famous story says Emperor Gojong enjoyed coffee while staying at the Russian legation in 1896. Calling it \'Korea\'s first coffee\' is a legend, though: records show coffee had already arrived with foreigners in the 1880s.')},
+ {e:'💤',n:K('디카페인 커피','Decaf coffee'),t:K('디카페인은 볶기 전 생두에서 물이나 이산화탄소 등으로 카페인을 약 97% 이상 빼낸 커피예요. 그래도 아주 조금은 남아 있어요! 그래서 어린이는 디카페인 커피 대신 키즈 메뉴를 마셔요.','Decaf has about 97% or more of the caffeine removed from the green beans (using water, CO₂ and other methods) before roasting. A tiny bit still remains, so kids drink the kids\' menu instead of decaf coffee.')},
+ {e:'🍒',n:K('커피콩은 사실 씨앗','Coffee beans are seeds'),t:K('커피콩은 \'커피 체리\'라는 빨간 열매 속 씨앗이에요. 보통 한 열매에 씨앗이 두 개 마주 보고 들어 있어요. 초록색 생두를 볶으면(로스팅) 갈색이 되고 향이 생겨요.','Coffee beans are the seeds of a red fruit called the coffee cherry, usually two facing each other. Green beans turn brown and fragrant when roasted.')}
+];
+const GLOS=[['💧',K('추출','Extraction'),K('뜨거운 물이 커피 가루 속 맛과 향을 녹여내는 것. 덜 녹이면 과소추출(시큼·묽음), 너무 녹이면 과다추출(씀).','Hot water dissolving flavour out of ground coffee. Too little = under-extracted (sour, weak); too much = over-extracted (bitter).')],
+ ['✊',K('탬핑','Tamping'),K('포터필터 속 커피 가루를 탬퍼로 평평하고 단단하게 누르는 것. 기울면 물이 약한 쪽으로 몰려요(채널링).','Pressing the coffee bed flat and firm with a tamper. If it tilts, water rushes through the weak side (channeling).')],
+ ['🟠',K('크레마','Crema'),K('에스프레소 위의 황금빛 거품. 높은 압력으로 커피 속 기름과 가스가 섞여 생겨요.','The golden foam on espresso, made when high pressure mixes coffee oils and gas.')],
+ ['🫧',K('마이크로폼','Microfoam'),K('눈에 안 보일 만큼 작은 거품이 가득한 매끈한 우유. 반짝이고 라떼 아트를 그릴 수 있어요.','Silky milk full of bubbles too tiny to see. Glossy, and perfect for latte art.')],
+ ['♨️',K('스팀','Steaming'),K('스팀 노즐로 우유를 데우는 것. 표면에서 공기 넣기(스트레칭) → 안쪽에서 돌리기(롤링) → 60~65℃에서 멈춰요.','Heating milk with the steam wand: add air at the surface (stretching) → spin it deeper (rolling) → stop at 60–65°C.')],
+ ['🔥',K('로스팅','Roasting'),K('초록색 생두를 볶아 갈색으로 만드는 것. 약하게 볶으면 상큼, 강하게 볶으면 쌉싸름해요.','Cooking green beans until brown. Light roasts taste bright; dark roasts taste bold and bitter-sweet.')],
+ ['⚙️',K('분쇄도','Grind size'),K('원두를 얼마나 곱게 가는지. 에스프레소는 고운 소금처럼, 콜드브루는 굵은 빵가루처럼.','How fine the coffee is ground. Espresso: like fine salt. Cold brew: like coarse breadcrumbs.')],
+ ['⚖️',K('도징','Dosing'),K('포터필터에 커피 가루를 정확히 담는 것. 보통 더블 샷에 약 18g.','Putting an exact amount of coffee in the portafilter, about 18 g for a double shot.')],
+ ['🥄',K('포터필터','Portafilter'),K('커피 가루를 담아 기계에 끼우는 손잡이 달린 바스켓.','The handled basket that holds the coffee and locks into the machine.')]];
+var R=null;
+const $=id=>document.getElementById(id);
+const cv=$('c'),cx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+let L=localStorage.getItem('nbaLang')||((navigator.language||'ko').toLowerCase().startsWith('ko')?'ko':'en');
+const Z=(k,e)=>L=='ko'?k:e, tx=o=>o?o[L]:'';
+let SV;try{SV=JSON.parse(localStorage.getItem('nbaSave'))||{}}catch(e){SV={}}
+SV.done=SV.done||{};SV.dex=SV.dex||{};SV.facts=SV.facts||[];SV.day=SV.day||1;SV.best=SV.best||0;
+const save=()=>{try{localStorage.setItem('nbaSave',JSON.stringify(SV))}catch(e){}};
+const now=()=>performance.now();
+const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t, pick=a=>a[Math.random()*a.length|0];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight-52;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(DPR,0,0,DPR,0,0);if(R)R.lay=null}
+addEventListener('resize',resize);resize();
+function trayH(){const t=$('tray');return t.classList.contains('hide')?0:t.offsetHeight}
+function area(){return {top:92,bot:H-trayH()-8}}
+// ===== audio (self-made bossa-ish cafe loop) =====
+let AC=null,MG=null,muted=localStorage.getItem('nbaMute')==='1',bgmOn=false,nextT=0,stepN=0;
+function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=muted?0:.8;MG.connect(AC.destination);bgmOn=true;nextT=AC.currentTime+.1}catch(e){}}
+function tone(f,d,type,v,slide,when){if(!AC)return;const t=when||AC.currentTime;const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.2,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(MG);o.start(t);o.stop(t+d+.05)}
+let NB=null;function noise(d,v,when,hp,lp){if(!AC)return;const t=when||AC.currentTime;if(!NB){NB=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const s=AC.createBufferSource();s.buffer=NB;const f=AC.createBiquadFilter();f.type=lp?'lowpass':'highpass';f.frequency.value=lp||hp||5000;const g=AC.createGain();g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.02)}
+const at=s=>AC?AC.currentTime+s:0;
+const SFX={tap:()=>tone(700,.07,'triangle',.16),good:()=>{tone(784,.1,'triangle',.2);tone(1175,.16,'triangle',.18,0,at(.08))},bad:()=>tone(220,.25,'sawtooth',.11,140),
+ grind:()=>noise(.09,.07,0,0,900),hiss:()=>noise(.12,.05,0,3500),chirp:()=>{noise(.08,.07,0,6000);tone(2400,.05,'sine',.03)},pour:()=>noise(.07,.05,0,0,1800),
+ clink:()=>{tone(2600,.08,'sine',.08);tone(3300,.06,'sine',.05,0,at(.03))},pump:()=>tone(330,.1,'sine',.18,180),pop:()=>tone(500,.08,'sine',.18,900),thud:()=>tone(120,.12,'sine',.3,70),
+ ding:()=>{tone(1319,.3,'sine',.2);tone(1760,.35,'sine',.12,0,at(.05))},coin:()=>{tone(988,.06,'square',.07);tone(1319,.12,'square',.07,0,at(.06))},
+ win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.2,0,at(i*.1))),fail:()=>[392,330,262].forEach((f,i)=>tone(f,.25,'triangle',.17,0,at(i*.13))),
+ blend:()=>noise(.1,.06,0,0,1400)};
+const sfx=k=>{try{AC&&SFX[k]()}catch(e){}};
+const MEL=[7,-1,4,7, 9,-1,7,4, 5,-1,2,5, 7,5,4,-1, 4,-1,0,4, 5,4,2,0, 2,-1,4,2, 0,-1,-1,-1];
+const CH=[0,0,-3,-3,-7,-7,-5,-5];
+function bgmTick(){if(!AC||!bgmOn)return;const sp=60/104/2;while(nextT<AC.currentTime+.15){const i=stepN%32,t=nextT+(i%2?sp*.12:0);const m=MEL[i];if(m>=0&&!muted)tone(349.2*Math.pow(2,m/12),sp*1.3,'triangle',.055,0,t);
+ const r=CH[(i/4)|0];if(i%4==0)tone(87.3*Math.pow(2,r/12),sp*1.8,'sine',.17,0,t);if(i%4==3)tone(87.3*Math.pow(2,(r+7)/12),sp*.9,'sine',.1,0,t);
+ if(i%8==3||i%8==6)noise(.03,.05,t,2500);if(i%2==0)noise(.03,.018,t,8000);if(i%4==2){[0,4,7].forEach(k=>tone(174.6*Math.pow(2,(r+k+12)/12),sp*.5,'sine',.025,0,t))}nextT+=sp;stepN++}}
+function setMute(m){muted=m;localStorage.setItem('nbaMute',m?'1':'0');$('mute').textContent=m?'🔇':'🔊';if(MG)MG.gain.value=m?0:.8}
+// ===== overlay & UI helpers =====
+const ov=$('ov');let ACT=[],contFn=null,contAt=0;
+function B(label,fn,cls){ACT.push(fn);return `<button class="btn ${cls||''}" data-i="${ACT.length-1}">${label}</button>`}
+function show(html,o){o=o||{};ACT=ACT.slice(0);ov.innerHTML=`<div class="panel">${html}${o.cont?`<div class="cont">${Z('탭 / Space 로 계속','Tap / Space to continue')}</div>`:''}</div>`;ov.className='';contFn=o.cont||null;contAt=now()+(o.guard||550);fingerOff()}
+function hideOv(){ov.className='hide';ov.innerHTML='';contFn=null;ACT=[]}
+function tryCont(){if(contFn&&now()>contAt){const f=contFn;contFn=null;sfx('tap');f()}}
+ov.addEventListener('click',e=>{initAudio();const b=e.target.closest('[data-i]');if(b){if(now()<contAt-300)return;const f=ACT[+b.dataset.i];if(f){sfx('tap');f()}return}if(e.target.closest('.qopts')||e.target.closest('.tabs'))return;tryCont()});
+function banner(s){const b=$('banner');b.textContent=s;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
+let lastMsg=null;function msg(s,top){const m=$('msg');const k=(s||'')+'|'+(top||100);if(k===lastMsg)return;lastMsg=k;m.innerHTML=s||'';m.style.top=(top||100)+'px'}
+function hud(l,r){const h=$('hud');if(l==null){h.className='hide';return}h.className='';$('hudL').innerHTML=l;$('hudR').innerHTML=r||''}
+function tray(html){const t=$('tray');if(!html){t.className='hide';t.innerHTML='';return}t.className='';t.innerHTML=html}
+const fg=$('finger');function fingerAt(x,y){fg.style.display='block';fg.style.left=x+'px';fg.style.top=y+'px'}function fingerOff(){fg.style.display='none'}
+function fingerEl(id){const el=$(id);if(!el)return;const r=el.getBoundingClientRect();fingerAt(r.left+r.width/2,r.top+r.height/2)}
+// hold-button binding
+function bindHold(id,fn){const el=$(id);if(!el)return;const on=e=>{e.preventDefault();initAudio();el.classList.add('pressed');fn(true)},off=()=>{if(el.classList.contains('pressed')){el.classList.remove('pressed');fn(false)}};
+ el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off)}
+function bindTap(id,fn){const el=$(id);if(el)el.addEventListener('click',e=>{initAudio();fn(e)})}
+// ===== drawing =====
+function rr(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+function ell(x,y,rx,ry,rot){cx.beginPath();cx.ellipse(x,y,Math.max(.001,rx),Math.max(.001,ry),rot||0,0,7)}
+function txt(s,x,y,sz,col,al,out){cx.font=`500 ${sz}px system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif`;cx.textAlign=al||'center';cx.textBaseline='middle';if(out){cx.lineWidth=4;cx.strokeStyle=out;cx.strokeText(s,x,y)}cx.fillStyle=col||'#2a1a10';cx.fillText(s,x,y)}
+function counterY(){return Math.min(H*.7,area().bot-60)}
+let steam=[],parts=[];
+function steamAt(x,y,n,s){for(let i=0;i<(n||1);i++)steam.push({x:x+rnd(-8,8),y,r:rnd(4,8)*(s||1),l:1,vx:rnd(-8,8)})}
+function splash(x,y,n,c){for(let i=0;i<n;i++)parts.push({x,y,vx:rnd(-80,80),vy:rnd(-150,-40),l:rnd(.4,.8),c,r:rnd(2,4)})}
+function drawFX(dt){for(const s of steam){s.y-=40*dt;s.x+=s.vx*dt;s.r+=10*dt;s.l-=dt*.7;cx.globalAlpha=clamp(s.l,0,1)*.5;cx.fillStyle='#fff';ell(s.x,s.y,s.r,s.r);cx.fill()}cx.globalAlpha=1;steam=steam.filter(s=>s.l>0);
+ for(const p of parts){p.vy+=420*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt;cx.globalAlpha=clamp(p.l*2,0,1);cx.fillStyle=p.c;ell(p.x,p.y,p.r,p.r);cx.fill()}cx.globalAlpha=1;parts=parts.filter(p=>p.l>0)}
+function drawBG(t){const cy=counterY();const g=cx.createLinearGradient(0,0,0,cy);g.addColorStop(0,'#f8e6cc');g.addColorStop(1,'#efd3ad');cx.fillStyle=g;cx.fillRect(0,0,W,cy);
+ cx.fillStyle='rgba(190,130,80,.10)';for(let x=0;x<W;x+=34)cx.fillRect(x,0,14,cy);
+ // pendant lamps
+ for(const lx of [W*.22,W*.78]){cx.strokeStyle='#5a3a24';cx.lineWidth=2;cx.beginPath();cx.moveTo(lx,0);cx.lineTo(lx,26);cx.stroke();const lg=cx.createRadialGradient(lx,40,4,lx,40,70);lg.addColorStop(0,'rgba(255,220,140,.55)');lg.addColorStop(1,'rgba(255,220,140,0)');cx.fillStyle=lg;cx.fillRect(lx-70,0,140,120);
+  cx.fillStyle='#d9773a';cx.beginPath();cx.moveTo(lx-16,40);cx.quadraticCurveTo(lx,18,lx+16,40);cx.closePath();cx.fill();cx.fillStyle='#ffe9a8';ell(lx,41,7,3);cx.fill()}
+ // shelf with cups and jars
+ const sy=cy*.42;cx.fillStyle='#8a5634';cx.fillRect(W*.04,sy,W*.92,7);cx.fillStyle='rgba(0,0,0,.08)';cx.fillRect(W*.04,sy+7,W*.92,5);
+ const items=['#fff','#f2b880','#9fd3c7','#fff','#e7a0a0','#f6d36b','#fff'];for(let i=0;i<7;i++){const x=W*.1+i*W*.13;cx.fillStyle=items[i];if(i%3==1){rr(x-9,sy-26,18,26,4);cx.fill();cx.fillStyle='#6b3f1f';cx.fillRect(x-9,sy-30,18,6)}else{rr(x-10,sy-16,20,16,4);cx.fill();cx.strokeStyle=items[i];cx.lineWidth=3;cx.beginPath();cx.arc(x+11,sy-9,4,0,7);cx.stroke()}}
+ // counter
+ const wg=cx.createLinearGradient(0,cy,0,H);wg.addColorStop(0,'#a8683c');wg.addColorStop(.06,'#8c5430');wg.addColorStop(1,'#5e3518');cx.fillStyle=wg;cx.fillRect(0,cy,W,H-cy);
+ cx.fillStyle='#c98a55';cx.fillRect(0,cy-6,W,8);cx.fillStyle='rgba(255,255,255,.18)';cx.fillRect(0,cy-6,W,2);
+ cx.strokeStyle='rgba(0,0,0,.12)';cx.lineWidth=1;for(let y=cy+18;y<H;y+=22){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}}
+// espresso machine
+function drawMachine(x,y,w,h,o){o=o||{};const t=o.t||0;cx.save();
+ cx.fillStyle='rgba(0,0,0,.18)';ell(x+w/2,y+h,w*.55,10);cx.fill();
+ const bg=cx.createLinearGradient(x,0,x+w,0);bg.addColorStop(0,'#c75b4a');bg.addColorStop(.5,'#e8806a');bg.addColorStop(1,'#b44c3c');cx.fillStyle=bg;rr(x,y,w,h*.62,18);cx.fill();
+ cx.fillStyle='#e9e4dc';rr(x+6,y-12,w-12,16,6);cx.fill();for(let i=0;i<3;i++){cx.fillStyle='#fff';rr(x+16+i*22,y-26,16,14,3);cx.fill()}
+ const sg=cx.createLinearGradient(x,0,x+w,0);sg.addColorStop(0,'#9aa1a8');sg.addColorStop(.5,'#eef2f5');sg.addColorStop(1,'#8d949b');cx.fillStyle=sg;rr(x+w*.08,y+h*.08,w*.84,h*.16,8);cx.fill();
+ // gauge
+ const gx=x+w*.5,gy=y+h*.16;cx.fillStyle='#fff';ell(gx,gy,h*.06,h*.06);cx.fill();cx.strokeStyle='#444';cx.lineWidth=2;cx.stroke();const ang=-2.3+(o.press||0)*2.6+Math.sin(t*9)*(o.press?0.04:0);cx.strokeStyle='#d33';cx.beginPath();cx.moveTo(gx,gy);cx.lineTo(gx+Math.cos(ang)*h*.05,gy+Math.sin(ang)*h*.05);cx.stroke();
+ // lights
+ cx.fillStyle=o.brew?'#7cff8a':'#2d6b34';ell(x+w*.2,gy,4,4);cx.fill();cx.fillStyle=o.steam?'#ffd34a':'#7a6420';ell(x+w*.8,gy,4,4);cx.fill();
+ // group head
+ const hx=x+w*.5,hy=y+h*.36;cx.fillStyle=sg;rr(hx-w*.14,hy-8,w*.28,18,6);cx.fill();cx.fillStyle='#6f767d';rr(hx-w*.1,hy+8,w*.2,8,3);cx.fill();
+ if(o.pf!==false){cx.fillStyle='#4a4f55';rr(hx-w*.12,hy+14,w*.24,12,5);cx.fill();cx.fillStyle='#2b2018';rr(hx+w*.1,hy+15,w*.26,9,4);cx.fill();cx.fillStyle='#777';rr(hx-6,hy+26,12,6,2);cx.fill()}
+ // brew stream
+ if(o.brew){const fl=o.flow||1;cx.strokeStyle='rgba(120,60,20,.9)';cx.lineWidth=2+fl*1.4;for(const dx of [-4,4]){cx.beginPath();cx.moveTo(hx+dx,hy+32);for(let k=1;k<=6;k++){cx.lineTo(hx+dx+Math.sin(t*20+k)*fl*.8,hy+32+k*(o.streamLen||40)/6)}cx.stroke()}}
+ // steam wand
+ const wx=x+w*.92;cx.strokeStyle='#b9c0c7';cx.lineWidth=6;cx.lineCap='round';cx.beginPath();cx.moveTo(wx,y+h*.3);cx.lineTo(wx+10,y+h*.34);cx.lineTo(wx+12,y+h*.62);cx.stroke();cx.lineCap='butt';
+ if(o.steam&&Math.random()<.5)steamAt(wx+12,y+h*.58,1,.8);
+ // drip tray
+ cx.fillStyle=sg;rr(x+w*.06,y+h*.86,w*.88,h*.1,6);cx.fill();cx.fillStyle='#5d636a';for(let i=0;i<9;i++)cx.fillRect(x+w*.12+i*w*.085,y+h*.88,w*.04,h*.04);
+ cx.fillStyle='#8a3a2c';rr(x+w*.06,y+h*.6,w*.88,h*.06,4);cx.fill();cx.fillStyle='#fff7';txt('NADOO',x+w*.5,y+h*.53,13,'#fff6');
+ cx.restore();return {hx,hy:hy+32,dripY:y+h*.86,wx:wx+12,wy:y+h*.62}}
+// cups
+const CUPK={demi:{w:.62,h:.5,clear:0},cup:{w:1,h:.78,clear:0},take:{w:.9,h:1.15,clear:0},glass:{w:.78,h:1.2,clear:1},ice:{w:.86,h:1.2,clear:1},bowl:{w:1,h:.55,clear:1}};
+function cupGeom(kind,x,y,s){const k=CUPK[kind]||CUPK.cup;const wt=s*k.w,hh=s*k.h,wb=wt*(kind=='take'||kind=='ice'?.72:kind=='bowl'?.55:.8);return {x,y,wt,wb,hh,top:y-hh}}
+function drawCup(kind,x,y,s,layers,o){o=o||{};const g=cupGeom(kind,x,y,s),k=CUPK[kind]||CUPK.cup;const {wt,wb,hh,top}=g;cx.save();
+ cx.fillStyle='rgba(0,0,0,.16)';ell(x,y+3,wt*.62,7);cx.fill();
+ if(kind=='cup'||kind=='demi'){cx.fillStyle='#fffaf3';ell(x,y+2,wt*.75,wt*.13);cx.fill();cx.strokeStyle='#d8c4ac';cx.lineWidth=1.5;cx.stroke()}
+ const path=()=>{cx.beginPath();cx.moveTo(x-wt/2,top);cx.lineTo(x+wt/2,top);cx.lineTo(x+wb/2,y);cx.quadraticCurveTo(x,y+4,x-wb/2,y);cx.closePath()};
+ let tot=0;for(const l of layers||[])tot+=l.h;tot=Math.min(1,tot);
+ if(k.clear){cx.fillStyle='rgba(235,248,255,.35)';path();cx.fill();cx.save();path();cx.clip();let yy=y;for(const l of layers||[]){const lh=l.h*hh;cx.fillStyle=l.c;cx.fillRect(x-wt,yy-lh,wt*2,lh+1);if(l.kind=='ice'){for(let i=0;i<5;i++){cx.fillStyle='rgba(255,255,255,.55)';rr(x-wt*.35+(i%3)*wt*.25,yy-lh+((i*13)%Math.max(1,lh-12)),wt*.2,wt*.18,4);cx.fill()}}yy-=lh}
+  if(o.marble){cx.globalAlpha=.6;cx.strokeStyle='#6a3a1a';cx.lineWidth=5;for(let i=0;i<3;i++){cx.beginPath();cx.moveTo(x-wt*.4,y-hh*tot*(.3+i*.2));cx.bezierCurveTo(x-wt*.1,y-hh*tot*(.5+i*.15),x+wt*.1,y-hh*tot*(.15+i*.2),x+wt*.4,y-hh*tot*(.4+i*.18));cx.stroke()}cx.globalAlpha=1}
+  cx.restore();cx.strokeStyle='rgba(120,160,190,.8)';cx.lineWidth=2;path();cx.stroke();cx.fillStyle='rgba(255,255,255,.35)';cx.fillRect(x-wt*.38,top+8,4,hh*.7)}
+ else{const body=cx.createLinearGradient(x-wt/2,0,x+wt/2,0);if(kind=='take'){body.addColorStop(0,'#e9d6bc');body.addColorStop(.5,'#fff6e8');body.addColorStop(1,'#d9c2a2')}else{body.addColorStop(0,'#efe5d8');body.addColorStop(.5,'#ffffff');body.addColorStop(1,'#e2d6c6')}cx.fillStyle=body;path();cx.fill();
+  if(kind=='take'){cx.fillStyle='#b77a45';cx.beginPath();cx.moveTo(x-wt*.46,top+hh*.35);cx.lineTo(x+wt*.46,top+hh*.35);cx.lineTo(x+wt*.42,top+hh*.62);cx.lineTo(x-wt*.42,top+hh*.62);cx.closePath();cx.fill();txt('☕',x,top+hh*.49,s*.14)}
+  else{cx.strokeStyle='#f3ece2';cx.lineWidth=s*.09;cx.beginPath();cx.ellipse(x+wt*.52,top+hh*.45,wt*.16,hh*.22,0,-1.4,1.4);cx.stroke();cx.strokeStyle='#d8c4ac';cx.lineWidth=1.2;cx.stroke()}}
+ // rim + surface
+ cx.fillStyle=k.clear?'rgba(255,255,255,.2)':'#fff';ell(x,top,wt/2,wt*.12);cx.fill();cx.strokeStyle=k.clear?'rgba(120,160,190,.8)':'#d8c4ac';cx.lineWidth=1.5;cx.stroke();
+ if(tot>0&&!k.clear||(k.clear&&tot>0)){const sy=k.clear?y-hh*tot:top+3+(1-tot)*hh*.5,rw=k.clear?lerp(wb,wt,tot)/2-2:wt/2-4,rh=rw*.24;const tl=layers[layers.length-1];
+  if(!k.clear||tot>.02){cx.save();ell(x,sy,rw,rh);cx.clip();cx.fillStyle=o.surf||tl.c;cx.fillRect(x-rw,sy-rh,rw*2,rh*2);
+   if(o.crema){const cg=cx.createRadialGradient(x,sy,2,x,sy,rw);cg.addColorStop(0,'#d99a55');cg.addColorStop(.7,'#b86a2c');cg.addColorStop(1,'#7a3e16');cx.fillStyle=cg;cx.fillRect(x-rw,sy-rh,rw*2,rh*2);cx.strokeStyle='rgba(255,220,170,.5)';cx.lineWidth=1.5;cx.beginPath();for(let a=0;a<14;a+=.2){const r=a/14*rw;cx.lineTo(x+Math.cos(a+(o.t||0))*r,sy+Math.sin(a+(o.t||0))*r*.24)}cx.stroke()}
+   if(o.art)o.art(x,sy,rw,rh);
+   if(o.foamDots){cx.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<12;i++){ell(x+Math.cos(i*2.4)*rw*.6*((i%4)/4+.2),sy+Math.sin(i*2.4)*rh*.6,2,1.2);cx.fill()}}
+   if(o.cocoa){cx.fillStyle='rgba(110,60,30,.75)';for(let i=0;i<40;i++){ell(x+Math.cos(i*2.39)*rw*.7*Math.sqrt(i/40),sy+Math.sin(i*2.39)*rh*.7*Math.sqrt(i/40),1.4,1);cx.fill()}}
+   if(o.caramel){cx.strokeStyle='#c9781e';cx.lineWidth=2.5;for(let i=-2;i<=2;i++){cx.beginPath();cx.moveTo(x+i*rw*.3-rw*.3,sy-rh);cx.lineTo(x+i*rw*.3+rw*.3,sy+rh);cx.stroke();cx.beginPath();cx.moveTo(x+i*rw*.3+rw*.3,sy-rh);cx.lineTo(x+i*rw*.3-rw*.3,sy+rh);cx.stroke()}}
+   cx.restore()}
+  if(o.cream){cx.fillStyle='#fffdf8';for(let i=0;i<4;i++){ell(x,sy-6-i*rh*.9,rw*(1-i*.22),rh*1.2);cx.fill();cx.strokeStyle='#eadbc8';cx.lineWidth=1;cx.stroke()}if(o.caramel){cx.strokeStyle='#c9781e';cx.lineWidth=2;cx.beginPath();for(let a=0;a<6;a+=.3)cx.lineTo(x+Math.sin(a*3)*rw*.6,sy-6-a*rh*.5);cx.stroke()}}
+  if(o.scoop){cx.fillStyle='#fff3d6';ell(x,sy-rh*1.2,rw*.62,rw*.5);cx.fill();cx.fillStyle='rgba(90,40,15,.85)';ell(x+rw*.1,sy-rh*1.6,rw*.5,rw*.22,.2);cx.fill()}}
+ if(kind=='take'&&o.lid){cx.fillStyle='#fff';rr(x-wt*.55,top-10,wt*1.1,12,5);cx.fill();cx.strokeStyle='#d0bfa8';cx.stroke();rr(x-wt*.4,top-18,wt*.8,10,4);cx.fill();cx.stroke()}
+ if(o.straw){cx.strokeStyle='#ff8fb1';cx.lineWidth=6;cx.beginPath();cx.moveTo(x+wt*.15,y-hh*.4);cx.lineTo(x+wt*.3,top-28);cx.stroke()}
+ cx.restore();return g}
+function drawPitcher(x,y,s,lvl,foam,o){o=o||{};cx.save();const w=s*.8,h=s;cx.fillStyle='rgba(0,0,0,.15)';ell(x,y+3,w*.6,6);cx.fill();
+ const g=cx.createLinearGradient(x-w/2,0,x+w/2,0);g.addColorStop(0,'#8e979f');g.addColorStop(.45,'#f4f7f9');g.addColorStop(1,'#7f878f');
+ cx.fillStyle=g;cx.beginPath();cx.moveTo(x-w*.42,y-h);cx.lineTo(x+w*.36,y-h);cx.lineTo(x+w*.62,y-h-s*.12);cx.lineTo(x+w*.5,y-h*.85);cx.lineTo(x+w*.5,y);cx.lineTo(x-w*.5,y);cx.closePath();cx.fill();
+ cx.strokeStyle='#8e979f';cx.lineWidth=s*.08;cx.beginPath();cx.ellipse(x-w*.55,y-h*.55,w*.16,h*.26,0,1.7,4.6);cx.stroke();
+ // milk window (cutaway)
+ if(o.cut){const mh=h*.9*lvl,fh=h*.9*foam;cx.fillStyle='rgba(255,255,255,.25)';rr(x-w*.32,y-h*.92,w*.64,h*.88,8);cx.fill();cx.save();rr(x-w*.32,y-h*.92,w*.64,h*.88,8);cx.clip();cx.fillStyle='#fff8ea';cx.fillRect(x-w,y-mh,w*2,mh);
+  cx.fillStyle=o.bubbly?'#f4efe6':'#ffffff';cx.fillRect(x-w,y-mh-fh,w*2,fh+1);if(o.bubbly){cx.strokeStyle='rgba(190,175,150,.8)';cx.lineWidth=1;for(let i=0;i<14;i++){cx.beginPath();cx.arc(x-w*.28+(i*17)%(w*.56),y-mh-fh*((i*7%10)/10),2+i%3*1.5,0,7);cx.stroke()}}
+  if(o.swirl){cx.strokeStyle='rgba(220,210,190,.9)';cx.lineWidth=1.5;cx.beginPath();cx.ellipse(x,y-mh*.55,w*.22,mh*.3,0,(o.t||0)*6,(o.t||0)*6+4);cx.stroke()}cx.restore();cx.strokeStyle='rgba(255,255,255,.6)';cx.lineWidth=2;rr(x-w*.32,y-h*.92,w*.64,h*.88,8);cx.stroke()}
+ cx.restore()}
+function gauge(x,y,w,h,v,lo,hi,lab,vert){cx.save();cx.fillStyle='rgba(255,250,240,.95)';rr(x-3,y-3,w+6,h+6,8);cx.fill();cx.strokeStyle='#9c6a44';cx.lineWidth=2;cx.stroke();
+ if(vert){cx.fillStyle='#bfe8b0';cx.fillRect(x,y+h*(1-hi),w,h*(hi-lo));cx.fillStyle='#c0501c';const vy=y+h*(1-clamp(v,0,1));cx.fillRect(x-4,vy-2,w+8,4)}
+ else{cx.fillStyle='#bfe8b0';cx.fillRect(x+w*lo,y,w*(hi-lo),h);cx.fillStyle='#c0501c';const vx=x+w*clamp(v,0,1);cx.fillRect(vx-2,y-4,4,h+8)}
+ if(lab)txt(lab,x+w/2,vert?y+h+16:y-14,16,'#3a2412');cx.restore()}
+// ===== state =====
+const PL=[{e:'🐻',n:K('곰 바리스타','Bear')},{e:'🐰',n:K('토끼 바리스타','Rabbit')}];
+const G={mode:'title',d:0,stepI:0,perf:0,cur:null,tok:0,tut:false,p2:false,turn:0,pts:[0,0],kids:false,order:null,built:[],grind:null,dose:18,tampQ:1,milk:null,art:null,vis:null};
+function later(f,ms){const k=G.tok;setTimeout(()=>{if(k===G.tok)f()},ms)}
+const DRk=()=>DR[G.d];
+const FACES=['🧑','👩','👨','👵','👴','🧔','👱‍♀️','🧑‍🦱','👩‍🦰','🧑‍🎓'],KFACES=['🧒','👧','👦','🧒'];
+function stepList(){return DRk().steps}
+const STEPI={order:['📝',K('주문 받기','Take the order')],beans:['🫘',K('원두 고르기','Pick the beans')],grind:['⚙️',K('분쇄도','Grind size')],dose:['⚖️',K('도징 18g','Dose 18 g')],tamp:['✊',K('고르기·탬핑','Level & tamp')],shot:['⏱️',K('추출','Pull the shot')],steam:['♨️',K('우유 스팀','Steam the milk')],build:['🥤',K('담기','Build the drink')],art:['🎨',K('라떼 아트','Latte art')],steep:['🫙',K('콜드브루 우리기','Steep cold brew')],blend:['🌀',K('블렌딩','Blend')]};
+const EXPL={
+ order:K('손님 말을 잘 듣고 컵 크기, 따뜻/아이스, 매장(머그)/포장을 골라요. 카페마다 컵 이름이 달라요 (숏·톨·그란데 등). 우리 카페는 작은 8oz(240ml) · 중간 12oz(355ml) · 큰 16oz(473ml)!','Listen carefully and pick the cup size, hot or iced, and for-here (mug) or to-go. Cup names vary between cafes (short, tall, grande…). Ours: Small 8 oz (240 ml) · Medium 12 oz (355 ml) · Large 16 oz (473 ml)!'),
+ beans:K('로스팅(볶기) 정도에 따라 맛이 달라요. 약배전은 과일처럼 상큼, 중배전은 고소·달콤, 강배전은 진하고 쌉싸름! 손님이 좋아하는 맛을 골라요.','Roast level changes the taste. Light = fruity and bright, medium = nutty and sweet, dark = bold and bitter-sweet. Pick the flavour the customer likes!'),
+ grind:K('물은 고운 가루 사이를 천천히, 굵은 가루 사이를 빨리 지나가요. 에스프레소는 고운 소금처럼 곱게! 콜드브루는 굵게!','Water flows slowly through fine grounds and quickly through coarse ones. Espresso: fine like table salt! Cold brew: coarse!'),
+ dose:K('포터필터에 커피 가루를 약 18g 담아요. 너무 적으면 물이 휙 빠져 시고, 너무 많으면 넘치고 써요.','Put about 18 g of coffee into the portafilter. Too little and water rushes through (sour); too much and it overflows (bitter).'),
+ tamp:K('먼저 톡톡 가루를 평평하게 고르고, 탬퍼로 수평을 맞춰 꾹 눌러요. 기울면 물이 한쪽으로 몰려요 (채널링).','First tap to level the grounds, then press the tamper down evenly. If it tilts, water rushes through one side (channeling).'),
+ shot:K('목표: 25~30초 동안 약 36g (원두 18g의 2배, 1:2). 너무 빨리 나오면 시고 묽어요(과소추출), 너무 느리면 써요(과다추출).','Goal: about 36 g in 25–30 s (twice the 18 g dose, 1:2). Too fast = sour and weak (under-extracted); too slow = bitter (over-extracted).'),
+ steam:K('우유가 차가울 때 노즐 끝을 표면에 대고 쉭쉭 공기를 넣어요(스트레칭). 그다음 깊이 넣어 빙글빙글 돌려 매끈하게(롤링)! 60~65℃에서 멈춰요. 끓이면 안 돼요!','While the milk is cold, keep the tip at the surface to hiss in air (stretching). Then go deeper and spin it silky (rolling)! Stop at 60–65°C. Never boil it!'),
+ build:K('재료를 순서대로 담아요. 순서에는 다 이유가 있어요!','Add the ingredients in order. Every order has a reason!'),
+ art:K('높이서 부으면 우유가 아래로 가라앉고, 가까이 낮게 부으면 하얀 거품이 위에 그려져요. 하트: 가운데에 동그랗게 → 높이 들고 앞으로 쭉 가르기!','Pour from high and milk sinks under the crema; pour low and close and white foam draws on top. Heart: a round blob in the middle → lift high and cut through to the front!'),
+ steep:K('굵게 간 커피를 찬물에 담가 12~20시간 천천히 우려요. 찬물은 맛을 아주 천천히 녹여요.','Soak coarse coffee in cold water for 12–20 hours. Cold water extracts flavour very slowly.'),
+ blend:K('매끈해질 때까지만 갈아요. 너무 오래 갈면 모터 열과 마찰로 미지근하고 묽어져요.','Blend only until smooth. Too long and the motor\'s heat and friction make it warm and runny.')};
+// ===== order =====
+function genOrder(d){const o={size:d.sizes?pick(['S','M','L']):(d.fixSize||'S'),temp:d.temp,togo:Math.random()<.5,x:!!(d.xshot&&Math.random()<.3),decaf:!!(d.beans&&Math.random()<.25),roast:pick(['light','medium','dark']),face:pick(d.kid?KFACES:FACES)};o.shots=o.x?2:1;o.pumps=PUMPS[o.size];return o}
+function orderText(o,d){const ko=L=='ko';const sz=tx(SZ[o.size][0]);
+ if(ko)return `${o.temp=='hot'?'따뜻한':'시원한'} ${tx(d.n)}${d.sizes||d.fixSize?' '+sz+'로':''}${o.x?', 샷 하나 추가':''}${o.decaf?', 디카페인으로':''} 주세요! ${o.togo?'가져갈게요 🥡':'여기서 마실게요 🍽️'}`;
+ return `${d.sizes||d.fixSize?'A '+sz.toLowerCase()+' ':'A '}${o.temp=='hot'?'hot':'iced'} ${tx(d.n)}${o.x?', extra shot':''}${o.decaf?', decaf':''}, ${o.togo?'to go 🥡':'for here 🍽️'}, please!`}
+function orderTags(){const o=G.order,d=DRk();return `${d.e} ${tx(d.n)} · ${o.size} · ${o.temp=='hot'?'🔥':'🧊'} · ${o.togo?'🥡':'🍽️'}${o.x?' · +☕':''}${o.decaf?' · 💤':''}`}
+function cupKind(){const d=DRk(),o=G.order;if(o.togo){if(d.temp=='iced')return 'ice';if(d.cup=='bowl')return 'bowl';return 'take'}return d.cup}
+function cupScale(){const b=Math.min(W*.34,130);return b*({S:.84,M:1,L:1.14}[G.order.size]||1)}
+function chip(g,v,e,lab,sub,on){return `<button class="chip${on?' on':''}" data-g="${g}" data-v="${v}" id="ch_${g}_${v}"><span class="e">${e}</span><span>${lab}</span>${sub?`<span style="font-size:16px;color:#6a4a30">${sub}</span>`:''}</button>`}
+$('tray').addEventListener('click',e=>{const c=e.target.closest('[data-g]');if(!c)return;initAudio();if(c.dataset.g=='skip'){sfx('tap');skipStep();return}if(G.cur&&G.cur.chip)G.cur.chip(c.dataset.g,c.dataset.v)});
+const SKIPC=()=>chip('skip','1','⏭',Z('건너뛰기','Skip'),'');
+const STEP={};
+function custDraw(t,face,mood){const A=area(),cy=counterY();const x=W*.5,y=cy-40;cx.fillStyle='#ffd9b0';ell(x,y-50,46,46);cx.fill();txt(face,x,y-50,64);if(mood)txt(mood,x+50,y-96,30)}
+STEP.order={init(){const d=DRk(),o=G.order;this.s={size:d.sizes?null:o.size,temp:null,place:null,x:false,decaf:false};this.tray()},
+ tray(){const d=DRk(),s=this.s;let h='';if(d.sizes)h+=['S','M','L'].map(k=>chip('size',k,k=='S'?'🥛':k=='M'?'🥤':'🧋',tx(SZ[k][0]),SZ[k][1],s.size==k)).join('');
+  h+=chip('temp','hot','🔥',Z('따뜻','Hot'),'',s.temp=='hot')+chip('temp','iced','🧊',Z('아이스','Iced'),'',s.temp=='iced')+chip('place','here','🍽️',Z('매장','For here'),'',s.place=='here')+chip('place','togo','🥡',Z('포장','To go'),'',s.place=='togo');
+  if(d.xshot)h+=chip('x','1','➕',Z('샷 추가','Extra shot'),'',s.x);if(d.beans)h+=chip('decaf','1','💤',Z('디카페인','Decaf'),'',s.decaf);
+  h+=`<button class="hold green" id="okB">✅ ${Z('주문 확인','Confirm')}</button>`;tray(h);bindTap('okB',()=>this.ok());this.tut()},
+ tut(){if(!G.tut)return;const o=G.order,s=this.s;if(!s.size)return fingerEl('ch_size_'+o.size);if(!s.temp)return fingerEl('ch_temp_'+o.temp);if(!s.place)return fingerEl('ch_place_'+(o.togo?'togo':'here'));fingerEl('okB')},
+ chip(g,v){sfx('tap');const s=this.s;if(g=='x'||g=='decaf')s[g]=!s[g];else s[g]=v;this.tray()},
+ ok(){const o=G.order,s=this.s,d=DRk();if(!s.size||!s.temp||!s.place){sfx('bad');msg(Z('크기 · 따뜻/아이스 · 매장/포장을 모두 골라요!','Choose size · hot/iced · here/to-go!'),110);return}
+  const bad=[];if(s.size!=o.size)bad.push(Z(`컵 크기: 손님은 "${tx(SZ[o.size][0])}"`,`Size: they said "${tx(SZ[o.size][0])}"`));if(s.temp!=o.temp)bad.push(Z(`온도: "${o.temp=='hot'?'따뜻한':'시원한'}"`,`Temperature: "${o.temp}"`));
+  if((s.place=='togo')!=o.togo)bad.push(Z(`"${o.togo?'가져갈게요':'여기서 마실게요'}"`,`"${o.togo?'to go':'for here'}"`));if(s.x!=o.x)bad.push(Z(o.x?'샷 추가를 부탁했어요':'샷 추가는 안 했어요',o.x?'They asked for an extra shot':'No extra shot was asked'));if(s.decaf!=o.decaf)bad.push(Z(o.decaf?'디카페인을 부탁했어요':'디카페인은 아니었어요',o.decaf?'They asked for decaf':'They did not ask for decaf'));
+  if(bad.length)failStep(Z('주문이 달라요!','The order is different!'),bad.join('<br>'),Z('손님의 말을 한 번 더 천천히 읽어 봐요. 바쁜 카페에서도 주문 확인이 제일 중요해요!','Read the order again slowly. Even in a busy cafe, checking the order matters most!'));else finishStep(true)},
+ update(){},draw(t){custDraw(t,G.order.face,'💬');msg('💬 '+orderText(G.order,DRk()),area().top+4)},key(){}};
+STEP.beans={init(){this.r=null;this.dc=false;this.tray()},
+ tray(){let h=Object.keys(ROAST).map(k=>chip('r',k,ROAST[k][0],tx(ROAST[k][1]),tx(ROAST[k][2]),this.r==k)).join('');h+=chip('decaf','1','💤',Z('디카페인 원두','Decaf beans'),'',this.dc);h+=`<button class="hold green" id="okB">✅ ${Z('이 원두로!','Use these!')}</button>`;tray(h);bindTap('okB',()=>this.ok());if(G.tut)fingerEl(this.r?'okB':'ch_r_'+G.order.roast)},
+ chip(g,v){sfx('tap');if(g=='decaf')this.dc=!this.dc;else this.r=v;this.tray()},
+ ok(){const o=G.order;if(!this.r){sfx('bad');return}if(this.r!=o.roast)return failStep(Z('손님 취향과 달라요','Not the customer\'s taste'),Z(`손님은 "${tx(ROAST[o.roast][2])}" 맛을 원했어요 → ${tx(ROAST[o.roast][1])}!`,`They wanted "${tx(ROAST[o.roast][2])}" → ${tx(ROAST[o.roast][1])}!`),Z('약하게 볶을수록 원래 열매의 상큼한 맛이, 강하게 볶을수록 쌉싸름하고 진한 맛이 나요.','Lighter roasts keep the fruit\'s bright taste; darker roasts taste bold and roasty.'));
+  if(this.dc!=o.decaf)return failStep(Z('디카페인 확인!','Check decaf!'),o.decaf?Z('손님이 디카페인을 부탁했어요.','The customer asked for decaf.'):Z('디카페인 주문이 아니었어요.','It was not a decaf order.'),Z('디카페인은 카페인을 약 97% 이상 뺀 원두예요. 밤에 마시는 어른들이 좋아해요.','Decaf beans have about 97%+ of the caffeine removed, popular with grown-ups at night.'));finishStep(true)},
+ update(){},draw(t){const cy=counterY();const ks=Object.keys(ROAST);ks.forEach((k,i)=>{const x=W*(.2+i*.3),y=cy-10;cx.fillStyle=this.r==k?'#ffcf86':'#e8cfa8';rr(x-42,y-110,84,110,14);cx.fill();cx.fillStyle='#fff';rr(x-30,y-80,60,40,8);cx.fill();for(let j=0;j<14;j++){cx.fillStyle=ROAST[k][3];ell(x-24+(j%5)*12,y-24-((j/5)|0)*10,6,4,j);cx.fill()}txt(ROAST[k][0],x,y-60,24)});
+  if(this.dc)txt('💤',W*.5,cy-150,40);msg('💬 '+Z(`"${tx(ROAST[G.order.roast][2])} 맛이 좋아요!"`,`"I love ${tx(ROAST[G.order.roast][2])} flavours!"`)+(G.order.decaf?Z(' (디카페인!)',' (decaf!)'):''),area().top+4)}};
+const GLAB=[[.1,K('밀가루처럼 아주 고움','Powder-fine, like flour')],[.3,K('고운 소금 (에스프레소 ✔)','Fine salt (espresso ✔)')],[.5,K('설탕 (모카포트)','Sugar (moka pot)')],[.7,K('굵은 설탕 (핸드드립)','Coarse sugar (pour-over)')],[1.01,K('굵은 빵가루 (콜드브루 ✔)','Coarse crumbs (cold brew ✔)')]];
+const glab=g=>tx(GLAB.find(a=>g<a[0])[1]);
+STEP.grind={init(){this.g=.5;this.tray()},
+ tray(){tray(`<button class="hold" id="fB">◀ ${Z('더 곱게','Finer')}</button><button class="hold" id="cB">${Z('더 굵게','Coarser')} ▶</button><button class="hold green" id="okB">✅ OK</button>${SKIPC()}`);bindTap('fB',()=>this.set(-.1));bindTap('cB',()=>this.set(.1));bindTap('okB',()=>this.ok());this.tut()},
+ tut(){if(!G.tut)return;fingerEl(this.g>.31?'fB':'okB')},
+ set(d){this.g=clamp(Math.round((this.g+d)*10)/10,0,1);sfx('grind');this.tut()},
+ ok(){const cold=DRk().id=='cold';G.grind=this.g;if(cold){if(this.g<.7)return failStep(Z('너무 고와요!','Too fine!'),Z('콜드브루는 오래 담가 두니까 굵게 갈아야 해요. 고우면 너무 써지고 거름망이 막혀요.','Cold brew soaks for hours, so it needs a coarse grind. Fine grounds turn bitter and clog the filter.'),Z('굵은 빵가루 정도로!','Like coarse breadcrumbs!'));return finishStep(this.g>=.8)}
+  finishStep(this.g>=.2&&this.g<=.3)},
+ update(){},draw(t){const cy=counterY(),x=W*.5;cx.fillStyle='#4a4f55';rr(x-50,cy-190,100,120,14);cx.fill();cx.fillStyle='rgba(255,255,255,.25)';cx.beginPath();cx.moveTo(x-40,cy-260);cx.lineTo(x+40,cy-260);cx.lineTo(x+22,cy-190);cx.lineTo(x-22,cy-190);cx.closePath();cx.fill();for(let j=0;j<16;j++){cx.fillStyle='#5a3218';ell(x-24+(j%6)*10,cy-200-((j/6)|0)*12,5,3.5,j);cx.fill()}
+  // dial
+  cx.fillStyle='#ddd';ell(x,cy-130,30,30);cx.fill();cx.strokeStyle='#333';cx.lineWidth=3;const a=-2.4+this.g*4.8;cx.beginPath();cx.moveTo(x,cy-130);cx.lineTo(x+Math.cos(a)*24,cy-130+Math.sin(a)*24);cx.stroke();
+  // particle sample
+  cx.fillStyle='#fff';rr(x-90,cy-60,180,52,12);cx.fill();const r=.8+this.g*4.5;for(let i=0;i<Math.floor(60-this.g*40);i++){cx.fillStyle=i%3?'#6b3a1a':'#8a5028';ell(x-80+((i*37)%160),cy-50+((i*53)%34),r,r*.8,i);cx.fill()}
+  gauge(W*.12,cy+24,W*.76,14,this.g,DRk().id=='cold'?.8:.2,DRk().id=='cold'?1:.3,'');
+  txt(Z('고움','Fine'),W*.12,cy+56,16,'#fff','left','#3a2412');txt(Z('굵음','Coarse'),W*.88,cy+56,16,'#fff','right','#3a2412');
+  msg(`⚙️ ${glab(this.g)}`,area().top+4)}};
+STEP.dose={init(){this.g=0;this.h=false;this.tray()},tray(){tray(`<button class="hold" id="hB">⚙️ ${Z('갈아 담기 (꾹)','Grind (hold)')}</button><button class="hold green" id="okB">✅ ${Z('다 담았어요','Done')}</button>${SKIPC()}`);bindHold('hB',v=>this.hold(v));bindTap('okB',()=>this.ok());if(G.tut)fingerEl('hB')},
+ hold(v){this.h=v;if(!v&&G.tut)fingerEl(this.g>=17?'okB':'hB')},key(v){this.hold(v)},
+ ok(){const g=this.g;G.dose=g;if(g<16.5)return failStep(Z('너무 적어요','Too little'),Z(`${g.toFixed(1)}g: 가루가 적으면 물이 휙 빠져 시고 묽은 커피가 돼요.`,`${g.toFixed(1)} g: with too little coffee, water rushes through and it tastes sour and weak.`),Z('17.5~18.5g에서 멈춰요!','Stop between 17.5 and 18.5 g!'));finishStep(g>=17.5&&g<=18.5)},
+ update(dt){if(this.h){this.g+=dt*(this.g>15?2.2:5)*(.9+Math.random()*.2);if(Math.random()<.5)sfx('grind');if(this.g>21){this.h=false;failStep(Z('넘쳤어요!','It overflowed!'),Z('가루가 너무 많으면 넘치고, 물이 잘 못 지나가서 쓴 커피가 돼요.','Too much coffee overflows and water can\'t get through, so it turns bitter.'),Z('저울 숫자를 보며 18g 근처에서 손을 떼요.','Watch the scale and let go near 18 g.'))}}},
+ draw(t){const cy=counterY(),x=W*.5;cx.fillStyle='#4a4f55';rr(x-46,cy-250,92,90,14);cx.fill();cx.fillStyle='#333';rr(x-10,cy-160,20,24,4);cx.fill();
+  if(this.h){cx.fillStyle='#5a3218';for(let i=0;i<8;i++){ell(x+rnd(-6,6),cy-134+((t*400+i*13)%60),2,2);cx.fill()}}
+  cx.fillStyle='#333';rr(x-80,cy-30,160,24,6);cx.fill();txt(this.g.toFixed(1)+' g',x,cy-18,18,this.g>=17.5&&this.g<=18.5?'#7cff8a':'#ffd34a');
+  cx.fillStyle='#777';ell(x,cy-60,62,22);cx.fill();cx.fillStyle='#555';ell(x,cy-64,54,18);cx.fill();const m=clamp(this.g/18,0,1.3);cx.fillStyle='#5a3218';ell(x,cy-64-m*6,48*Math.min(1,m),15*Math.min(1,m)+m*4);cx.fill();cx.fillStyle='#2b2018';rr(x+54,cy-70,90,14,6);cx.fill();
+  gauge(W*.15,cy+28,W*.7,14,this.g/22,17.5/22,18.5/22,'');msg(`⚖️ ${Z('목표','Target')}: 18g (17.5~18.5)`,area().top+4)}};
+STEP.tamp={init(){this.taps=0;this.h=false;this.p=0;this.ph=0;this.tray()},
+ tray(){tray(this.taps<3?`<button class="hold" id="tB">👆 ${Z('톡톡 고르기','Tap to level')} (${this.taps}/3)</button>${SKIPC()}`:`<button class="hold" id="hB">✊ ${Z('꾹 누르기 → 수평일 때 떼기','Hold → release when level')}</button>${SKIPC()}`);if(this.taps<3)bindTap('tB',()=>{this.taps++;sfx('thud');this.tray()});else bindHold('hB',v=>this.hold(v));if(G.tut)fingerEl(this.taps<3?'tB':'hB')},
+ hold(v){if(v){this.h=true;this.p=0}else if(this.h){this.h=false;this.done()}},key(v){if(this.taps<3){if(v){this.taps++;sfx('thud');this.tray()}}else this.hold(v)},
+ tilt(){return Math.sin(this.ph)*.8},
+ done(){const tl=Math.abs(this.tilt());if(this.p<.5)return failStep(Z('너무 살짝 눌렀어요','Pressed too lightly'),Z('꾹 단단하게 눌러야 물이 고르게 지나가요.','Press firmly so the water flows evenly.'),Z('버튼을 조금 더 오래 눌러요.','Hold a little longer.'));
+  G.tampQ=1-tl;if(tl>.35)return failStep(Z('기울었어요! (채널링)','It tilted! (channeling)'),Z('한쪽이 얇으면 물이 그쪽으로만 콸콸 흘러 시고 쓴맛이 함께 나요.','If one side is thinner, water rushes through it and the shot tastes sour and bitter at once.'),Z('수평계 방울이 가운데에 올 때 손을 떼요.','Release when the bubble is in the middle.'));sfx('good');finishStep(tl<.15)},
+ update(dt){if(this.h){this.p=Math.min(1,this.p+dt*1.1);this.ph+=dt*3.6}else if(this.taps>=3)this.ph+=dt*1.2},
+ draw(t){const cy=counterY(),x=W*.5,flat=Math.min(1,this.taps/3);cx.fillStyle='#777';ell(x,cy-60,70,26);cx.fill();cx.fillStyle='#555';ell(x,cy-64,60,21);cx.fill();cx.fillStyle='#5a3218';ell(x,cy-66-(1-flat)*8,52,17);cx.fill();if(flat<1){cx.fillStyle='#6b3a1a';ell(x-14,cy-74,18,9);cx.fill()}
+  if(this.taps>=3){const tl=this.tilt(),dy=this.h?this.p*18:0;cx.save();cx.translate(x,cy-110+dy);cx.rotate(tl*.25);cx.fillStyle='#b9c0c7';rr(-50,0,100,16,6);cx.fill();cx.fillStyle='#6b3f1f';rr(-14,-60,28,60,12);cx.fill();cx.restore();
+   const bx=W*.5,by=cy+30;cx.fillStyle='rgba(255,250,240,.95)';rr(bx-90,by-12,180,24,12);cx.fill();cx.strokeStyle='#9c6a44';cx.stroke();cx.fillStyle='#bfe8b0';cx.fillRect(bx-14,by-10,28,20);cx.fillStyle='#7ac0ff';ell(bx+tl*100,by,10,8);cx.fill();
+   gauge(W*.88,cy-200,14,120,this.p,.5,1,'',true)}
+  msg(this.taps<3?Z('👆 톡톡! 가루를 평평하게','👆 Tap to level the grounds'):Z('✊ 꾹 누르다가 방울이 가운데일 때 떼요','✊ Hold, then release when the bubble is centred'),area().top+4)}};
+function shotT36(){const g=G.grind==null?.25:G.grind;return 27*Math.pow(2,(.25-g)*4.2)*(1+(G.dose-18)*.08)*(G.tampQ<.7?.8:1)}
+STEP.shot={init(){this.st=0;this.t=0;this.w=0;this.q=G.grind==null;this.tray()},
+ tray(){if(this.q){tray([[.05,'🌫️',Z('아주 곱게','Extra fine')],[.25,'🧂',Z('곱게','Fine')],[.55,'🍚',Z('중간','Medium')]].map(a=>chip('g',a[0],a[1],a[2],'',false)).join('')+SKIPC());if(G.tut)fingerEl('ch_g_0.25');return}
+  tray(this.st==0?`<button class="hold green" id="sB">▶ ${Z('추출 시작','Start shot')}</button>${SKIPC()}`:`<button class="hold" id="xB">⏹ ${Z('멈춤!','Stop!')}</button>`);if(this.st==0)bindTap('sB',()=>this.start());else bindTap('xB',()=>this.stop());if(G.tut)fingerEl(this.st==0?'sB':'xB')},
+ chip(g,v){if(g=='g'){G.grind=+v;this.q=false;sfx('grind');this.tray()}},
+ key(v){if(!v||this.q)return;if(this.st==0)this.start();else if(this.st==1)this.stop()},
+ start(){this.st=1;this.t=0;this.w=0;this.t36=shotT36();sfx('thud');this.tray()},
+ stop(){if(this.st!=1)return;this.st=2;fingerOff();const t=this.t,w=this.w;G.shot={t,w};
+  let face,taste,ok=0;const fast=t<20,slow=t>35;if(w<28){face='😖';taste=Z('양이 너무 적어 짜고 시큼해요.','Too little: salty and sour.')}else if(w>45){face='😣';taste=Z('너무 많이 내려서 묽고 써요.','Too much: watery and bitter.')}
+  else if(fast){face='😖';taste=Z('시고 묽어요! 과소추출 → 더 곱게 갈아요.','Sour and weak! Under-extracted → grind finer.')}else if(slow){face='😣';taste=Z('너무 써요! 과다추출 → 더 굵게 갈아요.','Too bitter! Over-extracted → grind coarser.')}
+  else if(t>=25&&t<=30&&w>=32&&w<=40){face='😋';taste=Z('달콤하고 균형 잡힌 맛! 완벽해요!','Sweet and balanced. Perfect!');ok=2}else{face='🙂';taste=Z('괜찮아요! 25~30초에 가까울수록 더 맛있어요.','Not bad! Closer to 25–30 s tastes even better.');ok=1}
+  G.shotFace=face;const info=`<div class="face">${face}</div><p class="sub">⏱ ${t.toFixed(1)}${Z('초','s')} · ⚖️ ${w.toFixed(0)}g (${Z('목표','goal')} 25~30${Z('초','s')} · 36g)</p><p class="sub">${taste}</p>`;
+  if(!ok){sfx('fail');show(`<h2>🤔 ${Z('왜 맛이 이럴까?','Why does it taste like this?')}</h2>${info}<div class="why">${Z('물이 커피를 지나가는 시간이 맛을 정해요. 빠르면 신맛만, 느리면 쓴맛까지 많이 녹아 나와요.','How long water spends in the coffee decides the taste. Fast pulls out mostly sour; slow pulls out bitterness too.')}</div><div class="row">${B('↻ '+Z('다시 해보기','Try again'),()=>{hideOv();const st=DRk().steps;if(st.includes('grind')){G.stepI=st.indexOf('grind');startStep()}else{G.grind=null;this.init()}},'big')}${B(Z('그냥 계속','Continue anyway'),()=>{hideOv();nextStep()})}</div>`,{guard:800});return}
+  sfx(ok==2?'ding':'good');show(`<h2>${ok==2?'✨ '+Z('완벽한 샷!','Perfect shot!'):Z('좋은 샷!','Good shot!')}</h2>${info}<div class="row">${B(Z('다음 ▶','Next ▶'),()=>{hideOv();finishStep(ok==2,1)},'big')}</div>`,{cont:()=>{hideOv();finishStep(ok==2,1)},guard:700})},
+ update(dt){if(this.st==1){this.t+=dt*2.6;const t36=this.t36;this.w=this.t<4?0:36*(this.t-4)/(t36-4);if(Math.random()<.3)sfx('pour');if(this.w>60)this.stop()}},
+ draw(t){const cy=counterY(),mw=Math.min(W*.7,270),mh=mw*1.05,mx=W/2-mw/2,my=cy-mh;const brewing=this.st==1&&this.t>4;const m=drawMachine(mx,my,mw,mh,{t,brew:brewing,flow:clamp(36/(this.t36||27)*1.4,.6,2.4),press:this.st==1?.8:0,streamLen:mh*.86-mh*.36-32-30});
+  const fill=clamp(this.w/50,0,1);drawCup('demi',m.hx,m.dripY,90,fill>0?[{c:'#3a1c0c',h:fill*.9}]:[],{crema:fill>0,t});
+  const bx=12,by=area().top+66;cx.fillStyle='rgba(30,20,12,.82)';rr(bx,by,128,62,12);cx.fill();txt('⏱ '+this.t.toFixed(1)+Z('초','s'),bx+64,by+18,20,this.t>=25&&this.t<=30?'#7cff8a':'#fff');txt('⚖️ '+this.w.toFixed(1)+'g',bx+64,by+44,20,this.w>=32&&this.w<=40?'#7cff8a':'#ffd34a');
+  if(!this.q)msg(this.st==0?Z('▶ 누르고, 36g 근처에서 멈춰요 (25~30초면 완벽)','Press ▶ and stop near 36 g (25–30 s is perfect)'):Z('⚖️ 36g이 되면 멈춰요!','Stop at 36 g!'),area().top+4);else msg(Z('⚙️ 먼저 분쇄도를 골라요. 에스프레소는?','⚙️ First pick the grind. For espresso?'),area().top+4)}};
+STEP.steam={init(){const mk=DRk().milk;this.mk=mk;this.T=5;this.f=0;this.on=false;this.h=false;this.bub=0;this.done=false;this.tray()},
+ tray(){tray(`<button class="hold" id="hB">🌬️ ${Z('공기 넣기 (꾹)','Add air (hold)')}</button><button class="hold green" id="xB">⏹ ${Z('스팀 끄기','Steam off')}</button>${SKIPC()}`);bindHold('hB',v=>this.hold(v));bindTap('xB',()=>this.stop());if(G.tut)fingerEl('hB')},
+ hold(v){this.h=v;if(v)this.on=true;if(!v&&G.tut)fingerEl('xB')},key(v){this.hold(v)},
+ stop(){if(!this.on||this.done)return;this.done=true;this.h=false;fingerOff();const mk=this.mk,T=this.T,f=this.f,lo=mk.t[0],hi=mk.t[1];G.milk={T,f};
+  if(T>70)return failStep(Z('너무 뜨거워요!','Too hot!'),Z(`${T.toFixed(0)}℃: 우유가 너무 뜨거우면 단맛이 줄고 익은 냄새가 나요. 거품도 금방 꺼져요.`,`${T.toFixed(0)}°C: milk that hot loses sweetness and smells cooked. The foam collapses too.`),Z(`초록 칸(${lo}~${hi}℃)에서 꺼요!`,`Turn it off in the green zone (${lo}–${hi}°C)!`),1);
+  if(T<lo-5)return failStep(Z('아직 차가워요','Still too cool'),Z(`${T.toFixed(0)}℃: 조금 더 데워야 달콤해져요.`,`${T.toFixed(0)}°C: warm it a bit more to bring out the sweetness.`),Z(`${lo}~${hi}℃까지 기다려요.`,`Wait until ${lo}–${hi}°C.`),1);
+  const df=Math.abs(f-mk.f);if(df>.22)return failStep(f<mk.f?Z('거품이 부족해요','Not enough foam'):Z('거품이 너무 많아요','Too much foam'),f<mk.f?Z('공기를 조금 더 오래 넣어야 해요 (쉭쉭 스트레칭).','Add air a little longer (the hissing stretch).'):Z('공기를 너무 오래 넣었어요. 이 음료는 거품이 더 얇아요.','You added air too long. This drink needs thinner foam.'),Z('오른쪽 거품 게이지의 초록 칸에 맞춰요.','Match the green band on the foam gauge.'),1);
+  const perf=T>=lo&&T<=hi&&df<=.1&&this.bub<.15;if(this.bub>=.15)msg(Z('💡 공기는 우유가 차가울 때(40℃ 전) 넣어야 거품이 고와요!','💡 Add air while the milk is cold (under 40°C) for fine foam!'),area().top+4);finishStep(perf)},
+ update(dt){if(!this.on||this.done)return;this.T+=dt*7;if(Math.random()<.4)sfx(this.h?'chirp':'hiss');if(this.h){this.f+=dt*.24;if(this.T>45)this.bub+=dt*.4}if(this.T>=78)this.stop()},
+ draw(t){const cy=counterY(),mw=Math.min(W*.62,240),mh=mw*1.05,mx=W*.36-mw/2,my=cy-mh;const m=drawMachine(mx,my,mw,mh,{t,steam:this.on&&!this.done,pf:true});
+  const px=m.wx+6,py=cy-4;drawPitcher(px,py,96,.55+this.f*.25,this.f*.35,{cut:true,bubbly:this.bub>.15,swirl:this.on&&!this.h,t});
+  if(this.on&&!this.done&&this.h)steamAt(px,py-100,1,.6);
+  const mk=this.mk;gauge(W-58,area().top+60,16,cy-area().top-130,this.T/80,mk.t[0]/80,mk.t[1]/80,this.T.toFixed(0)+'℃',true);gauge(W-28,area().top+60,16,cy-area().top-130,this.f,Math.max(0,mk.f-.1),mk.f+.1,'☁️',true);
+  msg(!this.on?Z('🌬️ 꾹 누르면 스팀 시작 + 공기 넣기','🌬️ Hold to start steaming and add air'):this.h?Z('쉭쉭~ 공기가 들어가요 (거품 ↑)','Hiss… air goes in (foam ↑)'):Z('빙글빙글 롤링 중… 매끈하게! 초록 온도에서 끄기','Rolling… silky! Turn off in the green'),area().top+4)}};
+// build
+function seqOf(){const o=G.order;return DRk().build.map(([k,n])=>({k,n:n=='S'?o.shots:n=='P'?o.pumps:n}))}
+const LH={water:.4,coldw:.28,shot:.13,milk:.45,cmilk:.45,foam:.14,choco:.08,vanilla:.05,straw:.12,fruit:.12,soda:.55,yogurt:.3,frozen:.25,coldbrew:.35};
+function layersFrom(items){let ls=[];for(const k of items){if(k=='stir'){if(ls.length){let r=0,g=0,b=0,h=0;for(const l of ls){const c=hex(l.c);r+=c[0]*l.h;g+=c[1]*l.h;b+=c[2]*l.h;h+=l.h}ls=[{c:`rgb(${r/h|0},${g/h|0},${b/h|0})`,h}]}continue}
+ if(LH[k]){let c=ING[k][2];if(k=='milk'&&items.includes('choco'))c='#f6e2cc';ls.push({c,h:LH[k]})}}let tot=ls.reduce((a,l)=>a+l.h,0);if(tot>.92)ls.forEach(l=>l.h*=.92/tot);return ls}
+function hex(c){if(c.startsWith('rgb'))return c.match(/\d+/g).map(Number);const n=parseInt(c.slice(1),16);return [n>>16,(n>>8)&255,n&255]}
+function drawDrink(x,y,s,items,o){o=o||{};const kind=o.kind||cupKind();const ls=layersFrom(items);const last=[...items].reverse().find(k=>LH[k]);const opts={t:o.t,art:o.art};
+ if(last=='shot'&&!items.includes('stir'))opts.crema=1;if(last=='milk'||last=='foam'){opts.surf=items.includes('choco')&&!items.includes('stir')?'#f6e2cc':'#fff8ee';if(!o.art)opts.foamDots=1}
+ if(items.includes('caramel'))opts.caramel=1;if(items.includes('cream'))opts.cream=1;if(items.includes('icecream')){opts.scoop=1;if(!ls.length)ls.push({c:'#fff3d6',h:.05})}if(items.includes('cocoa'))opts.cocoa=1;if(kind=='ice'&&items.includes('shot')&&items.includes('cmilk'))opts.marble=1;if(o.lid)opts.lid=1;
+ const g=drawCup(kind,x,y,s,ls,opts);if(items.includes('ice')&&CUPK[kind].clear){cx.save();for(let i=0;i<6;i++){cx.fillStyle='rgba(255,255,255,.6)';cx.strokeStyle='rgba(150,190,220,.8)';const ix=x-g.wb*.35+(i%3)*g.wb*.3,iy=y-14-((i/3)|0)*g.hh*.22-(i%2)*6;rr(ix-10,iy-10,20,18,4);cx.fill();cx.stroke()}cx.restore()}
+ if(items.includes('soda')){cx.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<8;i++){ell(x+Math.sin(i*3+(o.t||0)*2)*g.wb*.3,y-((o.t||0)*60+i*23)%(g.hh*.8),2,2);cx.fill()}}
+ if(CUPK[kind].clear&&kind=='ice'&&o.straw!==false&&items.length)drawStraw(x,g);return g}
+function drawStraw(x,g){cx.strokeStyle='#ff9fbf';cx.lineWidth=6;cx.beginPath();cx.moveTo(x+g.wt*.12,g.y-g.hh*.3);cx.lineTo(x+g.wt*.28,g.top-26);cx.stroke()}
+STEP.build={init(){this.seq=seqOf();this.i=0;this.c=0;this.items=[];this.anim=0;const need=[...new Set(this.seq.map(a=>a.k))];const extra=shuf(Object.keys(ING).filter(k=>!need.includes(k))).slice(0,Math.max(2,7-need.length));this.opts=shuf(need.concat(extra));this.tray()},
+ tray(){tray(this.opts.map(k=>chip('i',k,ING[k][0],tx(ING[k][1]),'',false)).join('')+(SV.done[DRk().id]&&!this.hint?chip('hint','1','💡',Z('힌트','Hint'),'',false):'')+SKIPC());this.tut()},
+ tut(){if(G.tut&&this.i<this.seq.length)fingerEl('ch_i_'+this.seq[this.i].k)},
+ chip(g,k){if(g=='hint'){this.hint=1;sfx('tap');this.tray();return}if(g!='i'||this.i>=this.seq.length)return;const s=this.seq[this.i],prev=this.seq[this.i-1];
+  if(k==s.k){this.c++;this.items.push(k);this.anim=1;sfx(k=='ice'?'clink':k=='vanilla'?'pump':k=='stir'?'tap':'pour');if(k=='shot'||k=='milk')steamAt(W/2,counterY()-cupScale(),3);if(this.c>=s.n){this.i++;this.c=0}
+   if(this.i>=this.seq.length){G.built=this.items.slice();fingerOff();later(()=>finishStep(true),500)}else this.tut();return}
+  if(prev&&k==prev.k&&prev.n>1)return failStep(Z('너무 많이 넣었어요!','Too much!'),Z(`${ING[k][0]} ${tx(ING[k][1])}: ${tx(SZ[G.order.size][0])}에는 ${prev.n}번이에요. 더 넣으면 너무 달거나 진해져요.`,`${ING[k][0]} ${tx(ING[k][1])}: a ${tx(SZ[G.order.size][0]).toLowerCase()} gets ${prev.n}. More makes it too sweet or strong.`),tx(DRk().why));
+  failStep(Z('순서가 달라요!','Wrong order!'),Z('이 음료의 순서: ','This drink\'s order: ')+this.seq.map(a=>ING[a.k][0]+(a.n>1?'×'+a.n:'')).join(' → '),tx(DRk().why))},
+ update(dt){this.anim=Math.max(0,this.anim-dt*3)},
+ draw(t){const cy=counterY(),s=cupScale();const sq=1+this.anim*.06;cx.save();cx.translate(W/2,cy);cx.scale(sq,2-sq);drawDrink(0,0,s,this.items,{t});cx.restore();
+  const cur=this.seq[this.i],show_=this.hint||!SV.done[DRk().id]||G.tut;msg(cur?(show_?Z('순서대로 담아요: ','Add in order: ')+this.seq.map((a,j)=>`<span style="opacity:${j<this.i?.4:1}">${ING[a.k][0]}${a.n>1?'×'+a.n:''}</span>`).join(' → '):Z('레시피를 기억해서 담아요! ','Build it from memory! ')+this.seq.slice(0,this.i).map(a=>ING[a.k][0]).join(' → ')+' → ❓')+(cur.n>1?Z(` (지금 ${this.c}/${cur.n})`,` (now ${this.c}/${cur.n})`):''):'✅',area().top+4)}};
+// recipe hint visibility: in tutorial/first time we show the order; later we hide it after the first time
+STEP.steep={init(){this.h=0;this.hold_=false;this.tray()},tray(){tray(`<button class="hold" id="hB">⏩ ${Z('시간 빨리 감기 (꾹)','Fast-forward (hold)')}</button><button class="hold green" id="okB">✅ ${Z('거르기','Filter')}</button>${SKIPC()}`);bindHold('hB',v=>this.hold_=v);bindTap('okB',()=>this.ok())},key(v){this.hold_=v},
+ ok(){const h=this.h;if(h<10)return failStep(Z('너무 짧아요','Too short'),Z(`${h.toFixed(0)}시간: 찬물은 천천히 우러나서 아직 시고 묽어요.`,`${h.toFixed(0)} h: cold water works slowly, so it is still sour and weak.`),Z('12~20시간을 기다려요.','Wait 12–20 hours.'));if(h>24)return failStep(Z('너무 오래 뒀어요','Too long'),Z(`${h.toFixed(0)}시간: 너무 오래 담그면 쓰고 나무 같은 맛이 나요.`,`${h.toFixed(0)} h: soaked too long it turns bitter and woody.`),Z('12~20시간에 걸러요.','Filter at 12–20 hours.'));finishStep(h>=12&&h<=20)},
+ update(dt){if(this.hold_){this.h=Math.min(30,this.h+dt*3.2)}},
+ draw(t){const cy=counterY(),x=W/2;const day=Math.cos(this.h/24*Math.PI*2)*.5+.5;cx.fillStyle=`rgba(20,30,70,${(1-day)*.35})`;cx.fillRect(0,0,W,cy);txt(day>.5?'☀️':'🌙',W*.15,area().top+80,36);
+  cx.fillStyle='rgba(235,248,255,.45)';rr(x-60,cy-170,120,165,16);cx.fill();cx.strokeStyle='rgba(120,160,190,.8)';cx.lineWidth=2;cx.stroke();const k=clamp(this.h/18,0,1.4);cx.fillStyle=`rgba(${lerp(200,50,Math.min(1,k))|0},${lerp(170,28,Math.min(1,k))|0},${lerp(140,12,Math.min(1,k))|0},.9)`;cx.fillRect(x-56,cy-150,112,142);
+  cx.fillStyle='#6b3a1a';for(let i=0;i<30;i++){ell(x-50+(i*29)%100,cy-14-(i*7)%26,3.5,2.6,i);cx.fill()}cx.fillStyle='#8a5634';rr(x-64,cy-182,128,16,6);cx.fill();
+  cx.fillStyle='#fff';ell(W*.8,area().top+90,40,40);cx.fill();cx.strokeStyle='#3a2412';cx.lineWidth=3;cx.stroke();const a=this.h/12*Math.PI*2-Math.PI/2;cx.beginPath();cx.moveTo(W*.8,area().top+90);cx.lineTo(W*.8+Math.cos(a)*30,area().top+90+Math.sin(a)*30);cx.stroke();
+  gauge(W*.12,cy+24,W*.76,14,this.h/30,12/30,20/30,'');msg(`🫙 ${this.h.toFixed(0)}${Z('시간','h')} · ${Z('목표 12~20시간 (냉장고처럼 찬 곳에서)','goal 12–20 h (somewhere cold)')}`,area().top+4)}};
+STEP.blend={init(){this.s=0;this.h=false;this.tray()},tray(){tray(`<button class="hold" id="hB">🌀 ${Z('갈기 (꾹)','Blend (hold)')}</button><button class="hold green" id="okB">✅ ${Z('완성','Done')}</button>${SKIPC()}`);bindHold('hB',v=>this.h=v);bindTap('okB',()=>this.ok())},key(v){this.h=v},
+ ok(){const s=this.s;if(s<.75)return failStep(Z('덩어리가 있어요','Still chunky'),Z('과일 덩어리가 남아 빨대가 막혀요.','Fruit chunks are left and the straw clogs.'),Z('매끈해질 때까지 조금 더!','A bit longer until smooth!'));if(s>1.6)return failStep(Z('너무 오래 갈았어요','Blended too long'),Z('모터 열과 마찰로 미지근하고 묽어졌어요.','Motor heat and friction made it warm and runny.'),Z('초록 칸에서 멈춰요.','Stop in the green zone.'));finishStep(s>=.9&&s<=1.25)},
+ update(dt){if(this.h){this.s+=dt*.32;if(Math.random()<.6)sfx('blend')}},
+ draw(t){const cy=counterY(),x=W/2;cx.fillStyle='#4a4f55';rr(x-55,cy-40,110,40,10);cx.fill();cx.fillStyle='rgba(235,248,255,.5)';cx.beginPath();cx.moveTo(x-50,cy-200);cx.lineTo(x+50,cy-200);cx.lineTo(x+36,cy-40);cx.lineTo(x-36,cy-40);cx.closePath();cx.fill();cx.strokeStyle='rgba(120,160,190,.8)';cx.stroke();
+  const sm=clamp(this.s,0,1);cx.save();cx.beginPath();cx.moveTo(x-50,cy-200);cx.lineTo(x+50,cy-200);cx.lineTo(x+36,cy-40);cx.lineTo(x-36,cy-40);cx.closePath();cx.clip();cx.fillStyle=`rgb(${lerp(250,190,sm)|0},${lerp(245,150,sm)|0},${lerp(240,215,sm)|0})`;cx.fillRect(x-60,cy-150,120,110);
+  for(let i=0;i<Math.round(12*(1-sm));i++){cx.fillStyle='#6a4fb0';const a=t*(this.h?14:0)+i;ell(x+Math.cos(a)*30*((i%3)/3+.3),cy-90+Math.sin(a*1.3)*35,7,6);cx.fill()}cx.restore();
+  gauge(W*.12,cy+24,W*.76,14,this.s/2,.45,.625,'');msg(Z('🌀 매끈해지면 멈춰요!','🌀 Stop when smooth!'),area().top+4)}};
+// ===== latte art =====
+function heartPath(cx_,cy_,r,ang){cx.save();cx.translate(cx_,cy_);cx.rotate(ang);cx.beginPath();cx.moveTo(0,r*1.05);cx.bezierCurveTo(-r*.25,r*.6,-r*1.15,r*.15,-r*1.0,-r*.35);cx.bezierCurveTo(-r*.9,-r*.95,-r*.15,-r*1.0,0,-r*.45);cx.bezierCurveTo(r*.15,-r*1.0,r*.9,-r*.95,r*1.0,-r*.35);cx.bezierCurveTo(r*1.15,r*.15,r*.25,r*.6,0,r*1.05);cx.closePath();cx.restore()}
+function cutInfo(a){if(!a.cut||a.cut.length<2)return null;const p=a.cut[0],q=a.cut[a.cut.length-1];const dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy);if(len<.05)return null;return {p,q,dx:dx/len,dy:dy/len,len,ang:Math.atan2(dy,dx)-Math.PI/2}}
+function drawArt(x,y,rw,rh,a){if(!a)return;cx.save();cx.translate(x,y);cx.scale(rw,rh);const ci=cutInfo(a);
+ if(a.mess>0){cx.fillStyle='rgba(255,250,240,.55)';for(let i=0;i<Math.min(30,a.mess*40);i++){ell(Math.cos(i*2.7)*.7*((i%5)/5+.2),Math.sin(i*2.7)*.7*((i%5)/5+.2),.06,.05);cx.fill()}}
+ const bl=a.blobs;for(let i=0;i<bl.length;i++){const b=bl[i];const wob=Math.min(.12,b.w*.08);
+  if(ci&&b.cut){cx.fillStyle='#fffaf0';heartPath(b.x,b.y,b.r,ci.ang);cx.fill();if(i>0){cx.strokeStyle='rgba(150,85,40,.7)';cx.lineWidth=.03;heartPath(b.x,b.y,b.r*1.02,ci.ang);cx.stroke()}}
+  else{cx.fillStyle='#fffaf0';cx.beginPath();for(let k=0;k<=24;k++){const an=k/24*Math.PI*2,rr_=b.r*(1+Math.sin(an*5+i)*wob);cx.lineTo(b.x+Math.cos(an)*rr_,b.y+Math.sin(an)*rr_)}cx.closePath();cx.fill();if(i>0){cx.strokeStyle='rgba(150,85,40,.7)';cx.lineWidth=.03;cx.stroke()}}}
+ if(ci){cx.strokeStyle='rgba(255,250,240,.9)';cx.lineWidth=.025;cx.beginPath();cx.moveTo(ci.p[0],ci.p[1]);cx.lineTo(ci.q[0],ci.q[1]);cx.stroke()}
+ cx.restore()}
+function artScore(a,type){const bl=a.blobs;if(!bl.length)return {s:0,why:Z('하얀 그림이 안 생겼어요. 낮게(가까이) 부어야 거품이 위에 그려져요.','No white shape appeared. Pour low and close so the foam draws on top.')};const ci=cutInfo(a);let s=100,why=[];
+ const big=bl.reduce((m,b)=>b.r>m.r?b:m,bl[0]);
+ if(type=='heart'){if(bl.length>1){s-=12*(bl.length-1);why.push(Z('동그라미가 여러 개예요. 하트는 한 번에 동그랗게!','Several blobs. A heart is one round blob!'))}
+  const d=Math.hypot(big.x,big.y);if(d>.25){s-=Math.min(30,(d-.25)*90);why.push(Z('가운데에서 조금 벗어났어요.','A bit off-centre.'))}
+  if(big.r<.38){s-=Math.min(30,(.38-big.r)*120);why.push(Z('하트가 작아요. 낮게 조금 더 오래 부어요.','The heart is small. Pour low a little longer.'))}if(big.r>.75){s-=Math.min(25,(big.r-.75)*100);why.push(Z('너무 커서 넘칠 것 같아요.','So big it nearly overflows.'))}
+  if(!ci){s-=30;why.push(Z('마지막에 높이 들고 쓱 가르기를 안 했어요.','No cut-through at the end (lift high and swipe).'))}else{const px=big.x-ci.p[0],py=big.y-ci.p[1],perp=Math.abs(px*ci.dy-py*ci.dx);if(perp>.12){s-=Math.min(25,(perp-.12)*120);why.push(Z('가르기가 가운데를 지나지 않았어요.','The cut missed the middle.'))}if(ci.len<big.r*1.8){s-=15;why.push(Z('가르기가 짧아요. 끝까지 쭉!','The cut is short. Go all the way through!'))}}}
+ else{const n=bl.length;if(n<2){s-=35;why.push(Z('튤립은 동그라미를 2~3개 겹쳐요.','A tulip stacks 2–3 blobs.'))}else if(n>4){s-=10*(n-4);why.push(Z('동그라미가 너무 많아요.','Too many blobs.'))}
+  const mx=bl.reduce((a,b)=>a+b.x,0)/n,my=bl.reduce((a,b)=>a+b.y,0)/n;const d=Math.hypot(mx,my);if(d>.3){s-=Math.min(25,(d-.3)*80);why.push(Z('가운데에서 벗어났어요.','Off-centre.'))}
+  if(!ci){s-=30;why.push(Z('마지막 가르기가 없어요.','No final cut-through.'))}else{let miss=0;for(const b of bl){const px=b.x-ci.p[0],py=b.y-ci.p[1];if(Math.abs(px*ci.dy-py*ci.dx)>.15)miss++}if(miss){s-=12*miss;why.push(Z('가르기가 모든 동그라미를 지나야 해요.','The cut should pass through every blob.'))}}}
+ const ws=bl.reduce((a,b)=>a+b.w,0);if(ws>1){s-=Math.min(15,ws*5);why.push(Z('빠르게 부어 거품이 출렁였어요. 🐢 천천히!','Pouring fast made the foam wobbly. 🐢 Slower!'))}
+ if(a.mess>.3){s-=Math.min(20,a.mess*20);why.push(Z('처음에 낮게 부어 크레마가 얼룩졌어요. 처음엔 높이서!','Pouring low at first stained the crema. Start high!'))}
+ return {s:Math.max(0,Math.round(s)),why:why.join('<br>')}}
+STEP.art={init(){this.type=G.artType||(SV.heart?'tulip':'heart');if(G.practice)this.type=G.artType;this.a={blobs:[],cut:[],mess:0};this.fill=0;this.hi=true;this.fast=false;this.down_=false;this.px=0;this.py=0;this.done=false;this.cur=null;this.tray()},
+ tray(){tray(chip('h','hi','⬆️',Z('높게','High'),'',this.hi)+chip('h','lo','⬇️',Z('낮게','Low'),'',!this.hi)+chip('s','slow','🐢',Z('천천히','Slow'),'',!this.fast)+chip('s','fast','🐇',Z('빠르게','Fast'),'',this.fast)+`<button class="hold green" id="okB">✅ ${Z('완성','Finish')}</button>`+(G.practice?'':SKIPC()));bindTap('okB',()=>this.finish());this.tut()},
+ tut(){if(!G.tut&&SV.artTut)return;const ph=this.phase();if(ph==1&&!this.hi)fingerEl('ch_h_hi');else if(ph==2&&this.hi)fingerEl('ch_h_lo');else if(ph==3&&!this.hi)fingerEl('ch_h_hi');else{const g=this.geo();fingerAt(g.x,g.y+52+(ph==3?-g.R*.6:0))}},
+ phase(){if(this.fill<.5)return 1;const b=this.a.blobs;const big=b.length?Math.max(...b.map(x=>x.r)):0;if(this.type=='heart'){if(big<.42)return 2;return 3}return b.length<3||big<.3?2:3},
+ chip(g,v){sfx('tap');if(g=='h')this.hi=v=='hi';if(g=='s')this.fast=v=='fast';this.cur=null;this.tray()},
+ geo(){const A=area();const R=Math.min(W*.36,(A.bot-A.top)*.34);return {x:W/2,y:A.top+(A.bot-A.top)*.5,R}},
+ down(x,y){const g=this.geo();if(Math.hypot(x-g.x,y-g.y)>g.R*1.25||this.done)return;this.down_=true;this.move(x,y);if(this.hi&&this.fill>=.45)this.a.cut=[[this.px,this.py]];this.cur=null},
+ move(x,y){const g=this.geo();let u=(x-g.x)/g.R,v=(y-g.y)/g.R;const d=Math.hypot(u,v);if(d>.95){u*=.95/d;v*=.95/d}this.px=u;this.py=v;if(this.down_&&this.hi&&this.fill>=.45&&this.a.blobs.length){const c=this.a.cut,l=c[c.length-1];if(!l||Math.hypot(l[0]-u,l[1]-v)>.03){c.push([u,v]);if(c.length>=2)for(const b of this.a.blobs)if(Math.hypot(b.x-u,b.y-v)<b.r)b.cut=1}}},
+ up(){this.down_=false;this.cur=null;this.tut()},key(v){if(v){const g=this.geo();this.down(g.x,g.y)}else this.up()},
+ finish(){if(this.done)return;this.done=true;this.down_=false;fingerOff();const r=artScore(this.a,this.type);G.art={...this.a,score:r.s,type:this.type};if(r.s>=60&&this.type=='heart'){SV.heart=1}if(r.s>=60&&this.type=='tulip')SV.tulip=1;SV.artTut=1;save();
+  const nm=this.type=='heart'?Z('❤️ 하트','❤️ Heart'):Z('🌷 튤립','🌷 Tulip');const st=r.s>=85?3:r.s>=60?2:r.s>=35?1:0;sfx(st>=2?'win':st?'good':'fail');
+  const nx=()=>{hideOv();if(G.practice)return artPractice();finishStep(st>=2,1)};
+  show(`<h2>🎨 ${nm} · ${r.s}${Z('점','')}</h2><div class="stars">${[0,1,2].map(i=>i<st?'★':'<span class="off">★</span>').join('')}</div>${r.why?`<div class="why"><b>${Z('🤔 더 예쁘게 하려면?','🤔 How to make it prettier?')}</b><br>${r.why}</div>`:`<p class="sub">${Z('바리스타 대회에 나가도 되겠어요!','Ready for a barista contest!')}</p>`}
+   <div class="tip">${Z('💡 높이서 부으면 우유가 크레마 아래로 숨고, 낮게 부으면 하얀 거품이 위에 떠요.','💡 Pour from high and milk hides under the crema; pour low and white foam floats on top.')}</div><div class="row">${B(G.practice?Z('다시 그리기','Draw again'):Z('다음 ▶','Next ▶'),G.practice?()=>{hideOv();this.init()}:nx,'big')}${G.practice?B(Z('메뉴','Menu'),menu):B('↻ '+Z('다시 그리기','Draw again'),()=>{hideOv();this.init()})}</div>`,{guard:800})},
+ update(dt){if(this.done||!this.down_)return;const rate=this.fast?.15:.09;this.fill=Math.min(1,this.fill+dt*rate);if(Math.random()<.35)sfx('pour');
+  if(!this.hi){if(this.fill<.42)this.a.mess+=dt;else{let b=this.cur;if(!b||Math.hypot(b.x-this.px,b.y-this.py)>b.r*.9+.08){if(this.type=='tulip'&&b){for(const o of this.a.blobs){const dx=o.x-this.px,dy=o.y-this.py,l=Math.hypot(dx,dy)||1;o.x+=dx/l*.06;o.y+=dy/l*.06}}b={x:this.px,y:this.py,r:.05,w:0};this.a.blobs.push(b);this.cur=b}
+   b.r=Math.min(.85,b.r+dt*(this.fast?.3:.19));if(this.fast&&b.r<.35)b.w+=dt}}
+  if(this.fill>=1){this.finish()}},
+ draw(t){const g=this.geo();cx.fillStyle='rgba(0,0,0,.18)';ell(g.x,g.y+8,g.R*1.5,g.R*1.42);cx.fill();cx.fillStyle='#fffaf3';ell(g.x,g.y,g.R*1.45,g.R*1.38);cx.fill();cx.strokeStyle='#e0cdb4';cx.lineWidth=2;cx.stroke();
+  cx.fillStyle='#fff';ell(g.x,g.y,g.R*1.12,g.R*1.12);cx.fill();cx.strokeStyle='#d8c4ac';cx.stroke();cx.strokeStyle='#f3ece2';cx.lineWidth=g.R*.12;cx.beginPath();cx.arc(g.x+g.R*1.3,g.y,g.R*.18,-1.2,1.2);cx.stroke();
+  const cg=cx.createRadialGradient(g.x,g.y,4,g.x,g.y,g.R);cg.addColorStop(0,'#c98a4e');cg.addColorStop(.75,'#a2602a');cg.addColorStop(1,'#6e3814');cx.fillStyle=cg;ell(g.x,g.y,g.R,g.R);cx.fill();
+  cx.save();ell(g.x,g.y,g.R,g.R);cx.clip();drawArt(g.x,g.y,g.R,g.R,this.a);cx.restore();
+  if(this.down_&&!this.done){const sx=g.x+this.px*g.R,sy=g.y+this.py*g.R;const lift=this.hi?70:24;cx.strokeStyle='rgba(255,250,240,.9)';cx.lineWidth=this.hi?3:6;cx.beginPath();cx.moveTo(sx,sy-lift);cx.lineTo(sx,sy);cx.stroke();drawPitcher(sx+30,sy-lift+10,54,.5,0,{});if(this.hi)steamAt(sx,sy,0)}
+  gauge(W*.12,g.y+g.R*1.45+14,W*.76,12,this.fill,.45,.55,'');
+  const ph=this.phase();const nm=this.type=='heart'?Z('❤️ 하트','❤️ Heart'):Z('🌷 튤립','🌷 Tulip');
+  msg(nm+' · '+(ph==1?Z('⬆️ 높게 + 가운데를 꾹 눌러 반쯤 채워요','⬆️ High + hold the centre to fill halfway'):ph==2?(this.type=='heart'?Z('⬇️ 낮게 바꾸고 가운데를 꾹! 동그라미를 키워요','⬇️ Switch to low and hold the centre to grow a blob'):Z('⬇️ 낮게: 동그라미 하나 → 손 떼고 조금 아래에 또 하나 (3개)','⬇️ Low: one blob → let go, another a bit lower (3 total)')):Z('⬆️ 높게 바꾸고 위→아래로 쓱 가르기! 그다음 ✅','⬆️ Switch to high and swipe top → bottom through it! Then ✅')),area().top+4);
+  if(!this.down_&&(G.tut||!SV.artTut))this.tut()}};
+function artPractice(){G.tok++;G.practice=true;G.mode='step';G.cur=null;tray(null);hud(null);msg('');G.reshow=artPractice;
+ show(`<h2>🎨 ${Z('라떼 아트 연습','Latte art practice')}</h2><p class="sub">${Z('하트를 60점 넘게 그리면 튤립이 열려요!','Score 60+ on the heart to unlock the tulip!')}</p><div class="row">${B('❤️ '+Z('하트','Heart'),()=>{G.artType='heart';startArt()},'big')}${B(SV.heart?'🌷 '+Z('튤립','Tulip'):'🔒 '+Z('튤립','Tulip'),SV.heart?()=>{G.artType='tulip';startArt()}:()=>sfx('bad'))}${B(Z('메뉴','Menu'),menu)}</div>`,{guard:300})}
+function startArt(){hideOv();G.cur=STEP.art;G.cur.init();G.vis=G.cur;hud('🎨 '+Z('연습','Practice'),'')}
+// ===== flow =====
+const who=()=>G.p2?(stepList()[G.stepI]=='order'?G.turn:1-G.turn):0;
+function hudStep(){const k=stepList()[G.stepI],n=stepList().length;const p=G.p2?PL[who()].e+' ':'';hud(G.order&&k!='order'?orderTags():`${DRk().e} ${tx(DRk().n)}`,`${p}${STEPI[k][0]} ${G.stepI+1}/${n}`)}
+function startStep(){const k=stepList()[G.stepI];G.mode='step';G.cur=STEP[k];G.cur.init();G.vis=G.cur;hudStep()}
+function runStep(){fingerOff();const st=stepList();if(G.stepI>=st.length)return drinkDone();const k=st[G.stepI];
+ if(G.p2&&G.stepI>0&&st[G.stepI-1]=='order'){const b=PL[1-G.turn];G.cur=null;tray(null);msg('');
+  return show(`<div class="pic">${b.e}📱</div><h2>${Z(`${tx(b.n)}에게 폰을 건네요!`,`Pass the phone to ${tx(b.n)}!`)}</h2><p class="sub">${Z('주문서','Order ticket')}</p><div class="tk"><span>${orderTags()}</span></div><p class="sub">${Z('이제 바리스타가 음료를 만들어요 ☕','Now the barista makes the drink ☕')}</p><div class="row">${B('▶ '+Z('만들기 시작','Start making'),()=>explainOr(k),'big')}</div>`,{cont:()=>explainOr(k),guard:700})}
+ explainOr(k)}
+function explainOr(k){hideOv();if(G.tut||!(SV.seen||{})[k]){SV.seen=SV.seen||{};SV.seen[k]=1;save();const p=G.p2?`<p class="sub">${PL[who()].e} ${Z(k=='order'?'주문 담당 차례':'바리스타 차례',k=='order'?'Order taker\'s turn':'Barista\'s turn')}</p>`:'';G.cur=null;tray(null);msg('');
+  return show(`<div class="pic">${STEPI[k][0]}</div><h2>${tx(STEPI[k][1])}</h2>${p}<p>${tx(EXPL[k])}</p><div class="row">${B('▶ '+Z('해보기','Try it'),()=>{hideOv();startStep()},'big')}${B('⏭ '+Z('이 단계 건너뛰기','Skip this step'),()=>{hideOv();nextStep()})}</div>`,{cont:()=>{hideOv();startStep()},guard:600})}
+ banner(STEPI[k][0]+' '+tx(STEPI[k][1]));startStep()}
+function finishStep(perf,quiet){if(!G.cur&&!quiet)return;G.cur=null;fingerOff();tray(null);if(perf)G.perf++;if(G.p2)G.pts[who()]+=perf?2:1;if(!quiet)banner(perf?Z('✨ 완벽!','✨ Perfect!'):Z('👍 좋아요!','👍 Nice!'));sfx(perf?'ding':'good');G.stepI++;later(runStep,quiet?100:750)}
+function nextStep(){G.cur=null;fingerOff();tray(null);msg('');G.stepI++;runStep()}
+function skipStep(){nextStep()}
+function failStep(title,why,tip){const k=stepList()[G.stepI];G.cur=null;fingerOff();tray(null);msg('');sfx('fail');
+ show(`<h2>🤔 ${Z('왜 실패했을까?','Why did it fail?')}</h2><p class="sub" style="font-size:19px">${title}</p><div class="why">${why}</div>${tip?`<div class="tip">💡 ${tip}</div>`:''}<div class="row">${B('↻ '+Z('다시 해보기','Try again'),()=>{hideOv();startStep()},'big')}${B(Z('그냥 계속 ▶','Continue anyway ▶'),()=>{hideOv();nextStep()})}</div>`,{guard:800})}
+function startDrink(i){G.tok++;G.practice=false;G.d=i;G.stepI=0;G.perf=0;G.built=[];G.grind=null;G.dose=18;G.tampQ=1;G.milk=null;G.art=null;G.shotFace=null;G.order=genOrder(DR[i]);G.tut=!SV.tut&&DR[i].id=='espresso';G.reshow=null;R=null;tray(null);msg('');hud(null);G.vis=null;G.mode='intro';
+ const d=DR[i];const roles=G.p2?`<p class="sub">🙋 ${PL[G.turn].e} ${Z('주문 담당','takes the order')} → 👩‍🍳 ${PL[1-G.turn].e} ${Z('바리스타','makes the drink')}</p>`:'';
+ show(`<h1>${d.e} ${tx(d.n)}</h1><p class="sub">${tx(d.d)}</p>${roles}<div class="pic" style="font-size:30px">${d.steps.map(s=>STEPI[s][0]).join(' ➜ ')}</div><p class="sub">${d.steps.map(s=>tx(STEPI[s][1])).join(' · ')}</p>${d.kid?`<div class="tip">🧒 ${Z('키즈 메뉴: 커피가 들어가지 않아요!','Kids\' menu: no coffee inside!')}</div>`:''}${G.tut?`<div class="tip">👆 ${Z('손가락이 알려 줘요. 언제든 ⏭ 로 건너뛸 수 있어요.','The finger shows you what to do. You can always skip with ⏭.')}</div>`:''}<div class="row">${B('▶ '+Z('시작','Start'),()=>{hideOv();runStep()},'big')}${B(Z('메뉴','Menu'),menu)}</div>`,{cont:()=>{hideOv();runStep()}})}
+const FINAL={draw(t){const cy=counterY(),s=cupScale()*1.15;const items=G.built.length?G.built:DRk().build.map(a=>a[0]).filter(k=>k!='stir');const d=DRk();let o={t,lid:false};
+  if(G.art&&!G.art.skip){o.art=(x,y,rw,rh)=>drawArt(x,y,rw,rh,G.art)}const its=d.id=='espresso'?['shot']:items;drawDrink(W/2,cy,s,its.length?its:['shot'],o);if(d.temp=='hot'&&Math.random()<.2&&started)steamAt(W/2,cy-s*1.1,1);
+  for(let i=0;i<6;i++){const a=t*1.5+i;txt('✨',W/2+Math.cos(a)*s*.9,cy-s*.6+Math.sin(a*1.3)*s*.4,18)}txt(G.order?G.order.face:'🙂',W*.82,cy-60,46);txt('😍',W*.9,cy-100,24)}};
+function drinkDone(){const d=DRk();G.mode='done';G.cur=null;G.vis=FINAL;hud(null);msg('');tray(null);sfx('win');
+ show(`<h1>✨ ${d.e} ${tx(d.n)} ${Z('완성!','done!')}</h1><div class="dc"><div class="n">📋 ${Z('레시피 카드','Recipe card')}</div><div class="t">${tx(d.card)}</div></div><div class="row">${B('❓ '+Z('퀴즈 풀기','Quiz time'),quiz,'big')}</div>`,{cont:quiz,guard:900})}
+function quiz(){G.mode='quiz';const d=DRk();const q=pick(d.quiz),ko=L=='ko';G.qok=0;G.ans=0;const opts=shuf([0,1,2]);const p=G.p2?`<p class="sub">${PL[G.turn].e} ${Z('퀴즈 차례!','quiz turn!')}</p>`:'';
+ show(`<h2>❓ ${Z('바리스타 퀴즈','Barista quiz')}</h2>${p}<p style="font-size:19px;font-weight:500">${ko?q[0]:q[1]}</p><div class="qopts">${opts.map(o=>`<button class="btn" data-o="${o}">${ko?q[2+o*2]:q[3+o*2]}</button>`).join('')}</div><div class="fb" id="fb"></div><div class="row" id="qn"></div>`,{guard:300});
+ ov.querySelectorAll('[data-o]').forEach(el=>el.onclick=()=>{if(G.ans)return;G.ans=1;const o=+el.dataset.o,ok=o===0;ov.querySelectorAll('[data-o]').forEach(e=>{e.disabled=true;if(+e.dataset.o===0)e.classList.add('ok')});if(!ok)el.classList.add('no');
+  if(ok){G.qok=1;sfx('good');if(G.p2)G.pts[G.turn]+=2}else sfx('bad');$('fb').innerHTML=(ok?`<b>⭕ ${Z('정답!','Correct!')}</b><br>`:`<b>❌ ${Z('정답은','The answer is')}: ${ko?q[2]:q[3]}</b><br>`)+`💡 ${ko?q[8]:q[9]}`;
+  $('qn').innerHTML=B(Z('다음 ▶','Next ▶'),result,'big');contFn=result;contAt=now()+700;ov.querySelector('.panel').insertAdjacentHTML('beforeend',`<div class="cont">${Z('탭 / Space 로 계속','Tap / Space to continue')}</div>`)})}
+function result(){const d=DRk();const n=d.steps.length;const st=1+(G.perf>=n-1?1:0)+(G.qok?1:0);const first=!SV.done[d.id];SV.done[d.id]=Math.max(SV.done[d.id]||0,st);SV.dex[d.id]=1;if(d.id=='espresso'){SV.tut=true;G.tut=false}
+ let fact='';if(first&&SV.facts.length<FACTS.length){const fi=FACTS.findIndex((f,i)=>!SV.facts.includes(i));if(fi>=0){SV.facts.push(fi);const f=FACTS[fi];fact=`<div class="tip">📜 ${Z('새 커피 이야기 카드!','New coffee story card!')}</div><div class="fc"><div class="n">${f.e} ${tx(f.n)}${f.lg?`<span class="lg">${Z('전설·전해지는 이야기','Legend')}</span>`:''}</div><div class="t">${tx(f.t)}</div></div>`}}
+ save();sfx('win');G.mode='menu';const list=d.kid?KIDS():ADULT();const j=list.indexOf(DR.indexOf(d)),nx=list[j+1];
+ const pts=G.p2?`<p class="sub">${PL[0].e} ${G.pts[0]} 💖 · ${PL[1].e} ${G.pts[1]} 💖</p><p class="sub">${Z('다음 손님은 역할을 바꿔요!','Swap roles for the next customer!')}</p>`:'';if(G.p2)G.turn^=1;
+ show(`<h1>${d.e} ${tx(d.n)}</h1><div class="stars">${[0,1,2].map(i=>i<st?'★':'<span class="off">★</span>').join('')}</div><p class="sub">✨ ${G.perf}/${n} · ❓ ${G.qok?'⭕':'❌'}</p>${pts}${first?`<div class="tip">📚 ${Z('레시피 도감에 추가!','Added to the recipe dex!')}</div>`:''}${fact}
+ <div class="row">${nx!=null?B(`${DR[nx].e} ${tx(DR[nx].n)} ▶`,()=>startDrink(nx),'big'):B('⏰ '+Z('모닝 러시','Morning Rush'),rushIntro,'big')}${B(Z('메뉴','Menu'),menu)}${B('↻ '+Z('다시','Again'),()=>startDrink(DR.indexOf(d)))}</div>`,{cont:menu,guard:900})}
+const ADULT=()=>DR.map((d,i)=>i).filter(i=>!DR[i].kid),KIDS=()=>DR.map((d,i)=>i).filter(i=>DR[i].kid);
+function unlocked(i){const l=DR[i].kid?KIDS():ADULT();const j=l.indexOf(i);return j==0||!!SV.done[DR[l[j-1]].id]}
+function menu(){G.tok++;G.mode='menu';G.cur=null;G.vis=null;G.practice=false;R=null;tray(null);hud(null);msg('');fingerOff();G.reshow=menu;const list=G.kids?KIDS():ADULT();
+ const pm=G.p2?`<div class="tip">👨‍👧 ${Z('둘이서 모드','Partner mode')}: 🙋 ${PL[G.turn].e} ${Z('주문','order')} → 👩‍🍳 ${PL[1-G.turn].e} ${Z('바리스타','barista')} · ${PL[0].e} ${G.pts[0]}💖 ${PL[1].e} ${G.pts[1]}💖<br>🧒 ${Z('어린이 파트너는 키즈 메뉴를 마셔요. 커피는 어른만!','Kid partners drink the kids\' menu. Coffee is for grown-ups!')}</div>`:'';
+ show(`<h2>☕ ${Z('오늘은 무엇을 만들까?','What shall we make today?')}</h2>${pm}<div class="tabs">${B('☕ '+Z('카페 메뉴','Cafe menu'),()=>{G.kids=false;menu()},G.kids?'':'on')}${B('🧒 '+Z('키즈 메뉴','Kids\' menu'),()=>{G.kids=true;menu()},G.kids?'on':'')}</div>
+ <div class="blist">${list.map(i=>{const d=DR[i],u=unlocked(i),s=SV.done[d.id]||0;return B(`<span class="e">${u?d.e:'🔒'}</span><span><span class="n">${tx(d.n)}</span><br><span class="d">${u?tx(d.d):Z('앞의 음료를 먼저 만들어요','Make the drink before it first')}</span></span><span class="s">${'★'.repeat(s)}${'☆'.repeat(3-s)}</span>`,u?()=>startDrink(i):()=>sfx('bad'),'bb')}).join('')}</div>
+ <div class="row srow">${B(G.p2?'👤 '+Z('혼자 하기로','Switch to solo'):'👨‍👧 '+Z('둘이서 하기','Partner mode'),()=>{G.p2=!G.p2;menu()})}${B('⏰ '+Z('모닝 러시','Morning Rush'),rushIntro)}${B('🎨 '+Z('라떼 아트','Latte art'),artPractice)}${B('📚 '+Z('레시피 도감','Recipe dex'),dexPanel)}${B('📜 '+Z('커피 이야기','Coffee stories'),factsPanel)}${B('📖 '+Z('용어','Glossary'),glossary)}${B('👆 '+Z('튜토리얼','Tutorial'),()=>{SV.tut=false;SV.seen={};SV.artTut=0;save();startDrink(0)})}</div>`)}
+function dexPanel(){G.reshow=dexPanel;const cards=DR.map(d=>SV.dex[d.id]?`<div class="dc"><div class="e">${d.e}</div><div class="n">${tx(d.n)}</div><div class="t">${tx(d.card)}</div></div>`:`<div class="dc lk"><div class="e">❔</div><div class="n">???</div></div>`);
+ show(`<h2>📚 ${Z('레시피 도감','Recipe dex')} ${Object.keys(SV.dex).length}/${DR.length}</h2><div class="dexg">${cards.join('')}</div><div class="row srow">${B(Z('닫기','Close'),menu,'big')}</div>`)}
+function factsPanel(){G.reshow=factsPanel;show(`<h2>📜 ${Z('커피 이야기','Coffee stories')} ${SV.facts.length}/${FACTS.length}</h2><p class="sub">${Z('새 음료를 완성할 때마다 한 장씩 열려요','A new card opens each time you finish a new drink')}</p>${FACTS.map((f,i)=>SV.facts.includes(i)?`<div class="fc"><div class="n">${f.e} ${tx(f.n)}${f.lg?`<span class="lg">${Z('전설·전해지는 이야기','Legend')}</span>`:''}</div><div class="t">${tx(f.t)}</div></div>`:`<div class="fc" style="opacity:.5"><div class="n">🔒 ???</div></div>`).join('')}<div class="row srow">${B(Z('닫기','Close'),menu,'big')}</div>`)}
+let ov2=null;function glossary(){if(ov2)return closeGl();ov2=document.createElement('div');ov2.style.cssText='position:fixed;left:0;right:0;top:52px;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,22,10,.45)';
+ ov2.innerHTML=`<div class="panel"><h2>📖 ${Z('바리스타 용어','Barista words')}</h2>${GLOS.map(g=>`<div class="gl"><span class="e">${g[0]}</span><span><span style="font-size:18px;font-weight:600">${tx(g[1])}</span><br>${tx(g[2])}</span></div>`).join('')}<div class="row srow"><button class="btn big" id="glX">${Z('닫기','Close')}</button></div></div>`;
+ document.body.appendChild(ov2);$('glX').onclick=()=>{sfx('tap');closeGl()}}
+function closeGl(){if(ov2){ov2.remove();ov2=null}}
+function title(){G.mode='title';G.reshow=title;show(`<h1>☕ ${Z('나두 바리스타','Nadoo Barista')}</h1><div class="pic">☕🥛🎨</div><p class="sub">${Z('진짜 바리스타처럼! 원두 고르고, 갈고, 다지고, 추출하고, 우유 스팀에 라떼 아트까지','Like a real barista! Pick beans, grind, tamp, pull shots, steam milk and draw latte art')}</p><p class="sub">${Z('👨‍👧 둘이서: 한 명은 주문, 한 명은 음료! · 🧒 키즈 메뉴도 있어요','👨‍👧 Partners: one takes orders, one makes drinks! · 🧒 Kids\' menu too')}</p><div class="row">${B('👤 '+Z('혼자 하기','Solo'),()=>{G.p2=false;menu()},'big')}${B('👨‍👧 '+Z('둘이서 (카페 파트너)','Partners'),()=>{G.p2=true;menu()},'big')}</div>`,{cont:()=>{G.p2=false;menu()},guard:300})}
+// ===== Morning Rush =====
+function rushPool(){let p=DR.map((d,i)=>i).filter(i=>unlocked(i)&&(SV.done[DR[i].id]||i==0));if(p.length<2)p=[0,1,DR.findIndex(d=>d.id=='hotchoc')];return p}
+function rushRecipe(d,size){if(d.id=='espresso')return ['shot'];const o=[];for(const [k,n] of d.build){const c=n=='S'?1:n=='P'?PUMPS[size]:n;for(let i=0;i<c;i++)o.push(k)}return o}
+function rushIntro(){G.tok++;G.mode='rushI';G.vis=null;R=null;hud(null);msg('');tray(null);G.reshow=rushIntro;const day=SV.day;
+ show(`<h1>⏰ ${Z('모닝 러시','Morning Rush')} · Day ${day}</h1><div class="pic">🧑‍💼👩‍🎓👴🧒</div><p>${Z('출근길 손님들이 몰려와요! 주문서를 보고 컵 크기를 고르고, 재료를 순서대로 담고 🛎️ 내기! 빠르고 정확하면 팁과 콤보가 쌓여요.','The morning crowd is here! Read the tickets, pick the cup size, add ingredients in order and ring 🛎️! Fast and correct = tips and combos.')}</p><div class="tip">❤️×3 · ${Z('틀린 음료를 내거나 손님이 너무 오래 기다리면 하트가 줄어요.','A wrong drink or a customer who waits too long costs a heart.')}${G.p2?'<br>👨‍👧 '+Z('주문서마다 담당(🐻/🐰)이 있어요. 번갈아 만들어요!','Each ticket has an owner (🐻/🐰). Take turns!'):''}</div><p class="sub">🏆 ${Z('최고 팁','Best tips')}: ${SV.best}💰</p><div class="row">${B('▶ '+Z('오픈!','Open!'),rushStart,'big')}${B(Z('메뉴','Menu'),menu)}</div>`,{cont:rushStart})}
+function rushStart(){hideOv();G.mode='rush';const day=SV.day;const pool=rushPool();R={day,pool,cust:[],served:0,need:5+day*2,hearts:3,combo:0,tips:[0,0],items:[],size:null,busy:0,busyK:null,spawn:.5,t:0,pops:[],seq:0,lay:null,sizes:day>=2};
+ const ings=[...new Set(pool.flatMap(i=>rushRecipe(DR[i],'M')))];R.ings=ings;rushTray();G.reshow=null}
+function rushTray(){let h='';if(R.sizes)h+=['S','M','L'].map(k=>chip('rs',k,k,tx(SZ[k][0]),'',R.size==k)).join('');h+=R.ings.map(k=>chip('ri',k,ING[k][0],tx(ING[k][1]),'',false)).join('');h+=chip('rt','1','🗑️',Z('버리기','Bin'),'',false)+`<button class="hold green" id="svB">🛎️ ${Z('내기','Serve')}</button>`;tray(h);bindTap('svB',rushServe);
+ G.cur={chip:(g,v)=>{if(!R||G.mode!='rush')return;if(g=='rs'){R.size=v;sfx('tap');rushTray()}else if(g=='rt'){R.items=[];sfx('pour')}else if(g=='ri')rushAdd(v)}}}
+function rushAdd(k){if(R.busy>0){sfx('bad');return}if(R.items.length>=10)return;if(k=='shot'||k=='milk'){R.busy=.8;R.busyK=k;sfx('hiss');return}R.items.push(k);sfx(k=='ice'?'clink':k=='vanilla'?'pump':'pour')}
+function rpop(x,y,s,c){R.pops.push({x,y,s,c:c||'#fff',l:1.4})}
+function rushServe(){if(!R||G.mode!='rush')return;if(!R.items.length){sfx('bad');return}const act=R.cust.filter(c=>!c.gone);
+ const m=act.find(c=>{const d=DR[c.d];const rec=rushRecipe(d,c.size);return rec.join()==R.items.join()&&(!d.sizes||!R.sizes||R.size==c.size)});
+ if(m){m.gone=1;m.happy=1;R.served++;R.combo++;const tip=3+Math.round(m.p/m.max*4)+(R.combo>=3?2:0);R.tips[G.p2?m.own:0]+=tip;sfx('coin');rpop(m.x,m.y+40,`+${tip}💰${R.combo>=3?' 🔥x'+R.combo:''}`,'#ffe08a');if(R.combo>=3)banner(Z('콤보 ','Combo ')+R.combo+'!')}
+ else{R.hearts--;R.combo=0;sfx('bad');const c=act[0];if(c){const d=DR[c.d];rpop(W/2,counterY()-160,'❌ '+Z('레시피가 달라요','Recipe mismatch'),'#ffb0a0');msg(`❌ ${d.e} ${tx(d.n)}${d.sizes&&R.sizes?' '+c.size:''}: ${rushRecipe(d,c.size).map(k=>ING[k][0]).join(' → ')}`,area().top+120)}}
+ R.items=[];if(R.hearts<=0)return endRush(false);if(R.served>=R.need)endRush(true)}
+function rushLay(){const n=3,w=Math.min(130,(W-24)/n-6);R.lay=[0,1,2].map(i=>({x:12+i*(w+6)+w/2,y:area().top+6,w}))}
+function rushUpdate(dt){R.t+=dt;if(!R.lay)rushLay();if(R.busy>0){R.busy-=dt;if(R.busy<=0){R.items.push(R.busyK);R.busyK=null;sfx('ding')}}
+ const act=R.cust.filter(c=>!c.gone);R.spawn-=dt;const left=R.need-R.served-act.length;if(R.spawn<=0&&act.length<3&&left>0){const slot=[0,1,2].find(s=>!act.some(c=>c.slot==s));const di=pick(R.pool),d=DR[di];const max=Math.max(16,34-R.day*2.5)+rushRecipe(d,'M').length*2;
+  R.cust.push({d:di,size:d.sizes&&R.sizes?pick(['S','M','L']):(d.fixSize||'M'),p:max,max,slot,face:pick(d.kid?KFACES:FACES),own:R.seq++%2,x:R.lay[slot].x,y:R.lay[slot].y});R.spawn=Math.max(2.5,6-R.day*.5)}
+ for(const c of act){c.p-=dt;if(c.p<=0){c.gone=1;R.hearts--;R.combo=0;sfx('bad');rpop(c.x,c.y+60,'😤','#fff');if(R.hearts<=0)return endRush(false)}}
+ R.cust=R.cust.filter(c=>!c.gone);for(const p of R.pops){p.l-=dt;p.y-=30*dt}R.pops=R.pops.filter(p=>p.l>0);
+ hud(`⏰ Day ${R.day} · ${R.served}/${R.need}`,`${'❤️'.repeat(Math.max(0,R.hearts))} 💰${R.tips[0]+R.tips[1]}${R.combo>=2?' 🔥'+R.combo:''}`)}
+function drawRush(t){if(!R.lay)rushLay();const cy=counterY(),kind=R.items.includes('ice')||R.items.includes('cmilk')||R.items.includes('soda')||R.items.includes('coldbrew')?'ice':R.items.includes('icecream')?'bowl':'cup';const s=Math.min(W*.28,110)*({S:.85,M:1,L:1.14}[R.size]||1);drawDrink(W/2,cy,s,R.items,{t,kind});
+ for(const c of R.cust){const l=R.lay[c.slot],d=DR[c.d];cx.fillStyle='#fffaf0';rr(l.x-l.w/2,l.y,l.w,118,12);cx.fill();cx.strokeStyle='#b98758';cx.lineWidth=2;cx.stroke();
+  txt(c.face,l.x-l.w/2+20,l.y+20,24);if(G.p2)txt(PL[c.own].e,l.x+l.w/2-16,l.y+20,20);txt(d.e,l.x,l.y+20,26);txt(tx(d.n),l.x,l.y+48,16,'#33200f');if(d.sizes&&R.sizes)txt(tx(SZ[c.size][0])+' ('+c.size+')',l.x,l.y+70,16,'#6a3512');
+  if(R.day<=2)txt(rushRecipe(d,c.size).map(k=>ING[k][0]).join(''),l.x,l.y+92,16);const f=c.p/c.max;cx.fillStyle=f>.5?'#6cc070':f>.25?'#f0b030':'#e05030';cx.fillRect(l.x-l.w/2+8,l.y+106,(l.w-16)*f,6)}
+ if(R.busy>0){cx.strokeStyle='#ffd34a';cx.lineWidth=6;cx.beginPath();cx.arc(W/2,cy-s*1.6,22,-Math.PI/2,-Math.PI/2+(1-R.busy/.8)*Math.PI*2);cx.stroke();txt(ING[R.busyK][0],W/2,cy-s*1.6,20)}
+ txt(R.items.map(k=>ING[k][0]).join(' ')||Z('컵이 비었어요','Empty cup'),W/2,cy+28,17,'#fff','center','#3a2412');
+ for(const p of R.pops){cx.globalAlpha=clamp(p.l,0,1);txt(p.s,p.x,p.y,20,p.c,'center','#3a2412');cx.globalAlpha=1}}
+function endRush(win){if(!R)return;const r=R;G.mode='rushE';tray(null);hud(null);G.cur=null;const tot=r.tips[0]+r.tips[1];if(tot>SV.best)SV.best=tot;if(win)SV.day++;save();sfx(win?'win':'fail');
+ show(`<h1>${win?'🎉 '+Z('러시 성공!','Rush cleared!'):'😵 '+Z('러시 실패…','Rush over…')}</h1><p class="sub">${Z('손님','Customers')} ${r.served}/${r.need} · 💰 ${tot}</p>${G.p2?`<p class="sub">${PL[0].e} ${r.tips[0]}💰 · ${PL[1].e} ${r.tips[1]}💰</p>`:''}<div class="tip">${win?Z('내일은 손님이 더 많이 와요! (Day '+SV.day+')','Tomorrow brings more customers! (Day '+SV.day+')'):Z('💡 주문서의 재료 순서와 컵 크기를 다시 확인해요. ☕와 🥛는 시간이 걸려요!','💡 Check the ingredient order and cup size on each ticket. ☕ and 🥛 take a moment!')}</div><div class="row">${B('↻ '+Z('다시','Again'),rushIntro,'big')}${B(Z('메뉴','Menu'),menu)}</div>`,{cont:menu,guard:900})}
+// ===== loop & input =====
+let last=0,started=false;
+function drawTitle(t){const cy=counterY(),mw=Math.min(W*.5,200);drawMachine(W*.08,cy-mw*1.05,mw,mw*1.05,{t,steam:started});const art={blobs:[{x:0,y:0,r:.55,w:0,cut:1}],cut:[[0,-.75],[0,.8]],mess:0};
+ drawCup('cup',W*.76,cy,Math.min(W*.3,120),[{c:'#c8996a',h:.9}],{surf:'#a2602a',art:(x,y,rw,rh)=>drawArt(x,y,rw,rh,art)});if(started&&Math.random()<.15)steamAt(W*.76,cy-110,1)}
+function loop(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;const t=ts/1000;const paused=!!ov2||!ov.classList.contains('hide');
+ if(started&&!paused){if(G.cur&&G.cur.update)G.cur.update(dt);if(G.mode=='rush'&&R)rushUpdate(dt)}
+ drawBG(t);if(G.vis&&(G.mode=='step'||G.mode=='done')&&G.vis.draw)G.vis.draw(t);if((G.mode=='rush'||G.mode=='rushE')&&R)drawRush(t);if(G.mode=='title'||G.mode=='menu'||G.mode=='intro'||G.mode=='rushI')drawTitle(t);
+ drawFX(started&&!paused?dt:0);if(started)bgmTick();requestAnimationFrame(loop)}
+function pos(e){return [e.clientX,e.clientY-52]}
+cv.addEventListener('pointerdown',e=>{initAudio();started=true;if(ov2||!ov.classList.contains('hide'))return;const [x,y]=pos(e);if(G.cur&&G.cur.down)G.cur.down(x,y)});
+cv.addEventListener('pointermove',e=>{if(G.cur&&G.cur.move&&G.cur.down_){const [x,y]=pos(e);G.cur.move(x,y)}});
+addEventListener('pointerup',()=>{if(G.cur&&G.cur.up)G.cur.up()});addEventListener('pointercancel',()=>{if(G.cur&&G.cur.up)G.cur.up()});
+addEventListener('pointerdown',()=>{initAudio();started=true},true);
+let keyDown=false;
+addEventListener('keydown',e=>{if(e.code!='Space'&&e.code!='Enter')return;e.preventDefault();initAudio();started=true;if(e.repeat)return;if(ov2){closeGl();return}if(!ov.classList.contains('hide')){tryCont();return}if(G.cur&&G.cur.key){keyDown=true;G.cur.key(true)}});
+addEventListener('keyup',e=>{if(e.code!='Space'&&e.code!='Enter')return;if(keyDown&&G.cur&&G.cur.key){keyDown=false;G.cur.key(false)}});
+$('mute').onclick=()=>{initAudio();setMute(!muted)};$('glB').onclick=()=>{initAudio();sfx('tap');glossary()};
+function applyLang(){document.documentElement.lang=L;$('lang').textContent=L=='ko'?'EN':'한국어';$('home').textContent=Z('🏠 홈','🏠 Home');$('ttl').textContent=Z('☕ 나두 바리스타','☕ Nadoo Barista');if(G.reshow&&!ov.classList.contains('hide'))G.reshow();else if(G.cur&&G.cur.tray&&G.mode=='step')G.cur.tray();else if(G.mode=='rush'&&R)rushTray()}
+$('lang').onclick=()=>{L=L=='ko'?'en':'ko';localStorage.setItem('nbaLang',L);sfx('tap');if(ov2){closeGl();glossary()}lastMsg=null;applyLang()};
+window.__nba={get mode(){return G.mode},get step(){return G.mode=='step'&&G.cur?stepList()[G.stepI]:null},get order(){return G.order},get drink(){return DRk().id},get art(){return G.art},get R(){return R},get cur(){return G.cur}};
+setMute(muted);applyLang();title();requestAnimationFrame(loop);
+</script></body></html>
