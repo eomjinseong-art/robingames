@@ -7,19 +7,52 @@
 <meta name="description" content="체스 컴퓨터와 한 판: 초급·중급·고급 AI(자체 엔진), 백/흑 선택, 캐슬링·앙파상·프로모션, 무르기.">
 <meta name="theme-color" content="#ffd32a">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
-<link rel="stylesheet" href="/guide/guide.css?v=20261012lounge">
-<link rel="stylesheet" href="/guide/play/play.css?v=20261012lounge">
+<link rel="stylesheet" href="/guide/guide.css?v=20261022open">
+<link rel="stylesheet" href="/guide/play/play.css?v=20261022open">
 <script src="/counter.js" defer></script>
 </head>
 <body>
 <div class="wrap" id="playApp"><div class="panel">불러오는 중… Loading…</div></div>
-<script src="/guide/play/chess.rules.js"></script>
-<script src="/guide/play/play.js?v=20261012lounge"></script>
+<script src="/guide/play/chess.rules.js?v=20261022open"></script>
+<script src="/guide/play/play.js?v=20261022open"></script>
 <script>
 (function () {
   var C = 46, P = 18, S = P * 2 + C * 8, R = NadooRules.chess, sel = -1, promo = 5;
   var GL = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' }, FILES = 'abcdefgh';
+  var armed = true, fromOpening = false, openingLabel = '';
+  function readSpec() {
+    var q; try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+    var moves = [], fen = '', side = '', name = '', ls = null;
+    if (q) {
+      moves = String(q.get('moves') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      fen = q.get('fen') || '';
+      if (q.get('side') === 'b' || q.get('side') === 'w') side = q.get('side');
+      name = q.get('name') || '';
+    }
+    try { ls = JSON.parse(localStorage.getItem('nadoo_chess_opening_start') || 'null'); localStorage.removeItem('nadoo_chess_opening_start'); } catch (e2) { ls = null; }
+    if (!moves.length && !fen && ls && typeof ls === 'object') {
+      if (Array.isArray(ls.moves)) moves = ls.moves.map(function (s) { return String(s).trim(); }).filter(Boolean);
+      fen = ls.fen || '';
+      if (!side && (ls.side === 'w' || ls.side === 'b')) side = ls.side;
+      if (!name && ls.name) name = String(ls.name);
+    }
+    if (!moves.length && !fen) return null;
+    name = String(name).replace(/[<>&"']/g, '').slice(0, 40);
+    return { moves: moves, fen: fen, side: side === 'b' ? 'b' : 'w', name: name };
+  }
   NadooPlay.start({
+    boot: function () {
+      if (!armed) { fromOpening = false; openingLabel = ''; return null; }
+      armed = false;
+      var spec = readSpec();
+      if (!spec) return null;
+      var st = spec.moves.length ? R.replay(spec.moves) : null;
+      if (!st && spec.fen) st = R.fromFen(spec.fen);
+      if (!st || !st.b) return null;
+      fromOpening = true;
+      openingLabel = spec.name;
+      return { state: st, human: spec.side === 'b' ? 1 : 0 };
+    },
     id: 'chess',
     text: {
       title: ['체스', 'Chess'], sub: ['캐슬링·앙파상·프로모션 포함', 'Castling, en passant & promotion included'],
@@ -36,7 +69,16 @@
       var bs = el.querySelectorAll('button');
       Array.prototype.forEach.call(bs, function (b) { b.addEventListener('click', function () { promo = +b.getAttribute('data-p'); Array.prototype.forEach.call(bs, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); }); });
     },
-    info: function (s, api) { return s.win && s.win.why ? '<b>' + api.esc(api.t('why_' + s.win.why)) + '</b>' : (s.check ? '<b style="color:#c0392b">' + api.esc(api.t('check')) + '</b>' : ''); },
+    info: function (s, api) {
+      var bits = [];
+      if (fromOpening) {
+        var label = openingLabel ? ' (' + openingLabel + ')' : '';
+        bits.push('<div class="note">' + api.esc(api.lang() === 'ko' ? '오프닝 트레이너에서 이어진 국면이에요.' + label : 'Continuing from the opening trainer.' + label) + '</div>');
+      }
+      if (s.win && s.win.why) bits.push('<b>' + api.esc(api.t('why_' + s.win.why)) + '</b>');
+      else if (s.check) bits.push('<b style="color:#c0392b">' + api.esc(api.t('check')) + '</b>');
+      return bits.join('');
+    },
     render: function (el, s, ctx, api) {
       var flip = ctx.view === 1, legal = ctx.myTurn ? R.moves(s) : [], dests = {};
       if (sel >= 0) legal.forEach(function (m) { if (m.f === sel) dests[m.t] = 1; });

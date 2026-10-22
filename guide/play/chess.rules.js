@@ -193,6 +193,137 @@
     return best;
   }
   function clean(m) { return { f: m.f, t: m.t, p: m.p || 0 }; }
+  var SANP = { N: N, B: B, R: Rk, Q: Q, K: K };
+  var SANN = {}; SANN[P] = ''; SANN[N] = 'N'; SANN[B] = 'B'; SANN[Rk] = 'R'; SANN[Q] = 'Q'; SANN[K] = 'K';
+  function sqAlg(i) { return 'abcdefgh'[i & 7] + (8 - (i >> 3)); }
+  function algSq(a) {
+    if (!a || a.length < 2) return -1;
+    var f = a.charCodeAt(0) - 97, rk = a.charCodeAt(1) - 49;
+    if (f < 0 || f > 7 || rk < 0 || rk > 7) return -1;
+    return (7 - rk) * 8 + f;
+  }
+  function cleanSan(san) {
+    return String(san || '').trim().replace(/[+#?!]/g, '').replace(/[–—−]/g, '-').replace(/0-0-0/g, 'O-O-O').replace(/0-0/g, 'O-O').replace(/e\.p\./ig, '').replace(/\s+/g, '');
+  }
+  function parseSan(s, san) {
+    if (!s || s.win) return null;
+    var t = cleanSan(san);
+    var ms = moves(s);
+    if (t === 'O-O' || t === 'O-O-O') {
+      var castle = ms.filter(function (m) { return typ(s.b[m.f]) === K && Math.abs(m.t - m.f) === 2 && (t === 'O-O' ? m.t > m.f : m.t < m.f); });
+      return castle.length === 1 ? castle[0] : null;
+    }
+    var m = /^([NBRQK])?([a-h])?([1-8])?(x)?([a-h][1-8])(?:=?([NBRQ]))?$/.exec(t);
+    if (!m) return null;
+    var ptyp = m[1] ? SANP[m[1]] : P, file = m[2], rank = m[3], to = algSq(m[5]), promo = m[6] ? SANP[m[6]] : 0;
+    if (to < 0) return null;
+    var cands = ms.filter(function (mv) {
+      if (mv.t !== to || typ(s.b[mv.f]) !== ptyp) return false;
+      if ((mv.p || 0) !== promo) return false;
+      if (file && 'abcdefgh'[mv.f & 7] !== file) return false;
+      if (rank && String(8 - (mv.f >> 3)) !== rank) return false;
+      return true;
+    });
+    return cands.length === 1 ? cands[0] : null;
+  }
+  function toSan(s, mv) {
+    var p = s.b[mv.f], tp = typ(p);
+    if (tp === K && Math.abs(mv.t - mv.f) === 2) {
+      var base = mv.t > mv.f ? 'O-O' : 'O-O-O';
+      var nxt = play(s, mv);
+      return base + (nxt.win && nxt.win.why === 'mate' ? '#' : nxt.check ? '+' : '');
+    }
+    var dest = sqAlg(mv.t), cap = !!(s.b[mv.t] || (tp === P && (mv.t & 7) !== (mv.f & 7)));
+    var dis = '';
+    if (tp !== P) {
+      var others = moves(s).filter(function (m) { return m.t === mv.t && m.f !== mv.f && typ(s.b[m.f]) === tp && (m.p || 0) === (mv.p || 0); });
+      if (others.length) {
+        var sameFile = others.some(function (m) { return (m.f & 7) === (mv.f & 7); });
+        var sameRank = others.some(function (m) { return (m.f >> 3) === (mv.f >> 3); });
+        if (!sameFile) dis = 'abcdefgh'[mv.f & 7];
+        else if (!sameRank) dis = String(8 - (mv.f >> 3));
+        else dis = 'abcdefgh'[mv.f & 7] + String(8 - (mv.f >> 3));
+      }
+    }
+    var promo = mv.p ? '=' + SANN[mv.p] : '';
+    var body = tp === P ? ((cap ? 'abcdefgh'[mv.f & 7] + 'x' : '') + dest + promo) : (SANN[tp] + dis + (cap ? 'x' : '') + dest + promo);
+    var n2 = play(s, mv);
+    if (n2.win && n2.win.why === 'mate') body += '#';
+    else if (n2.check) body += '+';
+    return body;
+  }
+  function fen(s) {
+    var rows = [], r, c, empty, row, p, ch;
+    var letters = {}; letters[P] = 'p'; letters[N] = 'n'; letters[B] = 'b'; letters[Rk] = 'r'; letters[Q] = 'q'; letters[K] = 'k';
+    for (r = 0; r < 8; r++) {
+      empty = 0; row = '';
+      for (c = 0; c < 8; c++) {
+        p = s.b[r * 8 + c];
+        if (!p) { empty++; continue; }
+        if (empty) { row += empty; empty = 0; }
+        ch = letters[typ(p)];
+        row += col(p) === 0 ? ch.toUpperCase() : ch;
+      }
+      if (empty) row += empty;
+      rows.push(row);
+    }
+    var castle = '';
+    if (s.castle & 1) castle += 'K';
+    if (s.castle & 2) castle += 'Q';
+    if (s.castle & 4) castle += 'k';
+    if (s.castle & 8) castle += 'q';
+    if (!castle) castle = '-';
+    var ep = s.ep >= 0 ? sqAlg(s.ep) : '-';
+    return rows.join('/') + ' ' + (s.turn === 0 ? 'w' : 'b') + ' ' + castle + ' ' + ep + ' ' + s.half + ' ' + s.full;
+  }
+  function fromFen(text) {
+    var parts = String(text || '').trim().split(/\s+/);
+    if (parts.length < 4) return null;
+    var rows = parts[0].split('/');
+    if (rows.length !== 8) return null;
+    var b = [], map = { p: P, n: N, b: B, r: Rk, q: Q, k: K }, r, i, c, ch, n, t;
+    for (r = 0; r < 8; r++) {
+      c = 0;
+      for (i = 0; i < rows[r].length; i++) {
+        ch = rows[r][i];
+        if (ch >= '1' && ch <= '8') { n = +ch; if (c + n > 8) return null; while (n--) b.push(0); c += +ch; }
+        else { t = map[ch.toLowerCase()]; if (!t || c > 7) return null; b.push(t + (ch === ch.toUpperCase() ? 0 : 8)); c++; }
+      }
+      if (c !== 8) return null;
+    }
+    if (b.length !== 64) return null;
+    var turn = parts[1] === 'b' ? 1 : parts[1] === 'w' ? 0 : -1;
+    if (turn < 0) return null;
+    var castle = 0, cs = parts[2] === '-' ? '' : parts[2];
+    if (/[^KQkq]/.test(cs)) return null;
+    if (cs.indexOf('K') >= 0) castle |= 1;
+    if (cs.indexOf('Q') >= 0) castle |= 2;
+    if (cs.indexOf('k') >= 0) castle |= 4;
+    if (cs.indexOf('q') >= 0) castle |= 8;
+    var ep = parts[3] === '-' ? -1 : algSq(parts[3]);
+    if (parts[3] !== '-' && ep < 0) return null;
+    var half = parts.length > 4 ? +parts[4] : 0, full = parts.length > 5 ? +parts[5] : 1;
+    if (!isFinite(half) || !isFinite(full)) return null;
+    var s = { b: b, turn: turn, castle: castle, ep: ep, half: half, full: full, reps: {}, last: null, win: null, check: false };
+    var ks = kingSq(b, turn);
+    if (ks < 0) return null;
+    s.reps[key(s)] = 1;
+    s.check = attacked(b, ks, 1 - turn);
+    var any = legalList(s).length > 0;
+    if (!any) s.win = s.check ? { winner: 1 - turn, why: 'mate' } : { winner: -1, why: 'stalemate' };
+    else if (s.half >= 100) s.win = { winner: -1, why: 'fifty' };
+    else if (insufficient(b)) s.win = { winner: -1, why: 'material' };
+    return s;
+  }
+  function replay(sans) {
+    var s = init(), i, mv;
+    for (i = 0; i < sans.length; i++) {
+      mv = parseSan(s, sans[i]);
+      if (!mv) return null;
+      s = play(s, mv);
+    }
+    return s;
+  }
   function ai(s, level) {
     var ms = legalList(s);
     if (ms.length === 1) return clean(ms[0]);
@@ -213,7 +344,7 @@
     }
     return clean(best || ms[0]);
   }
-  var R = { id: 'chess', init: init, moves: moves, legal: legal, play: play, over: over, ai: ai, attacked: attacked, kingSq: kingSq };
+  var R = { id: 'chess', init: init, moves: moves, legal: legal, play: play, over: over, ai: ai, attacked: attacked, kingSq: kingSq, parseSan: parseSan, toSan: toSan, fen: fen, fromFen: fromFen, replay: replay, sqAlg: sqAlg };
   (root.NadooRules = root.NadooRules || {}).chess = R;
   if (typeof module !== 'undefined' && module.exports) module.exports = R;
 })(typeof self !== 'undefined' ? self : globalThis);

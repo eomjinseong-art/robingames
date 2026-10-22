@@ -101,7 +101,18 @@
       var rebuild = cur.mode !== set.mode;
       killWorker(); cur = { level: set.level, human: set.mode === '2p' ? 0 : set.human, mode: set.mode }; pending = null;
       if (rebuild) shell();
-      state = R.init({ bottom: cur.human }); hist = []; recorded = false; msg = '';
+      var booted = null;
+      if (cfg.boot) { try { booted = cfg.boot(); } catch (e1) { booted = null; } }
+      if (booted && booted.state) {
+        if (cur.mode !== '2p' && (booted.human === 0 || booted.human === 1)) {
+          cur.human = booted.human; set.human = booted.human;
+          Array.prototype.forEach.call(app.querySelectorAll('.seg button[data-k="human"]'), function (x) {
+            x.setAttribute('aria-pressed', +x.getAttribute('data-v') === cur.human ? 'true' : 'false');
+          });
+        }
+        state = booted.state;
+      } else state = R.init({ bottom: cur.human });
+      hist = []; recorded = false; msg = booted && booted.note ? booted.note : '';
       after();
     }
     function undo() {
