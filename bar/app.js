@@ -50,6 +50,7 @@ var T = {
   float: ['플로트로 마지막에 올리기', 'Float it on top at the end'],
   mute: ['음악', 'Music'], lGlass: ['글라스', 'Glass'], lIce: ['얼음·잔', 'Ice & prep'], lTech: ['기법', 'Method'], lGarn: ['가니시', 'Garnish']
 };
+T.learn = ['배움 코스', 'Learning course']; T.learnD = ['처음이라면 여기! 멘토와 한 잔씩', 'New? Start here, one drink at a time with a mentor'];
 function t(k) { return L(T[k]); }
 
 /* ---------- first-input gate for animation/audio ---------- */
@@ -333,14 +334,15 @@ function startPractice(rid, mode, extra) {
   P = { r: r, mode: mode, step: 'ticket', extra: extra || {}, gTries: 0, iTries: 0, vTries: 0, tTries: 0, nTries: 0,
         glass: null, ice: null, chill: false, preheat: false, vessel: null, pours: [], inV: [], inG: [], waterG: 0, floatsDone: [], tops: [],
         techSel: [], actions: [], res: {}, garn: [], expressed: false, seed: 1 + (Math.random() * 50 | 0), t0: 0, issues: [], peeked: false };
+  P.learn = (extra && extra.learn) || null;
   go(practiceScreen);
 }
 function practiceScreen() {
   var r = P.r, title = L(r.n);
   view('<div class="prac">' + (P.mode === 'rush' ? '<div id="rushq" class="rushq"></div>' : '') +
-    '<div class="prac-head"><button class="btn ghost small" id="backBtn">' + t('back') + '</button><div class="ph-t"><span class="badge ' + P.mode + '">' + (P.mode === 'guided' ? t('guided') : P.mode === 'blind' ? t('blind') : t('rush')) + '</span> ' + esc(title) + '</div><div id="timer" class="timer"></div></div>' +
+    '<div class="prac-head"><button class="btn ghost small" id="backBtn">' + t('back') + '</button><div class="ph-t"><span class="badge ' + P.mode + '">' + (P.learn ? (P.learn.n === 1 ? (lang === 'ko' ? '따라 하기' : 'Follow') : (lang === 'ko' ? '보기 ' + P.learn.n + '개' : P.learn.n + ' choices')) : P.mode === 'guided' ? t('guided') : P.mode === 'blind' ? t('blind') : t('rush')) + '</span> ' + esc(title) + '</div><div id="timer" class="timer"></div></div>' +
     '<div class="scene" id="scene"></div><div class="panel" id="panel"></div></div>');
-  bindBack(function () { stopRushTimers(); if (P.mode === 'rush') go(rushIntro); else if (P.extra.fam) go(chapter, P.extra.fam); else go(freePick); });
+  bindBack(function () { stopRushTimers(); if (P.learn) go(course); else if (P.mode === 'rush') go(rushIntro); else if (P.extra.fam) go(chapter, P.extra.fam); else go(freePick); });
   if (P.mode === 'rush') drawRushQ();
   if (P.step === 'result') { scene(); if (P.mode === 'rush') rushServedView(); else resultView(P.R); return; }
   step(P.step);
@@ -385,7 +387,8 @@ function scene(extra) {
 function stTicket() {
   var r = P.r, guided = P.mode === 'guided';
   var h = '<h3 class="step-t">' + t('ticket') + '</h3><p class="order-line">“' + esc(L(r.n)) + (lang === 'ko' ? ', 부탁해요!' : ', please!') + '”</p>';
-  if (guided) h += '<p class="hint">' + (lang === 'ko' ? '가이드 모드: 스펙을 보면서 순서대로 만들어요. 틀리면 이유를 알려 줄게요.' : 'Guided: follow the spec step by step; mistakes get explained.') + '</p>' + specCardHTML(r);
+  if (P.learn) h += mentor(P.learn.n === 1 ? (lang === 'ko' ? '제가 단계마다 정답 하나를 반짝이게 보여 줄게요. 그걸 누르면 돼요!' : 'I’ll make the right answer glow at every step. Just tap it!') : (lang === 'ko' ? '이번엔 보기 ' + P.learn.n + '개 중에서 골라요. 막히면 💡를 눌러요. 감점은 없어요.' : 'Now pick from ' + P.learn.n + ' choices. Stuck? Tap 💡. No penalties.')) + '<details class="specd"><summary>' + t('specCard') + '</summary>' + specCardHTML(r) + '</details>';
+  else if (guided) h += '<p class="hint">' + (lang === 'ko' ? '가이드 모드: 스펙을 보면서 순서대로 만들어요. 틀리면 이유를 알려 줄게요.' : 'Guided: follow the spec step by step; mistakes get explained.') + '</p>' + specCardHTML(r);
   else h += '<p class="hint">' + (lang === 'ko' ? '블라인드: 힌트 없이 기억으로! 평가는 서빙 후에.' : 'Blind: no hints, from memory! Feedback after you serve.') + '</p>';
   h += '<button class="btn primary wide" id="takeBtn" data-enter>' + t('take') + '</button>';
   panel(h);
@@ -397,9 +400,12 @@ function startTimer() { clearInterval(timerInt); timerInt = setInterval(function
 function glassIcon(g) { var d = GD[g]; return '<svg viewBox="20 0 170 256" class="gicon"><path d="' + d.o + '" fill="' + (d.opaque ? '#b8643a' : 'rgba(220,240,250,.12)') + '" stroke="' + (d.opaque ? '#e09060' : 'rgba(235,245,250,.85)') + '" stroke-width="5"/>' + (d.h ? '<path d="' + d.h + '" fill="none" stroke="' + (d.opaque ? '#b8643a' : 'rgba(235,245,250,.8)') + '" stroke-width="8"/>' : '') + '</svg>'; }
 function servesFor(g) { return P.r.s.filter(function (s) { return s.g.indexOf(g) >= 0; })[0] || null; }
 function stGlass() {
-  var h = '<h3 class="step-t">' + t('sGlass') + '</h3><div class="grid glasses">' + BAR.GLASS_ORDER.map(function (g) {
-    return '<button class="gbtn' + (P.glass === g ? ' sel' : '') + '" data-g="' + g + '">' + glassIcon(g) + '<span>' + esc(L(BAR.GLASS[g].n)) + '</span></button>'; }).join('') + '</div><div id="fb"></div>';
-  panel(h);
+  var rg = P.r.s[0].g[0], vg = [].concat.apply([], P.r.s.map(function (x) { return x.g; }));
+  var gl = lOpts('g', BAR.GLASS_ORDER, [rg], vg), one = P.learn && P.learn.n === 1;
+  var h = '<h3 class="step-t">' + t('sGlass') + '</h3>' + mentor(one ? (lang === 'ko' ? '<b>' + eul(esc(L(BAR.GLASS[rg].n))) + '</b> 골라요 (' + esc(L(GSH[rg])) + '이에요).' : 'Pick the <b>' + esc(L(BAR.GLASS[rg].n)) + '</b> (' + esc(L(GSH[rg])) + ').') : P.learn ? (lang === 'ko' ? esc(L(P.r.n)) + '에는 어떤 잔이 맞을까요?' : 'Which glass for the ' + esc(L(P.r.n)) + '?') : '') +
+    '<div class="grid glasses' + (P.learn ? ' few' : '') + '">' + gl.map(function (g) {
+    return '<button class="gbtn' + (P.glass === g ? ' sel' : '') + glowIf(one && g === rg) + '" data-g="' + g + '">' + glassIcon(g) + '<span>' + esc(L(BAR.GLASS[g].n)) + '</span></button>'; }).join('') + '</div><div id="fb"></div>' + (P.learn && !one ? hintBtn() : '');
+  panel(h); bindHint('.gbtn[data-g="' + rg + '"]');
   [].forEach.call(document.querySelectorAll('.gbtn'), function (b) {
     b.onclick = function () {
       var g = b.getAttribute('data-g'); P.gTries++; P.glass = g; AUD.clink(1);
@@ -408,22 +414,29 @@ function stGlass() {
         scene();
         [].forEach.call(document.querySelectorAll('.gbtn'), function (x) { x.classList.toggle('sel', x === b); });
         if (ok) { AUD.good(); $('#fb').innerHTML = '<div class="fb ok"><b>' + t('correct') + '</b> ' + esc(L(BAR.GLASS[g].why)) + '</div><button class="btn primary wide" id="nx" data-enter>' + t('next') + '</button>'; renderedAt = now(); $('#nx').onclick = function () { if (guardOK()) step('ice'); }; }
-        else { AUD.bad(); var right = P.r.s[0].g[0]; $('#fb').innerHTML = '<div class="fb bad"><b>' + esc(L(BAR.GLASS[g].n)) + '</b>: ' + esc(L(BAR.GLASS[g].why)) + '<br>→ ' + esc(L(P.r.n)) + (lang === 'ko' ? '에는 ' : ' wants a ') + '<b>' + esc(L(BAR.GLASS[right].n)) + '</b>' + (lang === 'ko' ? '. ' : '. ') + esc(L(BAR.GLASS[right].why)) + '</div>'; }
+        else { AUD.bad(); if (P.learn) { b.classList.add('off'); b.disabled = true; } var right = P.r.s[0].g[0]; $('#fb').innerHTML = '<div class="fb bad"><b>' + esc(L(BAR.GLASS[g].n)) + '</b>: ' + esc(L(BAR.GLASS[g].why)) + '<br>→ ' + esc(L(P.r.n)) + (lang === 'ko' ? '에는 ' : ' wants a ') + '<b>' + esc(L(BAR.GLASS[right].n)) + '</b>' + (lang === 'ko' ? '. ' : '. ') + esc(L(BAR.GLASS[right].why)) + '</div>'; }
       } else { P.glassOK = ok; step('ice'); }
     };
   });
 }
 /* ---- step: ice & prep ---- */
 function stIce() {
-  var hot = P.r.s[0].c === 'hot';
-  var h = '<h3 class="step-t">' + t('sIce') + '</h3><div class="grid ice">' + Object.keys(BAR.ICE).map(function (k) {
-    return '<button class="opt' + (P.ice === k ? ' sel' : '') + '" data-i="' + k + '"><b>' + esc(L(BAR.ICE[k].n)) + '</b><span>' + esc(L(BAR.ICE[k].d)) + '</span></button>'; }).join('') + '</div>' +
-    '<div class="toggles"><button class="tog' + (P.chill ? ' on' : '') + '" id="tChill">' + t('chill') + '</button><button class="tog' + (P.preheat ? ' on' : '') + '" id="tHeat">' + t('preheat') + '</button></div>' +
-    '<div id="fb"></div><button class="btn primary wide" id="nx" ' + (P.ice ? '' : 'disabled') + ' data-enter>' + t('next') + '</button>';
+  var hot = P.r.s[0].c === 'hot', sv0 = servesFor(P.glass) || P.r.s[0], ri = sv0.i[0], one = P.learn && P.learn.n === 1;
+  var needC = sv0.c === 1 && ri === 'none', needH = sv0.c === 'hot';
+  var il = lOpts('i', Object.keys(BAR.ICE), [ri], sv0.i);
+  var iceOkNow = P.ice && sv0.i.indexOf(P.ice) >= 0;
+  var h = '<h3 class="step-t">' + t('sIce') + '</h3>' + mentor(one || (P.learn && iceOkNow) ? (lang === 'ko' ? '<b>' + eul(esc(L(BAR.ICE[ri].n))) + '</b> 골라요.' : 'Choose <b>' + esc(L(BAR.ICE[ri].n)) + '</b>.') + (needC ? (lang === 'ko' ? ' 그리고 <b>❄ 잔 칠링</b>도 켜요.' : ' And switch on <b>❄ chill the glass</b>.') : needH ? (lang === 'ko' ? ' 그리고 <b>♨ 잔 예열</b>도 켜요.' : ' And switch on <b>♨ preheat</b>.') : '') : P.learn ? (lang === 'ko' ? '얼음은 어떻게 할까요?' : 'What about ice?') : '') +
+    '<div class="grid ice">' + il.map(function (k) {
+    return '<button class="opt' + (P.ice === k ? ' sel' : '') + glowIf(one && k === ri && P.ice !== k) + '" data-i="' + k + '"><b>' + esc(L(BAR.ICE[k].n)) + '</b><span>' + esc(L(BAR.ICE[k].d)) + '</span></button>'; }).join('') + '</div>' +
+    (!P.learn ? '<div class="toggles"><button class="tog' + (P.chill ? ' on' : '') + '" id="tChill">' + t('chill') + '</button><button class="tog' + (P.preheat ? ' on' : '') + '" id="tHeat">' + t('preheat') + '</button></div>' :
+      (needC || needH ? '<div class="toggles">' + (needC ? '<button class="tog' + (P.chill ? ' on' : '') + glowIf(one && !P.chill) + '" id="tChill">' + t('chill') + '</button>' : '') + (needH ? '<button class="tog' + (P.preheat ? ' on' : '') + glowIf(one && !P.preheat) + '" id="tHeat">' + t('preheat') + '</button>' : '') + '</div>' : '')) +
+    (P.learn && iceOkNow ? '<div class="fb ok">' + esc(L(BAR.ICE[P.ice].d)) + (needC ? ' ' + (lang === 'ko' ? '업(얼음 없이)으로 내는 술은 차가운 잔이 생명이에요.' : 'Drinks served up live or die by a cold glass.') : '') + '</div>' : '') +
+    '<div id="fb"></div>' + (P.learn && !one ? hintBtn() : '') + '<button class="btn primary wide" id="nx" ' + (P.ice ? '' : 'disabled') + ' data-enter>' + t('next') + '</button>';
   panel(h);
   [].forEach.call(document.querySelectorAll('.opt[data-i]'), function (b) { b.onclick = function () { P.ice = b.getAttribute('data-i'); if (P.ice !== 'none') AUD.clink(4); else AUD.tap(); stIce(); scene(); }; });
-  $('#tChill').onclick = function () { P.chill = !P.chill; if (P.chill) P.preheat = false; AUD.clink(2); stIce(); scene(); };
-  $('#tHeat').onclick = function () { P.preheat = !P.preheat; if (P.preheat) P.chill = false; AUD.tap(); stIce(); scene(); };
+  bindHint('.opt[data-i="' + ri + '"],#tChill,#tHeat');
+  if ($('#tChill')) $('#tChill').onclick = function () { P.chill = !P.chill; if (P.chill) P.preheat = false; AUD.clink(2); stIce(); scene(); };
+  if ($('#tHeat')) $('#tHeat').onclick = function () { P.preheat = !P.preheat; if (P.preheat) P.chill = false; AUD.tap(); stIce(); scene(); };
   $('#nx').onclick = function () {
     if (!P.ice || !guardOK()) return;
     var sv = servesFor(P.glass) || P.r.s[0], iceOK = sv.i.indexOf(P.ice) >= 0, needChill = sv.c === 1 && P.ice === 'none', needHot = sv.c === 'hot';
@@ -446,13 +459,19 @@ function stIce() {
 }
 /* ---- step: vessel ---- */
 function stVessel() {
-  var h = '<h3 class="step-t">' + t('sMeasure') + ' · ' + t('vessel') + '</h3><div class="grid vessels">' + Object.keys(BAR.VESSEL).map(function (k) {
-    return '<button class="opt" data-v="' + k + '"><b>' + esc(L(BAR.VESSEL[k])) + '</b><span>' + esc(L({ glass: ['빌드: 잔에서 바로 완성', 'Build: finish in the glass'], tin: ['흔들 술 (시트러스·크림·달걀)', 'For shaken drinks (citrus, cream, egg)'], mixglass: ['저을 술 (스피릿 위주)', 'For stirred drinks (spirit-forward)'], blender: ['갈아서 프로즌으로', 'Blended / frozen'] }[k])) + '</span></button>'; }).join('') + '</div><div id="fb"></div>';
-  panel(h);
+  var rv = P.learn ? rVessel(P.r, LC[P.learn.ch].k) : null, one = P.learn && P.learn.n === 1;
+  var vl = lOpts('v', Object.keys(BAR.VESSEL), P.learn ? [rv] : [], validVessels(P.r));
+  var h = '<h3 class="step-t">' + t('sMeasure') + ' · ' + t('vessel') + '</h3>' + mentor(one ? (lang === 'ko' ? '<b>' + esc(L(BAR.VESSEL[rv])) + '</b>에서 만들어요.' : 'Make it in the <b>' + esc(L(BAR.VESSEL[rv])) + '</b>.') : P.learn ? (lang === 'ko' ? '어디에서 섞을까요?' : 'Where do we mix it?') : '') +
+    '<div class="grid vessels">' + vl.map(function (k) {
+    return '<button class="opt' + glowIf(one && k === rv) + '" data-v="' + k + '"><b>' + esc(L(BAR.VESSEL[k])) + '</b><span>' + esc(L({ glass: ['빌드: 잔에서 바로 완성', 'Build: finish in the glass'], tin: ['흔들 술 (시트러스·크림·달걀)', 'For shaken drinks (citrus, cream, egg)'], mixglass: ['저을 술 (스피릿 위주)', 'For stirred drinks (spirit-forward)'], blender: ['갈아서 프로즌으로', 'Blended / frozen'] }[k])) + '</span></button>'; }).join('') + '</div><div id="fb"></div>' + (P.learn && !one ? hintBtn() : '');
+  panel(h); if (P.learn) bindHint('.opt[data-v="' + rv + '"]');
   [].forEach.call(document.querySelectorAll('.opt[data-v]'), function (b) {
     b.onclick = function () {
       var v = b.getAttribute('data-v'), ok = validVessels(P.r).indexOf(v) >= 0; AUD.tap();
-      if (P.mode === 'guided' && !ok) { P.vTries++; AUD.bad(); var mt = mainTech(P.r);
+      if (P.learn && ok) { AUD.good(); P.vessel = v; P.vesselOK = ok; buildMeasureQueue(); [].forEach.call(document.querySelectorAll('.opt[data-v]'), function (x) { x.classList.toggle('sel', x === b); x.classList.remove('glow'); });
+        $('#fb').innerHTML = '<div class="fb ok"><b>' + t('correct') + '</b> ' + esc(L({ glass: ['빌드는 서빙 잔에서 바로 완성해요.', 'Built drinks are finished right in the serving glass.'], tin: ['시트러스가 든 술은 셰이커 틴에서 흔들어요.', 'Citrus drinks get shaken in the tin.'], mixglass: ['스피릿만 든 술은 믹싱 글라스에서 저어요.', 'Spirit-only drinks are stirred in a mixing glass.'], blender: ['프로즌은 블렌더로 갈아요.', 'Frozen drinks go in the blender.'] }[v])) + '</div><button class="btn primary wide" id="nx" data-enter>' + t('next') + '</button>'; renderedAt = now(); scene();
+        $('#nx').onclick = function () { if (guardOK()) step('measure'); }; return; }
+      if (P.mode === 'guided' && !ok) { P.vTries++; AUD.bad(); if (P.learn) { b.classList.add('off'); b.disabled = true; } var mt = mainTech(P.r);
         $('#fb').innerHTML = '<div class="fb bad">' + (lang === 'ko' ? '이 술은 <b>' + L(BAR.TECH[mt].n) + '</b>로 만들어요 → ' : 'This drink is <b>' + L(BAR.TECH[mt].n) + '</b> → ') + '<b>' + validVessels(P.r).map(function (x) { return esc(L(BAR.VESSEL[x])); }).join(' / ') + '</b>. ' + esc(lang === 'ko' ? BAR.TIPS[1][2] : BAR.TIPS[1][3]) + '</div>'; return; }
       P.vessel = v; P.vesselOK = ok; buildMeasureQueue(); step('measure');
     };
@@ -478,7 +497,7 @@ function stMeasure() {
     var q = P.mq[P.mi];
     var list = '<ol class="mlist">' + P.mq.map(function (m, i) { return '<li class="' + (i < P.mi ? 'done' : i === P.mi ? 'now' : '') + '">' + esc(iname(m.alt)) + ' <span class="am">' + (m.k === 'dash' ? m.t + (lang === 'ko' ? ' 대시' : ' dash') : m.k === 'count' ? m.t + (lang === 'ko' ? ' 줄기' : ' sprigs') : m.t + 'ml') + (m.fl ? (lang === 'ko' ? ' · 플로트용' : ' · for the float') : '') + '</span></li>'; }).join('') + '</ol>';
     var later = P.r.x.filter(function (x) { var k = kindOf(x); return k === 'top' || k === 'rinse'; });
-    var tip = P.mi === 0 ? '<p class="hint">💡 ' + (lang === 'ko' ? '싼 재료(시트러스·시럽)부터, 스피릿은 마지막에. 실수해도 비싼 술을 버리지 않아요.' : 'Cheapest first (citrus, syrup), spirits last, so mistakes don’t waste expensive liquor.') + (later.length ? '<br>' + (lang === 'ko' ? '나중에: ' : 'Later: ') + later.map(function (x) { return esc(iname(x[0])) + ' (' + amtStr(x) + ')'; }).join(', ') : '') + '</p>' : '';
+    var tip = P.learn && P.mi === 0 && P.learn.n <= 2 ? mentor(lang === 'ko' ? '<b>길게 눌러 붓기</b> 버튼을 꾹 누르고 있다가, 지거의 <b>노란 선</b>에 닿으면 손을 떼요. 그다음 <b>붓기</b>!' : 'Press and hold <b>Hold to pour</b>, let go when the jigger reaches the <b>yellow line</b>, then pour it in!') : P.mi === 0 ? '<p class="hint">💡 ' + (lang === 'ko' ? '싼 재료(시트러스·시럽)부터, 스피릿은 마지막에. 실수해도 비싼 술을 버리지 않아요.' : 'Cheapest first (citrus, syrup), spirits last, so mistakes don’t waste expensive liquor.') + (later.length ? '<br>' + (lang === 'ko' ? '나중에: ' : 'Later: ') + later.map(function (x) { return esc(iname(x[0])) + ' (' + amtStr(x) + ')'; }).join(', ') : '') + '</p>' : '';
     pourUI(q.id, q.k, q.t, list + tip, function (amt) { addPour(q.id, amt, q.k, q.fl); P.mi++; stMeasure(); scene(); });
   } else shelfUI();
 }
@@ -550,7 +569,7 @@ function pourUI(id, k, target, pre, cb) {
       (FLOATABLE[id] && !guided ? '<label class="tog small' + (fl ? ' on' : '') + '" id="flt">⬆ ' + t('float') + '</label>' : '') +
       '<button class="btn hold" id="holdB">' + t('hold') + '<small>' + t('holdK') + '</small></button>' +
       (acc > 0 ? '<p class="acc">' + (lang === 'ko' ? '누적 ' : 'Total so far ') + fmt(acc) + ' ml</p>' : '') +
-      ((target == null || target > 30 || acc > 0) ? '<button class="btn ghost" id="ag"' + (ml > 0 ? '' : ' disabled') + '>' + (lang === 'ko' ? '＋ 한 번 더 계량' : '＋ Measure again') + '</button>' : '') + '</div></div>' +
+      ((target == null || (target > 30 && !(P.learn && target <= 60)) || acc > 0) ? '<button class="btn ghost" id="ag"' + (ml > 0 ? '' : ' disabled') + '>' + (lang === 'ko' ? '＋ 한 번 더 계량' : '＋ Measure again') + '</button>' : '') + '</div></div>' +
       '<div class="row"><button class="btn ghost" id="rd">' + t('redo') + '</button><button class="btn primary" id="cm" data-enter ' + (ml > 0 || acc > 0 ? '' : 'disabled') + '>' + (P.vessel === 'glass' ? t('commitG') : t('commit')) + '</button></div>');
     [].forEach.call(document.querySelectorAll('.segb'), function (b) { b.onclick = function () { if (ml > 0) return; cap = +b.getAttribute('data-c'); draw2(); }; });
     if ($('#flt')) $('#flt').onclick = function () { fl = !fl; draw2(); };
@@ -594,10 +613,15 @@ function techWhy(k) {
   return L(m[k]);
 }
 function stTech() {
-  var h = '<h3 class="step-t">' + t('sTech') + '</h3><p class="hint">' + t('pickTech') + '</p><div class="grid techs">' + BAR.TECH_ORDER.map(function (k) {
-    return '<button class="opt tech' + (P.techSel.indexOf(k) >= 0 ? ' sel' : '') + '" data-k="' + k + '"><b>' + esc(L(BAR.TECH[k].n)) + '</b><span>' + esc(L(BAR.TECH[k].d)) + '</span></button>'; }).join('') + '</div><div id="fb"></div>' +
-    '<button class="btn primary wide" id="run" data-enter ' + (P.techSel.length ? '' : 'disabled') + '>' + t('run') + '</button>';
-  panel(h);
+  var rt = P.learn ? rTech(P.r, LC[P.learn.ch].k) : [], one = P.learn && P.learn.n === 1, flatT = [].concat.apply([], P.r.t);
+  if (P.learn && flatT.indexOf('shake') >= 0) flatT.push('double');
+  var tl = lOpts('t', BAR.TECH_ORDER, rt, flatT);
+  var allSel = P.learn && rt.every(function (k) { return P.techSel.indexOf(k) >= 0; }) && P.techSel.length === rt.length;
+  var h = '<h3 class="step-t">' + t('sTech') + '</h3>' + (P.learn ? mentor(one || allSel ? rt.map(function (k) { return (lang === 'ko' ? '기법: <b>' + eul(esc(L(BAR.TECH[k].n))) + '</b> 눌러요.' : 'Technique: tap <b>' + esc(L(BAR.TECH[k].n)) + '</b>.'); }).join(' ') : (lang === 'ko' ? '어떤 기법으로 만들까요? ' + (rt.length > 1 ? '(' + rt.length + '개를 골라요)' : '') : 'Which technique? ' + (rt.length > 1 ? '(pick ' + rt.length + ')' : ''))) +
+      (allSel ? '<div class="fb ok">' + rt.map(function (k) { return '<b>' + esc(L(BAR.TECH[k].n)) + '</b>: ' + esc(techWhy(k)); }).join('<br>') + '</div>' : '') : '<p class="hint">' + t('pickTech') + '</p>') + '<div class="grid techs">' + tl.map(function (k) {
+    return '<button class="opt tech' + (P.techSel.indexOf(k) >= 0 ? ' sel' : '') + glowIf(one && rt.indexOf(k) >= 0 && P.techSel.indexOf(k) < 0) + '" data-k="' + k + '"><b>' + esc(L(BAR.TECH[k].n)) + '</b><span>' + esc(L(BAR.TECH[k].d)) + '</span></button>'; }).join('') + '</div><div id="fb"></div>' + (P.learn && !one ? hintBtn() : '') +
+    '<button class="btn primary wide' + glowIf(one && allSel) + '" id="run" data-enter ' + (P.techSel.length ? '' : 'disabled') + '>' + t('run') + '</button>';
+  panel(h); if (P.learn) bindHint(rt.map(function (k) { return '.opt.tech[data-k="' + k + '"]'; }).join(','));
   [].forEach.call(document.querySelectorAll('.opt.tech'), function (b) { b.onclick = function () { var k = b.getAttribute('data-k'), i = P.techSel.indexOf(k); if (i >= 0) P.techSel.splice(i, 1); else P.techSel.push(k); AUD.tap(); stTech(); }; });
   $('#run').onclick = function () {
     if (!guardOK() || !P.techSel.length) return;
@@ -741,10 +765,14 @@ function stFloat() {
 /* ---- step: garnish ---- */
 function stGarn() {
   var hasEx = P.garn.some(function (g) { return BAR.EXPRESS[g]; });
-  var h = '<h3 class="step-t">' + t('sGarn') + '</h3><div class="chips garn">' + Object.keys(BAR.GARNISH).map(function (g) { return '<button class="chip' + (P.garn.indexOf(g) >= 0 ? ' on' : '') + '" data-g="' + g + '">' + esc(L(BAR.GARNISH[g])) + '</button>'; }).join('') + '</div>' +
-    (hasEx ? '<div class="row"><button class="btn ' + (P.expressed ? 'ok' : 'gold') + '" id="ex">' + (P.expressed ? t('expressed') : t('express')) + '</button></div>' : '') +
-    '<p class="hint">' + (lang === 'ko' ? '가니시가 없는 술이면 아무것도 고르지 말고 서빙해요.' : 'If the drink takes no garnish, serve it as is.') + '</p><div id="fb"></div><button class="btn primary wide" id="sv" data-enter>' + t('serve') + '</button>';
-  panel(h);
+  var rgn = P.learn ? rGarn(P.r) : [], one = P.learn && P.learn.n === 1, okG = [].concat.apply([], P.r.gn.need).concat(P.r.gn.ok);
+  var gls = P.learn ? lOpts('gn', Object.keys(BAR.GARNISH), rgn, okG) : Object.keys(BAR.GARNISH);
+  var exNeed = P.learn && rgn.some(function (g) { return BAR.EXPRESS[g]; });
+  var gm = !P.learn ? '' : !rgn.length ? (lang === 'ko' ? '이 술은 <b>가니시 없이</b> 내요. 바로 서빙!' : 'This one goes out <b>with no garnish</b>. Serve it!') : one ? rgn.map(function (g) { return lang === 'ko' ? '<b>' + eul(esc(L(BAR.GARNISH[g]))) + '</b> 올려요.' : 'Add the <b>' + esc(L(BAR.GARNISH[g])) + '</b>.'; }).join(' ') + (exNeed ? (lang === 'ko' ? ' 껍질은 잔 위에서 비틀어 <b>오일을 뿌려요</b>.' : ' Twist the peel over the glass to <b>express its oils</b>.') : '') : (lang === 'ko' ? '가니시는 무엇일까요?' : 'Which garnish?');
+  var h = '<h3 class="step-t">' + t('sGarn') + '</h3>' + mentor(gm) + '<div class="chips garn">' + gls.map(function (g) { return '<button class="chip' + (P.garn.indexOf(g) >= 0 ? ' on' : '') + glowIf(one && rgn.indexOf(g) >= 0 && P.garn.indexOf(g) < 0) + '" data-g="' + g + '">' + esc(L(BAR.GARNISH[g])) + '</button>'; }).join('') + '</div>' +
+    (hasEx ? '<div class="row"><button class="btn ' + (P.expressed ? 'ok' : 'gold') + glowIf(P.learn && P.learn.n === 1 && !P.expressed) + '" id="ex">' + (P.expressed ? t('expressed') : t('express')) + '</button></div>' : '') +
+    (P.learn ? '' : '<p class="hint">' + (lang === 'ko' ? '가니시가 없는 술이면 아무것도 고르지 말고 서빙해요.' : 'If the drink takes no garnish, serve it as is.') + '</p>') + '<div id="fb"></div>' + (P.learn && !one && rgn.length ? hintBtn() : '') + '<button class="btn primary wide' + glowIf(one && !rgn.length) + '" id="sv" data-enter>' + t('serve') + '</button>';
+  panel(h); if (P.learn) bindHint(rgn.map(function (g) { return '.chip[data-g="' + g + '"]'; }).concat(['#ex']).join(','));
   [].forEach.call(document.querySelectorAll('.chip[data-g]'), function (b) { b.onclick = function () { var g = b.getAttribute('data-g'), i = P.garn.indexOf(g); if (i >= 0) P.garn.splice(i, 1); else P.garn.push(g); AUD.tap(); scene(); stGarn(); }; });
   if ($('#ex')) $('#ex').onclick = function () { P.expressed = true; AUD.fizz(); $('#scene').classList.add('mist'); setTimeout(function () { var s = $('#scene'); if (s) s.classList.remove('mist'); }, 900); stGarn(); };
   $('#sv').onclick = function () {
@@ -890,6 +918,7 @@ function recordResult(R) {
   addXP(s * (m === 'guided' ? 0.25 : m === 'blind' ? 0.45 : 0.35));
 }
 function resultView(R) {
+  if (P.learn) { learnResult(R); return; }
   var g = gradeOf(R.total), r = P.r;
   (R.total >= 75 ? AUD.good : AUD.bad)(); if (R.total >= 90) AUD.fanfare();
   panel('<div class="result"><div class="grade g' + g[0] + '">' + g[0] + '</div><div class="rs-t"><div class="rs-score">' + R.total + '<small>/100</small></div><div>' + esc(L(g[1])) + ' · ⏱ ' + Math.round(R.elapsed) + 's</div></div></div>' +
@@ -913,13 +942,16 @@ function recsOf(fid) { return BAR.REC.filter(function (r) { return r.f === fid; 
 function home() {
   var r = rankOf(S.xp), nx = BAR.RANKS[r + 1], pct = nx ? (S.xp - BAR.RANKS[r].xp) / (nx.xp - BAR.RANKS[r].xp) * 100 : 100;
   var due = BAR.REC.filter(function (x) { var s = S.srs[x.id]; return s && s.due <= Date.now(); }).length;
-  var tiles = [['academy', '📚', academy], ['free', '🍸', freePick], ['rush', '🔥', rushIntro], ['lab', '⚗️', lab], ['dex', '🗂️', dex], ['lib', '📖', library], ['taste', '🥃', tasting], ['quiz', '❓', quizHome]];
+  ensureLearn(); var un = unlocked();
+  var tiles = [['learn', '🎓', course], ['academy', '📚', academy, 1], ['free', '🍸', freePick, 1], ['rush', '🔥', rushIntro, 1], ['lab', '⚗️', lab, 1], ['dex', '🗂️', dex], ['lib', '📖', library], ['taste', '🥃', tasting], ['quiz', '❓', quizHome]];
   view('<section class="hero"><div class="neon">' + t('title') + '</div><p class="tagline">' + t('tag') + '</p></section>' +
     '<div class="rankcard"><div><div class="lab">' + t('rank') + '</div><div class="rk-n">' + esc(L(BAR.RANKS[r].n)) + '</div><div class="muted">' + esc(L(BAR.RANKS[r].d)) + '</div></div><div class="rk-r"><div class="bar"><i style="width:' + pct + '%"></i></div><div class="muted">' + S.xp + ' XP' + (nx ? ' → ' + esc(L(nx.n)) + ' ' + nx.xp : '') + '</div></div></div>' +
-    '<div class="tiles">' + tiles.map(function (x) { return '<button class="tile" data-k="' + x[0] + '"><span class="ti">' + x[1] + '</span><span class="tt">' + t(x[0]) + (x[0] === 'dex' && due ? ' <em class="pill">' + due + '</em>' : '') + '</span><span class="td">' + t(x[0] + 'D') + '</span></button>'; }).join('') + '</div>' +
+    '<div class="tiles">' + tiles.map(function (x) { var lk = x[3] && !un; return '<button class="tile' + (x[0] === 'learn' ? ' wide' : '') + (lk ? ' locked' : '') + '" data-k="' + x[0] + '"><span class="ti">' + (lk ? '🔒' : x[1]) + '</span><span class="tt">' + t(x[0]) + (x[0] === 'dex' && due ? ' <em class="pill">' + due + '</em>' : '') + '</span><span class="td">' + (lk ? (lang === 'ko' ? '배움 코스를 마치면 열려요' : 'Opens after the course') : x[0] === 'learn' ? (S.learn.i >= LFLAT.length ? (lang === 'ko' ? '졸업 완료 · 복습하기' : 'Graduated · review') : (lang === 'ko' ? '진행 ' + S.learn.i + '/' + LFLAT.length + ' · ' : 'Progress ' + S.learn.i + '/' + LFLAT.length + ' · ') + esc(L(lRec(S.learn.i).n))) : t(x[0] + 'D')) + '</span></button>'; }).join('') + '</div>' +
     '<div class="stats"><span>🍹 ' + (S.served || 0) + (lang === 'ko' ? '잔 서빙' : ' served') + '</span><span>🔓 ' + Object.keys(S.disc).length + '/' + BAR.REC.length + (lang === 'ko' ? ' 레시피' : ' recipes') + '</span><span>🔥 $' + (S.rush.best || 0) + (lang === 'ko' ? ' 최고 팁' : ' best tips') + '</span></div>' +
+    '<div class="row"><button class="btn ghost small" id="setB">⚙️ ' + (lang === 'ko' ? '설정 (경험자 건너뛰기)' : 'Settings (skip ahead)') + '</button></div>' +
     '<p class="respons">' + t('respons') + '</p>');
-  [].forEach.call(document.querySelectorAll('.tile'), function (b) { b.onclick = function () { AUD.tap(); var k = b.getAttribute('data-k'); tiles.forEach(function (x) { if (x[0] === k) go(x[2]); }); }; });
+  $('#setB').onclick = function () { AUD.tap(); go(settings); };
+  [].forEach.call(document.querySelectorAll('.tile'), function (b) { b.onclick = function () { AUD.tap(); var k = b.getAttribute('data-k'); tiles.forEach(function (x) { if (x[0] === k) { if (x[3] && !unlocked()) toast(lang === 'ko' ? '🔒 배움 코스를 마치면 열려요. (경험자는 ⚙️ 설정에서 건너뛰기)' : '🔒 Opens after the course (or skip ahead in ⚙️ Settings).'); else go(x[2]); } }); }; });
 }
 function academy() {
   view(head(t('academy'), null, lang === 'ko' ? '템플릿 6–8개만 익히면 수백 가지 칵테일이 열려요. 각 장: 레슨 → 가이드 연습 → 블라인드 → 퀴즈.' : 'Learn 6–8 templates and hundreds of drinks open up. Each chapter: lesson → guided → blind → quiz.') +
@@ -958,6 +990,137 @@ function freePick() {
   bindBack(function () { go(home); });
   [].forEach.call(document.querySelectorAll('[data-g]'), function (b) { b.onclick = function () { startPractice(b.getAttribute('data-g'), 'guided'); }; });
   [].forEach.call(document.querySelectorAll('[data-b]'), function (b) { b.onclick = function () { startPractice(b.getAttribute('data-b'), 'blind'); }; });
+}
+
+/* ======================================================================
+   LEARNING COURSE: follow-along → 2/3/4 choices, one new thing at a time
+   ====================================================================== */
+var LC = [
+  { k: 'build', icon: '🥤', n: ['1장 · 빌드: 잔에 바로', 'Ch1 · Build: straight in the glass'], recs: ['gt', 'jhigh', 'cuba', 'screw', 'mule'], o: [1, 1, 1, 2, 2],
+    rule: ['스피릿 + 탄산(믹서) → 얼음 가득한 키 큰 잔에 바로 빌드.', 'Spirit + mixer → build straight into a tall glass full of ice.'] },
+  { k: 'shake', icon: '🍸', n: ['2장 · 셰이크 + 시트러스', 'Ch2 · Shake + citrus'], recs: ['daiq', 'gimlet', 'marg', 'cosmo'], o: [2, 2, 3, 3],
+    rule: ['시트러스(라임·레몬)가 들어가면 셰이크!', 'Citrus in the recipe → shake it!'] },
+  { k: 'stir', icon: '🥄', n: ['3장 · 스터', 'Ch3 · Stir'], recs: ['martini', 'manhattan', 'negroni', 'ofash'], o: [3, 3, 4, 4],
+    rule: ['스피릿·베르무트·비터스만 → 저어서 투명하게.', 'Only spirits, vermouth, bitters → stir for clarity.'] },
+  { k: 'special', icon: '🌿', n: ['4장 · 머들·달걀·린스·레이어', 'Ch4 · Muddle, egg, rinse, layer'], recs: ['mojito', 'wsour', 'sazerac', 'whiterus'], o: [3, 4, 4, 4],
+    rule: ['재료가 기술을 정해요: 허브=머들, 달걀=드라이 셰이크, 압생트=린스, 크림=플로트.', 'The ingredients pick the technique: herbs = muddle, egg = dry shake, absinthe = rinse, cream = float.'] },
+  { k: 'finale', icon: '🎓', n: ['5장 · 졸업 과정', 'Ch5 · Graduation'], recs: ['pina', 'espresso', 'irish', 'spritz', 'f75'], o: [4, 4, 4, 4, 4],
+    rule: ['배운 규칙을 모두 섞어 써요. 잔·얼음·기법은 재료를 보면 보여요.', 'Mix all the rules: the ingredients tell you the glass, ice and technique.'] }
+];
+var LFLAT = []; LC.forEach(function (c, ci) { c.recs.forEach(function (rid, j) { LFLAT.push({ rid: rid, ch: ci, n: c.o[j] }); }); });
+function ensureLearn() { if (!S.learn || typeof S.learn.i !== 'number') S.learn = { i: 0, known: [] }; if (!S.learn.known) S.learn.known = []; }
+ensureLearn();
+function unlocked() { return !!S.unlockAll || S.learn.i >= LFLAT.length; }
+var NEWT = {
+  build: ['새 기술: 빌드! 서빙 잔에 얼음을 채우고 재료를 바로 따라 완성해요. 스피릿+탄산 술의 기본.', 'New skill: Build! Fill the serving glass with ice and pour straight in. The base of every spirit + mixer drink.'],
+  shake: ['새 기술: 셰이크! 시트러스가 들어가면 흔들어요. 셰이커 틴에 얼음과 10–15초 세게, 그리고 걸러요.', 'New skill: Shake! Citrus in the drink means shake: 10–15 s hard in a tin with ice, then strain.'],
+  up: ['새 서빙: 업! 얼음 없이 칠링한 잔에 내요. 잔이 차가워야 술이 오래 차가워요.', 'New serve: Up! No ice in the glass, so chill the glass first to keep the drink cold.'],
+  stir: ['새 기술: 스터! 스피릿·베르무트만 든 술은 저어요. 믹싱 글라스에서 20–30초, 투명하고 매끈하게.', 'New skill: Stir! Drinks of only spirits and vermouth are stirred 20–30 s in a mixing glass, clear and silky.'],
+  muddle: ['새 기술: 머들! 민트 같은 허브는 살살 눌러 향만 내요. 세게 짓이기면 써요.', 'New skill: Muddle! Press herbs like mint gently for aroma; mashing them turns bitter.'],
+  dry: ['새 기술: 드라이 셰이크! 달걀흰자는 얼음 없이 먼저 흔들어 거품을 만든 뒤, 얼음 넣고 다시 흔들어요.', 'New skill: Dry shake! Shake egg white without ice first for foam, then again with ice.'],
+  rinse: ['새 기술: 린스! 압생트를 조금 붓고 잔을 돌려 코팅한 뒤 버려요. 향만 남겨요.', 'New skill: Rinse! Swirl a little absinthe to coat the glass, then discard. Aroma only.'],
+  layer: ['새 기술: 레이어(플로트)! 마지막 재료를 바 스푼 등을 타고 살살 띄워요.', 'New skill: Layer (float)! Ease the last ingredient over a spoon so it floats on top.'],
+  blend: ['새 기술: 블렌드! 얼음과 함께 갈아 프로즌으로 만들어요.', 'New skill: Blend! Blend with ice into a frozen drink.'],
+  double: ['새 기술: 더블 스트레인! 고운 체로 한 번 더 걸러 얼음 조각을 빼요.', 'New skill: Double strain! A fine strainer catches ice shards.'],
+  hot: ['새 서빙: 핫! 뜨거운 술은 잔을 뜨거운 물로 예열해요.', 'New serve: Hot! Preheat the glass with hot water for hot drinks.']
+};
+var GSH = { highball: ['키 큰 잔', 'the tall glass'], collins: ['더 길고 좁은 잔', 'the taller, narrow glass'], rocks: ['낮고 묵직한 잔', 'the short, heavy glass'], dbl: ['넉넉한 락 잔', 'the big rocks glass'],
+  martini: ['V자 모양 잔', 'the V-shaped glass'], coupe: ['둥근 볼의 잔', 'the round-bowl glass'], nicknora: ['작은 종 모양 잔', 'the small bell glass'], mug: ['구리 머그', 'the copper mug'],
+  tiki: ['곡선이 긴 잔', 'the tall curvy glass'], flute: ['길쭉한 샴페인 잔', 'the slim champagne glass'], wine: ['와인 잔', 'the wine glass'], irish: ['손잡이 달린 유리 잔', 'the glass with a handle'] };
+function eul(w) { if (lang !== 'ko') return w; var c = w.charCodeAt(w.length - 1); if (c < 0xAC00 || c > 0xD7A3) return w + '을(를)'; return w + ((c - 0xAC00) % 28 ? '을' : '를'); }
+function lRec(i) { return BAR.RMAP[LFLAT[i].rid]; }
+function lKey(i) { return LC[LFLAT[i].ch].k; }
+function rTech(r, ck) { return r.t.map(function (g) { return g.indexOf(ck) >= 0 ? ck : g[0]; }); }
+function rVessel(r, ck) { var t2 = rTech(r, ck); return t2.indexOf('shake') >= 0 || t2.indexOf('dry') >= 0 ? 'tin' : t2.indexOf('blend') >= 0 ? 'blender' : t2.indexOf('stir') >= 0 && t2.indexOf('build') < 0 && t2.indexOf('muddle') < 0 ? 'mixglass' : 'glass'; }
+function rGarn(r) { return r.gn.need.map(function (g) { return g[0]; }); }
+function newThings(r, ck) { var t2 = rTech(r, ck).slice(); if (r.s[0].c === 1 && r.s[0].i[0] === 'none') t2.push('up'); if (r.s[0].c === 'hot') t2.push('hot'); if (t2.indexOf('shake') >= 0 && r.t.some(function (g) { return g.indexOf('double') >= 0; })) t2.push('double'); return t2; }
+function lPool(kind) {
+  var out = [], upto = P.learn.idx;
+  for (var i = 0; i <= upto; i++) { var r = lRec(i), ck = lKey(i), v;
+    v = kind === 'g' ? [r.s[0].g[0]] : kind === 'i' ? [r.s[0].i[0]] : kind === 'v' ? [rVessel(r, ck)] : kind === 't' ? rTech(r, ck) : rGarn(r);
+    v.forEach(function (x) { if (out.indexOf(x) < 0) out.push(x); }); }
+  return out;
+}
+/* which options to show: right + (n-1) learned distractors, stable per drink */
+function lOpts(key, all, right, valid) {
+  if (!P.learn) return all;
+  P.lopt = P.lopt || {}; if (P.lopt[key]) return P.lopt[key];
+  var d = shuffle(lPool(key).filter(function (x) { return all.indexOf(x) >= 0 && valid.indexOf(x) < 0 && right.indexOf(x) < 0; })).slice(0, Math.max(0, P.learn.n - Math.max(1, right.length)));
+  var need = Math.max(0, P.learn.n - Math.max(1, right.length)) - d.length;
+  if (need > 0) d = d.concat((LFB[key] || []).filter(function (x) { return all.indexOf(x) >= 0 && valid.indexOf(x) < 0 && right.indexOf(x) < 0 && d.indexOf(x) < 0; }).slice(0, need));
+  var keep = right.concat(d);
+  return (P.lopt[key] = all.filter(function (x) { return keep.indexOf(x) >= 0; }));
+}
+var LFB = { g: ['rocks', 'martini', 'coupe', 'wine', 'flute'], i: ['none', 'crushed', 'big', 'cubes'], v: ['tin', 'mixglass', 'glass'], t: ['shake', 'stir', 'build', 'muddle'], gn: ['lemon_wheel', 'cherry', 'olive', 'orange_slice', 'lime_wedge'] };
+function mentor(html) { return P && P.learn ? '<div class="mentor"><span class="mt-i" aria-hidden="true">🎩</span><p>' + html + '</p></div>' : ''; }
+function hintBtn() { return P && P.learn ? '<button class="btn ghost small hintb" id="hintB">💡 ' + (lang === 'ko' ? '정답 보기' : 'Show me') + '</button>' : ''; }
+function bindHint(sel) { var b = $('#hintB'); if (!b) return; b.onclick = function () { AUD.tap(); [].forEach.call(document.querySelectorAll(sel), function (x) { x.classList.add('glow'); x.classList.remove('off'); }); var f = document.querySelector(sel); if (f) f.scrollIntoView({ block: 'center', behavior: 'smooth' }); }; }
+function glowIf(cond) { return cond ? ' glow' : ''; }
+
+function course() {
+  ensureLearn();
+  var cur = S.learn.i, done = cur >= LFLAT.length;
+  var h = head('🎓 ' + t('learn'), null, lang === 'ko' ? '처음이라면 여기부터! 멘토가 한 단계씩 정답을 보여 주고, 익숙해지면 보기가 2개 → 3개 → 4개로 늘어나요. 틀려도 감점 없어요.' : 'Start here! The mentor shows each right answer, then choices grow 2 → 3 → 4 as you learn. No penalties for mistakes.');
+  if (!done) { var r = lRec(cur); h += '<button class="btn primary wide big" id="goOn" data-enter>▶ ' + (cur === 0 ? (lang === 'ko' ? '첫 잔 시작: ' : 'Start your first drink: ') : (lang === 'ko' ? '이어서: ' : 'Continue: ')) + esc(L(r.n)) + '</button>'; }
+  else h += '<div class="lcard"><h3>🎉 ' + (lang === 'ko' ? '코스 졸업!' : 'Course complete!') + '</h3><p>' + (lang === 'ko' ? '블라인드 모드, 금요일 밤 러시, 조합 실험실, 아카데미가 모두 열렸어요.' : 'Blind mode, Friday Night Rush, the combination lab and the academy are all open.') + '</p></div>';
+  h += LC.map(function (c, ci) {
+    return '<h3 class="fam-h">' + c.icon + ' ' + esc(L(c.n)) + '</h3><p class="muted rule">💡 ' + esc(L(c.rule)) + '</p><div class="reclist">' + LFLAT.map(function (it, i) { if (it.ch !== ci) return '';
+      var r = BAR.RMAP[it.rid], st = i < cur ? 'done' : i === cur ? 'now' : 'lock';
+      return '<button class="lrow ' + st + '" data-i="' + i + '" ' + (st === 'lock' ? 'disabled' : '') + '><span class="lr-s">' + (st === 'done' ? '✓' : st === 'now' ? '▶' : '🔒') + '</span><span class="lr-n">' + esc(L(r.n)) + '</span><span class="lr-m">' + (it.n === 1 ? (lang === 'ko' ? '따라 하기' : 'Follow along') : (lang === 'ko' ? '보기 ' + it.n + '개' : it.n + ' choices')) + '</span></button>'; }).join('') + '</div>'; }).join('');
+  view(h);
+  bindBack(function () { go(home); });
+  if ($('#goOn')) $('#goOn').onclick = function () { if (!guardOK()) return; AUD.tap(); startLearn(cur); };
+  [].forEach.call(document.querySelectorAll('.lrow[data-i]'), function (b) { b.onclick = function () { var i = +b.getAttribute('data-i'); if (i > S.learn.i) return; AUD.tap(); startLearn(i); }; });
+}
+function startLearn(i) {
+  var it = LFLAT[i], r = BAR.RMAP[it.rid], ck = LC[it.ch].k;
+  var fresh = newThings(r, ck).filter(function (k) { return NEWT[k] && S.learn.known.indexOf(k) < 0; });
+  var go2 = function () { startPractice(it.rid, 'guided', { learn: { idx: i, n: it.n, ch: it.ch } }); };
+  if (!fresh.length && i !== 0) { go2(); return; }
+  go(learnIntro, i, fresh, go2);
+}
+function learnIntro(i, fresh, go2) {
+  var r = lRec(i), it = LFLAT[i];
+  var h = head(LC[it.ch].icon + ' ' + esc(L(LC[it.ch].n)));
+  if (i === 0) h += '<div class="lcard intro"><h3>🎩 ' + (lang === 'ko' ? '안녕하세요, 멘토 바텐더예요!' : 'Hi, I’m your mentor bartender!') + '</h3><p>' + (lang === 'ko' ? '처음 세 잔은 <b>따라 하기</b>예요. 단계마다 정답 하나만 반짝이니, 그걸 누르면 돼요. 누르고 나면 “왜 그런지” 한 줄로 알려 줄게요. 틀려도 감점은 없어요.' : 'The first three drinks are <b>follow-along</b>. Each step shows one glowing answer: just tap it, and I’ll tell you why in one line. No penalties.') + '</p></div>';
+  h += fresh.map(function (k) { return '<div class="lcard newt"><p>✨ ' + esc(L(NEWT[k])) + '</p></div>'; }).join('');
+  h += '<div class="lcard"><h3>' + (lang === 'ko' ? '이번 잔: ' : 'This drink: ') + esc(L(r.n)) + '</h3><p>' + esc(L(r.note)) + '</p></div>' +
+    '<button class="btn primary wide big" id="lgo" data-enter>' + (lang === 'ko' ? '바 뒤로 들어가기 →' : 'Step behind the bar →') + '</button>';
+  view(h);
+  bindBack(function () { go(course); });
+  $('#lgo').onclick = function () { if (!guardOK()) return; AUD.tap(); go2(); };
+}
+function learnResult(R) {
+  var r = P.r, L2 = P.learn, idx = L2.idx, first = idx === S.learn.i;
+  newThings(r, LC[L2.ch].k).forEach(function (k) { if (S.learn.known.indexOf(k) < 0) S.learn.known.push(k); });
+  var wasLocked = !unlocked();
+  if (first) S.learn.i = idx + 1;
+  save();
+  var stars = R.total >= 90 ? 3 : R.total >= 70 ? 2 : 1; AUD.good(); if (stars === 3) AUD.fanfare();
+  var st = BAR.STORY.filter(function (s) { return s.r === r.id; })[0] || BAR.STORY[(idx * 7) % BAR.STORY.length];
+  var nextI = idx + 1, hasNext = nextI < LFLAT.length && nextI <= S.learn.i;
+  panel('<div class="result learn"><div class="lstars">' + '★'.repeat(stars) + '<span class="dim">' + '★'.repeat(3 - stars) + '</span></div><div class="rs-t"><div class="rs-big">' + (lang === 'ko' ? '완성!' : 'Done!') + '</div><div>' + esc(L(r.n)) + '</div></div></div>' +
+    '<div class="guest"><div class="lab">🗣 ' + t('guest') + '</div><p>“' + R.lines.map(esc).join(' ') + '”</p></div>' +
+    mentor('<b>' + (lang === 'ko' ? '기억할 요령: ' : 'Rule of thumb: ') + '</b>' + esc(L(LC[L2.ch].rule))) +
+    (R.issues.length ? '<details class="specd"><summary>' + (lang === 'ko' ? '더 잘하려면 (선택)' : 'To do even better (optional)') + '</summary><ul>' + R.issues.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul></details>' : '') +
+    (st ? '<details class="specd story"><summary>📜 ' + (lang === 'ko' ? '이야기 한 편 (선택): ' : 'A story (optional): ') + esc(L(st.t)) + '</summary>' + (st.lg ? '<p><span class="lg">' + (lang === 'ko' ? '전설·논쟁' : 'legend / disputed') + '</span></p>' : '') + '<p>' + esc(L(st.b)) + '</p></details>' : '') +
+    '<div class="row wrap"><button class="btn" id="ag">' + (lang === 'ko' ? '한 번 더' : 'Again') + '</button><button class="btn" id="crs">' + (lang === 'ko' ? '코스' : 'Course') + '</button>' + (hasNext ? '<button class="btn primary" id="nxL" data-enter>' + (lang === 'ko' ? '다음 잔 →' : 'Next drink →') + '</button>' : '') + '</div>');
+  renderedAt = now();
+  $('#ag').onclick = function () { startLearn(idx); };
+  $('#crs').onclick = function () { go(course); };
+  if ($('#nxL')) $('#nxL').onclick = function () { if (!guardOK()) return; startLearn(nextI); };
+  if (first && LFLAT[nextI] && LFLAT[nextI].ch !== L2.ch) setTimeout(function () { AUD.fanfare(); showFanfare('🏅', lang === 'ko' ? '장 완료!' : 'Chapter complete!', esc(L(LC[L2.ch].n)), lang === 'ko' ? '다음 장에서 새 기술 하나를 배워요.' : 'Next chapter: one new skill.'); }, 600);
+  if (wasLocked && unlocked()) setTimeout(function () { AUD.fanfare(); showFanfare('🎓', lang === 'ko' ? '졸업!' : 'Graduated!', lang === 'ko' ? '모든 모드가 열렸어요' : 'Everything is unlocked', lang === 'ko' ? '블라인드, 금요일 밤 러시, 조합 실험실, 아카데미를 즐겨요.' : 'Enjoy blind mode, Friday Night Rush, the lab and the academy.'); }, 700);
+  var sc = $('#scene'); if (sc) sc.scrollIntoView({ block: 'start' });
+}
+function settings() {
+  view(head('⚙️ ' + (lang === 'ko' ? '설정' : 'Settings')) +
+    '<div class="lcard"><h3>' + (lang === 'ko' ? '경험자라면' : 'Already experienced?') + '</h3><p>' + (lang === 'ko' ? '배움 코스를 건너뛰고 블라인드·러시·실험실·아카데미를 바로 열어요. 언제든 되돌릴 수 있어요.' : 'Skip the course and open blind mode, Rush, the lab and the academy now. You can switch back any time.') + '</p>' +
+    '<button class="btn ' + (S.unlockAll ? 'ok' : 'gold') + ' wide" id="sk">' + (S.unlockAll ? (lang === 'ko' ? '✓ 모두 열림 (끄기)' : '✓ All unlocked (turn off)') : (lang === 'ko' ? '건너뛰고 모두 열기' : 'Skip ahead and unlock all')) + '</button></div>' +
+    '<div class="lcard"><h3>' + (lang === 'ko' ? '코스 다시 시작' : 'Restart the course') + '</h3><p>' + (lang === 'ko' ? '배움 코스 진행만 처음으로 돌려요. XP·도감은 그대로예요.' : 'Resets only course progress; XP and the dex stay.') + '</p><button class="btn ghost wide" id="rs">' + (lang === 'ko' ? '1장부터 다시' : 'Back to chapter 1') + '</button></div>');
+  bindBack(function () { go(home); });
+  $('#sk').onclick = function () { S.unlockAll = !S.unlockAll; save(); AUD.tap(); go(settings); };
+  $('#rs').onclick = function () { if (!confirm(lang === 'ko' ? '코스 진행을 처음으로 돌릴까요?' : 'Reset course progress?')) return; S.learn = { i: 0, known: [] }; save(); go(course); };
 }
 
 /* ---------- QUIZ ENGINE ---------- */
@@ -1164,10 +1327,9 @@ function recDetail(rid) {
   view(head(esc(L(r.n))) + '<div class="detail"><div class="dglass">' + glassIcon(r.s[0].g[0]) + '</div>' + specCardHTML(r) + '</div>' +
     stories.map(function (s) { return '<div class="lcard"><h3>' + (s.lg ? '<span class="lg">' + (lang === 'ko' ? '전설·논쟁' : 'legend / disputed') + '</span> ' : '') + esc(L(s.t)) + '</h3><p>' + esc(L(s.b)) + '</p></div>'; }).join('') +
     (sibs.length ? '<div class="lcard"><h3>' + (lang === 'ko' ? '형제 칵테일' : 'Sibling drinks') + '</h3>' + sibs.map(function (s) { var o = s[0] === rid ? s[1] : s[0]; return '<p class="sib">' + (s[0] === rid ? '→ ' : '← ') + '<b>' + esc(L(BAR.RMAP[o].n)) + '</b>: ' + esc(lang === 'ko' ? s[2] : s[3]) + '</p>'; }).join('') + '</div>' : '') +
-    '<div class="row"><button class="btn" id="pg">' + t('guided') + '</button><button class="btn gold" id="pb">' + t('blind') + '</button></div>');
+    (unlocked() ? '<div class="row"><button class="btn" id="pg">' + t('guided') + '</button><button class="btn gold" id="pb">' + t('blind') + '</button></div>' : '<p class="hint">🎓 ' + (lang === 'ko' ? '연습은 배움 코스에서! 코스를 마치면 여기서도 바로 연습할 수 있어요.' : 'Practise in the course; after it, you can practise from here too.') + '</p>'));
   bindBack(function () { go(dex); });
-  $('#pg').onclick = function () { startPractice(rid, 'guided'); };
-  $('#pb').onclick = function () { startPractice(rid, 'blind'); };
+  if ($('#pg')) { $('#pg').onclick = function () { startPractice(rid, 'guided'); }; $('#pb').onclick = function () { startPractice(rid, 'blind'); }; }
 }
 function flash() {
   var due = BAR.REC.filter(function (x) { var s = S.srs[x.id]; return s && s.due <= Date.now(); });
@@ -1189,7 +1351,7 @@ function flash() {
 function mistakes() {
   var ids = Object.keys(S.mist);
   view(head('🩹 ' + (lang === 'ko' ? '실수 복습' : 'Review mistakes'), null, lang === 'ko' ? '75점 미만이었던 레시피예요. 블라인드로 90점 이상이면 목록에서 빠져요.' : 'Recipes that scored under 75. Score 90+ blind to clear them.') +
-    ids.map(function (id) { var r = BAR.RMAP[id]; return '<div class="lcard"><h3>' + esc(L(r.n)) + '</h3><ul class="issues-s">' + S.mist[id].map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul><div class="row"><button class="btn small" data-g="' + id + '">' + t('guided') + '</button><button class="btn small gold" data-b="' + id + '">' + t('blind') + '</button></div></div>'; }).join(''));
+    ids.map(function (id) { var r = BAR.RMAP[id]; return '<div class="lcard"><h3>' + esc(L(r.n)) + '</h3><ul class="issues-s">' + S.mist[id].map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>' + (unlocked() ? '<div class="row"><button class="btn small" data-g="' + id + '">' + t('guided') + '</button><button class="btn small gold" data-b="' + id + '">' + t('blind') + '</button></div>' : '') + '</div>'; }).join(''));
   bindBack(function () { go(dex); });
   [].forEach.call(document.querySelectorAll('[data-g]'), function (b) { b.onclick = function () { startPractice(b.getAttribute('data-g'), 'guided'); }; });
   [].forEach.call(document.querySelectorAll('[data-b]'), function (b) { b.onclick = function () { startPractice(b.getAttribute('data-b'), 'blind'); }; });

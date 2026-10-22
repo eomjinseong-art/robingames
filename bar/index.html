@@ -257,6 +257,29 @@ body.live .fan-card{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
 #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:#2a1a0ef2;border:1px solid var(--brass);color:var(--text);padding:10px 18px;border-radius:24px;font-size:16px;box-shadow:0 8px 24px #000a;max-width:90vw;text-align:center}
 @media(min-width:720px){.neon{font-size:52px}.tiles{grid-template-columns:repeat(4,1fr)}.scene{height:330px}}
 @media (prefers-reduced-motion:reduce){body.live .bokeh,body.live .bub{animation:none}}
+
+/* learning course */
+.mentor{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(160deg,#2c3a24,#1a2414);border:1px solid #8fbf6a88;border-radius:14px;padding:10px 14px;margin:8px 0 12px}
+.mentor .mt-i{font-size:26px;line-height:1.2}
+.mentor p{margin:0;font:400 17px/1.5 var(--sans);color:#f3f7ea}
+.mentor b{font-weight:600;color:#ffe9a8}
+.glow{border-color:#ffd27a !important;box-shadow:0 0 0 3px #ffd27aaa,0 0 18px #ffd27a88 !important}
+body.live .glow{animation:glowp 1.4s ease-in-out infinite}
+@keyframes glowp{50%{box-shadow:0 0 0 3px #ffd27a55,0 0 6px #ffd27a44}}
+.off{opacity:.35;filter:grayscale(.6)}
+.grid.glasses.few{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.hintb{margin:4px 0 10px}
+.tile.wide{grid-column:1/-1;min-height:96px;border-color:#ffd27a;background:linear-gradient(160deg,#5a3818ee,#2a180cee)}
+.tile.locked{opacity:.55}
+.lrow{appearance:none;display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#0006;border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font:400 17px/1.4 var(--sans);cursor:pointer;margin:6px 0}
+.lrow.now{border-color:var(--gold);background:#3a2414}
+.lrow.lock{opacity:.5;cursor:default}
+.lrow .lr-s{width:24px;text-align:center}.lrow .lr-n{flex:1}.lrow .lr-m{color:var(--mute);font-size:15px}
+.rule{margin:2px 0 6px;font-size:16px;line-height:1.5}
+.lstars{font-size:40px;color:#ffd27a;letter-spacing:2px}.lstars .dim{color:#ffffff30}
+.rs-big{font:700 30px/1.2 var(--serif);color:var(--gold)}
+.lcard.newt{border-color:#ffd27a;background:#3a2a10}
+.lcard.newt p{font-size:18px;line-height:1.55}
 </style>
 </head>
 <body>
