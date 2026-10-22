@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>포커 아웃츠 트레이너 | 나두게임즈</title>
-<meta name="description" content="텍사스 홀덤 아웃츠, 4-2 확률, 팟 오즈, 스타팅 핸드를 연습하는 한국어 트레이너. 돈 없이 바둑돌로 계산해요.">
+<meta name="description" content="텍사스 홀덤 아웃츠, 4-2 확률, 팟 오즈, 스타팅 핸드를 연습하는 한국어 트레이너. 드로우 이름과 족보를 카드로 풀어 줘요. 돈 없이 바둑돌로 계산해요.">
 <meta name="theme-color" content="#0e5a34">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.86em%22 font-size=%2280%22>♠</text></svg>">
 <script src="/counter.js" defer></script>
@@ -99,8 +99,67 @@ button { cursor: pointer; }
 .type-btn, .big, .chip, .pos, .seg button, .act {
   border: 1.5px solid #d9cbb8; background: #fff; color: var(--ink); border-radius: 12px;
 }
-.type-btn { min-height: 48px; padding: 8px; font-size: 14px; font-weight: 700; line-height: 1.25; }
+.type-cell { position: relative; min-width: 0; }
+.type-btn { width: 100%; min-height: 56px; padding: 8px 50px 8px 8px; font-size: 14px; font-weight: 700; line-height: 1.25; text-align: left; }
 .type-btn.sel, .chip.sel, .pos.on, .seg button.on, .act.sel { background: #e7f6ec; border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.qbtn {
+  position: absolute; z-index: 1; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 999px;
+  border: 1.5px solid #d9cbb8; background: #fff; color: var(--felt2);
+  font-weight: 900; font-size: 16px; line-height: 1;
+}
+.qbtn:active { background: #e7f6ec; }
+.tip { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.tip button {
+  background: none; border: 0; color: var(--felt2); font-weight: 800;
+  text-decoration: underline; padding: 0 2px; min-height: 32px;
+}
+.jump { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.jump::-webkit-scrollbar { display: none; }
+.jump button {
+  flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: var(--ink);
+  border-radius: 999px; min-height: 40px; padding: 0 12px; font-size: 13px; font-weight: 700;
+}
+.gcard { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin: 10px 0; }
+.gcard, #hand-ranks { scroll-margin-top: 64px; }
+.gcard h2 { margin: 0 0 6px; font-size: 17px; }
+.gcard h3, .sheet h3 { margin: 12px 0 4px; font-size: 13px; color: var(--felt2); }
+.gcard p, .sheet p { margin: 0 0 8px; font-size: 15px; }
+.ranks { list-style: none; margin: 0; padding: 0; }
+.rank { padding: 8px 0; border-top: 1px dashed var(--line); }
+.rank-h b { display: block; font-size: 15px; }
+.rank-h span { display: block; font-size: 14px; margin-top: 2px; }
+.rank .cards, .sample .cards { justify-content: flex-start; margin-top: 6px; }
+.sample { margin: 8px 0 0; }
+.gcard .sample p, .sheet .sample p { font-weight: 800; }
+.gcard p.fine, .sheet p.fine { color: var(--muted); font-size: 13px; font-weight: 400; }
+.gcard p.oddsline, .sheet p.oddsline { background: #f7f1e6; border-radius: 12px; padding: 8px 10px; font-weight: 800; }
+.ex {
+  background: radial-gradient(circle at 50% 0%, #1d8a4e, var(--felt) 42%, var(--felt2));
+  border-radius: 14px; padding: 8px 8px 10px; color: #fff; margin: 6px 0;
+}
+.suits { display: flex; flex-wrap: wrap; gap: 8px 14px; font-weight: 800; margin: 8px 0 0; font-size: 14px; }
+.suits .red { color: var(--red); }
+.sheet-back { position: fixed; inset: 0; z-index: 30; background: rgba(20, 16, 8, .45); }
+.sheet {
+  position: fixed; z-index: 31; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: min(520px, 100%); max-height: 86dvh; overflow: auto; -webkit-overflow-scrolling: touch;
+  background: var(--paper); border-radius: 18px 18px 0 0; box-shadow: var(--shadow);
+}
+.sheet-h {
+  position: sticky; top: 0; z-index: 2; background: var(--paper);
+  padding: 10px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+}
+.sheet-bar { display: flex; align-items: center; gap: 8px; }
+.sheet-bar h2 { flex: 1; min-width: 0; margin: 0; font-size: 17px; }
+.sheet-bar button {
+  border: 1px solid var(--line); background: #fff; border-radius: 999px;
+  min-height: 40px; padding: 0 14px; font-weight: 800;
+}
+.sheet-body { padding: 0 max(12px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+.grab { width: 40px; height: 4px; border-radius: 999px; background: #e4d8c8; margin: 0 auto 8px; }
+.sheet .next { margin-top: 4px; }
+.sheet .ghost { display: block; width: 100%; }
 .field { display: flex; gap: 8px; align-items: center; min-width: 0; }
 .field input {
   flex: 1; width: 0; min-width: 0; min-height: 48px; border-radius: 12px; border: 1.5px solid #d9cbb8; padding: 0 12px; font-size: 20px; font-weight: 800;

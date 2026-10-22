@@ -271,6 +271,91 @@ test('cheat sheet percents come from the same formulas', () => {
   assert.equal(P.fmtPct(48 / 1081), '4.44%');
 });
 
+test('every draw type has a beginner lesson whose example matches the engine', () => {
+  const lessons = P.drawLessons();
+  assert.equal(lessons.length, P.TYPES.length);
+  const ids = new Set(lessons.map((l) => l.id));
+  P.TYPES.forEach((t) => {
+    assert.equal(ids.has(t.id), true);
+    const lesson = lessons.find((l) => l.id === t.id);
+    assert.equal(lesson.ko, t.ko);
+    assert.ok(lesson.aimName.length > 1);
+    assert.ok(lesson.aim.length > 20);
+    assert.ok(lesson.when.length > 20);
+    assert.ok(lesson.countWhy.length > 20);
+    assert.equal(lesson.analysis.type, t.id);
+    assert.equal(lesson.analysis.hole.length, 2);
+    assert.ok(lesson.analysis.board.length >= 3);
+  });
+  const expectOuts = { flush: 9, oesd: 8, gutshot: 4, monster: 15, set: 2, overs: 6, twopair: 4, trips: 7, bdf: 0, bds: 0 };
+  lessons.forEach((l) => assert.equal(l.analysis.outCount, expectOuts[l.id], l.id));
+  assert.match(lessons.find((l) => l.id === 'flush').countWhy, /9장/);
+  assert.match(lessons.find((l) => l.id === 'oesd').countWhy, /8장/);
+  assert.match(lessons.find((l) => l.id === 'gutshot').countWhy, /4장/);
+  assert.match(lessons.find((l) => l.id === 'monster').countWhy, /15장/);
+  assert.match(lessons.find((l) => l.id === 'monster').countWhy, /9 \+ 8 - 2/);
+  assert.match(lessons.find((l) => l.id === 'set').countWhy, /두 장/);
+  assert.match(lessons.find((l) => l.id === 'overs').countWhy, /6장/);
+  assert.match(lessons.find((l) => l.id === 'twopair').countWhy, /4장/);
+  assert.match(lessons.find((l) => l.id === 'trips').countWhy, /7장/);
+  assert.match(lessons.find((l) => l.id === 'trips').countWhy, /10장/);
+  assert.match(lessons.find((l) => l.id === 'bdf').countWhy, /0장/);
+  assert.match(lessons.find((l) => l.id === 'bds').countWhy, /0장/);
+  assert.match(lessons.find((l) => l.id === 'bdf').countWhy, /45/);
+  assert.match(lessons.find((l) => l.id === 'bds').countWhy, /48/);
+
+  const bds = lessons.find((l) => l.id === 'bds');
+  assert.equal(bds.samples.length, 3);
+  assert.equal(bds.samples.reduce((s, x) => s + x.n, 0), bds.analysis.runner.hits);
+  const wayKeys = bds.analysis.runner.ways.map((w) => w.ranks.join('-')).sort();
+  const sampleKeys = bds.samples.map((s) => s.cards.map((c) => c.rank).sort((a, b) => a - b).join('-')).sort();
+  assert.deepEqual(sampleKeys, wayKeys);
+  bds.analysis.runner.ways.forEach((w) => assert.equal(w.n, 16));
+  const seen = new Set(codes(bds.analysis.hole.concat(bds.analysis.board)));
+  bds.samples.forEach((s) => s.cards.forEach((c) => assert.equal(seen.has(c.code), false)));
+
+  const bdf = lessons.find((l) => l.id === 'bdf');
+  assert.equal(bdf.analysis.runner.left.length, 10);
+  assert.equal(bdf.analysis.runner.hits, 45);
+  assert.ok(bdf.analysis.runner.left.every((c) => c.suit === 'h'));
+
+  const monster = lessons.find((l) => l.id === 'monster');
+  assert.equal(monster.analysis.groups[0].cards.length, 9);
+  assert.equal(monster.analysis.groups[1].cards.length, 8);
+  assert.equal(monster.analysis.groups[2].cards.length, 2);
+
+  const ranks = P.handRanks();
+  assert.equal(ranks.length, 10);
+  ranks.forEach((r, i) => {
+    assert.equal(r.rank, i + 1);
+    assert.ok(r.name.length > 1);
+    assert.ok(r.blurb.length > 8);
+    assert.ok(r.cards.length >= 5);
+    const uniq = new Set(r.cards.map((c) => c.code));
+    assert.equal(uniq.size, r.cards.length);
+  });
+  assert.match(ranks[3].name, /풀하우스/);
+  assert.match(ranks[4].blurb, /플러시/);
+  assert.match(ranks[5].blurb, /A-2-3-4-5/);
+  assert.match(ranks[6].blurb, /트립스/);
+});
+
+test('the quiz page wires a draw guide, per-choice help, and hand ranks', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const app = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  assert.match(app, /드로우 설명/);
+  assert.match(app, /족보/);
+  assert.match(app, /data-act="help"/);
+  assert.match(app, /class="qbtn"/);
+  assert.match(app, /노리는 족보/);
+  assert.match(html, /\.qbtn/);
+  assert.match(html, /\.sheet/);
+  assert.match(html, /\.type-cell/);
+  assert.match(html, /86dvh/);
+});
+
 test('the trainer is on the home list and the new files avoid personal names', () => {
   const fs = require('fs');
   const path = require('path');

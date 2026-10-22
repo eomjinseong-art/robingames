@@ -38,6 +38,8 @@
   var handPick = null;
   var handDraft = blank();
   var handGraded = null;
+  var helpId = null;
+  var pendingScroll = null;
 
   function blank() { return { type: '', outs: '', prob: '' }; }
   function shuffle(a) {
@@ -129,6 +131,9 @@
     o.start(t); o.stop(t + .18);
   }
 
+  function suitName(suit) {
+    return suit === 's' ? '스페이드' : suit === 'h' ? '하트' : suit === 'd' ? '다이아몬드' : '클럽';
+  }
   function suitSvg(suit) {
     var body = '';
     if (suit === 'h') body = '<path d="M12 20.7 10.6 19.4C6 15.2 3.1 12.5 3.1 9.1 3.1 6.4 5.2 4.3 7.9 4.3c1.6 0 3 .72 4.1 1.95C13.1 5.02 14.5 4.3 16.1 4.3c2.7 0 4.8 2.1 4.8 4.8 0 3.4-2.9 6.1-7.5 10.3L12 20.7z"/>';
@@ -141,7 +146,7 @@
   function cardEl(c, mini) {
     var red = c.suit === 'h' || c.suit === 'd';
     var rank = P.rankLabel(c.rank);
-    var label = (c.suit === 's' ? '스페이드 ' : c.suit === 'h' ? '하트 ' : c.suit === 'd' ? '다이아몬드 ' : '클럽 ') + rank;
+    var label = suitName(c.suit) + ' ' + rank;
     return '<div class="pcard' + (red ? ' red' : '') + (rank === '10' ? ' ten' : '') + (mini ? ' mini' : '') + '" data-code="' + c.code + '" role="img" aria-label="' + esc(label) + '">' +
       '<span class="corner tl"><b>' + rank + '</b>' + suitSvg(c.suit) + '</span>' +
       '<span class="mid">' + suitSvg(c.suit) + '</span>' +
@@ -175,7 +180,8 @@
   function typeGrid(selected, locked, scope) {
     return '<div class="type-grid">' + P.TYPES.map(function (t) {
       var cls = selected === t.id ? ' sel' : '';
-      return '<button type="button" class="type-btn' + cls + '" data-act="type" data-scope="' + scope + '" data-type="' + t.id + '"' + (locked ? ' disabled' : '') + '>' + esc(t.ko) + '</button>';
+      return '<div class="type-cell"><button type="button" class="type-btn' + cls + '" data-act="type" data-scope="' + scope + '" data-type="' + t.id + '"' + (locked ? ' disabled' : '') + '>' + esc(t.ko) + '</button>' +
+        '<button type="button" class="qbtn" data-act="help" data-type="' + t.id + '" aria-label="' + esc(t.ko) + ' 설명">?</button></div>';
     }).join('') + '</div>';
   }
   function chipsHtml(scope) {
@@ -186,7 +192,9 @@
   }
   function answerForm(a, d, locked, scope) {
     var mult = a.street === 'flop' ? 4 : 2;
-    return '<div class="step">1. 어떤 드로우인가요?</div>' + typeGrid(d.type, locked, scope) +
+    return '<div class="step">1. 어떤 드로우인가요?</div>' +
+      '<p class="tip">이름이 어려우면 오른쪽 ? 를 누르세요. 노리는 족보, 카드 예시, 아웃츠를 세는 이유를 보여 줘요. 족보는 <button type="button" data-act="mode" data-mode="guide">드로우 설명</button>에 있어요.</p>' +
+      typeGrid(d.type, locked, scope) +
       '<div class="step">2. 아웃츠는 몇 장인가요?</div>' +
       '<label class="field">아웃츠 <input inputmode="numeric" data-field="' + (scope === 'h' ? 'houts' : 'outs') + '" value="' + esc(d.outs) + '"' + (locked ? ' disabled' : '') + ' aria-label="아웃츠 장수"> <span class="unit">장</span></label>' +
       '<div class="step">3. 확률은 몇 %인가요? (4-2 규칙)</div>' +
@@ -217,8 +225,7 @@
     }
     html += '</div>';
     if (a.backdoor && a.type === 'bdf') {
-      var suitKo = { s: '스페이드', h: '하트', d: '다이아몬드', c: '클럽' }[a.runner.suit];
-      html += '<div class="group"><h3>남은 ' + suitKo + ' ' + a.runner.left.length + '장 — 이 중에서 2장</h3>' + cardRow(a.runner.left, true) + '</div>';
+      html += '<div class="group"><h3>남은 ' + suitName(a.runner.suit) + ' ' + a.runner.left.length + '장 — 이 중에서 2장</h3>' + cardRow(a.runner.left, true) + '</div>';
     } else if (a.backdoor && a.type === 'bds') {
       html += '<div class="group"><h3>런너런너로 스트레이트가 되는 조합</h3><ul class="ways">' +
         a.runner.ways.map(function (w) {
@@ -351,6 +358,79 @@
     return html;
   }
 
+  function oddsLine(a) {
+    if (a.backdoor) return '한 장 아웃츠가 없어서 4-2 규칙은 쓰지 않아요. 두 장을 모두 맞출 확률은 ' + P.fmtPct(a.exact) + '예요.';
+    var mult = a.street === 'flop' ? 4 : 2;
+    var where = a.street === 'flop' ? '플랍' : '턴';
+    return where + '에서는 ' + a.outCount + ' × ' + mult + ' = ' + a.mental + '%로 대략 외워요. 정확히 계산하면 ' + P.fmtPct(a.exact) + '예요.';
+  }
+  function outsVisual(lesson) {
+    var a = lesson.analysis;
+    if (a.type === 'bdf') {
+      return '<div class="group"><h3>남은 ' + suitName(a.runner.suit) + ' ' + a.runner.left.length + '장. 이 중에서 2장</h3>' + cardRow(a.runner.left, true) + '</div>';
+    }
+    if (a.type === 'bds') {
+      return '<div class="group"><h3>되는 두 장 조합 예시</h3>' + lesson.samples.map(function (s) {
+        return '<div class="sample"><p>' + esc(s.label) + ' · 무늬 조합 ' + s.n + '가지</p>' + cardRow(s.cards, true) + '</div>';
+      }).join('') + '</div>';
+    }
+    return a.groups.map(function (g) {
+      return '<div class="group"><h3>' + esc(g.label) + ' · ' + g.cards.length + '장</h3>' + cardRow(g.cards, true) + '</div>';
+    }).join('');
+  }
+  function lessonBody(lesson) {
+    var a = lesson.analysis;
+    var html = '<p><b>노리는 족보: ' + esc(lesson.aimName) + '.</b> ' + esc(lesson.aim) + '</p>';
+    html += '<h3>언제 이 드로우인가요</h3><p>' + esc(lesson.when) + '</p>';
+    html += '<h3>예시</h3><div class="ex" role="group" aria-label="' + esc(lesson.ko) + ' 예시">' +
+      '<div class="rowlabel">내 핸드</div>' + cardRow(a.hole, true) +
+      '<div class="rowlabel">보드</div>' + cardRow(a.board, true) + '</div>';
+    html += '<p class="fine">퀴즈의 카드는 매번 달라져요. 무늬와 숫자는 달라도 세는 방법은 같아요.</p>';
+    html += '<h3>아웃츠 ' + (a.backdoor ? '— 한 장으로는 안 끝나요' : ('— ' + a.outCount + '장')) + '</h3>';
+    html += '<p>' + esc(lesson.countWhy) + '</p>';
+    html += outsVisual(lesson);
+    html += '<p class="oddsline">' + oddsLine(a) + '</p>';
+    return html;
+  }
+  function ranksHtml() {
+    var rows = P.handRanks().map(function (r) {
+      return '<li class="rank"><div class="rank-h"><b>' + r.rank + '. ' + esc(r.name) + '</b><span>' + esc(r.blurb) + '</span></div>' + cardRow(r.cards, true) + '</li>';
+    }).join('');
+    return '<section class="gcard" id="hand-ranks"><h2>족보 — 높은 순서</h2>' +
+      '<p>판이 끝나면 내 2장과 보드를 합쳐 가장 좋은 5장으로 겨뤄요. 위에 있을수록 세요. 무늬끼리는 높낮이가 없어요.</p>' +
+      '<p>이 트레이너의 드로우는 그중 플러쉬, 스트레이트, 풀하우스, 포카드, 트리플, 원페어를 노려요.</p>' +
+      '<ol class="ranks">' + rows + '</ol></section>';
+  }
+  function guideView() {
+    var lessons = P.drawLessons();
+    var jumps = '<div class="jump" aria-label="설명 바로 가기"><button type="button" data-act="jump" data-target="hand-ranks">족보</button>' +
+      lessons.map(function (l) {
+        return '<button type="button" data-act="jump" data-target="draw-' + l.id + '">' + esc(l.ko) + '</button>';
+      }).join('') + '</div>';
+    var intro = '<div class="rule"><h2>드로우가 뭔가요</h2>' +
+      '<p>아직 족보가 완성되지 않았지만, 뒤에 나올 카드가 특정 카드면 완성되는 상태예요. 그 카드를 <b>아웃츠</b>라고 하고, 장수를 세면 확률이 나와요.</p>' +
+      '<ul class="clean"><li><b>핸드</b>는 나만 보는 2장, <b>보드</b>는 가운데 공용 카드예요.</li>' +
+      '<li><b>플랍</b>은 보드 3장. 뒤에 2장이 더 나와요. <b>턴</b>은 보드 4장. 뒤에 1장이 남아요.</li>' +
+      '<li>이미 보이는 카드는 아웃츠가 아니에요. 같은 카드는 한 번만 세요.</li>' +
+      '<li><b>백도어</b>는 한 장으로 안 끝나고, 남은 두 장이 둘 다 맞아야 해요. 런너런너라고도 해요.</li></ul>' +
+      '<p class="suits"><span>♠ 스페이드</span><span class="red">♥ 하트</span><span class="red">♦ 다이아</span><span>♣ 클럽</span></p></div>';
+    return intro + jumps + ranksHtml() + lessons.map(function (l) {
+      return '<article class="gcard" id="draw-' + l.id + '"><h2>' + esc(l.ko) + '</h2>' + lessonBody(l) + '</article>';
+    }).join('');
+  }
+  function helpSheet() {
+    if (!helpId) return '';
+    var lesson = P.drawLessons().filter(function (l) { return l.id === helpId; })[0];
+    if (!lesson) return '';
+    return '<div class="sheet-back" data-act="close-help"></div>' +
+      '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="help-title">' +
+      '<div class="sheet-h"><div class="grab" aria-hidden="true"></div><div class="sheet-bar"><h2 id="help-title">' + esc(lesson.ko) + '</h2>' +
+      '<button type="button" id="help-close" data-act="close-help">닫기</button></div></div>' +
+      '<div class="sheet-body">' + lessonBody(lesson) +
+      '<button type="button" class="next" data-act="goto-guide" data-target="draw-' + lesson.id + '">설명 탭에서 이 드로우 보기</button>' +
+      '<button type="button" class="ghost" data-act="goto-guide" data-target="hand-ranks">족보 전체 보기</button></div></div>';
+  }
+
   function cheatView() {
     var rows = P.cheatSheet();
     var body = rows.map(function (r) {
@@ -359,7 +439,8 @@
     var bdf = rows.filter(function (r) { return r.id === 'bdf'; })[0];
     var bds = rows.filter(function (r) { return r.id === 'bds'; })[0];
     var notes = rows.filter(function (r) { return r.note; }).map(function (r) { return '<li><b>' + esc(r.ko) + '.</b> ' + esc(r.note) + '</li>'; }).join('');
-    return '<div class="rule"><h2>4-2 규칙</h2><p>플랍은 카드가 2장 남아서 아웃츠 × 4, 턴은 1장 남아서 아웃츠 × 2. 그 수가 대략적인 확률(%)이에요. 아웃츠가 12장보다 많으면 실제보다 조금 크게 나와요. 플러쉬 9장은 플랍 36%, 턴 18%.</p></div>' +
+    return '<p class="tip">이름이 낯설면 <button type="button" data-act="mode" data-mode="guide">드로우 설명</button>에서 족보와 카드 예시를 먼저 보세요.</p>' +
+      '<div class="rule"><h2>4-2 규칙</h2><p>플랍은 카드가 2장 남아서 아웃츠 × 4, 턴은 1장 남아서 아웃츠 × 2. 그 수가 대략적인 확률(%)이에요. 아웃츠가 12장보다 많으면 실제보다 조금 크게 나와요. 플러쉬 9장은 플랍 36%, 턴 18%.</p></div>' +
       '<div class="rule"><h2>정확 확률</h2><p>보이는 카드를 뺀 뒤에 조합으로 계산해요. 플랍은 1 − C(47−아웃츠, 2) / C(47, 2), 턴은 아웃츠 / 46. 백도어는 한 장 아웃츠가 없어서 4-2를 쓰지 않고, 남은 두 장이 모두 맞는 경우의 수로 계산해요. 백도어 플러쉬 ' + P.fmtPct(bdf.flopExact) + ', 3연속 백도어 스트레이트 ' + P.fmtPct(bds.flopExact) + '.</p></div>' +
       '<div class="scroll"><table><thead><tr><th>드로우</th><th>아웃츠</th><th>플랍 암산</th><th>플랍 정확</th><th>턴 암산</th><th>턴 정확</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
       '<ul class="clean">' + notes + '</ul>' +
@@ -367,16 +448,19 @@
   }
 
   function shell(body) {
-    var tabs = [['quiz', '아웃츠'], ['pot', '팟 오즈'], ['chart', '스타팅 핸드'], ['hand', '한 판'], ['cheat', '치트시트']].map(function (t) {
+    var tabs = [['quiz', '아웃츠'], ['guide', '드로우 설명'], ['pot', '팟 오즈'], ['chart', '스타팅 핸드'], ['hand', '한 판'], ['cheat', '치트시트']].map(function (t) {
       return '<button type="button" class="' + (mode === t[0] ? 'on' : '') + '" data-act="mode" data-mode="' + t[0] + '">' + t[1] + '</button>';
     }).join('');
-    return '<header class="top"><a href="/">홈</a><h1>포커 아웃츠 트레이너</h1><button type="button" data-act="mute" aria-label="소리">' + (muted ? '음소거' : '소리') + '</button></header>' +
+    var page = '<header class="top"><a href="/">홈</a><h1>포커 아웃츠 트레이너</h1><button type="button" data-act="mute" aria-label="소리">' + (muted ? '음소거' : '소리') + '</button></header>' +
       '<nav class="tabs">' + tabs + '</nav><p class="disclaimer">바둑돌로 세는 연습이에요. 실제 돈을 걸지 않아요.</p><main class="pad">' + body + '</main>' +
       '<footer class="foot">© 나두게임즈 · <a href="/guide/game.html?id=poker">포커 족보 가이드</a></footer>';
+    if (helpId) page = '<div inert>' + page + '</div>';
+    return page + helpSheet();
   }
 
   function view() {
     if (mode === 'quiz') return quizView();
+    if (mode === 'guide') return guideView();
     if (mode === 'pot') return potView();
     if (mode === 'chart') return chartViewHtml();
     if (mode === 'hand') return handView();
@@ -388,9 +472,20 @@
     if (wrap) chartLeft = wrap.scrollLeft;
     var y = scrollTop ? 0 : window.scrollY;
     app.innerHTML = shell(view());
-    window.scrollTo(0, scrollTop ? 0 : y);
+    document.body.style.overflow = helpId ? 'hidden' : '';
+    if (pendingScroll) {
+      var node = document.getElementById(pendingScroll);
+      pendingScroll = null;
+      if (node && node.scrollIntoView) node.scrollIntoView({ block: 'start' });
+    } else {
+      window.scrollTo(0, scrollTop ? 0 : y);
+    }
     var wrap2 = document.querySelector('.chart-wrap');
     if (wrap2 && !scrollTop) wrap2.scrollLeft = chartLeft;
+    if (helpId) {
+      var closeBtn = document.getElementById('help-close');
+      if (closeBtn && closeBtn.focus) closeBtn.focus({ preventScroll: true });
+    }
   }
 
   function currentDraft(scope) { return scope === 'h' ? handDraft : draft; }
@@ -423,7 +518,21 @@
     var el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
     var act = el.getAttribute('data-act');
-    if (act === 'mode') { mode = el.getAttribute('data-mode'); hint = ''; render(true); return; }
+    if (act === 'mode') { mode = el.getAttribute('data-mode'); helpId = null; hint = ''; render(true); return; }
+    if (act === 'help') { helpId = el.getAttribute('data-type'); render(false); return; }
+    if (act === 'close-help') { helpId = null; render(false); return; }
+    if (act === 'goto-guide') {
+      helpId = null;
+      mode = 'guide';
+      pendingScroll = el.getAttribute('data-target');
+      render(true);
+      return;
+    }
+    if (act === 'jump') {
+      var jumpNode = document.getElementById(el.getAttribute('data-target'));
+      if (jumpNode && jumpNode.scrollIntoView) jumpNode.scrollIntoView({ block: 'start' });
+      return;
+    }
     if (act === 'mute') {
       muted = !muted;
       try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (err) {}
@@ -484,6 +593,10 @@
       saveStats();
       render(false);
     }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && helpId) { helpId = null; render(false); }
   });
 
   render(true);
