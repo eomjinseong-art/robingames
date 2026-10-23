@@ -925,10 +925,11 @@ function resultView(R) {
     '<div class="guest"><div class="lab">🗣 ' + t('guest') + '</div><p>“' + R.lines.map(esc).join(' ') + '”</p></div>' +
     '<div class="bars">' + R.parts.map(function (p) { return '<div class="bar-row"><span>' + esc(p[0]) + '</span><div class="bar"><i style="width:' + (p[1] / p[2] * 100) + '%"></i></div><b>' + Math.round(p[1]) + '/' + p[2] + '</b></div>'; }).join('') + '</div>' +
     (R.issues.length ? '<div class="issues"><div class="lab">' + t('fix') + '</div><ul>' + R.issues.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul></div>' : '') +
-    '<details class="specd" ' + (R.total < 75 ? 'open' : '') + '><summary>' + t('specCard') + '</summary>' + specCardHTML(r) + '</details>' +
+    '<details class="specd" ' + (R.total < 75 ? 'open' : '') + '><summary>' + t('specCard') + '</summary>' + specCardHTML(r) + '</details>' + shopCard(r) +
     '<div class="row wrap"><button class="btn" id="ag">' + t('again') + '</button>' + (P.mode === 'guided' ? '<button class="btn gold" id="bl">' + t('blind') + ' →</button>' : '') + '<button class="btn primary" id="mn" data-enter>' + t('menu') + '</button></div>');
   renderedAt = now();
   $('#ag').onclick = function () { startPractice(r.id, P.mode, P.extra); };
+  bindShop();
   if ($('#bl')) $('#bl').onclick = function () { startPractice(r.id, 'blind', P.extra); };
   $('#mn').onclick = function () { if (!guardOK()) return; if (P.extra.fam) go(chapter, P.extra.fam); else go(freePick); };
   var sc = $('#scene'); if (sc) sc.scrollIntoView({ block: 'start' });
@@ -948,9 +949,11 @@ function home() {
     '<div class="rankcard"><div><div class="lab">' + t('rank') + '</div><div class="rk-n">' + esc(L(BAR.RANKS[r].n)) + '</div><div class="muted">' + esc(L(BAR.RANKS[r].d)) + '</div></div><div class="rk-r"><div class="bar"><i style="width:' + pct + '%"></i></div><div class="muted">' + S.xp + ' XP' + (nx ? ' → ' + esc(L(nx.n)) + ' ' + nx.xp : '') + '</div></div></div>' +
     '<div class="tiles">' + tiles.map(function (x) { var lk = x[3] && !un; return '<button class="tile' + (x[0] === 'learn' ? ' wide' : '') + (lk ? ' locked' : '') + '" data-k="' + x[0] + '"><span class="ti">' + (lk ? '🔒' : x[1]) + '</span><span class="tt">' + t(x[0]) + (x[0] === 'dex' && due ? ' <em class="pill">' + due + '</em>' : '') + '</span><span class="td">' + (lk ? (lang === 'ko' ? '배움 코스를 마치면 열려요' : 'Opens after the course') : x[0] === 'learn' ? (S.learn.i >= LFLAT.length ? (lang === 'ko' ? '졸업 완료 · 복습하기' : 'Graduated · review') : (lang === 'ko' ? '진행 ' + S.learn.i + '/' + LFLAT.length + ' · ' : 'Progress ' + S.learn.i + '/' + LFLAT.length + ' · ') + esc(L(lRec(S.learn.i).n))) : t(x[0] + 'D')) + '</span></button>'; }).join('') + '</div>' +
     '<div class="stats"><span>🍹 ' + (S.served || 0) + (lang === 'ko' ? '잔 서빙' : ' served') + '</span><span>🔓 ' + Object.keys(S.disc).length + '/' + BAR.REC.length + (lang === 'ko' ? ' 레시피' : ' recipes') + '</span><span>🔥 $' + (S.rush.best || 0) + (lang === 'ko' ? ' 최고 팁' : ' best tips') + '</span></div>' +
+    '<div class="row wrap"><button class="btn gold" id="shopB">🛒 ' + (lang === 'ko' ? '살 것 목록' : 'Shopping list') + ((S.shop || []).length ? ' <em class="pill">' + S.shop.length + '</em>' : '') + '</button></div>' +
     '<div class="row"><button class="btn ghost small" id="setB">⚙️ ' + (lang === 'ko' ? '설정 (경험자 건너뛰기)' : 'Settings (skip ahead)') + '</button></div>' +
     '<p class="respons">' + t('respons') + '</p>');
   $('#setB').onclick = function () { AUD.tap(); go(settings); };
+  $('#shopB').onclick = function () { AUD.tap(); go(shopList); };
   [].forEach.call(document.querySelectorAll('.tile'), function (b) { b.onclick = function () { AUD.tap(); var k = b.getAttribute('data-k'); tiles.forEach(function (x) { if (x[0] === k) { if (x[3] && !unlocked()) toast(lang === 'ko' ? '🔒 배움 코스를 마치면 열려요. (경험자는 ⚙️ 설정에서 건너뛰기)' : '🔒 Opens after the course (or skip ahead in ⚙️ Settings).'); else go(x[2]); } }); }; });
 }
 function academy() {
@@ -1102,12 +1105,14 @@ function learnResult(R) {
   panel('<div class="result learn"><div class="lstars">' + '★'.repeat(stars) + '<span class="dim">' + '★'.repeat(3 - stars) + '</span></div><div class="rs-t"><div class="rs-big">' + (lang === 'ko' ? '완성!' : 'Done!') + '</div><div>' + esc(L(r.n)) + '</div></div></div>' +
     '<div class="guest"><div class="lab">🗣 ' + t('guest') + '</div><p>“' + R.lines.map(esc).join(' ') + '”</p></div>' +
     mentor('<b>' + (lang === 'ko' ? '기억할 요령: ' : 'Rule of thumb: ') + '</b>' + esc(L(LC[L2.ch].rule))) +
+    shopCard(r) +
     (R.issues.length ? '<details class="specd"><summary>' + (lang === 'ko' ? '더 잘하려면 (선택)' : 'To do even better (optional)') + '</summary><ul>' + R.issues.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul></details>' : '') +
     (st ? '<details class="specd story"><summary>📜 ' + (lang === 'ko' ? '이야기 한 편 (선택): ' : 'A story (optional): ') + esc(L(st.t)) + '</summary>' + (st.lg ? '<p><span class="lg">' + (lang === 'ko' ? '전설·논쟁' : 'legend / disputed') + '</span></p>' : '') + '<p>' + esc(L(st.b)) + '</p></details>' : '') +
     '<div class="row wrap"><button class="btn" id="ag">' + (lang === 'ko' ? '한 번 더' : 'Again') + '</button><button class="btn" id="crs">' + (lang === 'ko' ? '코스' : 'Course') + '</button>' + (hasNext ? '<button class="btn primary" id="nxL" data-enter>' + (lang === 'ko' ? '다음 잔 →' : 'Next drink →') + '</button>' : '') + '</div>');
   renderedAt = now();
   $('#ag').onclick = function () { startLearn(idx); };
   $('#crs').onclick = function () { go(course); };
+  bindShop();
   if ($('#nxL')) $('#nxL').onclick = function () { if (!guardOK()) return; startLearn(nextI); };
   if (first && LFLAT[nextI] && LFLAT[nextI].ch !== L2.ch) setTimeout(function () { AUD.fanfare(); showFanfare('🏅', lang === 'ko' ? '장 완료!' : 'Chapter complete!', esc(L(LC[L2.ch].n)), lang === 'ko' ? '다음 장에서 새 기술 하나를 배워요.' : 'Next chapter: one new skill.'); }, 600);
   if (wasLocked && unlocked()) setTimeout(function () { AUD.fanfare(); showFanfare('🎓', lang === 'ko' ? '졸업!' : 'Graduated!', lang === 'ko' ? '모든 모드가 열렸어요' : 'Everything is unlocked', lang === 'ko' ? '블라인드, 금요일 밤 러시, 조합 실험실, 아카데미를 즐겨요.' : 'Enjoy blind mode, Friday Night Rush, the lab and the academy.'); }, 700);
@@ -1121,6 +1126,55 @@ function settings() {
   bindBack(function () { go(home); });
   $('#sk').onclick = function () { S.unlockAll = !S.unlockAll; save(); AUD.tap(); go(settings); };
   $('#rs').onclick = function () { if (!confirm(lang === 'ko' ? '코스 진행을 처음으로 돌릴까요?' : 'Reset course progress?')) return; S.learn = { i: 0, known: [] }; save(); go(course); };
+}
+
+/* ---------- SHOP (convenience-store guide + shopping list) ---------- */
+function shopIngs(r) { var o = []; r.x.forEach(function (x) { x[0].split('|').forEach(function (i) { if (o.indexOf(i) < 0) o.push(i); }); }); return o; }
+function bottleSVG(p) {
+  var c = p[2], k = p[3], s = p[4];
+  if (s === 'c') return '<svg class="bt" viewBox="0 0 40 64" aria-hidden="true"><rect x="8" y="10" width="24" height="48" rx="4" fill="' + c + '" stroke="#0006"/><rect x="10" y="6" width="20" height="5" rx="2" fill="#bbb"/><rect x="8" y="26" width="24" height="14" fill="#fff" opacity=".35"/></svg>';
+  if (s === 'p') return '<svg class="bt" viewBox="0 0 40 64" aria-hidden="true"><rect x="15" y="2" width="10" height="7" rx="2" fill="' + k + '"/><path d="M14 9h12l4 8v42a3 3 0 0 1-3 3H13a3 3 0 0 1-3-3V17z" fill="#cfe8f4" opacity=".55" stroke="#0005"/><rect x="10" y="28" width="20" height="16" fill="' + c + '" stroke="#0004"/></svg>';
+  if (s === 's') return '<svg class="bt" viewBox="0 0 40 64" aria-hidden="true"><rect x="15" y="2" width="10" height="9" rx="2" fill="' + k + '"/><rect x="16" y="11" width="8" height="8" fill="#e8f0f0" opacity=".7"/><rect x="5" y="19" width="30" height="42" rx="5" fill="#dfeef0" opacity=".55" stroke="#0005"/><rect x="7" y="30" width="26" height="20" rx="2" fill="' + c + '" stroke="#0004"/></svg>';
+  return '<svg class="bt" viewBox="0 0 40 64" aria-hidden="true"><rect x="16" y="1" width="8" height="8" rx="2" fill="' + k + '"/><path d="M16 9h8v8c0 4 7 5 7 11v31a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V28c0-6 7-7 7-11z" fill="#dfeef0" opacity=".55" stroke="#0005"/><rect x="9" y="34" width="22" height="18" rx="2" fill="' + c + '" stroke="#0004"/></svg>';
+}
+function cpLink() { return '<a class="cplink" href="' + BAR.CP.url + '" target="_blank" rel="sponsored noopener">' + (lang === 'ko' ? '쿠팡에서 보기 ↗' : 'View on Coupang ↗') + '</a>'; }
+function cpNote() { return '<p class="cpnote">' + esc(L(BAR.CP.note)) + (lang === 'ko' ? ' 주류는 온라인 판매가 제한되어 매장에서 구입하세요.' : ' Alcohol generally can’t be bought online in Korea; buy spirits in store.') + '</p>'; }
+function prodRow(p) { return '<div class="prod">' + bottleSVG(p) + '<div class="pi"><div class="pn">' + esc(lang === 'ko' ? p[0] : p[1]) + (p[7] ? ' <span class="start">' + (lang === 'ko' ? '처음이면 이거' : 'Start here') + '</span>' : '') + '</div><div class="pt">' + esc(lang === 'ko' ? p[5] : p[6]) + '</div></div></div>'; }
+function shopCard(r) {
+  if (!BAR.SHOP) return '';
+  var ings = shopIngs(r), html = '', tips = [];
+  ings.forEach(function (i) {
+    var ps = BAR.SHOP[i]; if (BAR.SHOP_TIP[i]) tips.push(L(BAR.SHOP_TIP[i]));
+    if (ps) html += '<div class="sgrp"><div class="sg-h">' + esc(L(BAR.ING[i])) + '</div>' + ps.map(prodRow).join('') + '</div>';
+  });
+  if (!html && !tips.length) return '';
+  var inL = (S.shop || []).indexOf(r.id) >= 0;
+  return '<div class="shopc" id="shopc"><h3>🛒 ' + (lang === 'ko' ? '편의점에서 사기' : 'Shop it') + '</h3><p class="muted">' + (lang === 'ko' ? '집에서 만들고 싶다면 이렇게 사요.' : 'Want to make it at home? Here is what to buy.') + '</p>' + html +
+    tips.map(function (x) { return '<p class="stip">' + esc(x) + '</p>'; }).join('') +
+    '<div class="row wrap"><button class="btn small" id="shopAdd" data-r="' + r.id + '">' + (inL ? (lang === 'ko' ? '✓ 살 것 목록에 담김' : '✓ On shopping list') : (lang === 'ko' ? '＋ 살 것 목록에 담기' : '＋ Add to shopping list')) + '</button>' + cpLink() + '</div>' + cpNote() + '</div>';
+}
+function bindShop() {
+  var b = $('#shopAdd'); if (!b) return;
+  b.onclick = function () {
+    AUD.tap(); var id = b.getAttribute('data-r'); S.shop = S.shop || [];
+    var i = S.shop.indexOf(id); if (i >= 0) S.shop.splice(i, 1); else S.shop.push(id); save();
+    var on = i < 0; b.textContent = on ? (lang === 'ko' ? '✓ 살 것 목록에 담김' : '✓ On shopping list') : (lang === 'ko' ? '＋ 살 것 목록에 담기' : '＋ Add to shopping list');
+    toast(on ? (lang === 'ko' ? '🛒 살 것 목록에 담았어요 (홈에서 보기)' : '🛒 Added (see it from Home)') : (lang === 'ko' ? '목록에서 뺐어요' : 'Removed'));
+  };
+}
+function shopList() {
+  S.shop = (S.shop || []).filter(function (id) { return BAR.RMAP[id]; });
+  var need = {}, order = [], tips = [];
+  S.shop.forEach(function (id) { shopIngs(BAR.RMAP[id]).forEach(function (i) { if (!need[i]) { need[i] = []; order.push(i); } need[i].push(L(BAR.RMAP[id].n)); if (BAR.SHOP_TIP[i] && tips.indexOf(L(BAR.SHOP_TIP[i])) < 0) tips.push(L(BAR.SHOP_TIP[i])); }); });
+  var body = !S.shop.length ? '<div class="lcard"><p>' + (lang === 'ko' ? '아직 비어 있어요. 잔을 완성하거나 레시피 도감에서 ‘＋ 살 것 목록에 담기’를 눌러 보세요.' : 'Empty for now. Finish a drink or open the Recipe Dex and tap “＋ Add to shopping list”.') + '</p></div>' :
+    '<div class="lcard"><h3>' + (lang === 'ko' ? '담은 칵테일' : 'Saved drinks') + '</h3>' + S.shop.map(function (id) { return '<div class="srow"><span>' + esc(L(BAR.RMAP[id].n)) + '</span><button class="btn ghost small" data-rm="' + id + '">' + (lang === 'ko' ? '빼기' : 'Remove') + '</button></div>'; }).join('') + '</div>' +
+    '<div class="shopc"><h3>🛒 ' + (lang === 'ko' ? '살 것' : 'To buy') + '</h3>' + order.map(function (i) {
+      var ps = BAR.SHOP[i], pick = ps && (ps.filter(function (p) { return p[7]; })[0] || ps[0]);
+      return '<div class="sgrp"><div class="sg-h">☐ ' + esc(L(BAR.ING[i])) + ' <span class="for">· ' + esc(need[i].join(', ')) + '</span></div>' + (pick ? prodRow(pick) + (ps.length > 1 ? '<p class="alt">' + (lang === 'ko' ? '대신: ' : 'Or: ') + esc(ps.filter(function (p) { return p !== pick; }).map(function (p) { return lang === 'ko' ? p[0] : p[1]; }).join(' · ')) + '</p>' : '') : '') + '</div>';
+    }).join('') + tips.map(function (x) { return '<p class="stip">' + esc(x) + '</p>'; }).join('') + '<div class="row">' + cpLink() + '</div>' + cpNote() + '</div>';
+  view(head('🛒 ' + (lang === 'ko' ? '살 것 목록' : 'Shopping list')) + body);
+  bindBack(function () { go(home); });
+  [].forEach.call(document.querySelectorAll('[data-rm]'), function (b) { b.onclick = function () { AUD.tap(); var i = S.shop.indexOf(b.getAttribute('data-rm')); if (i >= 0) S.shop.splice(i, 1); save(); shopList(); }; });
 }
 
 /* ---------- QUIZ ENGINE ---------- */
@@ -1326,8 +1380,9 @@ function recDetail(rid) {
   var sibs = BAR.SIB.filter(function (s) { return s[0] === rid || s[1] === rid; });
   view(head(esc(L(r.n))) + '<div class="detail"><div class="dglass">' + glassIcon(r.s[0].g[0]) + '</div>' + specCardHTML(r) + '</div>' +
     stories.map(function (s) { return '<div class="lcard"><h3>' + (s.lg ? '<span class="lg">' + (lang === 'ko' ? '전설·논쟁' : 'legend / disputed') + '</span> ' : '') + esc(L(s.t)) + '</h3><p>' + esc(L(s.b)) + '</p></div>'; }).join('') +
-    (sibs.length ? '<div class="lcard"><h3>' + (lang === 'ko' ? '형제 칵테일' : 'Sibling drinks') + '</h3>' + sibs.map(function (s) { var o = s[0] === rid ? s[1] : s[0]; return '<p class="sib">' + (s[0] === rid ? '→ ' : '← ') + '<b>' + esc(L(BAR.RMAP[o].n)) + '</b>: ' + esc(lang === 'ko' ? s[2] : s[3]) + '</p>'; }).join('') + '</div>' : '') +
+    (sibs.length ? '<div class="lcard"><h3>' + (lang === 'ko' ? '형제 칵테일' : 'Sibling drinks') + '</h3>' + sibs.map(function (s) { var o = s[0] === rid ? s[1] : s[0]; return '<p class="sib">' + (s[0] === rid ? '→ ' : '← ') + '<b>' + esc(L(BAR.RMAP[o].n)) + '</b>: ' + esc(lang === 'ko' ? s[2] : s[3]) + '</p>'; }).join('') + '</div>' : '') + shopCard(r) +
     (unlocked() ? '<div class="row"><button class="btn" id="pg">' + t('guided') + '</button><button class="btn gold" id="pb">' + t('blind') + '</button></div>' : '<p class="hint">🎓 ' + (lang === 'ko' ? '연습은 배움 코스에서! 코스를 마치면 여기서도 바로 연습할 수 있어요.' : 'Practise in the course; after it, you can practise from here too.') + '</p>'));
+  bindShop();
   bindBack(function () { go(dex); });
   if ($('#pg')) { $('#pg').onclick = function () { startPractice(rid, 'guided'); }; $('#pb').onclick = function () { startPractice(rid, 'blind'); }; }
 }
