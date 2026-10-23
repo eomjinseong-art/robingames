@@ -114,11 +114,14 @@
 
   var audio = null;
   function sfx(ok) {
+    try { sfxRaw(ok); } catch (e) {}
+  }
+  function sfxRaw(ok) {
     if (muted) return;
     var A = window.AudioContext || window.webkitAudioContext;
     if (!A) return;
     if (!audio) audio = new A();
-    if (audio.state === 'suspended') audio.resume();
+    if (audio.state === 'suspended' && audio.resume) { var pr = audio.resume(); if (pr && pr.catch) pr.catch(function () {}); }
     var t = audio.currentTime;
     var o = audio.createOscillator();
     var g = audio.createGain();
@@ -463,7 +466,7 @@
   var OT = {
     ko: { tab: '🃏 승률 체크', title: '🃏 승률 체크', intro: '내 손패 2장을 고르면 무작위 상대들과 붙었을 때 이길 확률을 계산해요.',
       pick: '1. 카드 2장 고르기', clear: '지우기', rand: '🎲 랜덤', opp: '2. 상대 수', guess: '3. 먼저 맞혀 보기: 나라면?', see: '확률 보기',
-      needCards: '카드 2장을 먼저 골라 주세요.', needGuess: '폴드·콜·레이즈 중 하나를 먼저 골라 주세요.', calc: '계산 중…',
+      needCards: '카드 2장을 먼저 골라 주세요.', err: '계산하지 못했어요. 페이지를 새로고침한 뒤 다시 눌러 주세요.', ready: '준비됐어요! 확률 보기를 눌러 주세요.', needGuess: '폴드·콜·레이즈 중 하나를 먼저 골라 주세요.', calc: '계산 중…',
       fold: '폴드', call: '콜', raise: '레이즈', win: '이길 확률', tie: '비길 확률', eq: '내 몫(승률)', fair: '공평한 몫',
       tiers: ['프리미엄', '강함', '중간', '약함'], kinds: { pair: '페어', suited: '같은 무늬', offsuit: '다른 무늬' },
       rec: '추천', ok: '정답!', no: '아쉽', note: '자리(포지션)와 베팅 크기는 따지지 않은 단순 추천이에요.',
@@ -476,7 +479,7 @@
       } },
     en: { tab: '🃏 Hand Odds', title: '🃏 Hand Odds', intro: 'Pick your 2 hole cards to see how often they win against random opponents.',
       pick: '1. Pick 2 cards', clear: 'Clear', rand: '🎲 Random', opp: '2. Opponents', guess: '3. Guess first: what would you do?', see: 'Show odds',
-      needCards: 'Pick 2 cards first.', needGuess: 'Choose fold, call or raise first.', calc: 'Calculating…',
+      needCards: 'Pick 2 cards first.', err: 'Could not calculate. Please reload the page and try again.', ready: 'Ready! Tap Show odds.', needGuess: 'Choose fold, call or raise first.', calc: 'Calculating…',
       fold: 'Fold', call: 'Call', raise: 'Raise', win: 'Win', tie: 'Tie', eq: 'Your share (equity)', fair: 'Fair share',
       tiers: ['Premium', 'Strong', 'Medium', 'Weak'], kinds: { pair: 'pair', suited: 'suited', offsuit: 'offsuit' },
       rec: 'Suggested', ok: 'Correct!', no: 'Not quite', note: 'Simple advice: it ignores position and bet sizes.',
@@ -518,12 +521,13 @@
       ['fold', 'call', 'raise'].map(function (a) {
         var cls = 'act ' + a + (od.guess === a ? ' sel' : '');
         if (od.res) cls += od.res.rec.act === a ? ' good' : (od.guess === a ? ' bad' : '');
-        return '<button type="button" class="' + cls + '" data-act="od-guess" data-g="' + a + '"' + (od.res || od.running ? ' disabled' : '') + '>' + t[a] + '</button>';
+        return '<button type="button" class="' + cls + '" data-act="od-guess" data-g="' + a + '"' + (od.res ? ' disabled' : '') + '>' + t[a] + '</button>';
       }).join('') + '</div>';
     var ready = od.picked.length === 2 && od.guess && !od.running && !od.res;
     if (!od.res) {
       h += '<button type="button" class="go od-go" data-act="od-see"' + (ready ? '' : ' disabled') + '>' + (od.running ? t.calc + ' ' + Math.round(od.prog * 100) + '%' : t.see) + '</button>';
-      if (!od.running) h += '<p class="od-p od-muted">' + (od.picked.length < 2 ? t.needCards : !od.guess ? t.needGuess : '') + '</p>';
+      if (od.err) h += '<p class="od-p od-err" role="alert">' + t.err + '</p>';
+      if (!od.running) h += '<p class="od-p od-muted">' + (od.picked.length < 2 ? t.needCards : !od.guess ? t.needGuess : t.ready) + '</p>';
     } else {
       var r = od.res, info = r.info, tier = t.tiers[info.tier];
       var ok = r.rec.act === od.guess;
@@ -540,29 +544,46 @@
     }
     return h + '</div>';
   }
-  function odReset() { od.job++; od.running = false; od.res = null; od.guess = ''; od.prog = 0; }
+  function odReset() { od.err = ''; od.job++; od.running = false; od.res = null; od.err = ''; od.guess = ''; od.prog = 0; }
+  function odFail(job, msg) {
+    if (job !== od.job) return;
+    od.job++; od.running = false; od.err = msg; render(false);
+  }
   function odRun() {
-    var job = ++od.job, hole = od.picked.slice(), opp = od.opp;
-    var total = opp >= 5 ? 10000 : 16000, chunk = 1000, acc = { n: 0, win: 0, tie: 0, eq: 0 };
+    var job = ++od.job, hole = od.picked.slice(), opp = od.opp, guess = od.guess;
+    od.err = '';
+    if (!O || !O.simulate) { odFail(job, 'engine'); return; }
+    var total = opp >= 5 ? 10000 : 16000, chunk = 2000, acc = { n: 0, win: 0, tie: 0, eq: 0 };
     od.running = true; od.prog = 0; render(false);
+    var watchdog = setTimeout(function () { odFail(job, 'timeout'); }, 8000);
     function step() {
-      if (job !== od.job) return;
-      O.simulate(hole, opp, chunk, acc);
-      od.prog = acc.n / total;
-      if (acc.n < total) {
-        var b = document.querySelector('.od-go');
-        if (b) b.textContent = ot().calc + ' ' + Math.round(od.prog * 100) + '%';
-        setTimeout(step, 0);
+      if (job !== od.job) { clearTimeout(watchdog); return; }
+      try {
+        var t0 = Date.now();
+        do { O.simulate(hole, opp, chunk, acc); } while (acc.n < total && Date.now() - t0 < 40);
+        od.prog = acc.n / total;
+        if (acc.n < total) {
+          var b = document.querySelector('.od-go');
+          if (b) b.textContent = ot().calc + ' ' + Math.round(od.prog * 100) + '%';
+          setTimeout(step, 0);
+          return;
+        }
+        clearTimeout(watchdog);
+        var info = O.handInfo(hole[0], hole[1]);
+        var eq = acc.eq / acc.n;
+        var rec = O.recommend(eq, opp, info.tier);
+        od.res = { win: acc.win / acc.n, tie: acc.tie / acc.n, eq: eq, info: info, rec: rec, opp: opp, n: acc.n };
+        od.running = false;
+        var ok = rec.act === guess;
+        od.n++; if (ok) { od.correct++; od.streak++; if (od.streak > od.best) od.best = od.streak; } else od.streak = 0;
+        odSave();
+      } catch (e) {
+        clearTimeout(watchdog);
+        odFail(job, 'calc');
         return;
       }
-      var info = O.handInfo(hole[0], hole[1]);
-      var eq = acc.eq / acc.n;
-      var rec = O.recommend(eq, opp, info.tier);
-      od.res = { win: acc.win / acc.n, tie: acc.tie / acc.n, eq: eq, info: info, rec: rec, opp: opp, n: acc.n };
-      od.running = false;
-      var ok = rec.act === od.guess;
-      od.n++; if (ok) { od.correct++; od.streak++; if (od.streak > od.best) od.best = od.streak; } else od.streak = 0;
-      odSave(); sfx(ok); render(false);
+      sfx(ok);
+      render(false);
       var box = document.getElementById('result');
       if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -570,7 +591,7 @@
   }
   function oddsClick(act, el) {
     if (act === 'od-lang') { od.lang = od.lang === 'ko' ? 'en' : 'ko'; odSave(); render(false); return; }
-    if (od.running && act !== 'od-again') return;
+    if (od.running && act === 'od-see') return;
     if (act === 'od-card') {
       var c = Number(el.getAttribute('data-c')), k = od.picked.indexOf(c);
       if (k >= 0) od.picked.splice(k, 1);
@@ -583,7 +604,7 @@
       do { b = Math.floor(Math.random() * 52); } while (b === a);
       od.picked = [a, b]; odReset();
     } else if (act === 'od-opp') { od.opp = Number(el.getAttribute('data-n')); odSave(); odReset(); }
-    else if (act === 'od-guess') { if (!od.res) od.guess = el.getAttribute('data-g'); }
+    else if (act === 'od-guess') { if (!od.res) { od.job++; od.running = false; od.err = ''; od.guess = el.getAttribute('data-g'); } }
     else if (act === 'od-see') { if (od.picked.length === 2 && od.guess && !od.res) { odRun(); return; } }
     else if (act === 'od-again') { odReset(); od.picked = []; render(true); return; }
     render(false);
