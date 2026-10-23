@@ -259,6 +259,8 @@ ul.clean { margin: 8px 0 0; padding-left: 18px; }
 .od-opp { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
 .od-opp button { min-height: 46px; border: 1.5px solid #d9cbb8; background: #fff; border-radius: 10px; font-size: 18px; font-weight: 600; color: var(--ink); }
 .od-opp button.on { background: var(--felt); color: #fff; border-color: var(--felt); }
+.od-err { color: #9b1c14; background: #fde0dc; border-radius: 10px; padding: 8px 10px; font-weight: 500; }
+.od-opp, .od-opp button, .od-grid, .od-c, .acts .act, .od-go { position: relative; z-index: 1; pointer-events: auto; touch-action: manipulation; }
 .od-rec { font-size: 20px; margin: 4px 0; }
 .od-rec .tag { font-size: 24px; padding: 4px 16px; vertical-align: middle; }
 .od-tier { display: inline-block; border-radius: 999px; padding: 1px 10px; font-weight: 600; }
@@ -273,8 +275,8 @@ ul.clean { margin: 8px 0 0; padding-left: 18px; }
 </head>
 <body>
 <div class="app" id="app"></div>
-<script src="outs.js"></script>
-<script src="odds.js"></script>
-<script src="app.js"></script>
+<script src="outs.js?v=2"></script>
+<script src="odds.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
