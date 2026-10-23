@@ -17,7 +17,7 @@
     try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {}
   }
 
-  var mode = /[?#&]odds\b/.test(location.search + location.hash) ? 'odds' : 'quiz';
+  var mode = /[?#&]odds\b/.test(location.search + location.hash) ? 'odds' : /[?#&]start\b/.test(location.search + location.hash) ? 'start' : 'quiz';
   var stats = loadStats();
   var muted = false;
   try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (e) {}
@@ -610,15 +610,139 @@
     render(false);
   }
 
+  // ---------- Starting Hands mode ----------
+  var SE = window.StartEq || null;
+  var SH_KEY = 'nadoo_start_hands_v1';
+  var RCH = 'AKQJT98765432';
+  var sh = (function () {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem(SH_KEY) || 'null'); } catch (e) {}
+    s = s || {};
+    return { n: s.n || 0, correct: s.correct || 0, streak: s.streak || 0, best: s.best || 0, cell: -1, q: null, qPick: '' };
+  })();
+  function shSave() { try { localStorage.setItem(SH_KEY, JSON.stringify({ n: sh.n, correct: sh.correct, streak: sh.streak, best: sh.best })); } catch (e) {} }
+  var ST = {
+    ko: { tab: '🌟 좋은 시작 패', title: '🌟 좋은 시작 패', intro: '처음 받은 2장으로 판을 이어갈지 정하는 표예요. 상대 수를 바꾸면 색이 바뀌어요.',
+      opp: '상대 수', legend: ['레이즈', '콜', '폴드'],
+      fairT: '내 몫 = 1 ÷ (상대 + 1)',
+      fair: function (n, f) { return '상대가 ' + n + '명이면 공평한 몫은 ' + f + '%예요. 내 승률이 이보다 높으면 해 볼 만한 패예요. 예를 들어 상대 3명이면 25%, 승률 30% 이상은 대략 상대 2명(33%)일 때 기준과 비슷해요.'; },
+      gridT: '169가지 시작 패', gridH: '위쪽 오른편은 같은 무늬(s), 아래쪽 왼편은 다른 무늬(o), 대각선은 페어예요. T는 10이에요. 칸을 누르면 자세히 보여 줘요.',
+      rulesT: '쉬운 규칙', vs: function (n) { return '상대 ' + n + '명 기준 승률'; },
+      rules: [['같은 숫자 페어', '숫자가 같은 두 장. 높을수록 강해요.', ['AA', '77', '22']], ['A + 같은 무늬', 'A와 같은 무늬 카드. 플러쉬를 노릴 수 있어요.', ['AKs', 'A5s', 'A2s']], ['10 이상 두 장', '10·J·Q·K·A 중 두 장. 높은 짝이 잘 나와요.', ['AKo', 'KQo', 'JTo']], ['무늬 같은 연속 숫자', '9♥8♥ 처럼 이어지고 무늬도 같은 두 장. 스트레이트·플러쉬를 노려요.', ['JTs', '98s', '54s']], ['낮고 따로 노는 두 장', '7♣2♦ 처럼 낮고 멀고 무늬도 달라요. 대부분 버려요.', ['98o', '72o']]],
+      win: '승률(내 몫)', rec: '추천', toOdds: '승률 체크에서 확인', close: '닫기',
+      quizT: '미니 퀴즈', quizQ: function (n) { return '상대 ' + n + '명. 이 패로 해 볼까요?'; }, play: '할 만해', fold: '버려', ok: '정답!', no: '아쉽', next: '다음 문제',
+      ans: function (p) { return '정답은 ' + (p ? '할 만해' : '버려') + '예요.'; }, score: '점수', streak: '연속', best: '최고',
+      kinds: { pair: '페어', suited: '같은 무늬', offsuit: '다른 무늬' }, err: '데이터를 불러오지 못했어요. 새로고침해 주세요.', note: '자리와 베팅 크기는 따지지 않은 단순 기준이에요.' },
+    en: { tab: '🌟 Starting Hands', title: '🌟 Starting Hands', intro: 'A chart for deciding whether to play your first 2 cards. Change the opponent count to recolor it.',
+      opp: 'Opponents', legend: ['Raise', 'Call', 'Fold'],
+      fairT: 'Fair share = 1 ÷ (opponents + 1)',
+      fair: function (n, f) { return 'With ' + n + ' opponent' + (n > 1 ? 's' : '') + ' the fair share is ' + f + '%. A hand is worth playing when its equity is above that. For example, 3 opponents = 25%, and 30%+ is roughly the 2-opponent mark (33%).'; },
+      gridT: 'All 169 starting hands', gridH: 'Upper right is suited (s), lower left is offsuit (o), the diagonal is pairs. T means 10. Tap a cell for details.',
+      rulesT: 'Easy rules', vs: function (n) { return 'Equity vs ' + n + ' opponent' + (n > 1 ? 's' : ''); },
+      rules: [['Pairs', 'Two cards of the same rank. Higher is stronger.', ['AA', '77', '22']], ['Ace + same suit', 'An ace with a card of its suit can make a flush.', ['AKs', 'A5s', 'A2s']], ['Two cards 10 or higher', 'Two of 10, J, Q, K, A make strong pairs.', ['AKo', 'KQo', 'JTo']], ['Suited connectors', 'Like 9♥8♥: in a row and same suit, aiming at straights and flushes.', ['JTs', '98s', '54s']], ['Low, unconnected, offsuit', 'Like 7♣2♦: low, far apart, different suits. Usually fold.', ['98o', '72o']]],
+      win: 'Equity', rec: 'Suggested', toOdds: 'Check in Hand Odds', close: 'Close',
+      quizT: 'Mini quiz', quizQ: function (n) { return n + ' opponent' + (n > 1 ? 's' : '') + '. Play this hand?'; }, play: 'Play', fold: 'Fold', ok: 'Correct!', no: 'Not quite', next: 'Next question',
+      ans: function (p) { return 'The answer is ' + (p ? 'Play' : 'Fold') + '.'; }, score: 'Score', streak: 'Streak', best: 'Best',
+      kinds: { pair: 'pair', suited: 'suited', offsuit: 'offsuit' }, err: 'Could not load the data. Please reload.', note: 'Simple guide: it ignores position and bet sizes.' }
+  };
+  function stt() { return ST[od.lang]; }
+  function shLabel(i, j) { var a = RCH[Math.min(i, j)], b = RCH[Math.max(i, j)]; return i === j ? a + b : a + b + (j > i ? 's' : 'o'); }
+  function shNice(i, j) { var a = RCH[Math.min(i, j)], b = RCH[Math.max(i, j)]; return (a === 'T' ? '10' : a) + ' · ' + (b === 'T' ? '10' : b); }
+  function shIdx(code) { var a = RCH.indexOf(code[0]), b = RCH.indexOf(code[1]); if (a === b) return a * 14; return code[2] === 's' ? a * 13 + b : b * 13 + a; }
+  function shCards(idx, rnd) { // card ints (odds.js format: rank 0..12 low..high, suit 0..3)
+    var i = Math.floor(idx / 13), j = idx % 13, ri = 12 - i, rj = 12 - j;
+    var s1 = rnd ? Math.floor(Math.random() * 4) : 0, s2 = (s1 + 1 + (rnd ? Math.floor(Math.random() * 3) : 0)) % 4;
+    if (i === j) return [(ri << 2) | s1, (ri << 2) | s2];
+    if (j > i) return [(ri << 2) | s1, (rj << 2) | s1];
+    return [(rj << 2) | s1, (ri << 2) | s2];
+  }
+  function shEval(idx, n) {
+    var eq = SE[idx][n - 1] / 1000, c = shCards(idx, false), info = O.handInfo(c[0], c[1]);
+    return { eq: eq, info: info, rec: O.recommend(eq, n, info.tier) };
+  }
+  function shWhy(t, act, eq, fair) {
+    return od.lang === 'ko' ? OT.ko.why(act, eq, fair, OT.ko.tiers[0]).replace('프리미엄 손패라', '강한 손패라') : OT.en.why(act, eq, fair, 'strong');
+  }
+  function shNewQ() { var idx = Math.floor(Math.random() * 169); sh.q = { idx: idx, n: 1 + Math.floor(Math.random() * 6), cards: shCards(idx, true) }; sh.qPick = ''; }
+  function startView() {
+    var t = stt(), n = od.opp, i, j, h;
+    if (!SE || !O) return '<p class="od-p od-err" role="alert">' + t.err + '</p>';
+    var fair = Math.round(100 / (n + 1));
+    h = '<div class="odds">' +
+      '<div class="od-head"><h2>' + t.title + '</h2><button type="button" class="od-lang" data-act="od-lang">' + (od.lang === 'ko' ? 'EN' : '한국어') + '</button></div>' +
+      '<p class="od-p">' + t.intro + '</p><h3 class="od-h">' + t.opp + '</h3><div class="od-opp">';
+    for (i = 1; i <= 8; i++) h += '<button type="button" class="' + (n === i ? 'on' : '') + '" data-act="sh-opp" data-n="' + i + '">' + i + '</button>';
+    h += '</div><div class="sh-fair"><b>' + t.fairT + '</b><p class="od-p">' + t.fair(n, fair) + '</p></div>' +
+      '<h3 class="od-h">' + t.gridT + '</h3><p class="od-p od-muted">' + t.gridH + '</p>' +
+      '<div class="legend"><span><i class="sw raise"></i>' + t.legend[0] + '</span><span><i class="sw call"></i>' + t.legend[1] + '</span><span><i class="sw fold"></i>' + t.legend[2] + '</span></div>' +
+      '<div class="sh-wrap"><div class="sh-grid" id="sh-grid">';
+    for (i = 0; i < 13; i++) for (j = 0; j < 13; j++) {
+      var idx = i * 13 + j, e = shEval(idx, n);
+      h += '<button type="button" class="sh-cell ' + e.rec.act + (i === j ? ' pair' : '') + '" data-act="sh-cell" data-i="' + idx + '" aria-label="' + shLabel(i, j) + ' ' + (e.eq * 100).toFixed(1) + '%">' + shLabel(i, j) + '</button>';
+    }
+    h += '</div></div><p class="od-p od-muted">' + t.note + '</p><h3 class="od-h">' + t.rulesT + '</h3><p class="od-p od-muted">' + t.vs(n) + '</p>';
+    t.rules.forEach(function (r) {
+      h += '<div class="gcard sh-rule"><h2>' + r[0] + '</h2><p class="od-p">' + r[1] + '</p><div class="sh-nums">' + r[2].map(function (c) {
+        var e = shEval(shIdx(c), n);
+        return '<span class="sh-num ' + e.rec.act + '"><b>' + c + '</b> ' + (e.eq * 100).toFixed(1) + '%</span>';
+      }).join('') + '</div></div>';
+    });
+    if (!sh.q) shNewQ();
+    var q = sh.q, qe = shEval(q.idx, q.n), playable = qe.rec.act !== 'fold';
+    h += '<h3 class="od-h">' + t.quizT + '</h3><div class="od-score">' + t.score + ' <b>' + sh.correct + '/' + sh.n + '</b> · ' + t.streak + ' <b>' + sh.streak + '</b> · ' + t.best + ' <b>' + sh.best + '</b></div>' +
+      '<div class="table od-table" id="sh-quiz"><div class="cards">' + cardEl(oCard(q.cards[0])) + cardEl(oCard(q.cards[1])) + '</div><p class="sh-q">' + t.quizQ(q.n) + '</p></div><div class="acts two">' +
+      [['play', 'raise'], ['fold', 'fold']].map(function (p) {
+        var cls = 'act ' + p[1] + (sh.qPick === p[0] ? ' sel' : '');
+        if (sh.qPick) cls += ((p[0] === 'play') === playable) ? ' good' : (sh.qPick === p[0] ? ' bad' : '');
+        return '<button type="button" class="' + cls + '" data-act="sh-q" data-p="' + p[0] + '"' + (sh.qPick ? ' disabled' : '') + '>' + t[p[0]] + '</button>';
+      }).join('') + '</div>';
+    if (sh.qPick) {
+      var right = (sh.qPick === 'play') === playable;
+      h += '<div class="result" id="sh-qres"><div class="banner ' + (right ? 'ok' : 'no') + '">' + (right ? t.ok : t.no) + '</div><p class="od-p">' + t.ans(playable) + ' ' +
+        qe.info.code + ' · ' + t.win + ' ' + (qe.eq * 100).toFixed(1) + '% / ' + Math.round(100 / (q.n + 1)) + '%</p><p class="od-p">' + shWhy(t, qe.rec.act, qe.eq, 1 / (q.n + 1)) + '</p></div>' +
+        '<button type="button" class="next" data-act="sh-next">' + t.next + '</button>';
+    }
+    return h + '</div>';
+  }
+  function startSheet() {
+    if (mode !== 'start' || sh.cell < 0 || !SE) return '';
+    var t = stt(), n = od.opp, e = shEval(sh.cell, n), lab = shLabel(Math.floor(sh.cell / 13), sh.cell % 13) + ' (' + shNice(Math.floor(sh.cell / 13), sh.cell % 13) + ')', ot2 = ot();
+    return '<div class="sheet-back" data-act="sh-close"></div><div class="sheet" role="dialog" aria-modal="true" id="sh-sheet"><div class="sheet-h"><div class="grab"></div><div class="sheet-bar"><h2>' + lab + ' · ' + t.kinds[e.info.kind] + '</h2><button type="button" data-act="sh-close">' + t.close + '</button></div></div>' +
+      '<div class="sheet-body odds"><div class="potbox"><div><strong id="sh-eq">' + (e.eq * 100).toFixed(1) + '%</strong><span>' + t.win + '</span></div><div><strong>' + (100 / (n + 1)).toFixed(1) + '%</strong><span>' + ot2.fair + '</span></div></div>' +
+      '<div class="od-rec">' + t.rec + ': <b class="tag ' + e.rec.act + '">' + ot2[e.rec.act] + '</b></div><p class="od-p">' + ot2.why(e.rec.act, e.eq, e.rec.fair, ot2.tiers[e.info.tier]) + '</p>' +
+      '<p class="od-p od-muted">' + ot2.vs + ' ' + n + ot2.ppl + ' · ' + ot2.tiers[e.info.tier] + '</p>' +
+      '<button type="button" class="go" data-act="sh-odds">' + t.toOdds + '</button></div></div>';
+  }
+  function startClick(act, el) {
+    if (act === 'sh-opp') { od.opp = Number(el.getAttribute('data-n')); odSave(); odReset(); }
+    else if (act === 'sh-cell') sh.cell = Number(el.getAttribute('data-i'));
+    else if (act === 'sh-close') sh.cell = -1;
+    else if (act === 'sh-odds') {
+      var c = shCards(sh.cell, false); sh.cell = -1;
+      od.picked = c; odReset(); mode = 'odds'; render(true); return;
+    } else if (act === 'sh-q') {
+      if (sh.qPick || !sh.q) return;
+      sh.qPick = el.getAttribute('data-p');
+      var e = shEval(sh.q.idx, sh.q.n), right = (sh.qPick === 'play') === (e.rec.act !== 'fold');
+      sh.n++; if (right) { sh.correct++; sh.streak++; if (sh.streak > sh.best) sh.best = sh.streak; } else sh.streak = 0;
+      shSave(); sfx(right); render(false);
+      var box = document.getElementById('sh-qres'); if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    } else if (act === 'sh-next') { shNewQ(); }
+    render(false);
+  }
+
   function shell(body) {
-    var tabs = [['quiz', '아웃츠'], ['odds', OT[od.lang].tab], ['guide', '드로우 설명'], ['pot', '팟 오즈'], ['chart', '스타팅 핸드'], ['hand', '한 판'], ['cheat', '치트시트']].map(function (t) {
+    var tabs = [['quiz', '아웃츠'], ['odds', OT[od.lang].tab], ['start', ST[od.lang].tab], ['guide', '드로우 설명'], ['pot', '팟 오즈'], ['chart', '스타팅 핸드'], ['hand', '한 판'], ['cheat', '치트시트']].map(function (t) {
       return '<button type="button" class="' + (mode === t[0] ? 'on' : '') + '" data-act="mode" data-mode="' + t[0] + '">' + t[1] + '</button>';
     }).join('');
     var page = '<header class="top"><a href="/">홈</a><h1>포커 아웃츠 트레이너</h1><button type="button" data-act="mute" aria-label="소리">' + (muted ? '음소거' : '소리') + '</button></header>' +
       '<nav class="tabs">' + tabs + '</nav><p class="disclaimer">바둑돌로 세는 연습이에요. 실제 돈을 걸지 않아요.</p><main class="pad">' + body + '</main>' +
       '<footer class="foot">© 나두게임즈 · <a href="/guide/game.html?id=poker">포커 족보 가이드</a></footer>';
-    if (helpId) page = '<div inert>' + page + '</div>';
-    return page + helpSheet();
+    var ss = '';
+    try { ss = startSheet(); } catch (e) { ss = ''; }
+    if (helpId || ss) page = '<div inert>' + page + '</div>';
+    return page + helpSheet() + ss;
   }
 
   function view() {
@@ -628,6 +752,7 @@
     if (mode === 'chart') return chartViewHtml();
     if (mode === 'hand') return handView();
     if (mode === 'odds') return oddsView();
+    if (mode === 'start') { try { return startView(); } catch (e) { return '<p class="od-p od-err" role="alert">' + ST[od.lang].err + '</p>'; } }
     return cheatView();
   }
   var chartLeft = 0;
@@ -636,7 +761,7 @@
     if (wrap) chartLeft = wrap.scrollLeft;
     var y = scrollTop ? 0 : window.scrollY;
     app.innerHTML = shell(view());
-    document.body.style.overflow = helpId ? 'hidden' : '';
+    document.body.style.overflow = (helpId || (mode === 'start' && sh.cell >= 0)) ? 'hidden' : '';
     if (pendingScroll) {
       var node = document.getElementById(pendingScroll);
       pendingScroll = null;
@@ -682,8 +807,9 @@
     var el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
     var act = el.getAttribute('data-act');
+    if (act.indexOf('sh-') === 0) { try { startClick(act, el); } catch (err) { sh.cell = -1; render(false); } return; }
     if (act.indexOf('od-') === 0) { oddsClick(act, el); return; }
-    if (act === 'mode') { mode = el.getAttribute('data-mode'); helpId = null; hint = ''; render(true); return; }
+    if (act === 'mode') { sh.cell = -1; mode = el.getAttribute('data-mode'); helpId = null; hint = ''; render(true); return; }
     if (act === 'help') { helpId = el.getAttribute('data-type'); render(false); return; }
     if (act === 'close-help') { helpId = null; render(false); return; }
     if (act === 'goto-guide') {
@@ -762,6 +888,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && helpId) { helpId = null; render(false); }
+    else if (e.key === 'Escape' && sh.cell >= 0) { sh.cell = -1; render(false); }
   });
 
   render(true);
