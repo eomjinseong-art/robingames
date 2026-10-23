@@ -261,6 +261,21 @@ ul.clean { margin: 8px 0 0; padding-left: 18px; }
 .od-opp button.on { background: var(--felt); color: #fff; border-color: var(--felt); }
 .od-err { color: #9b1c14; background: #fde0dc; border-radius: 10px; padding: 8px 10px; font-weight: 500; }
 .od-opp, .od-opp button, .od-grid, .od-c, .acts .act, .od-go { position: relative; z-index: 1; pointer-events: auto; touch-action: manipulation; }
+.sh-fair { background: #f7f1e6; border-radius: 12px; padding: 10px 12px; margin: 10px 0; font-size: 17px; }
+.sh-fair b { font-size: 18px; }
+.sh-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 6px -4px; padding: 2px 4px 6px; }
+.sh-grid { display: grid; grid-template-columns: repeat(13, minmax(36px, 1fr)); gap: 2px; min-width: 500px; }
+.sh-cell { aspect-ratio: 1; border: 0; border-radius: 5px; padding: 0; font-size: 13px; font-weight: 700; line-height: 1; letter-spacing: -.03em; touch-action: manipulation; }
+.sh-cell.raise { background: #1f7a45; color: #fff; }
+.sh-cell.call { background: #f0c23a; color: #1c140e; }
+.sh-cell.fold { background: #e3ddd4; color: #3f3830; }
+.sh-cell.pair { box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+.legend { font-size: 16px; gap: 14px; }
+.sh-rule h2 { font-size: 18px; }
+.sh-nums { display: flex; flex-wrap: wrap; gap: 6px; }
+.sh-num { border-radius: 999px; padding: 3px 12px; font-size: 16px; }
+.sh-num.raise { background: #d9f5e3; } .sh-num.call { background: #ffe7a3; } .sh-num.fold { background: #efeae2; }
+.sh-q { text-align: center; font-size: 18px; margin: 10px 0 0; color: #fff; }
 .od-rec { font-size: 20px; margin: 4px 0; }
 .od-rec .tag { font-size: 24px; padding: 4px 16px; vertical-align: middle; }
 .od-tier { display: inline-block; border-radius: 999px; padding: 1px 10px; font-weight: 600; }
@@ -275,8 +290,9 @@ ul.clean { margin: 8px 0 0; padding-left: 18px; }
 </head>
 <body>
 <div class="app" id="app"></div>
-<script src="outs.js?v=2"></script>
-<script src="odds.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="outs.js?v=3"></script>
+<script src="odds.js?v=3"></script>
+<script src="starthands.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
