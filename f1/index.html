@@ -1,29 +1,189 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏎️</text></svg>">
-<title>나두 F1 피트월 / Nadoo F1 Pit Wall</title>
+<title>나두 F1 피트월 101 · Nadoo F1 Pit Wall | 왕초보 1분 입문 & 타이어·DRS 미니게임</title>
+<meta name="description" content="F1 자동차 경주를 전혀 몰라도 1분이면 이해되는 왕초보 가이드! 왜 타이어를 바꾸는지, 언더컷이 뭔지, 세이프티카와 DRS 부스터가 뭔지 미니게임과 함께 쉽고 재미있게 배워보세요.">
 <style>
-:root{--bg:#0b0d12;--pn:#151922;--ln:#2a3040;--tx:#e8ecf3;--mu:#9aa4b8;--red:#e10600;--grn:#21d07a;--pur:#b04cff;--yel:#ffd400}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:400 17px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}
-header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#10131a;border-bottom:3px solid var(--red)}
-header h1{font-size:22px;margin:0 auto 0 8px}a{color:#7cc4ff}
-button,.btn{font:inherit;background:#222837;color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px 14px;cursor:pointer;text-decoration:none}
-button:hover{border-color:#7cc4ff}main{max-width:980px;margin:0 auto;padding:14px}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.tabs .on{background:var(--red);border-color:var(--red)}
-.pn{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:14px;margin:10px 0}
-.goal{border-left:4px solid var(--grn);padding:6px 10px;background:#0f1a14;border-radius:6px}
-.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}.opts button{text-align:left}
-.glow{box-shadow:0 0 0 3px var(--grn),0 0 18px var(--grn);animation:pl 1.2s infinite}@keyframes pl{50%{box-shadow:0 0 0 3px var(--grn),0 0 4px var(--grn)}}
-.ok{color:var(--grn)}.bad{color:#ff6b6b}.fb{margin-top:10px;padding:10px;border-radius:8px;background:#0e1118}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
-.wall{display:grid;grid-template-columns:1fr 300px;gap:10px}@media(max-width:760px){.wall{grid-template-columns:1fr}}
-.tower{font-family:ui-monospace,monospace;font-size:16px}.tower div{display:flex;gap:8px;padding:4px 8px;border-bottom:1px solid var(--ln);transition:all .5s}
-.tower .me{background:#2a1416}.tb{display:inline-block;width:22px;text-align:center;border-radius:50%;border:2px solid}
-details{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px 12px;margin:6px 0}summary{cursor:pointer}
-footer{text-align:center;color:var(--mu);padding:20px}
-</style></head><body>
-<header><a class="btn" href="/">🏠 홈</a><h1 id="title">🏎️ 나두 F1 피트월</h1>
-<button id="openAll">⚙️ 전체 열기</button><button id="lang">EN/KO</button><button id="mute">🔊</button></header>
+:root {
+  --bg: #0b0d13;
+  --pn: #151924;
+  --card: #1b2130;
+  --ln: #2d3548;
+  --tx: #f1f5f9;
+  --mu: #cbd5e1;
+  --red: #e10600;
+  --grn: #22c55e;
+  --gold: #facc15;
+  --blue: #38bdf8;
+  --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0;
+  background: radial-gradient(circle at 50% 0%, #1e1b2e 0%, var(--bg) 70%);
+  color: var(--tx);
+  font: 400 17px/1.55 var(--sans);
+  min-height: 100vh;
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(16, 19, 26, 0.96);
+  border-bottom: 3px solid var(--red);
+  backdrop-filter: blur(8px);
+}
+header h1 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0 auto 0 6px;
+  color: #fff;
+}
+a { color: #7cc4ff; }
+button, .btn {
+  font: 600 16px/1.3 var(--sans);
+  background: #222837;
+  color: var(--tx);
+  border: 1.5px solid var(--ln);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.08s, border-color 0.15s;
+}
+button:hover, .btn:hover { border-color: var(--blue); }
+button:active, .btn:active { transform: scale(0.98); }
+.btn-gold {
+  background: linear-gradient(180deg, #fde047, #eab308);
+  color: #0f172a;
+  border-color: #fef08a;
+  font-weight: 700;
+}
+.btn-grn {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  color: #052e16;
+  border-color: #86efac;
+  font-weight: 700;
+}
+.btn-red {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+  color: #fff;
+  border-color: #fca5a5;
+  font-weight: 700;
+}
+main { max-width: 960px; margin: 0 auto; padding: 14px 14px 70px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tabs .on { background: var(--red); border-color: #ff6b6b; color: #fff; font-weight: 700; }
+.pn {
+  background: var(--pn);
+  border: 1.5px solid var(--ln);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 10px 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.easy-rule-box {
+  background: rgba(250, 204, 21, 0.12);
+  border: 1.5px solid rgba(250, 204, 21, 0.48);
+  border-radius: 12px;
+  padding: 11px 14px;
+  margin: 8px 0;
+}
+.easy-rule-box .er-label { font-weight: 700; font-size: 15px; color: var(--gold); margin-bottom: 3px; }
+.easy-rule-box .er-text { font-weight: 400; font-size: 16.5px; color: #fff; line-height: 1.5; }
+.goal {
+  border-left: 4px solid var(--grn);
+  padding: 8px 12px;
+  background: rgba(34, 197, 94, 0.12);
+  border-radius: 8px;
+  margin: 8px 0;
+}
+.opts { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.opts button {
+  text-align: left;
+  justify-content: flex-start;
+  padding: 13px 15px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.glow {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.35), 0 0 18px rgba(250, 204, 21, 0.45);
+}
+.ok { color: var(--grn); font-weight: 700; }
+.bad { color: #ff8787; }
+.fb {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #0e121b;
+  border-left: 4px solid var(--gold);
+  line-height: 1.55;
+}
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
+.wall { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 12px; }
+@media (max-width: 780px) { .wall { grid-template-columns: 1fr; } }
+.tower { font-family: ui-monospace, monospace; font-size: 15.5px; margin-top: 8px; }
+.tower div { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--ln); }
+.tower .me { background: rgba(225, 6, 0, 0.24); border-radius: 6px; font-weight: 700; }
+.tb { display: inline-block; width: 24px; height: 24px; line-height: 20px; text-align: center; border-radius: 50%; border: 2px solid; font-weight: 700; font-size: 13px; }
+.wheel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+.wheel-btn {
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 2px solid var(--gold);
+  background: #1e293b;
+}
+.wheel-btn.done {
+  border-color: var(--grn);
+  background: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+details {
+  background: var(--pn);
+  border: 1.5px solid var(--ln);
+  border-radius: 12px;
+  padding: 11px 14px;
+  margin: 6px 0;
+}
+summary { cursor: pointer; font-weight: 700; color: var(--gold); font-size: 17px; }
+details p { margin: 8px 0 0; font-weight: 400; color: var(--tx); line-height: 1.55; }
+footer { text-align: center; color: var(--mu); padding: 22px 10px; font-size: 15px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="btn" href="/">🏠 홈</a>
+  <h1 id="title">🏎️ 나두 F1 피트월 101</h1>
+  <button id="openAll">⚙️ 전체 열기</button>
+  <button id="lang">EN</button>
+  <button id="mute">🔊</button>
+</header>
 <main id="app"></main>
 <footer>© 나두게임즈 Nadoo Games · Developed by 나두Ai</footer>
-<script src="data.js"></script><script src="audio.js"></script><script src="app.js"></script>
-<script src="/counter.js" defer></script></body></html>
+<script src="data.js"></script>
+<script src="audio.js"></script>
+<script src="app.js"></script>
+<script src="/counter.js" defer></script>
+</body>
+</html>
