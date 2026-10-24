@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b2416">
-<title>나두 터치다운 · Nadoo Touchdown 101 | 미식축구 규칙 & 실전 플레이</title>
-<meta name="description" content="미식축구 규칙(4다운 10야드, 런 vs 패스, 펀트·필드골, 터치다운 6+1/2점, 2분 드릴)을 따라 하기와 실전 액션으로 배우는 나두 터치다운 101">
+<title>나두 터치다운 · Nadoo Touchdown 101 | 미식축구 왕초보 1분 입문 & 실전 플레이</title>
+<meta name="description" content="미식축구를 전혀 몰라도 1분이면 이해되는 왕초보 입문 가이드! 4번 안에 10야드 땅따먹기, 달리기 vs 패스, 왜 4번째에 공을 차는지, 6+1/2점 계산법을 쉽고 재미있게 배워보세요.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E🏈%3C/text%3E%3C/svg%3E">
 <style>
 :root {
   --bg: #081c11;
   --turf1: #114227;
   --turf2: #0e3820;
-  --panel: rgba(10, 29, 19, 0.94);
+  --panel: rgba(10, 29, 19, 0.95);
   --card: #123120;
-  --line: rgba(255, 214, 74, 0.34);
+  --line: rgba(255, 214, 74, 0.36);
   --gold: #ffd54a;
   --blue: #38b6ff;
   --red: #ff5e57;
   --ok: #55e68c;
   --text: #f5faf7;
-  --mute: #cfe3d6;
+  --mute: #d9ece0;
   --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -66,7 +66,7 @@ main#app {
   border: 2px solid var(--line);
   background: linear-gradient(180deg, #1b4930, #102e1d);
   color: var(--text);
-  font: 600 17px/1.25 var(--sans);
+  font: 600 17px/1.3 var(--sans);
   padding: 12px 16px;
   border-radius: 14px;
   cursor: pointer;
@@ -108,6 +108,25 @@ main#app {
   padding: 16px;
   margin-bottom: 14px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.easy-rule-box {
+  background: rgba(255, 213, 74, 0.12);
+  border: 1.5px solid rgba(255, 213, 74, 0.48);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.easy-rule-box .er-label {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+.easy-rule-box .er-text {
+  font-weight: 400;
+  font-size: 16.5px;
+  color: #fff;
+  line-height: 1.5;
 }
 .goal-bar {
   background: linear-gradient(90deg, rgba(255,213,74,0.18), rgba(56,182,255,0.15));
@@ -157,7 +176,7 @@ main#app {
 canvas#fieldCanvas {
   display: block;
   width: 100%;
-  height: 350px;
+  height: 340px;
   touch-action: manipulation;
 }
 .coach-box {
@@ -178,7 +197,7 @@ canvas#fieldCanvas {
 }
 .play-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
   margin-top: 8px;
 }
@@ -186,7 +205,7 @@ canvas#fieldCanvas {
   text-align: left;
   flex-direction: column;
   align-items: flex-start;
-  padding: 12px 14px;
+  padding: 13px 15px;
   position: relative;
 }
 .play-btn.recommend {
@@ -194,7 +213,9 @@ canvas#fieldCanvas {
   box-shadow: 0 0 0 3px rgba(255, 213, 74, 0.32);
 }
 .play-btn .p-title { font-weight: 700; font-size: 17px; color: var(--gold); }
-.play-btn .p-desc { font-weight: 400; font-size: 16px; color: var(--mute); margin-top: 4px; line-height: 1.4; }
+.play-btn.primary .p-title { color: #102418; }
+.play-btn .p-desc { font-weight: 400; font-size: 16px; color: var(--mute); margin-top: 4px; line-height: 1.45; }
+.play-btn.primary .p-desc { color: #1b3826; }
 .badge-guide {
   display: inline-block;
   background: var(--gold);
@@ -217,7 +238,7 @@ canvas#fieldCanvas {
   padding: 14px;
 }
 .stage-card h3 { margin: 0 0 4px; font-size: 19px; color: var(--gold); }
-.stage-card p { margin: 0; font-size: 16px; color: var(--mute); font-weight: 400; line-height: 1.45; }
+.stage-card p { margin: 0; font-size: 16px; color: var(--mute); font-weight: 400; line-height: 1.48; }
 .decoder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
