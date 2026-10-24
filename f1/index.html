@@ -1,0 +1,28 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>나두 F1 피트월 / Nadoo F1 Pit Wall</title>
+<style>
+:root{--bg:#0b0d12;--pn:#151922;--ln:#2a3040;--tx:#e8ecf3;--mu:#9aa4b8;--red:#e10600;--grn:#21d07a;--pur:#b04cff;--yel:#ffd400}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:400 17px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#10131a;border-bottom:3px solid var(--red)}
+header h1{font-size:22px;margin:0 auto 0 8px}a{color:#7cc4ff}
+button,.btn{font:inherit;background:#222837;color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px 14px;cursor:pointer;text-decoration:none}
+button:hover{border-color:#7cc4ff}main{max-width:980px;margin:0 auto;padding:14px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.tabs .on{background:var(--red);border-color:var(--red)}
+.pn{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:14px;margin:10px 0}
+.goal{border-left:4px solid var(--grn);padding:6px 10px;background:#0f1a14;border-radius:6px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}.opts button{text-align:left}
+.glow{box-shadow:0 0 0 3px var(--grn),0 0 18px var(--grn);animation:pl 1.2s infinite}@keyframes pl{50%{box-shadow:0 0 0 3px var(--grn),0 0 4px var(--grn)}}
+.ok{color:var(--grn)}.bad{color:#ff6b6b}.fb{margin-top:10px;padding:10px;border-radius:8px;background:#0e1118}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.wall{display:grid;grid-template-columns:1fr 300px;gap:10px}@media(max-width:760px){.wall{grid-template-columns:1fr}}
+.tower{font-family:ui-monospace,monospace;font-size:16px}.tower div{display:flex;gap:8px;padding:4px 8px;border-bottom:1px solid var(--ln);transition:all .5s}
+.tower .me{background:#2a1416}.tb{display:inline-block;width:22px;text-align:center;border-radius:50%;border:2px solid}
+details{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px 12px;margin:6px 0}summary{cursor:pointer}
+footer{text-align:center;color:var(--mu);padding:20px}
+</style></head><body>
+<header><a class="btn" href="/">🏠 홈</a><h1 id="title">🏎️ 나두 F1 피트월</h1>
+<button id="openAll">⚙️ 전체 열기</button><button id="lang">EN/KO</button><button id="mute">🔊</button></header>
+<main id="app"></main>
+<footer>© 나두게임즈 Nadoo Games · Developed by 나두Ai</footer>
+<script src="data.js"></script><script src="audio.js"></script><script src="app.js"></script>
+<script src="/counter.js" defer></script></body></html>
