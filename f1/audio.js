@@ -135,6 +135,8 @@
     init: init, startBgm: startBgm, stopBgm: stopBgm,
     toggleMute: toggleMute, isMuted: isMuted, setMuted: setMuted,
     radioBeep: radioBeep, pitGun: pitGun, drsOpen: drsOpen,
-    passWhoosh: passWhoosh, okChime: okChime, badBuzz: badBuzz, fanfare: fanfare
+    passWhoosh: passWhoosh, okChime: okChime, badBuzz: badBuzz, fanfare: fanfare,
+    click: function () { try { startBgm(); tone(660, 0.05, 'triangle', 0.14, sfx); } catch (e) {} },
+    ok: okChime, bad: badBuzz, drs: drsOpen, Alert: radioBeep, toggle: toggleMute
   };
 })(window);
