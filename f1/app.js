@@ -3,8 +3,10 @@
   const K = "nadoo_f1_v2";
   let S = Object.assign(
     { lang: 0, unlocked: 1, st: 0, step: 0, done: {}, qIdx: 0, qScore: 0, primerIdx: 0, stageIntroDone: {}, mgMode: "pit" },
-    JSON.parse(localStorage.getItem(K) || "{}")
+    (() => { try { return JSON.parse(localStorage.getItem(K) || "{}") || {}; } catch (e) { return {}; } })()
   );
+  if (S.st !== "primer" && S.st !== "minigame" && S.st !== "quiz" && S.st !== "rules" && !(Number.isInteger(S.st) && S.st >= 0 && S.st < D.stages.length)) S.st = 0;
+  if (Number.isInteger(S.st) && !(Number.isInteger(S.step) && S.step >= 0 && S.step < 50)) S.step = 0;
   if (!S.stageIntroDone) S.stageIntroDone = {};
   const save = () => localStorage.setItem(K, JSON.stringify(S));
   const L = (x) => (Array.isArray(x) ? x[S.lang] : x);
@@ -489,7 +491,10 @@
     });
   }
 
+  let started = false;
+  document.addEventListener("click", () => { started = true; }, true);
   setInterval(() => {
+    if (!started) return;
     pos = (pos + (scOn ? 2 : 6)) % 360;
     const rad = (pos * Math.PI) / 180;
     const m = $("myDot"), r = $("rivalDot");
