@@ -5,6 +5,9 @@
   var app = document.getElementById('app'), allOpen = localStorage.getItem('hk_all') === '1';
   var done = JSON.parse(localStorage.getItem('hk_done') || '{}');
   var primerIdx = 0;
+  var ivAnim = 0;
+  function stopAll() { if (ivAnim) { clearInterval(ivAnim); ivAnim = 0; } if (G && G.tmr) { clearInterval(G.tmr); G.tmr = 0; } }
+  function saveP(n) { done[n] = 1; localStorage.setItem('hk_done', JSON.stringify(done)); }
 
   function t(o) { return o && typeof o === 'object' ? (o[L] || o.ko) : o; }
   function k(ko, en) { return L === 'ko' ? ko : en; }
@@ -600,7 +603,7 @@
 
     app.innerHTML =
       '<div class="stage-hdr"><div><span class="badge">' + t(G.meta.sub) + ' · ' + stepLabel + '</span><h2 style="margin-top:4px">' + t(G.meta.title) + '</h2></div>' +
-      '<div style="text-align:right"><div class="hearts">' + h + '</div><button class="btn sm ghost" onclick="location.hash=\'#\'">' + t(D.ui.back) + '</button></div></div>' +
+      '<div style="text-align:right"><div class="hearts">' + h + '</div><button class="btn small" onclick="location.hash=\'#\'">' + k('⬅ 목록으로', '⬅ Back') + '</button></div></div>' +
       (G.meta.easyRule ? '<div class="easy-rule-box"><div class="er-label">' + t({ ko: '💡 5초 한줄 핵심 규칙', en: '💡 5-Second Key Rule' }) + '</div><div class="er-text">' + t(G.meta.easyRule) + '</div></div>' : '') +
       '<div class="scorebug"><div class="sb-top"><div class="sb-teams"><span class="sb-team">🔵 ' + t({ ko: '우리 팀', en: 'HOME' }) + ' <span class="sb-score">' + S.score[0] + '</span></span>' +
       '<span style="color:var(--muted)">:</span><span class="sb-team"><span class="sb-score">' + S.score[1] + '</span> ' + t({ ko: '상대 팀', en: 'AWAY' }) + ' 🔴</span></div>' +
@@ -615,21 +618,21 @@
     if (G.done) {
       var won = G.done > 0;
       if (won) { saveP(G.n, G.hearts); sfx('td'); }
-      ca.innerHTML = '<div class="result-banner"><div style="font-size:38px">' + (won ? '🏆' : '💪') + '</div>' +
-        '<h2>' + t(won ? D.ui.stageClear : D.ui.tryAgain) + '</h2>' +
+      ca.innerHTML = '<div class="card-box" style="text-align:center"><div style="font-size:38px">' + (won ? '🏆' : '💪') + '</div>' +
+        '<h2>' + (won ? k('🎉 단계 클리어!', '🎉 Stage Clear!') : k('다시 도전해요!', 'Try Again!')) + '</h2>' +
         '<p style="margin:8px 0">' + t(G.msg || G.meta.why) + '</p>' +
         '<div style="background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.35);border-radius:10px;padding:12px;margin:10px 0;text-align:left">' +
         '<b style="color:var(--gold)">💡 ' + t({ ko: '이번 단계 핵심 정리', en: 'Key Takeaway' }) + '</b><p style="margin-top:4px">' + t(G.meta.why) + '</p></div>' +
         '<div class="btn-row" style="justify-content:center">' +
-        '<button class="btn" onclick="HK.retry()">' + t(D.ui.retry) + '</button>' +
-        (won && G.n < 5 ? '<a class="btn primary" href="#s' + (G.n + 1) + '">' + t(D.ui.nextStage) + '</a>' : '<a class="btn primary" href="#">' + t(D.ui.back) + '</a>') +
+        '<button class="btn" onclick="HK.retry()">' + k('🔄 다시 하기', '🔄 Retry') + '</button>' +
+        (won && G.n < 5 ? '<a class="btn primary" href="#s' + (G.n + 1) + '">' + k('다음 단계 ▶', 'Next Stage ▶') + '</a>' : '<a class="btn primary" href="#">' + k('⬅ 목록으로', '⬅ Back') + '</a>') +
         '</div></div>';
       return;
     }
 
     if (st && st.tut) {
       ca.innerHTML =
-        '<div class="card" style="border:2px solid var(--gold);background:linear-gradient(180deg,#13284c,#0e1f38)">' +
+        '<div class="card-box" style="border:2px solid var(--gold);background:linear-gradient(180deg,#13284c,#0e1f38)">' +
         '<span class="badge" style="background:rgba(250,204,21,.2);color:var(--gold)">' + t({ ko: '📘 시작 전 30초 핵심 튜토리얼', en: '📘 30-Second Stage Tutorial' }) + '</span>' +
         '<h3 style="margin-top:8px;color:#fff;font-size:19px">' + t(G.meta.title) + ' — ' + t(G.meta.goal) + '</h3>' +
         '<div style="margin-top:10px;display:grid;gap:8px">' +
@@ -640,7 +643,7 @@
         '<div style="background:rgba(15,23,42,.75);border-left:4px solid var(--green);padding:10px 12px;border-radius:8px">' +
         '<b style="color:var(--green)">🎮 ' + t({ ko: '어떻게 플레이하나요?', en: 'How do I play?' }) + '</b><p style="margin-top:4px;color:#f8fafc">' + t(G.meta.tutHow || G.meta.goal) + '</p></div>' +
         '</div>' +
-        '<button class="btn gold" style="width:100%;justify-content:center;margin-top:12px;font-size:16px;padding:13px" onclick="HK.startStageSteps()">' +
+        '<button class="btn primary wide" style="margin-top:12px;font-size:16px;padding:13px" onclick="HK.startStageSteps()">' +
         t({ ko: '✅ 이해했어! 따라 하기로 직접 해보기 ▶', en: '✅ Got It! Start Guided Play ▶' }) + '</button>' +
         '</div>';
       return;
@@ -650,13 +653,13 @@
       ? '<span class="badge" style="background:rgba(250,204,21,.22);color:var(--gold);margin-bottom:4px">✨ ' + t({ ko: '따라 하기 (눈으로 먼저 보기)', en: 'Guided Demo' }) + '</span>'
       : '';
 
-    ca.innerHTML = '<div class="coach"><div class="coach-av">🐻</div><div class="coach-body">' + stepBadge +
-      '<div class="name">' + t(D.ui.coach) + '</div><p>' + t(G.msg || st.say) + '</p>' +
+    ca.innerHTML = '<div class="coach-box"><div class="coach-body">' + stepBadge +
+      '<div class="coach-title">🐻 ' + k('곰 코치', 'Coach Bear') + '</div><p>' + t(G.msg || st.say) + '</p>' +
       (st.hint ? '<div style="margin-top:6px;padding:7px 10px;background:rgba(56,189,248,.12);border-radius:8px;color:#bae6fd;font-size:15px">💡 <b>' + t({ ko: '힌트', en: 'Hint' }) + ':</b> ' + t(st.hint) + '</div>' : '') +
       '</div></div>';
 
     if (G.reboundPend) {
-      ct.innerHTML = '<button class="btn gold" style="width:100%;justify-content:center;font-size:17px;padding:15px" onclick="HK.scoreRebound()">' +
+      ct.innerHTML = '<button class="btn primary wide" style="font-size:17px;padding:15px" onclick="HK.scoreRebound()">' +
         t({ ko: '🔥 리바운드 찬스! 튕겨 나온 공을 한 번 더 눌러 골문 안으로 밀어 넣기! 🥅', en: '🔥 REBOUND CHANCE! Tap once more to slam the loose puck into the net! 🥅' }) + '</button>';
       return;
     }
@@ -664,7 +667,7 @@
     if (st.opts) {
       var gridClass = st.opts.length === 1 ? 'play-grid single-col' : 'play-grid';
       ct.innerHTML = '<div class="' + gridClass + '">' + st.opts.map(function (o, idx) {
-        var cls = 'play-btn' + (o.rec ? ' rec' : '') + (st.guide ? ' guide-glow' : '');
+        var cls = 'play-btn' + (o.rec ? ' recommend primary' : '') + (st.guide ? ' guide-glow' : '');
         return '<button class="' + cls + '" onclick="HK.choose(' + idx + ')"><div class="p-title">' + t(o.l) + '</div><div class="p-desc">' + t(o.d) + '</div></button>';
       }).join('') + '</div>';
     } else if (st.tap) {
@@ -673,7 +676,7 @@
         : t({ ko: '👇 얼음판 위 초록색 동료를 탭하거나 아래 패스 버튼을 누르세요!', en: '👇 Tap the green teammate on the ice OR click a pass button below!' });
       ct.innerHTML = '<div style="margin-bottom:6px;font-size:15px;color:var(--gold);font-weight:700">' + instruction + '</div>' +
         '<div class="play-grid">' + st.tap.map(function (tp, idx) {
-          var isGood = tp.ok ? ' rec' : '';
+          var isGood = tp.ok ? ' recommend primary' : '';
           return '<button class="play-btn' + isGood + '" onclick="HK.tapChoice(' + idx + ')">' +
             '<div class="p-title">' + t(tp.n) + '</div>' +
             (tp.d ? '<div class="p-desc">' + t(tp.d) + '</div>' : '') +
@@ -695,14 +698,15 @@
     var ty = typeof toY === 'number' ? toY : fy;
     var f = 0;
     G.anim = 1;
-    var iv = setInterval(function () {
+    if (ivAnim) clearInterval(ivAnim);
+    var iv = ivAnim = setInterval(function () {
       f++;
       var p = f / 14;
       S.px = fx + (tx - fx) * p;
       S.py = fy + (ty - fy) * p;
       paint();
       if (f >= 14) {
-        clearInterval(iv);
+        clearInterval(iv); if (ivAnim === iv) ivAnim = 0;
         S.px = tx;
         S.py = ty;
         G.anim = 0;
@@ -1018,7 +1022,7 @@
     retry: function () { stage(G.n); },
     primerNext: function (d) {
       sfx('click');
-      primerIdx = Math.max(0, Math.min(D.primer.slides.length - 1, primerIdx + d));
+      primerIdx = Math.max(0, Math.min(D.primer.length - 1, primerIdx + d));
       if (location.hash === '#primer') primerView(); else home();
     },
     primerGo: function (i) {
