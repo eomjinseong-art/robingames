@@ -277,6 +277,30 @@ footer.foot {
   color: var(--mute);
   font-size: 16px;
 }
+.tm-note { font-size: 16px; color: var(--mute); font-weight: 400; line-height: 1.5; margin: 6px 0; }
+.tm-conf { color: var(--gold); font-size: 20px; margin: 14px 0 6px; }
+.tm-divgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.tm-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; font-size: 16px; }
+.tm-table caption { text-align: left; font-weight: 700; color: #9ad8ff; padding: 4px 2px; }
+.tm-table th, .tm-table td { padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: center; font-weight: 400; line-height: 1.5; }
+.tm-table th { color: var(--gold); font-weight: 700; }
+.tm-table td:first-child, .tm-table th:first-child { text-align: left; }
+.tm-table a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.tm-divh { color: var(--gold); margin: 18px 0 8px; font-size: 19px; }
+.tm-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.tm-card { background: var(--card); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; scroll-margin-top: 80px; }
+.tm-head { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 14px; cursor: pointer; font: 400 17px/1.5 var(--sans); color: var(--text); }
+.tm-head:focus-visible { outline: 3px solid var(--gold); }
+.tm-name { font-weight: 700; font-size: 18px; color: var(--gold); }
+.tm-sub { font-weight: 400; font-size: 16px; color: var(--mute); }
+.tm-rec { font-weight: 700; font-size: 18px; color: #fff; }
+.tm-city, .tm-trait { font-size: 16.5px; font-weight: 400; }
+.tm-more { color: #9ad8ff; font-weight: 500; font-size: 16px; margin-top: 4px; }
+.tm-players { padding: 0 14px 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+.tm-player { padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.15); }
+.tm-pname { font-weight: 700; font-size: 17px; color: #fff; }
+.tm-pos { color: #8ce99a; font-size: 16px; font-weight: 500; line-height: 1.5; }
+.tm-feat { font-size: 16.5px; font-weight: 400; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -289,8 +313,9 @@ footer.foot {
 <main id="app"></main>
 <footer class="foot">© 나두게임즈 Nadoo Games · Developed by 나두Ai</footer>
 <script src="/football/data.js?v=2"></script>
+<script src="/football/teams.js?v=1"></script>
 <script src="/football/audio.js?v=2"></script>
-<script src="/football/app.js?v=2"></script>
+<script src="/football/app.js?v=3"></script>
 <script src="/counter.js" defer></script>
 </body>
 </html>

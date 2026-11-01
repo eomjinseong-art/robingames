@@ -1,7 +1,7 @@
 /* Nadoo Touchdown 101 — Easy, Beginner-Friendly & Fun App */
 'use strict';
 (function () {
-  var D = FB_DATA, A = window.FB_AUDIO, L = localStorage.getItem('fb_lang') || 'ko';
+  var D = FB_DATA, A = window.FB_AUDIO, L = localStorage.getItem('fb_lang') || (/^ko/i.test(navigator.language || '') ? 'ko' : 'en');
   var app = document.getElementById('app'), allOpen = localStorage.getItem('fb_all') !== '0';
   var done = JSON.parse(localStorage.getItem('fb_done') || '{}');
   var primerIdx = 0;
@@ -32,6 +32,7 @@
     else if (h === 'bug') bug();
     else if (h === 'dex') dex();
     else if (h === 'quiz') quiz(0);
+    else if (h === 'teams') teamsView();
     else home();
     window.scrollTo(0, 0);
   }
@@ -86,9 +87,59 @@
     h += '</div><div class="decoder-grid">' +
       '<button class="btn blue" onclick="location.hash=\'bug\'">📺 ' + k('TV 중계 전광판 해독기', 'TV Scoreboard Guide') + '</button>' +
       '<button class="btn" onclick="location.hash=\'dex\'">📖 ' + k('포지션 & 규칙 쉬운 사전', 'Easy Rules Guide') + '</button>' +
-      '<button class="btn ok" onclick="location.hash=\'quiz\'">⚡ ' + k('왕초보 탈출 퀴즈 5문제', '5-Question Quiz') + '</button></div>';
+      '<button class="btn ok" onclick="location.hash=\'quiz\'">⚡ ' + k('왕초보 탈출 퀴즈 5문제', '5-Question Quiz') + '</button>' +
+      '<button class="btn primary" id="teamsBtn" onclick="location.hash=\'teams\'">🏟️ ' + k('팀·선수 도감', 'Teams & Players') + '</button></div>';
     app.innerHTML = h;
     document.getElementById('allBtn').onclick = function () { allOpen = !allOpen; localStorage.setItem('fb_all', allOpen ? '1' : '0'); home(); };
+  }
+
+  function teamsView() {
+    var TD = window.FB_TEAMS;
+    if (!TD) { app.innerHTML = back(); return; }
+    var conf = ['AFC', 'NFC'], divs = ['East', 'North', 'South', 'West'];
+    var divKo = { East: '동부', North: '북부', South: '남부', West: '서부' };
+    function rec(x) { return x[7] + '-' + x[8] + (x[9] ? '-' + x[9] : ''); }
+    function pct(x) { var g = x[7] + x[8] + x[9]; return g ? (x[7] + x[9] / 2) / g : 0; }
+    function sorted(c, d) { return TD.teams.filter(function (x) { return x[5] === c && x[6] === d; }).sort(function (a, b) { return pct(b) - pct(a); }); }
+    var h = '<div class="card-box">' + back() +
+      '<h2 style="margin:10px 0 6px;color:var(--gold)">🏟️ ' + k('팀·선수 도감 (2026 시즌)', 'Teams & Players (2026 Season)') + '</h2>' +
+      '<p style="margin:0">' + k('NFL은 32개 팀이 AFC·NFC 두 리그(컨퍼런스)로 나뉘고, 각 리그는 동·북·남·서 4개 지구(디비전)로 나뉘어요. 팀 카드를 누르면 핵심 선수가 펼쳐져요!', 'The NFL has 32 teams split into two conferences (AFC & NFC), each with 4 divisions. Tap a team card to see its key players!') + '</p></div>';
+    h += '<div class="card-box"><h3 style="margin:0 0 4px;color:var(--gold)">📊 ' + k('현재 순위표', 'Current Standings') + '</h3>' +
+      '<p class="tm-note">' + esc(t(TD.asOf)) + '<br>' + k('W=승, L=패, T=무승부', 'W=Win, L=Loss, T=Tie') + '</p>';
+    conf.forEach(function (c) {
+      h += '<h4 class="tm-conf">' + c + '</h4><div class="tm-divgrid">';
+      divs.forEach(function (d) {
+        h += '<table class="tm-table"><caption>' + c + ' ' + k(divKo[d], d) + '</caption><thead><tr><th>' + k('팀', 'Team') + '</th><th>W</th><th>L</th><th>T</th></tr></thead><tbody>';
+        sorted(c, d).forEach(function (x) {
+          h += '<tr><td><a href="#teams" onclick="FB.openTeam(\'' + x[0] + '\');return false">' + esc(L === 'ko' ? x[2] : x[1]) + '</a></td><td><b>' + x[7] + '</b></td><td><b>' + x[8] + '</b></td><td><b>' + x[9] + '</b></td></tr>';
+        });
+        h += '</tbody></table>';
+      });
+      h += '</div>';
+    });
+    h += '<p class="tm-note">' + k('출처', 'Sources') + ': ' + esc(TD.sources) + '</p></div>';
+    conf.forEach(function (c) {
+      divs.forEach(function (d) {
+        h += '<h3 class="tm-divh">' + c + ' ' + k(divKo[d] + ' 지구', d) + '</h3><div class="tm-cards">';
+        sorted(c, d).forEach(function (x) {
+          h += '<div class="tm-card" id="tm-' + x[0] + '"><button class="tm-head" type="button" aria-expanded="false" onclick="FB.toggleTeam(\'' + x[0] + '\')">' +
+            '<span class="tm-name">' + esc(L === 'ko' ? x[2] : x[1]) + ' <span class="tm-sub">' + esc(L === 'ko' ? x[1] : x[2]) + '</span></span>' +
+            '<span class="tm-rec">' + rec(x) + '</span>' +
+            '<span class="tm-city">📍 ' + esc(L === 'ko' ? x[3] : x[4]) + '</span>' +
+            '<span class="tm-trait">' + esc(L === 'ko' ? x[10] : x[11]) + '</span>' +
+            '<span class="tm-more">' + k('▼ 핵심 선수 보기', '▼ Show key players') + '</span></button><div class="tm-players" hidden>';
+          x[12].forEach(function (p) {
+            var pos = TD.pos[p[2]];
+            h += '<div class="tm-player"><div class="tm-pname">' + esc(L === 'ko' ? p[0] : p[1]) + ' <span class="tm-sub">' + esc(L === 'ko' ? p[1] : p[0]) + '</span></div>' +
+              '<div class="tm-pos">' + esc(L === 'ko' ? pos[0] : pos[1]) + '</div>' +
+              '<div class="tm-feat">' + esc(L === 'ko' ? p[3] : p[4]) + '</div></div>';
+          });
+          h += '<p class="tm-note">' + k('2026년 10월 31일 ESPN 뎁스 차트 기준 (부상·트레이드로 바뀔 수 있어요)', 'Per ESPN depth charts, Oct 31, 2026 (may change with injuries/trades)') + '</p></div></div>';
+        });
+        h += '</div>';
+      });
+    });
+    app.innerHTML = h;
   }
 
   function bug() {
@@ -704,6 +755,18 @@
   }
 
   window.FB = {
+    toggleTeam: function (id) {
+      var c = document.getElementById('tm-' + id); if (!c) return;
+      var p = c.querySelector('.tm-players'), b = c.querySelector('.tm-head'), open = p.hidden;
+      p.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      c.querySelector('.tm-more').textContent = open ? k('▲ 접기', '▲ Hide players') : k('▼ 핵심 선수 보기', '▼ Show key players');
+      sfx('tap');
+    },
+    openTeam: function (id) {
+      var c = document.getElementById('tm-' + id); if (!c) return;
+      if (c.querySelector('.tm-players').hidden) FB.toggleTeam(id);
+      c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
     primerNext: function (d) {
       sfx('tap');
       primerIdx = Math.max(0, Math.min(D.primer.slides.length - 1, primerIdx + d));
