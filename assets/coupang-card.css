@@ -1,0 +1,7 @@
+/* 쿠팡 파트너스 본문 카드 (광고). 게임 화면이 아닌 안내 페이지에만 사용합니다. */
+.cpcard { width: 100%; max-width: 52rem; margin: 18px auto; text-align: left; }
+.cpcard-link { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(45,27,0,.25); border-radius: 12px; background: rgba(255,255,255,.7); color: inherit; font-size: 14px; line-height: 1.5; text-decoration: none; word-break: keep-all; }
+.cpcard-label { flex-shrink: 0; padding: 1px 6px; border: 1px solid rgba(45,27,0,.35); border-radius: 4px; font-size: 11px; }
+.cpcard-copy { flex: 1; min-width: 0; }
+.cpcard-btn { flex-shrink: 0; background: #e5322d; color: #fff; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.cpcard-note { margin: 6px 0 0; color: rgba(45,27,0,.6); font-size: 11px; line-height: 1.6; text-align: left; word-break: keep-all; }

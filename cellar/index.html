@@ -134,6 +134,7 @@ body.live .glow{animation:glowp 1.3s ease-in-out infinite}
 .disc{font-size:14px;color:var(--mute)}
 body{background:radial-gradient(ellipse at 50% 0%,#3a1420 0%,#160b10 60%) fixed}
 </style>
+  <link rel="stylesheet" href="/assets/coupang-card.css">
 </head>
 <body>
 <header class="top">
@@ -146,6 +147,16 @@ body{background:radial-gradient(ellipse at 50% 0%,#3a1420 0%,#160b10 60%) fixed}
 </header>
 <a class="xbar" href="/bar/">🍸 나두 바 아카데미(칵테일) 가기 → Nadoo Bar Academy</a>
 <main id="app"></main>
+
+<aside class="cpcard" aria-label="광고" data-coupang-card="">
+  <a class="cpcard-link" href="https://link.coupang.com/a/hsdzLh1vB6" target="_blank" rel="sponsored noopener">
+    <span class="cpcard-label">광고</span>
+    <span class="cpcard-copy">게임은 라운지에서, 필요한 물건은 쿠팡에서 찾아보세요</span>
+    <span class="cpcard-btn" aria-hidden="true">쿠팡에서 보기</span>
+  </a>
+  <p class="cpcard-note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+</aside>
+
 <div id="age"><div class="fan-card"><div class="fan-ic">🔞</div><div class="fan-big">만 19세 이상 성인 전용<br>Adults 19+ only</div><p class="muted">이 페이지는 주류(와인·위스키) 교육 콘텐츠입니다. 미성년자는 이용할 수 없어요. 과음은 건강을 해칩니다.<br>Alcohol education content for adults of legal drinking age.</p><button id="ageYes" class="btn primary wide" type="button">네, 19세 이상입니다 · I am 19+</button><a class="btn ghost wide" href="/">아니요 · No</a></div></div>
 <div id="fanfare" hidden></div>
 <div id="toast" hidden role="status"></div>
