@@ -127,6 +127,7 @@ body.live .glow{animation:glowp 1.3s ease-in-out infinite}
 #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:#1b2838f5;border:1px solid var(--amber);color:var(--text);padding:10px 18px;border-radius:24px;font-size:16px;box-shadow:0 8px 24px #000a;max-width:90vw;text-align:center}
 .safety-banner{font-size:16px;color:var(--mute);background:#0a1017;border:1px dashed rgba(255,166,43,.45);border-radius:12px;padding:11px 14px;margin:14px 0;line-height:1.5}
 </style>
+  <link rel="stylesheet" href="/assets/coupang-card.css">
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -139,6 +140,16 @@ body.live .glow{animation:glowp 1.3s ease-in-out infinite}
   <button id="muteBtn" class="btn ghost small" type="button" aria-label="음악">🔊</button>
 </header>
 <main id="app"></main>
+
+<aside class="cpcard" aria-label="광고" data-coupang-card="">
+  <a class="cpcard-link" href="https://link.coupang.com/a/hsdzLh1vB6" target="_blank" rel="sponsored noopener">
+    <span class="cpcard-label">광고</span>
+    <span class="cpcard-copy">게임은 라운지에서, 필요한 물건은 쿠팡에서 찾아보세요</span>
+    <span class="cpcard-btn" aria-hidden="true">쿠팡에서 보기</span>
+  </a>
+  <p class="cpcard-note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+</aside>
+
 <div id="fanfare" hidden></div>
 <div id="toast" hidden role="status"></div>
 <script>
